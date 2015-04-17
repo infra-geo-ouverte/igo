@@ -1,4 +1,4 @@
-# VERSION BËTA
+# VERSION BÊTA
 
 # Infrastructure Géomatique Ouverte (IGO) / Open GIS Infrastructure
 ### Qu'est-ce qu'IGO ?
@@ -20,9 +20,9 @@ All contributors in the project will keep their property rights on the project.
 * Détermination de parcours : Open Source Routing Machine
 * Gestion des métadonnées : GeoNetwork et PostgreSQL
 * Localisation : Service web, Rest et SOAP
-* IGO avec façade XML (API) on top of JavaScript & Phalcon
+* IGO avec façade XML (API) s'appuyant sur : JavaScript & Phalcon
 * Dépendence d'IGO à OpenLayers 2, GeoExt et UMN MapServer
-* IGO est basé sur le Modèle-Vue-Contrôleur
+* IGO avec façade XML (API) est basé sur le Modèle-Vue-Contrôleur
 * Adapté au changement de librairies externes (ex. OpenLayers 3, Leaflet).
 
 ***
