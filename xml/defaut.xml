@@ -1,0 +1,40 @@
+<navigateur authentification="true" titre="IGO">
+    <presentation>
+           <panneaux>
+                <panneau classe="PanneauCarte"  />
+                <panneau classe="PanneauInfo" />
+                <panneau classe="PanneauMenu" ouvert="true" >
+                    <element-accordeon classe="Arborescence" ouvert="true"/>
+                </panneau>
+            </panneaux>
+         <outils>
+            <groupe-outils>
+                <outil classe="OutilZoomEtendueMaximale"/>
+                <outil classe="OutilZoomRectangle" type="avant"/>
+                <outil classe="OutilZoomRectangle" type="arriere"/>
+                <outil classe="OutilDeplacement"/>
+            </groupe-outils>
+            <groupe-outils>
+                <outil classe="OutilHistoriqueNavigation" type="precedent"/>
+                <outil classe="OutilHistoriqueNavigation" type="suivant"/>
+            </groupe-outils>
+            <groupe-outils>
+                <outil classe="OutilMesure" type="lineaire"/>
+                <outil classe="OutilMesure" type="surface"/>
+            </groupe-outils>
+            <groupe-outils>
+                <outil classe="OutilInfo" />
+            </groupe-outils>
+            <groupe-outils visible="true">
+                <outil classe="OutilAide"/>
+            </groupe-outils>
+            <groupe-outils position="droite">
+                <outil classe="OutilProfil"/>
+            </groupe-outils>
+        </outils>
+    </presentation>
+    <contexte centre="-7994004,6034079" zoom="7"> </contexte>
+    <couches>
+        <couche titre="OpenStreetMap" protocole="OSM" groupe="Fond de carte"/> 
+    </couches>
+</navigateur>

@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>GeoExt Legend Tree</title>
+        
+
+        <script type="text/javascript" src="../../../../ext/adapter/ext/ext-base.js"></script>
+        <script type="text/javascript" src="../../../../ext/ext-all.js"></script>
+        <link rel="stylesheet" type="text/css" href="../../../../ext/resources/css/ext-all.css" />
+        <link rel="stylesheet" type="text/css" href="../../../../ext/examples/shared/examples.css" />
+
+        <!-- Google Maps API for "localhost" -->
+        <!--script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAjpkAC9ePGem0lIq5XcMiuhR_wWLPFku8Ix9i2SXYRVK3e45q1BQUd_beF8dtzKET_EteAjPdGDwqpQ'></script-->
+        <!-- Google Maps API for "dev.geoext.org" -->
+        <script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA_5ak-hsiH4j5bQQn7-k66xTWxvN8zH6Ta_pgIhhU0TB7bG8iAhS99ituPif4lG-2CHXoZ3qenLnK1g'></script>
+
+        <script type="text/javascript" src="../../../../openlayers/lib/OpenLayers.js"></script>
+        <script type="text/javascript" src="../../../../geoext/lib/GeoExt.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="../resources/css/LayerTreeBuilder.css" />
+        <script type="text/javascript" src="../lib/GeoExt.ux/LayerTreeBuilder.js"></script>
+
+        <script type="text/javascript" src="../resources/lang/fr.js"></script>
+        <script type="text/javascript" src="tree-builder.js"></script>
+    </head>
+    <body>
+        <div id="desc">
+            <h1>GeoExt Tree Builder</h1>
+
+            <p></p>
+
+            <p>The js is not minified so it is readable. See
+            <a href="tree-builder.js">tree-builder.js</a>.</p>
+
+            <p>See also the source code of the widget 
+            <a href="../lib/GeoExt.ux/widgets/tree/LayerTreeBuilder.js">
+            ../lib/GeoExt.ux/widgets/tree/LayerTreeBuilder.js</a>.</p>
+
+            <p>
+              The widget is not fully completed.  There should be support to
+              automatically add LayerParamNode objects when a WMS layer with
+              more than one layers in its param property is set.
+            </p>
+            <p>
+              Nodes are automatically created with the 'group' layer property.
+              It also supports 'hideInLegend' property to set the according
+              layer record property.
+            </p>
+        </div>
+    </body>
+</html>

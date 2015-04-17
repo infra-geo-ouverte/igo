@@ -1,0 +1,108 @@
+	body
+	{
+		margin-top: 30px;
+		margin-left: 20px;
+		margin-right: 20px;
+		padding:0px;
+		background: #ffffff;
+		color: #000;
+		font: 12px/normal 'Lucida Grande','Lucida Sans',Arial,sans-serif;
+	}
+	#main
+	{
+		clear: both;
+		background-color: #eeeeee;
+		-moz-border-radius: 10px;
+		border: 1px solid #bbbbbb;
+		-webkit-border-radius: 10px;
+		border-radius: 8px;
+		padding: 5px;
+		margin-top: 10px;
+		overflow: auto;
+	}
+
+	#content_login
+	{
+		width: 50%;
+		min-width: 400px;
+		margin: 0px auto;
+		text-align:left;
+		padding:0px;
+		background-color: white;
+		position: relative;
+	}
+
+	#login-content {
+		background-color: #FFFFFF;
+		width: 340px;
+		text-align: center;
+		padding: 14px;
+		margin: 0px auto;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		border-radius: 10px;
+	}
+	#login-title {
+		text-align: center;
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+	.login_label {
+		width: 100px;
+		float: left;
+		padding: 8px;
+		padding-bottom: 5px\9;
+	}
+
+	.login_input {
+		width: 200px;
+		float: right;
+		background: #fff;
+		border: solid 1px black;
+		color: #555;
+		padding: 8px;
+		font-size: 13px;
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		border-radius: 4px;
+	}
+
+	.login_button {
+		padding: 6px 10px;
+		color: #fff;
+		font-size: 14px;
+		background-color: #0C97F2;
+		text-shadow: #050505 0 -1px 0;
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		border-radius: 4px;
+		border: solid 1px transparent;
+		font-weight: bold;
+		cursor: pointer;
+		letter-spacing: 1px;
+		text-align: center;
+		margin: 0px auto;
+	}
+
+	.login_button:hover {
+		background-color: #4AAEF0;
+		text-shadow: #050505 0 -1px 2px;
+		color: #fff;
+	}
+
+	.login_error {
+		padding: 8px;
+		background: #C70032;
+		-moz-border-radius: 8px;
+		-webkit-border-radius: 8px;
+		border-radius: 8px;
+		border: solid 1px transparent;
+		margin: 6px 0;
+		color: white;
+		font-weight: bold;
+		text-shadow: #050505 0 -1px 0;
+	}
+	
+	.login_error a{
+		color:#fff;
+	}

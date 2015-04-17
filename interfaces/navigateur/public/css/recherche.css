@@ -1,0 +1,25 @@
+.styleEpingle {
+    float: right;
+    width: 157px;
+}
+
+.rechercheResultatsListe {
+    cursor: pointer;
+}
+
+.rechercheResultatsListeDescription {
+    color: black;
+}
+
+.rechercheResultatsListe:hover,
+#suivantRecherche:hover,
+#precedentRecherche:hover{
+    opacity: 0.7; 
+}
+
+#suivantRecherche, 
+#precedentRecherche {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+}

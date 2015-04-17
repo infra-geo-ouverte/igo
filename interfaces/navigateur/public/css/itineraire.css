@@ -1,0 +1,142 @@
+#routing {
+    padding: 10px;
+    max-height: 98%;
+    overflow-y: auto;
+    background-color: #dfe8f6;
+}
+
+#routing div{
+    margin: 5px 0;
+}
+
+#itineraire {
+    padding: 10px;
+    background-clip: padding-box;
+    background-color: #FFFFFF;
+    border: 5px solid rgba(180, 180, 180, 0.5);
+    border-radius: 20px 20px 20px 20px;
+    display: none;
+    font-size: 10px;
+}
+
+#resultatRecherche {
+    padding: 10px;
+    background-clip: padding-box;
+    background-color: #FFFFFF;
+    border: 5px solid rgba(180, 180, 180, 0.5);
+    border-radius: 20px 20px 20px 20px;
+    display: none;
+    font-size: 10px;
+}
+
+#trouverItineraire {
+    left: 50px;
+    margin: 5px 0px;
+    position: relative;
+}
+
+#depart input{
+    position: relative;
+    left: 4px;
+}
+
+#inverserItineraire {
+    font-family: Arial;
+    font-size: small;
+    position: relative;
+    left: 25px;
+}
+
+#rechercheType select{
+    position: relative;
+    left: 20px;
+}
+
+#reinitialiserItineraire {
+    margin: 5px 0px;
+    position: relative;
+}
+
+#resume div{
+    padding: 4px;
+}
+
+#myTable,
+#resultatRecherche table {
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#myTable td,
+#resultatRecherche table td {
+    border-bottom: 1px solid #D4D3D2;
+    padding: 3px 5px;
+    vertical-align: top;
+}
+
+
+#impressionItineraire #myTable td {
+    padding: 8px 5px !important;
+}
+
+#itineraire .directive {
+	cursor: pointer;
+        padding-left: 0px;
+}
+
+#itineraire .directive:hover {
+	color: blue;
+}
+
+
+/*
+#myTable tr:hover {
+    background-color: #f2f266;
+}
+
+#myTable tr:first-child {
+    background-color: #229922;
+}
+#myTable tr:last-child {
+    background-color: #d55537;
+}*/
+
+
+button {
+	cursor: pointer;
+}
+
+#resume .button-pressed {
+    background-color: #aaa;
+    color: #000;
+}
+
+#resume .button-notPressed {
+    background-color: #eee;
+    color: #333;
+}
+
+#resume .button {
+    border-radius: 5px;
+    border: 1px solid #999;
+    cursor: pointer;
+    font-size: 9px;
+    text-align: center;
+    width: 20px;
+    float: right;
+}
+
+#resume .button-notPressed:hover {
+    background-color: #f9f9f9;
+    color: #000;
+}
+
+#resume .button-notPressed:active {
+    background-color: #aaa;
+    color: #000;
+}
+
+#myTable .instructionImage {
+    height: 18px;
+    width: 18px;
+}

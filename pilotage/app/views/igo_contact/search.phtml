@@ -1,0 +1,40 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Contacts")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="id">Id</th>
+            <th>Organisme responsable</th>
+            <th><?php echo $this->tag->linkTo("igo_contact/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?>, Prenom</th>
+            <th>Poste</th>
+            <th>Téléphone</th>
+            <th>Courriel</th>
+            <th>Membre ACRIgéo</th>
+            <th>Remarque</th>
+            <th>Date modifié</th>
+            <th class="editer"></th>
+            <th class="detruire"></th>   
+         </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_contact) { ?>
+        <tr>
+            <td><?php echo $igo_contact->id ?></td>
+            <td><?php if ($igo_contact->IgoOrganismeResponsable) { echo $igo_contact->IgoOrganismeResponsable->nom;} ?></td>
+            <td><?php echo $igo_contact->nom ?>, <?php echo $igo_contact->prenom ?></td>
+            <td><?php echo $igo_contact->poste ?></td>
+            <td><?php echo $igo_contact->no_telephone ?></td>
+            <td><?php echo $igo_contact->courriel ?></td>    
+            <td><?php if($igo_contact->est_membre_acrigeo){echo '<span class="glyphicon glyphicon-ok color-green"></span>';}?></td>        
+            <td><?php echo $igo_contact->remarque ?></td>
+            <td><?php echo $igo_contact->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_contact/edit/" . $igo_contact->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_contact/delete/" . $igo_contact->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

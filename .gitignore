@@ -1,0 +1,5 @@
+*.pyc
+*/cache/
+*/nbproject/
+librairie/
+config/config.php

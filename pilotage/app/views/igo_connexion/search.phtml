@@ -1,0 +1,32 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Connexions")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id">Id</th>
+            <th><?php echo $this->tag->linkTo("igo_connexion/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="connexion">Connexion</th>
+            <th>Type</th>
+            <th><?php echo $this->tag->linkTo("igo_connexion/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="editer"></th>
+            <th class="detruire"></th>    
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_connexion) { ?>
+        <tr>
+            <td><?php echo $igo_connexion->id ?></td>
+            <td><?php echo $igo_connexion->nom ?></td>
+            <td><pre><?php echo $igo_connexion->connexion;?></pre></td>
+            <td><?php if ($igo_connexion->IgoConnexionType) { echo $igo_connexion->IgoConnexionType->nom;} ?></td>
+            <td><?php echo $igo_connexion->date_modif ?></td>
+            <td><?php echo $this->tag->linkTo(array("igo_connexion/edit/" . $igo_connexion->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->tag->linkTo(array("igo_connexion/delete/" . $igo_connexion->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

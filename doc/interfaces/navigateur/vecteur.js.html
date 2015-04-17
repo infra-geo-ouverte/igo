@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Navigateur Source: couche/protocole/vecteur.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top navbar-inverse">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">Navigateur</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="module-aide.html">aide</a>
+						</li>
+						
+						<li>
+							<a href="module-arborescence.html">arborescence</a>
+						</li>
+						
+						<li>
+							<a href="module-barreOutils.html">barreOutils</a>
+						</li>
+						
+						<li>
+							<a href="module-Blanc.html">Blanc</a>
+						</li>
+						
+						<li>
+							<a href="module-carte.html">carte</a>
+						</li>
+						
+						<li>
+							<a href="module-couche.html">couche</a>
+						</li>
+						
+						<li>
+							<a href="module-evenement.html">evenement</a>
+						</li>
+						
+						<li>
+							<a href="module-gestionCouches.html">gestionCouches</a>
+						</li>
+						
+						<li>
+							<a href="module-google.html">google</a>
+						</li>
+						
+						<li>
+							<a href="module-impression.html">impression</a>
+						</li>
+						
+						<li>
+							<a href="module-ligne.html">ligne</a>
+						</li>
+						
+						<li>
+							<a href="module-limites.html">limites</a>
+						</li>
+						
+						<li>
+							<a href="module-localisation.html">localisation</a>
+						</li>
+						
+						<li>
+							<a href="module-marqueurs.html">marqueurs</a>
+						</li>
+						
+						<li>
+							<a href="module-navigateur.html">navigateur</a>
+						</li>
+						
+						<li>
+							<a href="module-occurence.html">occurence</a>
+						</li>
+						
+						<li>
+							<a href="module-osm.html">osm</a>
+						</li>
+						
+						<li>
+							<a href="module-outil.html">outil</a>
+						</li>
+						
+						<li>
+							<a href="module-outilAide.html">outilAide</a>
+						</li>
+						
+						<li>
+							<a href="module-outilMenu.html">outilMenu</a>
+						</li>
+						
+						<li>
+							<a href="module-panneau.html">panneau</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauAccordeon.html">panneauAccordeon</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauCarte.html">panneauCarte</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauEntete.html">panneauEntete</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauInfo.html">panneauInfo</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauMenu.html">panneauMenu</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauOnglet.html">panneauOnglet</a>
+						</li>
+						
+						<li>
+							<a href="module-point.html">point</a>
+						</li>
+						
+						<li>
+							<a href="module-polygone.html">polygone</a>
+						</li>
+						
+						<li>
+							<a href="module-recherche.html">recherche</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheAdresse.html">rechercheAdresse</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheBorne.html">rechercheBorne</a>
+						</li>
+						
+						<li>
+							<a href="module-RechercheCadastreReno.html">RechercheCadastreReno</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheGPS.html">rechercheGPS</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheHQ.html">rechercheHQ</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheLieu.html">rechercheLieu</a>
+						</li>
+						
+						<li>
+							<a href="module-requireAide.html">requireAide</a>
+						</li>
+						
+						<li>
+							<a href="module-style.html">style</a>
+						</li>
+						
+						<li>
+							<a href="module-tms.html">tms</a>
+						</li>
+						
+						<li>
+							<a href="module-vecteur.html">vecteur</a>
+						</li>
+						
+						<li>
+							<a href="module-wms.html">wms</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="BarreOutils.html">BarreOutils</a>
+						</li>
+						
+						<li>
+							<a href="Carte.html">Carte</a>
+						</li>
+						
+						<li>
+							<a href="Couche.html">Couche</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Blanc.html">Couche.Blanc</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Google.html">Couche.Google</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Marqueurs.html">Couche.Marqueurs</a>
+						</li>
+						
+						<li>
+							<a href="Couche.OSM.html">Couche.OSM</a>
+						</li>
+						
+						<li>
+							<a href="Couche.TMS.html">Couche.TMS</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html">Couche.Vecteur</a>
+						</li>
+						
+						<li>
+							<a href="Couche.WMS.html">Couche.WMS</a>
+						</li>
+						
+						<li>
+							<a href="Evenement.html">Evenement</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Ligne.html">Geometrie.Ligne</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Limites.html">Geometrie.Limites</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Occurence.html">Geometrie.Occurence</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Point.html">Geometrie.Point</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Polygone.html">Geometrie.Polygone</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Style.html">Geometrie.Style</a>
+						</li>
+						
+						<li>
+							<a href="GestionCouches.html">GestionCouches</a>
+						</li>
+						
+						<li>
+							<a href="Navigateur.html">Navigateur</a>
+						</li>
+						
+						<li>
+							<a href="Outil.html">Outil</a>
+						</li>
+						
+						<li>
+							<a href="Outil.OutilAide.html">Outil.OutilAide</a>
+						</li>
+						
+						<li>
+							<a href="OutilMenu.html">OutilMenu</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.html">Panneau</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Arborescence.html">Panneau.Arborescence</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Impression.html">Panneau.Impression</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Localisation.html">Panneau.Localisation</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauAccordeon.html">Panneau.PanneauAccordeon</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauAccordeon.PanneauMenu.html">Panneau.PanneauAccordeon.PanneauMenu</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauCarte.html">Panneau.PanneauCarte</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauEntete.html">Panneau.PanneauEntete</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauInfo.html">Panneau.PanneauInfo</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauOnglet.html">Panneau.PanneauOnglet</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Recherche.html">Panneau.Recherche</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheAdresse.html">Panneau.RechercheAdresse</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheBorne.html">Panneau.RechercheBorne</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheCadastreReno.html">Panneau.RechercheCadastreReno</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheGPS.html">Panneau.RechercheGPS</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheHQ.html">Panneau.RechercheHQ</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheLieu.html">Panneau.RechercheLieu</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="mixins.list.html" class="dropdown-toggle" data-toggle="dropdown">Mixins<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="helper.Aide.html">Aide</a>
+						</li>
+						
+						<li>
+							<a href="helper.require.html">require</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:ajouterOccurence">ajouterOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:deselectionnerOccurence">deselectionnerOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:deselectionnerTout">deselectionnerTout</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:enleverOccurence">enleverOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:selectionnerOccurence">selectionnerOccurence</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: couche/protocole/vecteur.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/** 
+ * Module pour l'objet {@link Couche.Vecteur}.
+ * @module vecteur
+ * @requires couche 
+ * @requires occurence 
+ * @requires limites 
+ * @author Marc-André Barbeau, MSP
+ * @version 1.0
+ */
+
+define(['couche', 'occurence', 'limites', 'style'], function(Couche, Occurence, Limites, Style) {
+    /** 
+     * Création de l'object Couche.Vecteur.
+     * Pour la liste complète des paramètres, voir {@link Couche}
+     * @constructor
+     * @name Couche.Vecteur
+     * @class Couche.Vecteur
+     * @alias vecteur:Couche.Vecteur
+     * @extends Couche
+     * @requires vecteur
+     * @returns {Couche.Vecteur} Instance de {@link Couche.Vecteur}
+     * @param {String} [options.titre="vector"] Titre de la couche
+     * @param {Dictionnaire} [options.styles] Styles des occurences.
+     * @property {tableau} listeOccurences Tableau des {@link Geometrie.Occurence} de la couche
+     * @property {Dictionnaire} styles Dictionnaire de {@link Geometrie.Style} de la couche
+    */
+    function Vecteur(options){
+        this.options = options || {};
+        this._init();
+        this.listeOccurences = [];
+        this.styles={};
+        var styles = this.options.styles || new Style();
+        this.definirStyles(styles);
+    };
+    
+    Vecteur.prototype = new Couche();
+    Vecteur.prototype.constructor = Vecteur;
+    
+    /** 
+     * Initialisation de l'object Couche.Vecteur.
+     * Appelé lors de la création.
+     * @method 
+     * @private
+     * @name Couche.Vecteur#_init
+    */
+    Vecteur.prototype._init = function(){
+        Couche.prototype._init.call(this);
+        var titre = this.options.titre || "vecteur";
+        this._layer = new OpenLayers.Layer.Vector(
+            titre,
+            this._optionsOL
+        );
+    };
+    
+    /** 
+    * Obtenir la liste des occurences.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurences
+    * @returns {Tableau} Tableau de {@link Geometrie.Occurence}
+    */
+    Vecteur.prototype.obtenirOccurences = function() { 
+        return this.listeOccurences;
+    };
+    
+   /* Vecteur.prototype.obtenirOccurenceParNom = function() { 
+
+    };*/
+
+    /** 
+    * Selectionner une occurence de la couche 
+    * @method 
+    * @name Couche.Vecteur#selectionnerOccurence
+    * @param {Geometrie.Occurence} occurence L'occurence à sélectionner
+    * @fires Couche.Vecteur#selectionnerOccurence
+    */
+    Vecteur.prototype.selectionnerOccurence = function(occurence) { 
+        if (!occurence || !occurence._vector){return;};
+        if (!this._selectFeatureControl){
+            this._selectFeatureControl = new OpenLayers.Control.SelectFeature(this._layer);
+            this._selectFeatureControl.setMap(this.carte._getCarte());
+            this._selectFeatureControl.activate();
+        };
+        this._selectFeatureControl.select(occurence._vector);
+        occurence.selected=true;
+        /**
+        * Événement selectionnerOccurence.
+        * @event Couche.Vecteur#selectionnerOccurence
+        * @type {object}
+        * @property {Geometrie.Occurence} occurence L'occurence sélectionnée
+        */
+        this.declencher({ type: "selectionnerOccurence", occurence: occurence }); 
+    };
+    
+    /** 
+    * Obtenir la liste des occurences sélectionnées.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurencesSelectionnees
+    * @returns {Tableau} Tableau de {@link Geometrie.Occurence}
+    */
+    Vecteur.prototype.obtenirOccurencesSelectionnees = function() { 
+        var occurences=[];
+        $.each(this.obtenirOccurences(), function(key, value){
+            if(value.selected){
+                occurences.push(value);
+            };
+        });
+        return occurences;
+    };
+    
+    /** 
+    * Obtenir l'occurence ayant l'id entré en paramètre.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurenceParId
+    * @returns {Geometrie.Occurence} Occurence ayant l'identifiant voulu.
+    */
+    Vecteur.prototype.obtenirOccurenceParId = function(id) { 
+        var occurence;
+        $.each(this.obtenirOccurences(), function(key, value){
+            if(value.id===id){
+                occurence = value;
+                return false;
+            };
+        });
+        return occurence;
+    };
+    
+    /** 
+    * Déselectionner une occurence de la couche 
+    * @method 
+    * @name Couche.Vecteur#deselectionnerOccurence
+    * @param {Geometrie.Occurence} occurence L'occurence à désélectionner
+    * @fires Couche.Vecteur#deselectionnerOccurence
+    */
+    Vecteur.prototype.deselectionnerOccurence = function(occurence) { 
+        if (!occurence || !occurence._vector){return;};
+        if (this._selectFeatureControl){
+            this._selectFeatureControl.unselect(occurence._vector);
+            occurence.selected=false;
+        };
+        /**
+        * Événement deselectionnerOccurence.
+        * @event Couche.Vecteur#deselectionnerOccurence
+        * @type {object}
+        * @property {Geometrie.Occurence} occurence L'occurence désélectionnée
+        */
+        this.declencher({ type: "deselectionnerOccurence", occurence: occurence }); 
+    };
+    
+    /** 
+    * Déselectionner toutes les occurences de la couche
+    * @method 
+    * @name Couche.Vecteur#deselectionnerTout
+    * @fires Couche.Vecteur#deselectionnerTout
+    */
+    Vecteur.prototype.deselectionnerTout = function() { 
+        if (this._selectFeatureControl){
+            this._selectFeatureControl.unselectAll();
+        };
+        $.each(this.obtenirOccurences(), function(key, value){
+            value.selected = false;
+        });
+        /**
+        * Événement deselectionnerTout.
+        * @event Couche.Vecteur#deselectionnerTout
+        * @type {object}
+        */
+        this.declencher({ type: "deselectionnerTout"}); 
+    };
+    
+    /** 
+    * Créer une occurence et l'ajouter à la couche.
+    * Appel de la fonction {@link Geometrie.Occurence}
+    * Appel de la fonction {@link Couche.Vector#ajouterOccurence}
+    * @method 
+    * @name Couche.Vecteur#creerOccurence
+    * @param {Geometrie.Point|Geometrie.Ligne|Geometrie.Polygone} geometrie La géométrie à créer et à ajouter
+    * @exception Vérification de la création de l'occurence.
+    */
+    Vecteur.prototype.creerOccurence = function(geometrie) {   
+        //todo: throw error si pas geometrie...
+        if (geometrie instanceof Occurence){
+            this.ajouterOccurence(geometrie);
+            return;
+        }
+        var occurence = new Occurence(geometrie);
+ 
+        this.ajouterOccurence(occurence);
+    };
+    
+    /** 
+    * Ajouter une occurence à la couche 
+    * @method 
+    * @name Couche.Vecteur#ajouterOccurence
+    * @param {Geometrie.Occurence} occurence L'occurence à ajouter
+    * @exception Vérification du type de l'intrant.
+    * @fires Couche.Vecteur#ajouterOccurence
+    */
+    Vecteur.prototype.ajouterOccurence = function(occurence) {
+        if (occurence instanceof Occurence === false){
+            this.creerOccurence(occurence);
+            return;
+            //throw new Error("L'intrant n'est pas une occurence. Utiliser creerOccurence(geom).");
+        } 
+        
+        //avant
+       // this.declencher({ type: "ajouterOccurence", occurence: occurence }); 
+        occurence.vecteur=this;
+        this.listeOccurences.push(occurence);
+        this._layer.addFeatures(occurence._vector);
+
+        /**
+        * Événement ajouterOccurence. Événement lancée avant et après.
+        * @event Couche.Vecteur#ajouterOccurence
+        * @type {object}
+        * @property {Geometrie.Occurence} occurence L'occurence ajoutée
+        */
+        this.declencher({ type: "ajouterOccurence", occurence: occurence }); 
+    };
+    
+    /** 
+    * Ajouter un tableau d'occurences à la couche 
+    * @method 
+    * @name Couche.Vecteur#ajouterOccurences
+    * @param Array {Geometrie.Occurences} tableau d'occurence à ajouter
+    */
+    Vecteur.prototype.ajouterOccurences = function(occurences) {
+        
+        var that = this;
+        
+        $.each(occurences, function(key, value){
+               that.ajouterOccurence(value); 
+        });
+    };
+    
+    /** 
+    * Enlever une occurence à la couche 
+    * @method 
+    * @name Couche.Vecteur#enleverOccurence
+    * @param {Geometrie.Occurence} occurence L'occurence à enlever
+    * @fires Couche.Vecteur#enleverOccurence
+    */
+    Vecteur.prototype.enleverOccurence = function(occurence) { 
+        var idx = this.listeOccurences.indexOf(occurence);
+        if (idx !== -1) {
+            this.listeOccurences.splice(idx, 1);
+            this._layer.removeFeatures(occurence._vector);
+        }
+        /**
+        * Événement enleverOccurence.
+        * @event Couche.Vecteur#enleverOccurence
+        * @type {object}
+        * @property {Geometrie.Occurence} occurence L'occurence à retirer
+        */
+        this.declencher({ type: "enleverOccurence", occurence: occurence }); 
+    };
+
+    /** 
+    * Enlever toutes les occurences de la couche
+    * @method 
+    * @name Couche.Vecteur#enleverTout
+    * @fires Couche.Vecteur#enleverTout
+    */
+    Vecteur.prototype.enleverTout = function() { 
+        this.listeOccurences=[];
+        this._layer.removeAllFeatures();
+        /**
+        * Événement enleverOccurence.
+        * @event Couche.Vecteur#enleverOccurence
+        * @type {object}
+        * @property {Geometrie.Occurence} occurence L'occurence à retirer
+        */
+        this.declencher({ type: "enleverTout"}); 
+    };
+    
+    /** 
+    * Zoomer sur l'emprise de toutes les occurences de la couche
+    * @method 
+    * @name Couche.Vecteur#zoomerOccurences
+    */
+    Vecteur.prototype.zoomerOccurences = function() {  
+        var limitesOL = this._layer.getDataExtent();
+        var limites = new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
+        this.carte.zoomer(limites);
+    };
+
+    /** 
+    * Zoomer sur une occurence
+    * @method 
+    * @name Couche.Vecteur#zoomerOccurence
+    * @param {Geometrie.Occurence} occurence L'occurence sur laquelle zoomer.
+    */
+    Vecteur.prototype.zoomerOccurence = function(occurence) { 
+        this.carte.zoomer(occurence.obtenirLimites());
+        
+        this.declencher({ type: "zoomerOccurence", occurence: occurence }); 
+    };
+    
+    
+    /** 
+    * Obtenir les styles pour les occurences de la couche vecteur
+    * @method 
+    * @name Couche.Vecteur#obtenirStyles
+    * @returns {Tableau} Tableau de {@link Geometrie.Style}
+    */
+    Vecteur.prototype.obtenirStyles = function() { 
+        return this.styles;
+    };
+    
+    /** 
+    * Changer les styles pour les occurences de la couche vecteur
+    * @method 
+    * @param {Tableau} styles Tableau de {@link Geometrie.Style}
+    * @name Couche.Vecteur#definirStyles
+    */
+    Vecteur.prototype.definirStyles = function(styles) { 
+        if (styles){
+            if (!styles.obtenirTypeClasse || styles.obtenirTypeClasse() !== 'Style'){
+                var styleMap={};
+                if(styles.defaut){
+                    this.styles.defaut = styles.defaut.cloner();
+                    this.styles.defaut.parent = this;
+                    this.styles.defaut.regle='defaut';
+                    styleMap['default'] = this.styles.defaut._getStyleOL();
+                }
+                if(this.styles.select){
+                    this.styles.select = styles.select.cloner();
+                    this.styles.select.parent = this;
+                    this.styles.select.regle='select';
+                    styleMap['select'] = this.styles.select._getStyleOL();
+                }
+                this._optionsOL.styleMap = new OpenLayers.StyleMap(styleMap);
+
+                if(this._layer){
+                    this._layer.styleMap = this._optionsOL.styleMap;
+                    this.rafraichir();
+                }
+            } else {
+                this.definirStyle(styles, 'defaut');
+            }
+        }
+    };
+    
+    /** 
+    * Obtenir le style par défaut ou lors de la sélection.
+    * @method 
+    * @name Couche.Vecteur#obtenirStyle
+    * @param {String} [regle='defaut'] Style à obtenir (defaut | select)
+    * @returns {Geometrie.Style} Occurence de {@link Geometrie.Style}
+    */
+    Vecteur.prototype.obtenirStyle = function(regle) { 
+        if (!regle){
+            return this.styles.defaut;
+        };
+        return this.styles[regle];
+    };
+    
+    /** 
+    * Changer le style d'une règle pour les occurences de la couche vecteur
+    * @method 
+    * @param {Geometrie.Style} style Occurence de {@link Geometrie.Style}
+    * @param {String} [regle='defaut'] Style à obtenir (defaut | select)
+    * @name Couche.Vecteur#definirStyle
+    */
+    Vecteur.prototype.definirStyle = function(style, regle) { 
+        if (!regle){
+            regle = 'defaut';
+        };
+        this.styles[regle]=style.cloner();
+        this.styles[regle].parent=this;
+        this.styles[regle].regle=regle;
+        
+        if (this.styles){
+            if (this._optionsOL.styleMap){
+                if(regle==='defaut'){
+                    this._optionsOL.styleMap.styles['default'] = this.styles.defaut._getStyleOL();
+                } else if(regle==='select'){
+                    this._optionsOL.styleMap.styles.select = this.styles.select._getStyleOL();
+                }
+                if(this._layer){
+                    this._layer.styleMap = this._optionsOL.styleMap;
+                    this.rafraichir();
+                }
+            } else {
+                this.definirStyles(this.styles);
+            }
+        }       
+    };
+    
+    /** 
+    * Redessiner les occurences de la couche
+    * @method 
+    * @name Couche.Vecteur#rafraichir
+    */
+    Vecteur.prototype.rafraichir = function() { 
+        this._layer.redraw();
+    };
+    
+    return Vecteur;
+    
+});</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		Navigateur Copyright © 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a>
+		on Wed Jun 18 2014 14:09:12 GMT-0400 (EDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+			    anchorName  : function(i, heading, prefix) {
+					return $(heading).attr("id") || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+
+</body>
+</html>

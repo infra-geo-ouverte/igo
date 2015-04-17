@@ -1,0 +1,33 @@
+<?php use Phalcon\Tag; ?>
+
+<?php $this->partial("commun/titre", array("titre" =>"Catalogues CSW")) ?>
+
+<?php echo $this->getContent(); ?>
+
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id">Id</th>
+            <th>URL</th>
+            <th>Date modifié</th>
+            <th class="editer"></th>
+            <th class="detruire"></th>   
+            <th class="get-records"></th>   
+         </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_catalogue_csw) { ?>
+        <tr>
+            <td><?php echo $igo_catalogue_csw->id ?></td>
+            <td><?php echo $igo_catalogue_csw->url ?></td>
+            <td><?php echo $igo_catalogue_csw->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_catalogue_csw/edit/" . $igo_catalogue_csw->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_catalogue_csw/delete/" . $igo_catalogue_csw->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td><a href="http://<?php echo $igo_catalogue_csw->url;?>?REQUEST=GetRecords&SERVICE=CSW&VERSION=2.0.2&CONSTRAINTLANGUAGE=FILTER&CONSTRAINT_LANGUAGE_VERSION=1.1.0&RESULTTYPE=results&TYPENAMES=csw:Record">GetRecords</a></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

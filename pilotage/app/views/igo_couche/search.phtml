@@ -1,0 +1,67 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Couches")) ?>
+
+<div class="row">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-left">
+        <?php echo $this->tag->linkTo(array($controller."/index"."/".$r_controller."/".$action."/".$parameters, "<button type='button' class='btn btn-default glyphicon glyphicon-search'><span>Rechercher</span></button>")); ?>
+    </div>
+    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+        <?php 
+            if (isset($criteres)){
+            echo "Critères : ".$this->escaper->escapeHtml(str_replace("%","",$criteres)). "<br>".$this->tag->linkTo($controller."/searchAll", "<button type='button' class='btn btn-default glyphicon glyphicon-search'> <span>Rechercher tout</span></button>");
+            }
+        ?>
+    </div>
+    <div class="col-lg-2 col-md- col-sm-2 col-xs-2 text-right">
+    	<?php //echo $this->igo_tag->createButton(array($controller."/new"."/".$r_controller."/".$action."/".$parameters, "<button type='button' class='btn btn-default glyphicon glyphicon-plus'><span>Créer</span></button>"), $controller); ?>
+        <button type='button' class='btn btn-default glyphicon glyphicon-plus disabled'><span>Créer</span></button>
+    </div>
+</div>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id"><?php echo $this->tag->linkTo("igo_couche/search?order=id", "Id <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th> 
+            <th><?php echo $this->tag->linkTo("igo_couche/search?order=mf_layer_meta_title", "Titre <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th>Géometrie</th>
+            <th>Type de Connexion</th>
+            <th>Groupe de couches</th>
+            <th><?php echo $this->tag->linkTo("igo_couche/search?order=est_fond_de_carte", "Est fond<br>de carte<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th><?php echo $this->tag->linkTo("igo_couche/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="editer"></th>
+            <th class="detruire"></th>
+            <th class="classes"></th>
+            <th class="mapfile"></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    <form id="visualiser" name="visualiser" action="<?php echo $this->getDI()->getConfig()->uri->navigateur ?>navigateur/construit" method="post" target="_blank">
+    <input type="hidden" id="xml" name="xml" >
+    <?php foreach ($page->items as $row) { ?>
+        <tr>
+            <td><?php echo $row->id ?></td>
+            <td><?php echo $row->mf_layer_meta_title ?></td>
+            <td><?php  if ($row->IgoGeometrie){echo $row->IgoGeometrie->IgoClasseEntite->nom.":".$row->IgoGeometrie->IgoGeometrieType->nom;} ?></td>
+            <td><?php  if ($row->IgoGeometrie->IgoConnexion){echo $row->IgoGeometrie->IgoConnexion->IgoConnexionType->nom;} ?></td>
+
+            <td><?php  if ($row->IgoGroupe) {echo $row->IgoGroupe->nom;} ?></td>
+            <td>
+                <?php if($row->est_fond_de_carte):?>
+                <span class="glyphicon glyphicon-ok color-green"></span>
+                <?php endif;?>
+            </td>
+            <td><?php echo $row->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_couche/edit/" . $row->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_couche/delete/" . $row->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td><?php echo $this->tag->linkTo(array("couche_et_classe/do/" . $row->id, "Classes")); ?></td>
+            <td><?php echo $this->tag->linkTo(array("gestion_couche/mapfile/" . $row->id, "Mapfile")); ?></td>
+            <td><?php echo $this->tag->linkTo(array($this->config->uri->navigateur .'couche/' . $row->id, "", "class" =>"glyphicon glyphicon-eye-open", "target"=>"_blank", 'local' =>FALSE)); ?></td>
+        </tr>
+    <?php } ?>
+        
+    </form>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>
