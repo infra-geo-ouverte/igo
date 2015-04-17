@@ -1,0 +1,45 @@
+# Do not use Puppet Forge since there is a problem with vagrant-r10k.
+
+mod 'apache',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apache.git',
+  :ref => '1.2.0'
+
+mod 'apt',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apt',
+  :ref => '1.7.0'
+
+mod 'concat',
+  :git => 'https://github.com/puppetlabs/puppetlabs-concat',
+  :ref => '1.1.2'
+
+mod 'igo',
+  :git => 'https://gitlab.forge.gouv.qc.ca/puppet/igo.git',
+  :ref => 'master' # To be set to a fixed version when it will be done.
+
+mod 'inifile',
+  :git => 'https://github.com/puppetlabs/puppetlabs-inifile.git',
+  :ref => '1.2.0'
+
+mod 'ntp',
+  :git => 'https://github.com/puppetlabs/puppetlabs-ntp.git',
+  :ref => '3.3.0'
+
+mod 'php',
+  :git => 'https://github.com/jippi/puppet-php.git',
+  :ref => '4d0648af32dff3b5e78dd8a3c964888257271d89'
+
+mod 'postgresql',
+  :git => 'https://github.com/puppetlabs/puppetlabs-postgresql.git',
+  :ref => '4.3.0'
+
+mod 'stdlib',
+  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git',
+  :ref => '4.5.1'
+
+mod 'timezone',
+  :git => 'https://github.com/saz/puppet-timezone.git',
+  :ref => 'v3.1.1'
+
+mod 'vcsrepo',
+  :git => 'https://github.com/puppetlabs/puppetlabs-vcsrepo.git',
+  :ref => '1.2.0'

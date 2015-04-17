@@ -3,3 +3,6 @@
 */nbproject/
 librairie/
 config/config.php
+
+.vagrant
+puppet/externalmodules
