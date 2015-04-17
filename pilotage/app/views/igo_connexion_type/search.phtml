@@ -1,0 +1,32 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Types de connexion")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id">Id</th>
+            <th><?php echo $this->tag->linkTo("igo_connexion_type/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th>Code LayerType</th>
+            <th>Type de géométrie</th>    
+            <th>Date modifié</th>            
+            <th class="editer"></th>
+            <th class="detruire"></th>    
+         </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_connexion_type) { ?>
+        <tr>
+            <td><?php echo $igo_connexion_type->id ?></td>
+            <td><?php echo $igo_connexion_type->nom ?></td> 
+           <td><?php echo $igo_connexion_type->connexion_type ?></td>
+           <td><?php echo $igo_connexion_type->geometrie_type=="Q"?"Query":($igo_connexion_type->geometrie_type=="C"?"Chart":($igo_connexion_type->geometrie_type=="R"?"Raster":"Vectoriel")) ?></td>    
+            <td><?php echo $igo_connexion_type->date_modif ?></td>
+            <td><?php echo $this->tag->linkTo(array("igo_connexion_type/edit/" . $igo_connexion_type->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->tag->linkTo(array("igo_connexion_type/delete/" . $igo_connexion_type->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

@@ -1,0 +1,46 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Groupes de couche")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id"><?php echo $this->tag->linkTo("igo_groupe/search?order=id", "Id<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th><?php echo $this->tag->linkTo("igo_groupe/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th><?php echo $this->tag->linkTo("igo_groupe/search?order=description", "Description <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th>Exclu du navigateur</th>
+            <th>Groupe parent</th>
+            <th><?php echo $this->tag->linkTo("igo_groupe/search?order=profil_proprietaire_id", "Propriétaire ID <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th><?php echo $this->tag->linkTo("igo_groupe/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="editer"></th>
+            <th class="detruire"></th> 
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_groupe) { ?>
+        <tr>
+            <td><?php echo $igo_groupe->id ?></td>
+            <td><?php echo $igo_groupe->nom ?></td>
+            <td><?php echo $igo_groupe->description ?></td>
+            <td><?php if($igo_groupe->est_exclu_arbre){?>
+                    <span class="glyphicon glyphicon-ok color-green"></span>
+                <?php }?>
+            </td>  
+            <td><?php
+                    if ($igo_groupe->parents){
+                        foreach ($igo_groupe->parents as $parent){
+                            echo $parent->nom . "<br>";
+                        }
+                    } 
+                ?>
+            </td>
+            <td><?php echo $igo_groupe->profil_proprietaire_id ?></td>
+            <td><?php echo $igo_groupe->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_groupe/edit/" . $igo_groupe->id."/".$r_controller."/".$action."/".$parameters, "Editer"), $igo_groupe->profil_proprietaire_id); ?></td>
+            <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_groupe/delete/" . $igo_groupe->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer'), $igo_groupe->profil_proprietaire_id); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

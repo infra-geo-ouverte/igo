@@ -1,0 +1,46 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Utilisateurs")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+           <th class="id"><?php echo $this->tag->linkTo("igo_utilisateur/search?order=id", "Id<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+           <th><?php echo $this->tag->linkTo("igo_utilisateur/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+           <th><?php echo $this->tag->linkTo("igo_utilisateur/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+	   <th>Administrateur</th>
+	   <th>Pilote</th>
+           <th class="editer"></th>
+           <th class="detruire"></th>  
+           <th class="profils"></th> 
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_utilisateur) { ?>
+        <tr>
+            <td><?php echo $igo_utilisateur->id ?></td>
+            <td><?php echo $igo_utilisateur->nom ?></td>
+            <td><?php echo $igo_utilisateur->date_modif ?></td>
+	    <td>
+                <?php if($igo_utilisateur->est_admin):?>
+                    <span class="glyphicon glyphicon-ok color-green"></span>
+                <?php else:?>
+                    <span class="glyphicon glyphicon-remove color-red"></span>
+                <?php endif;?>
+	    </td>
+	    <td>
+                <?php if($igo_utilisateur->est_pilote):?>
+                    <span class="glyphicon glyphicon-ok color-green"></span>
+                <?php else:?>
+                    <span class="glyphicon glyphicon-remove color-red"></span>
+                <?php endif;?>
+	    </td>
+            <td><?php echo $this->tag->linkTo(array("igo_utilisateur/edit/" . $igo_utilisateur->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->tag->linkTo(array("igo_utilisateur/delete/" . $igo_utilisateur->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td><?php echo $this->tag->linkTo(array("utilisateur_et_profil/do/" . $igo_utilisateur->id, "Profils")); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

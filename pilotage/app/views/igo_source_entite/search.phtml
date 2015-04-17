@@ -1,0 +1,30 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Sources entitée")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id">Id</th>
+            <th>URL</th>
+            <th>Organisme responsable</th>
+            <th>Date modifié</th>
+            <th class="editer"></th>
+            <th class="detruire"></th>   
+         </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_source_entite) { ?>
+        <tr>
+            <td><?php echo $igo_source_entite->id ?></td>
+            <td><?php echo $igo_source_entite->url ?></td>
+            <td><?php if ($igo_source_entite->IgoOrganismeResponsable) { echo $igo_source_entite->IgoOrganismeResponsable->nom;} ?></td>
+            <td><?php echo $igo_source_entite->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_source_entite/edit/" . $igo_source_entite->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_source_entite/delete/" . $igo_source_entite->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

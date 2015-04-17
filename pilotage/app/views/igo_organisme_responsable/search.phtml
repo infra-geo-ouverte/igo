@@ -1,0 +1,36 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Organismes responsables")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id">Id</th>
+            <th>Acronyme</th>
+            <th>Organisme</th>
+            <th>URL</th>
+            <th>Contact</th>
+            <th>Remarque</th>
+            <th>Date modifié</th>            
+            <th class="editer"></th>
+            <th class="detruire"></th> 
+         </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_organisme_responsable) { ?>
+        <tr>
+            <td><?php echo $igo_organisme_responsable->id ?></td>
+            <td><?php echo $igo_organisme_responsable->acronyme ?></td>
+            <td><?php echo $igo_organisme_responsable->nom ?></td>
+            <td><?php echo $igo_organisme_responsable->url ?></td>
+            <td><?php if ($igo_organisme_responsable->IgoContact) { echo $igo_organisme_responsable->IgoContact->nom.", ".$igo_organisme_responsable->IgoContact->prenom;} ?></td>
+            <td><?php echo $igo_organisme_responsable->remarque ?></td>
+            <td><?php echo $igo_organisme_responsable->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_organisme_responsable/edit/" . $igo_organisme_responsable->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_organisme_responsable/delete/" . $igo_organisme_responsable->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

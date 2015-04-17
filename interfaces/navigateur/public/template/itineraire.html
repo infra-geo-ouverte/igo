@@ -1,0 +1,45 @@
+<div id=routing>
+    <div id="depart"><span>Départ:</span>
+        <input name="" type="text" maxlength="50"/>
+        <img class="loadingItineraireInput" src="{{racine}}images/app/large-loading.gif" alt="Chargement" style="width:16px;height:16px;">
+    </div>
+    <div id="arrive"><span>Arrivée:</span>
+        <input name="" type="text" maxlength="50"/>
+        <img class="loadingItineraireInput" src="{{racine}}images/app/large-loading.gif" alt="Chargement" style="width:16px;height:16px;">
+    </div>
+    <div id="rechercheType">
+        <span>Type:</span>
+        <select>
+            <option value="voiture">Voiture</option>
+            <option value="autre">Autre</option>
+        </select> 
+    </div>
+    <div>
+        <button id="reinitialiserItineraire" type="button">Réinitialiser</button>  
+        <button id="inverserItineraire" type="button">⇅</button>
+        <button id="trouverItineraire" type="button">Trouver</button> 
+    </div>
+    
+    <div id="resultatRecherche">
+            <table>
+                    <tbody>
+                    </tbody>
+            </table>
+    </div>
+    <div id="itineraire">
+            <div id="resume">
+                <h2>Description de l’itinéraire</h2>
+                    <table>
+                            <tbody>
+                            </tbody>
+                    </table>
+            </div>
+            <table id="myTable">
+                    <tbody>
+                    </tbody>
+            </table>
+    </div>   
+</div>  
+
+
+

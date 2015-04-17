@@ -1,0 +1,30 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Classes")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th><?php echo $this->tag->linkTo("igo_classe/search?order=id", "Classe") ?></th>
+            <!--th>Couche</th-->
+            <th>Mf Class Def</th>
+            <th>Ordre Z</th>
+            <th><?php echo $this->tag->linkTo("igo_classe/search?order=date_modif", "Date de modification") ?></th>
+         </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_classe) { ?>
+        <tr>
+            <td><?php echo $igo_classe->id ?></td>
+            <!--td><php  if ($igo_classe->IgoCouche){echo $igo_classe->IgoCouche->description;} ?></td-->
+            <td><pre><?php echo $igo_classe->mf_class_def; ?></pre></td>
+            <td><?php echo $igo_classe->mf_class_z_order ?></td>
+            <td><?php echo $igo_classe->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe/edit/" . $igo_classe->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe/delete/" . $igo_classe->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

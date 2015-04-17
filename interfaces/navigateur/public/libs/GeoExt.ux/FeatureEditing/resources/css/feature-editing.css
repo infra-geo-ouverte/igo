@@ -1,0 +1,31 @@
+.gx-featureediting-draw-point {
+  background-image: url("../images/silk/bullet_red_add.png") !important;
+}
+
+.gx-featureediting-draw-line {
+  background-image: url("../images/geosilk/line_red_add.png") !important;
+}
+
+.gx-featureediting-draw-polygon {
+  background-image: url("../images/geosilk/shape_square_red_add.png") !important;
+}
+
+.gx-featureediting-draw-label {
+  background-image: url("../images/silk/tag_blue_add.png") !important;
+}
+
+.gx-featureediting-editfeature {
+  background-image: url("../images/silk/pencil.png") !important;
+}
+
+.gx-featureediting-delete {
+  background-image: url("../images/silk/delete.png") !important;
+}
+
+.gx-featureediting-import {
+  background-image: url("../images/silk/page_white_goback.png") !important;
+}
+
+.gx-featureediting-export {
+  background-image: url("../images/silk/page_white_go.png") !important;
+}

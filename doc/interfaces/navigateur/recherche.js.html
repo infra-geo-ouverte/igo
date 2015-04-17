@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Navigateur Source: menu/recherche/recherche.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top navbar-inverse">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">Navigateur</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="module-aide.html">aide</a>
+						</li>
+						
+						<li>
+							<a href="module-arborescence.html">arborescence</a>
+						</li>
+						
+						<li>
+							<a href="module-barreOutils.html">barreOutils</a>
+						</li>
+						
+						<li>
+							<a href="module-Blanc.html">Blanc</a>
+						</li>
+						
+						<li>
+							<a href="module-carte.html">carte</a>
+						</li>
+						
+						<li>
+							<a href="module-couche.html">couche</a>
+						</li>
+						
+						<li>
+							<a href="module-evenement.html">evenement</a>
+						</li>
+						
+						<li>
+							<a href="module-gestionCouches.html">gestionCouches</a>
+						</li>
+						
+						<li>
+							<a href="module-google.html">google</a>
+						</li>
+						
+						<li>
+							<a href="module-impression.html">impression</a>
+						</li>
+						
+						<li>
+							<a href="module-ligne.html">ligne</a>
+						</li>
+						
+						<li>
+							<a href="module-limites.html">limites</a>
+						</li>
+						
+						<li>
+							<a href="module-localisation.html">localisation</a>
+						</li>
+						
+						<li>
+							<a href="module-marqueurs.html">marqueurs</a>
+						</li>
+						
+						<li>
+							<a href="module-navigateur.html">navigateur</a>
+						</li>
+						
+						<li>
+							<a href="module-occurence.html">occurence</a>
+						</li>
+						
+						<li>
+							<a href="module-osm.html">osm</a>
+						</li>
+						
+						<li>
+							<a href="module-outil.html">outil</a>
+						</li>
+						
+						<li>
+							<a href="module-outilAide.html">outilAide</a>
+						</li>
+						
+						<li>
+							<a href="module-outilMenu.html">outilMenu</a>
+						</li>
+						
+						<li>
+							<a href="module-panneau.html">panneau</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauAccordeon.html">panneauAccordeon</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauCarte.html">panneauCarte</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauEntete.html">panneauEntete</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauInfo.html">panneauInfo</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauMenu.html">panneauMenu</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauOnglet.html">panneauOnglet</a>
+						</li>
+						
+						<li>
+							<a href="module-point.html">point</a>
+						</li>
+						
+						<li>
+							<a href="module-polygone.html">polygone</a>
+						</li>
+						
+						<li>
+							<a href="module-recherche.html">recherche</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheAdresse.html">rechercheAdresse</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheBorne.html">rechercheBorne</a>
+						</li>
+						
+						<li>
+							<a href="module-RechercheCadastreReno.html">RechercheCadastreReno</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheGPS.html">rechercheGPS</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheHQ.html">rechercheHQ</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheLieu.html">rechercheLieu</a>
+						</li>
+						
+						<li>
+							<a href="module-requireAide.html">requireAide</a>
+						</li>
+						
+						<li>
+							<a href="module-style.html">style</a>
+						</li>
+						
+						<li>
+							<a href="module-tms.html">tms</a>
+						</li>
+						
+						<li>
+							<a href="module-vecteur.html">vecteur</a>
+						</li>
+						
+						<li>
+							<a href="module-wms.html">wms</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="BarreOutils.html">BarreOutils</a>
+						</li>
+						
+						<li>
+							<a href="Carte.html">Carte</a>
+						</li>
+						
+						<li>
+							<a href="Couche.html">Couche</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Blanc.html">Couche.Blanc</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Google.html">Couche.Google</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Marqueurs.html">Couche.Marqueurs</a>
+						</li>
+						
+						<li>
+							<a href="Couche.OSM.html">Couche.OSM</a>
+						</li>
+						
+						<li>
+							<a href="Couche.TMS.html">Couche.TMS</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html">Couche.Vecteur</a>
+						</li>
+						
+						<li>
+							<a href="Couche.WMS.html">Couche.WMS</a>
+						</li>
+						
+						<li>
+							<a href="Evenement.html">Evenement</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Ligne.html">Geometrie.Ligne</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Limites.html">Geometrie.Limites</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Occurence.html">Geometrie.Occurence</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Point.html">Geometrie.Point</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Polygone.html">Geometrie.Polygone</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Style.html">Geometrie.Style</a>
+						</li>
+						
+						<li>
+							<a href="GestionCouches.html">GestionCouches</a>
+						</li>
+						
+						<li>
+							<a href="Navigateur.html">Navigateur</a>
+						</li>
+						
+						<li>
+							<a href="Outil.html">Outil</a>
+						</li>
+						
+						<li>
+							<a href="Outil.OutilAide.html">Outil.OutilAide</a>
+						</li>
+						
+						<li>
+							<a href="OutilMenu.html">OutilMenu</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.html">Panneau</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Arborescence.html">Panneau.Arborescence</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Impression.html">Panneau.Impression</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Localisation.html">Panneau.Localisation</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauAccordeon.html">Panneau.PanneauAccordeon</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauAccordeon.PanneauMenu.html">Panneau.PanneauAccordeon.PanneauMenu</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauCarte.html">Panneau.PanneauCarte</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauEntete.html">Panneau.PanneauEntete</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauInfo.html">Panneau.PanneauInfo</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauOnglet.html">Panneau.PanneauOnglet</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Recherche.html">Panneau.Recherche</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheAdresse.html">Panneau.RechercheAdresse</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheBorne.html">Panneau.RechercheBorne</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheCadastreReno.html">Panneau.RechercheCadastreReno</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheGPS.html">Panneau.RechercheGPS</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheHQ.html">Panneau.RechercheHQ</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheLieu.html">Panneau.RechercheLieu</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="mixins.list.html" class="dropdown-toggle" data-toggle="dropdown">Mixins<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="helper.Aide.html">Aide</a>
+						</li>
+						
+						<li>
+							<a href="helper.require.html">require</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:ajouterOccurence">ajouterOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:deselectionnerOccurence">deselectionnerOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:deselectionnerTout">deselectionnerTout</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:enleverOccurence">enleverOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:selectionnerOccurence">selectionnerOccurence</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: menu/recherche/recherche.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/** 
+ * Module pour l'objet {@link Panneau.Recherche}.
+ * @module recherche
+ * @author Marc-André Barbeau, MSP
+ * @version 1.0
+ * @requires panneau
+ * @requires limites
+ * @requires point
+ * @requires vecteur
+ * @requires style
+ */
+
+define(['panneau','limites', 'point', 'vecteur', 'style', 'aide'], function(Panneau, Limites, Point, Vecteur, Style, Aide) {
+    /** 
+     * Création de l'object Panneau.Recherche.
+     * Objet à ajouter à un objet localisation.
+     * @constructor
+     * @abstract 
+     * @name Panneau.Recherche
+     * @class Panneau.Recherche
+     * @alias recherche:Panneau.Recherche
+     * @extends Panneau
+     * @requires recherche
+     * @param {string} [options.recherchePrefixe] Prefixe de la recherche
+     * @param {string} [options.typeRecherche] Type de la recherche
+     * @returns {Panneau.Recherche} Instance de {@link Panneau.Recherche}
+     * @property {dictionnaire} options Liste des options de la couche
+     * @property {Couche.Vecteur} coucheVecteur Vecteur pour le résultat de la recherche
+    */
+    function Recherche(options){
+        this.coucheVecteur;
+        this.options = options || {};
+        this.defautOptions = {
+            recherchePrefixe:"",
+            typeRecherche:"",
+            maxEnreg:40,
+           // service: Aide.obtenirConfig(this.obtenirTypeClasse()).service,
+            proxy: true,
+            epingle: true,
+            id: 'recherche',
+            init: false
+        };
+    };
+
+    Recherche.prototype = new Panneau();
+    Recherche.prototype.constructor = Recherche;
+
+    /** 
+     * Initialisation de l'object recherche. 
+     * @method 
+     * @name Recherche#_init
+    */
+    Recherche.prototype._init = function() {
+        this.defautOptions = $.extend({}, Aide.obtenirConfig('Recherche'), this.defautOptions);
+        Aide.chargerCSS("css/recherche.css", true);
+        Panneau.prototype._init.call(this);
+
+        this.indexDebut = 0;
+        this.indexFin = this.options.maxEnreg-1;
+        
+        this.aidePanneau = this.obtenirPanneauAide();
+        this.resultatPanneau = this.obtenirResultatPanneau();
+        this.formItems = this.obtenirElementsRecherche();
+        
+        var items = [
+            this.formItems,
+            this.aidePanneau, 
+            this.resultatPanneau   
+        ]
+        if (Boolean(this.options.epingle)){
+            items.push(this.obtenirEpingleCheckbox());
+        }
+        
+        this._panel = new Ext.FormPanel({
+            id: this.options.id,
+            hideLabel: true,
+            frame:true,
+            border: false,
+            bodyStyle:'padding:0px 0px 0',
+            scope: this,
+            items: items,
+            buttons: this.obtenirBoutonsRecherche()
+        });
+    };
+    
+    /** 
+     * Initialisation de la couche vecteur.
+     * @method 
+     * @name Recherche#_creerCoucheVecteur
+    */
+    Recherche.prototype._creerCoucheVecteur = function(){
+        var style = new Style({icone:Aide.obtenirCheminRacine()+'images/marker.png', iconeHauteur:25, iconeLargeur:21, iconeOffsetX:-10.5, iconeOffsetY:-25});
+        //this.coucheVecteur = new Marqueurs({nom:'LocalisationMarqueurs'+this.typeRecherche, displayInLayerSwitcher:false});
+        var titre = this.options.titreCouche || 'Localisation-'+this.options.typeRecherche;
+        this.coucheVecteur = new Vecteur({titre:titre, styles: style, displayInLayerSwitcher:false, visible: false});
+        this.carte.gestionCouches.ajouterCouche(this.coucheVecteur);
+        if (!this.pineCheckbox || this.pineCheckbox.checked){
+            this.coucheVecteur.activer();
+        };
+    };
+
+    /**
+    * Obtenir la couche vecteur
+    * @method
+    * @name Recherche#obtenirCoucheVecteur
+    * @returns {Couche.Vecteur} Couche vecteur de résultat
+    */
+    Recherche.prototype.obtenirCoucheVecteur = function(){
+        if(!this.coucheVecteur){
+            this._creerCoucheVecteur();
+        };
+        return this.coucheVecteur;
+    };
+    
+    /** 
+     * Obtenir les valeurs des champs de recherche.
+     * @method 
+     * @name Recherche#obtenirValeursRecherche
+    * @returns {array} Tableau des valeurs de recherche
+    */
+    Recherche.prototype.obtenirValeursRecherche = function(){
+        //Retourner la valeur des éléments contenus dans le formulaire
+        return this._panel.getForm().getValues();
+    };
+    
+    /**
+    * Obtenir le panneau d'aide.
+    * @method
+    * @name Recherche#obtenirPanneauAide
+    * @returns {ExtJS} Fieldset de extJs
+    */
+    Recherche.prototype.obtenirPanneauAide = function(){
+        return Ext.create({
+            xtype: 'fieldset',
+            title: 'aide',
+            id: 'lbl_aide'+this.options.id,
+            collapsible: true,
+            labelWidth: 75,
+            items: [{html:this.obtenirAideHTML()}]
+        });
+    };
+    
+    /**
+    * Obtenir le message d'aide.
+    * @method
+    * @name Recherche#obtenirAideHTML
+    * @returns {String} Message d'aide
+    */
+    Recherche.prototype.obtenirAideHTML = function() {
+        return  "Aucune aide";
+    };
+    
+    /**
+    * Obtenir le lien pdf pour l'aide
+    * @method
+    * @name Recherche#obtenirLienPDF
+    * @returns {String} Lien pdf
+    */
+    Recherche.prototype.obtenirLienPDF = function() {
+        //TODO: changer lien !!
+        return  "&lt;a href=\'#here\' onclick=\'window.open(\""+
+                "http://geoegl.msp.gouv.qc.ca/libcommunes/MSP_GolocModule/docs/200_Guide_Localisation_GeoCOG_V10_OMSC-ANALYSTE.pdf"+
+                "\");\'>"+
+                "Cliquer ici pour avoir plus de détails...&lt;/a>&lt;br>&lt;br>";
+    };
+  
+    /**
+    * Obtenir le panneau de résultat.
+    * @method
+    * @name Recherche#obtenirResultatPanneau
+    * @returns {ExtJS} Fieldset de extJs
+    */
+    Recherche.prototype.obtenirResultatPanneau = function() {
+        return  Ext.create({
+            xtype: 'fieldset',
+            title: 'Résultat',
+            id: 'resul'+this.options.id,
+            collapsible: true,
+            hidden: true,
+            items: [{html:'&lt;p>Aucun resultat&lt;/p>'}]
+        });
+    };
+    
+    /**
+    * Obtenir le panneau pour les éléments de la recherche
+    * @method
+    * @name Recherche#obtenirElementsRecherche
+    * @returns {ExtJS}
+    */
+    Recherche.prototype.obtenirElementsRecherche = function() {
+        var that=this;
+        return [{
+                xtype: 'textfield',
+                fieldLabel: 'Texte',
+                hideLabel: true,
+                width: 260,
+                id: 'RechercheTitle'+this.options.id,
+                allowBlank: false,
+                blankText: 'Vous devez saisir au moins 1 caractère...',
+                enableKeyEvents: true,
+                scope: this,
+                listeners: {
+                    keyup: function(field, e) {
+                        var key = e.getKey();
+                        if (key == 13){
+                            that.lancerRecherche();
+                        }
+                    }
+                }
+            }];
+    };
+    
+    /**
+    * Obtenir le bouton de recherche
+    * @method
+    * @name Recherche#obtenirBoutonsRecherche
+    * @returns {ExtJS}
+    */
+    Recherche.prototype.obtenirBoutonsRecherche = function() {
+        return [{
+                id: 'rechercherButton'+this.options.id,
+                text: 'Rechercher',
+                tooltip: 'Lancer la recherche',
+                scope: this,
+                handler: this.lancerRecherche
+            }];
+    };
+    
+    /**
+    * Obtenir le checkbox pour l'épingle
+    * @method
+    * @name Recherche#obtenirEpingleCheckbox
+    * @returns {ExtJS} checkbox
+    */
+    Recherche.prototype.obtenirEpingleCheckbox = function() {
+        this.pineCheckbox=new Ext.create({
+                xtype: 'checkbox',
+                name: 'cb_showPine',
+                //todo: aligner checkbox à droite
+                //style: 'float:right;',
+                 ctCls: 'styleEpingle',
+                id: 'cb_showPine'+this.options.id,
+                boxLabel: "Afficher l'épingle",
+                checked: true,
+                scope: this,
+                handler: function(e) {
+                    if(e.getValue())
+                    {
+                       if(this.coucheVecteur){
+                            this.coucheVecteur.activer();
+                       }
+                    }
+                    else
+                    {
+                        if(this.coucheVecteur){
+                            this.coucheVecteur.desactiver();
+                        }
+                    }
+                }
+            });
+        return this.pineCheckbox;
+    };
+    
+    /**
+    * Appeler le service de recherche
+    * Exécute ensuite {@link Recherche#lireReponse}
+    * @method
+    * @name Recherche#appelerService
+    */
+    Recherche.prototype.appelerService = function(){
+        Aide.afficherMessageChargement();
+        var texte = this.obtenirRecherchePrefixe() + ' ' + this.obtenirValeursRecherche()['RechercheTitle'+this.options.id];
+        var typeRecherche = this.obtenirTypeRecherche();
+
+        //todo: changer urlAppelant (clé pour le service...) --demander à trottier
+        var urlAppelant = this.options.urlAppelant; //location.href;
+        if (urlAppelant.indexOf("?") > -1){
+            urlAppelant = urlAppelant.substr(0,urlAppelant.indexOf("?"));
+        }
+
+        $.ajax({
+            url: this.options.service,
+            data: {
+                type: typeRecherche,
+                texte: texte, //todo: encoder le texte //encodeURIComponent(texte),
+                epsg: 3857,
+                indDebut: this.indexDebut,
+                indFin: this.indexDebut + this.indexFin,
+                format: "HTML", 
+                urlappelant: urlAppelant
+            },
+            crossDomain: this.options.proxy,
+            context:this,
+            success:this.lireReponse,
+            error:function(){alert("error...");}
+        });
+        
+        this.declencher({ type: "appelerServiceRecherche", recherche: this }); 
+    };
+
+    /**
+    * Lire le résultat de la recherche
+    * @method
+    * @name Recherche#lireReponse
+    * @param {Objet} response Réponse de la recherche
+    */
+    Recherche.prototype.lireReponse = function(response){
+       var indexDebut=this.indexDebut;
+       var indexFin=this.indexFin;
+       var jscript = unescape(response);
+
+        //Extraire le nombre de résultat de la string de retour
+        var baliseResult = jscript.match(/&lt;u>Résultats \([\d]*\)&lt;\/u>/);
+        var nbResul;
+        if (baliseResult){
+            baliseResult = baliseResult[0];
+            var posDebut = baliseResult.indexOf("(");
+            var posFin = baliseResult.indexOf(")");
+             nbResul = baliseResult.substring(posDebut+1,posFin);
+        }
+
+        //générer la zone Précédent Suivant SI REQUIS
+        var ajoutFleche = "";
+        if (nbResul == (indexFin+1)){
+            ajoutFleche += "&lt;div align='center'>&lt;table>";
+            ajoutFleche += "&lt;tr>";
+
+            if ((this.indexDebut - (indexFin+1))&lt; 0) {
+                ajoutFleche += "&lt;td>Précédent&lt;/td>";
+            } else {
+                ajoutFleche += "&lt;td>&lt;a href='javascript: appelPrecedent();'>Précédent&lt;/a>&lt;/td>";
+            }
+            ajoutFleche += "&lt;td>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/td>";
+            ajoutFleche += "&lt;td>&lt;a href='javascript: appelSuivant();'>Suivant&lt;/a>&lt;/td>";
+            ajoutFleche += "&lt;/tr>";
+            ajoutFleche += "&lt;/table>&lt;/div>";
+        } else {
+            if (indexDebut > 0){
+                ajoutFleche += "&lt;div align='center'>&lt;table>";
+                ajoutFleche += "&lt;tr>";
+                ajoutFleche += "&lt;td>&lt;a href='javascript: appelPrecedent();'>Précédent&lt;/a>&lt;/td>";
+                ajoutFleche += "&lt;td>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/td>";
+                ajoutFleche += "&lt;td>Suivant&lt;/td>";
+                ajoutFleche += "&lt;/tr>";
+                ajoutFleche += "&lt;/table>&lt;/div>";
+            }
+        }
+
+        if (jscript.search(/Uncaught SoapFault exception|SOAP Exceptions/) > -1) {
+            jscript = "&lt;font color=red>Accès au service refusé!&lt;/font>";
+        }
+        
+        // Si recherche GPS, on ajoute le lien vers le site http://boulter.com/gps/ poour différents coordonnées.
+        /*oRechercheGPSboulter=0;
+        if (oRechercheGPSboulter == 1 &amp;&amp; jscript.indexOf("refusé!") == -1 &amp;&amp; jscript.indexOf("Erreur") == -1){
+            TrouverXYBoulter(jscript);
+            ajoutFleche += "&lt;br>&lt;td>&lt;a href='http://boulter.com/gps/#" + lonlat.lat + " " + lonlat.lon + "' target='_new'>Convertir les coordonnées GPS (site externe)&lt;/a>&lt;/td>&lt;br>&lt;br>";
+        }   */
+
+        var regexIndexOf = function(string, regex, startpos) {
+                var indexOf = string.substring(startpos || 0).search(regex);
+                return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+        }
+
+        var posDebut = regexIndexOf(jscript, /javascript:(?!RelancerGLO)/);
+        var posFin = jscript.indexOf(")", posDebut+11);
+
+        if ((posDebut>0)&amp;&amp;(posFin>0)){
+            var fn = new Function('target', "return target." + jscript.substring(posDebut+11,posFin+1) + ";");
+            fn(this);
+        }
+        
+        this.definirResultat(ajoutFleche + jscript, this.initEvent, this);        
+    };
+      
+    /**
+    * Initialiser les événements du résultat
+    * @method
+    * @name Recherche#initEvent
+    */
+    Recherche.prototype.initEvent = function(){
+        $(this.resultatPanneau.items.items[0].body.dom).find('a').click($.proxy(function (e) { 
+            var fn = new Function('target', "return target." + decodeURI(e.currentTarget.href).substr('11') + ";");
+            fn(this);
+            return false; 
+        }, this));
+    };
+    
+
+    /**
+    * Préfixe de la recherche
+    * @method
+    * @name Recherche#obtenirRecherchePrefixe
+    * @returns {String} Préfixe
+    */
+    Recherche.prototype.obtenirRecherchePrefixe = function(){
+        return this.options.recherchePrefixe;
+    };
+    
+    /**
+    * Type de la recherche
+    * @method
+    * @name Recherche#obtenirTypeRecherche
+    * @returns {String} Type de la recherche
+    */
+    Recherche.prototype.obtenirTypeRecherche = function(){
+        return this.options.typeRecherche;
+    };
+    
+    /**
+    * Réinitialiser la recherche
+    * @method
+    * @name Recherche#reinitialiser
+    */
+    Recherche.prototype.reinitialiser = function(){
+        if (this.coucheVecteur){
+            this.coucheVecteur.enleverTout();
+            this.coucheVecteur.desactiver();
+        }
+    };
+    
+    /**
+    * Lancer la recherche.
+    * @method
+    * @name Recherche#lancerRecherche
+    */
+    Recherche.prototype.lancerRecherche = function(){
+        this.aidePanneau.collapse();
+        
+        //nouvelle recherche, remettre le compteur à zéro
+        this.indexDebut = 0;
+        this.appelerService();
+    };
+
+    /**
+    * Relancer la recherche avec une nouvelle valeur.
+    * @method
+    * @name Recherche#relancerRecherche
+    * @param {String} requete Nouvelle valeur pour la recherche
+    */
+    Recherche.prototype.relancerRecherche = function(requete){
+        this.obtenirValeursRecherche()['RechercheTitle'+this.options.id]=requete;
+        this._panel.items.items[0].setValue(requete);
+        this.appelerService();
+    };
+    
+    /**
+    * Appeler le service pour obtenir les résultats suivants.
+    * @method
+    * @name Recherche#appelSuivant
+    */
+    Recherche.prototype.appelSuivant = function(){
+      this.indexDebut = this.indexDebut + (this.indexFin + 1);
+      this.appelerService();
+    };
+
+    /**
+    * Appeler le service pour obtenir les résultats précédents.
+    * @method
+    * @name Recherche#appelPrecedent
+    */
+    Recherche.prototype.appelPrecedent = function(){
+      this.indexDebut = this.indexDebut - (this.indexFin + 1);
+      this.appelerService();
+    };
+     
+    /**
+    * Afficher le résultat.
+    * @method
+    * @name Recherche#definirResultat
+    */
+    Recherche.prototype.definirResultat = function(resultatTexte, callback, target){
+        //Masquer le message d'attente
+        Aide.cacherMessageChargement()
+
+        this.resultatPanneau.items.items[0].body.update(resultatTexte);
+        this.resultatPanneau.show().expand();
+
+        if (typeof callback === "function") callback.call(target);
+
+        //todo: ajouter ce call qui permet de voir les modifs des adresses/routes
+        //checkAdrModif();
+
+    };
+    
+    /**
+    * Relancer la recherche. Appeler lorsque l'utilisateur choisi un résultat pour préciser la recherche
+    * @method
+    * @name Recherche#RelancerGLO
+    */
+    Recherche.prototype.RelancerGLO = function(requete){
+        this.relancerRecherche(requete);
+    };
+    
+   Recherche.prototype.cadrerPointEPSG = function(p_x, p_y, epsg) {
+        var vectorLayer = this.obtenirCoucheVecteur();
+        vectorLayer.enleverTout();
+        
+     // vectorLayer = obtenirCoucheVecteur("Circle");
+     // vectorLayer.destroyFeatures();
+
+      // TODO cette fonction n'est pas terminé... on présume ici que 
+      //      le x,y sont toujours dans le EPSG 32198 ... et la map Ol
+      //      est en 32198...(ol_cadrerPoint() pour reprojection)
+    //  olloc_add_marker2(p_x,p_y,35);
+        vectorLayer.creerOccurence(new Point(p_x,p_y));
+
+        if (this.carte.obtenirZoom() >= 10){
+        // si l'utilisateur est au niveau de zoom 10 ou plus, recentrer seulement
+            this.carte.definirCentre([p_x, p_y]);
+        } else{
+        // sinon, cadrer sur le buffer
+        // faire un buffer de 500m de chaque coté du point
+            var p_xmin = p_x - 500;
+            var p_ymin = p_y - 500;
+            var p_xmax = p_x + 500;
+            var p_ymax = p_y + 500;
+            this.carte.zoomer(new Limites(p_xmin,p_ymin, p_xmax,p_ymax));
+        }
+
+    //oMap.setCenter(new OpenLayers.LonLat(p_x, p_y), oMap.getZoom());
+    //oMap.setCenter(new OpenLayers.LonLat(p_x, p_y), 11);
+
+    }
+
+    Recherche.prototype.cadrerPointEPSGAvecCote = function(p_x, p_y, epsg, cote) {
+        var vectorLayer = this.obtenirCoucheVecteur();
+        vectorLayer.enleverTout();
+
+       /* vectorLayer = obtenirCoucheVecteur("Circle");
+        vectorLayer.destroyFeatures();*/
+
+      // TODO cette fonction n'est pas terminé... on présume ici que 
+      //      le x,y sont toujours dans le EPSG 32198 ... et la map Ol
+      //      est en 32198...(ol_cadrerPoint() pour reprojection)
+ 
+      //olloc_add_marker2(p_x,p_y, cote);
+      //TODO changer la couleur de la pin selon la cote....
+      vectorLayer.creerOccurence(new Point(p_x,p_y));
+
+        if (this.carte.obtenirZoom() >= 10){
+        // si l'utilisateur est au niveau de zoom 10 ou plus, recentrer seulement
+            this.carte.definirCentre([p_x, p_y]);
+        } else{
+            // sinon, cadrer sur le buffer
+            // faire un buffer de 500m de chaque coté du point
+            var p_xmin = p_x - 500;
+            var p_ymin = p_y - 500;
+            var p_xmax = p_x + 500;
+            var p_ymax = p_y + 500;
+            this.carte.zoomer(new Limites(p_xmin,p_ymin, p_xmax,p_ymax));
+        }
+
+    }
+
+    Recherche.prototype.cadrerEtendue = function(p_xmin, p_ymin, p_xmax, p_ymax, epsg) {
+        var vectorLayer = this.obtenirCoucheVecteur();
+        vectorLayer.enleverTout();
+
+       // vectorLayer = obtenirCoucheVecteur("Circle");
+       // vectorLayer.destroyFeatures();
+
+        if (Number(p_xmin)&lt;0){
+            var x=Number(p_xmin)-((Number(p_xmin)-Number(p_xmax))/2);
+        } else {
+            var x=Number(p_xmin)+((Number(p_xmax)-Number(p_xmin))/2);
+        }
+        var y=Number(p_ymin)+((Number(p_ymax)-Number(p_ymin))/2);
+
+      //olloc_add_marker2(x,y,35);
+        vectorLayer.creerOccurence(new Point(x,y));
+        this.carte.zoomer(new Limites(p_xmin,p_ymin, p_xmax,p_ymax));
+    };
+    
+    return Recherche;
+    
+});</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		Navigateur Copyright © 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a>
+		on Wed Jun 18 2014 14:09:13 GMT-0400 (EDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+			    anchorName  : function(i, heading, prefix) {
+					return $(heading).attr("id") || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+
+</body>
+</html>

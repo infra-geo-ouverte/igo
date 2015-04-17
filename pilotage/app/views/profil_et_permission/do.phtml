@@ -1,0 +1,5 @@
+<?php echo $this->getContent(); ?>
+
+<?php  echo $this->view->includeCTL("igo_profil","search?id=".$id); ?>
+
+<?php  echo $this->view->includeFrame($baseUri."/igo_permission","search?profil_id=".$id); ?>

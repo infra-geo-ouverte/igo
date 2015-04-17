@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Navigateur Source: X:/dev/geodev10/apps/igo/interfaces/navigateur/public/js/app/navigateur.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top navbar-inverse">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">Navigateur</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="module-aide.html">aide</a>
+						</li>
+						
+						<li>
+							<a href="module-arborescence.html">arborescence</a>
+						</li>
+						
+						<li>
+							<a href="module-barreOutils.html">barreOutils</a>
+						</li>
+						
+						<li>
+							<a href="module-Blanc.html">Blanc</a>
+						</li>
+						
+						<li>
+							<a href="module-carte.html">carte</a>
+						</li>
+						
+						<li>
+							<a href="module-couche.html">couche</a>
+						</li>
+						
+						<li>
+							<a href="module-evenement.html">evenement</a>
+						</li>
+						
+						<li>
+							<a href="module-gestionCouches.html">gestionCouches</a>
+						</li>
+						
+						<li>
+							<a href="module-google.html">google</a>
+						</li>
+						
+						<li>
+							<a href="module-impression.html">impression</a>
+						</li>
+						
+						<li>
+							<a href="module-ligne.html">ligne</a>
+						</li>
+						
+						<li>
+							<a href="module-limites.html">limites</a>
+						</li>
+						
+						<li>
+							<a href="module-localisation.html">localisation</a>
+						</li>
+						
+						<li>
+							<a href="module-marqueurs.html">marqueurs</a>
+						</li>
+						
+						<li>
+							<a href="module-navigateur.html">navigateur</a>
+						</li>
+						
+						<li>
+							<a href="module-occurence.html">occurence</a>
+						</li>
+						
+						<li>
+							<a href="module-osm.html">osm</a>
+						</li>
+						
+						<li>
+							<a href="module-outil.html">outil</a>
+						</li>
+						
+						<li>
+							<a href="module-outilAide.html">outilAide</a>
+						</li>
+						
+						<li>
+							<a href="module-outilMenu.html">outilMenu</a>
+						</li>
+						
+						<li>
+							<a href="module-panneau.html">panneau</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauAccordeon.html">panneauAccordeon</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauCarte.html">panneauCarte</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauEntete.html">panneauEntete</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauInfo.html">panneauInfo</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauMenu.html">panneauMenu</a>
+						</li>
+						
+						<li>
+							<a href="module-panneauOnglet.html">panneauOnglet</a>
+						</li>
+						
+						<li>
+							<a href="module-point.html">point</a>
+						</li>
+						
+						<li>
+							<a href="module-polygone.html">polygone</a>
+						</li>
+						
+						<li>
+							<a href="module-recherche.html">recherche</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheAdresse.html">rechercheAdresse</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheBorne.html">rechercheBorne</a>
+						</li>
+						
+						<li>
+							<a href="module-RechercheCadastreReno.html">RechercheCadastreReno</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheGPS.html">rechercheGPS</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheHQ.html">rechercheHQ</a>
+						</li>
+						
+						<li>
+							<a href="module-rechercheLieu.html">rechercheLieu</a>
+						</li>
+						
+						<li>
+							<a href="module-requireAide.html">requireAide</a>
+						</li>
+						
+						<li>
+							<a href="module-style.html">style</a>
+						</li>
+						
+						<li>
+							<a href="module-tms.html">tms</a>
+						</li>
+						
+						<li>
+							<a href="module-vecteur.html">vecteur</a>
+						</li>
+						
+						<li>
+							<a href="module-wms.html">wms</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="BarreOutils.html">BarreOutils</a>
+						</li>
+						
+						<li>
+							<a href="Carte.html">Carte</a>
+						</li>
+						
+						<li>
+							<a href="Couche.html">Couche</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Blanc.html">Couche.Blanc</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Google.html">Couche.Google</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Marqueurs.html">Couche.Marqueurs</a>
+						</li>
+						
+						<li>
+							<a href="Couche.OSM.html">Couche.OSM</a>
+						</li>
+						
+						<li>
+							<a href="Couche.TMS.html">Couche.TMS</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html">Couche.Vecteur</a>
+						</li>
+						
+						<li>
+							<a href="Couche.WMS.html">Couche.WMS</a>
+						</li>
+						
+						<li>
+							<a href="Evenement.html">Evenement</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Ligne.html">Geometrie.Ligne</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Limites.html">Geometrie.Limites</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Occurence.html">Geometrie.Occurence</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Point.html">Geometrie.Point</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Polygone.html">Geometrie.Polygone</a>
+						</li>
+						
+						<li>
+							<a href="Geometrie.Style.html">Geometrie.Style</a>
+						</li>
+						
+						<li>
+							<a href="GestionCouches.html">GestionCouches</a>
+						</li>
+						
+						<li>
+							<a href="Navigateur.html">Navigateur</a>
+						</li>
+						
+						<li>
+							<a href="Outil.html">Outil</a>
+						</li>
+						
+						<li>
+							<a href="Outil.OutilAide.html">Outil.OutilAide</a>
+						</li>
+						
+						<li>
+							<a href="OutilMenu.html">OutilMenu</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.html">Panneau</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Arborescence.html">Panneau.Arborescence</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Impression.html">Panneau.Impression</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Localisation.html">Panneau.Localisation</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauAccordeon.html">Panneau.PanneauAccordeon</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauAccordeon.PanneauMenu.html">Panneau.PanneauAccordeon.PanneauMenu</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauCarte.html">Panneau.PanneauCarte</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauEntete.html">Panneau.PanneauEntete</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauInfo.html">Panneau.PanneauInfo</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.PanneauOnglet.html">Panneau.PanneauOnglet</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.Recherche.html">Panneau.Recherche</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheAdresse.html">Panneau.RechercheAdresse</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheBorne.html">Panneau.RechercheBorne</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheCadastreReno.html">Panneau.RechercheCadastreReno</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheGPS.html">Panneau.RechercheGPS</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheHQ.html">Panneau.RechercheHQ</a>
+						</li>
+						
+						<li>
+							<a href="Panneau.RechercheLieu.html">Panneau.RechercheLieu</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="mixins.list.html" class="dropdown-toggle" data-toggle="dropdown">Mixins<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="helper.Aide.html">Aide</a>
+						</li>
+						
+						<li>
+							<a href="helper.require.html">require</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:ajouterOccurence">ajouterOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:deselectionnerOccurence">deselectionnerOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:deselectionnerTout">deselectionnerTout</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:enleverOccurence">enleverOccurence</a>
+						</li>
+						
+						<li>
+							<a href="Couche.Vecteur.html#event:selectionnerOccurence">selectionnerOccurence</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: X:/dev/geodev10/apps/igo/interfaces/navigateur/public/js/app/navigateur.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/** 
+ * Module pour l'objet {@link Navigateur}.
+ * @module navigateur
+ * @requires barreOutils 
+ * @requires panneau 
+ * @requires carte 
+ * @requires panneauCarte 
+ * @author Marc-André Barbeau, MSP
+ * @version 1.0
+ */
+
+define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide'], function(BarreOutils, Panneau, Carte, PanneauCarte, Aide) {
+    /** 
+     * Création de l'object Navigateur.
+     * @constructor
+     * @name Navigateur
+     * @class Navigateur
+     * @alias navigateur:Navigateur
+     * @requires navigateur
+     * @param {Carte} [carte] Carte du navigateur. Si absent, une carte par défaut est définie.
+     * @param {dictionnaire} [options] Liste des options de la carte
+     * @param {string} [options.div] Le navigateur sera construit dans cette div et prendra la taille de celle-ci. 
+     * Si l'option n'est pas définie, alors le navigateur prendra le plein écran.
+     * @param {boolean} [options.aBordure=false] Présence d'une bordure autour du navigateur. Seulement possible lorsque l'option 'div' est définie.
+     * @returns {Navigateur} Instance de {@link Navigateur}
+     * @property {Carte} carte Carte du navigateur
+     * @property {BarreOutils} barreOutils Barre d'outils du navigateur
+     * @property {tableau} listePanneaux Liste des {@link Panneau}
+     * @property {dictionnaire} options Dictionnaire des options du navigateur
+     * @exception L'intrant carte est du bon type
+    */
+    function Navigateur(carte, options) {
+        this.options = options || {};
+        Aide.definirNavigateur(this); 
+        if(!carte){
+            carte = new Carte();
+        }
+        if (carte.constructor.name !== 'Carte'){
+            //pour ie
+            if (carte.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1] !== 'Carte') {
+                throw new Error("new Igo.Navigateur(carte) a besoin d'un objet de type Igo.Carte()");
+                return;
+            }
+        }
+        this.carte = carte;
+        this.listePanneaux = [];
+    };
+    
+    /**
+    * Callback après l'initiation du navigateur.
+    * @callback Navigateur~initCallback
+    * @param {dictionnaire} opt Options
+    */
+    /** 
+    * Initialisation de l'object Navigateur. Les panneaux principaux doivent être ajoutés avant.
+    * Si panneauCarte est absent, alors le panneau par défaut sera créé.
+    * Retourne un callback après l'initialisation du Navigateur
+    * @method 
+    * @name Navigateur#init
+    * @param {Navigateur~initCallback} [callback] Callback
+    * @param {*} [cible] 'This' dans la fonction callback
+    * @param {dictionnaire} [optCallback] Options du callback
+    */
+    Navigateur.prototype.init= function(callback, cible, optCallback){
+        //Fenêtre de la carte et des outils
+        Ext.QuickTips.init();
+        Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+        
+        var listePanelExt=[];
+        
+        //Ajouter les panneaux dans le panel du navigateur
+        var aPanneauCarte = false;
+        $.each(this.listePanneaux, function(key, value){
+            if (value.obtenirTypeClasse() === 'PanneauCarte') {
+                aPanneauCarte = true;
+            }
+            if (value._getPanel()){
+                listePanelExt.push(value._getPanel());
+            };
+        });
+        
+        //Si pas de panneauCarte, alors le creer
+        if(aPanneauCarte === false){
+            var panneauCarte = new PanneauCarte();
+            this.ajouterPanneau(panneauCarte);
+            listePanelExt.push(panneauCarte._getPanel());
+        }
+
+        //Initialisation du viewport.
+        if (this.options.div){
+            var that=this;
+            require(['libs/Ext.ux/FitToParent'], function(){
+                this._viewport = new Ext.Panel({
+                    layout:'border',
+                    id: 'monNavigateurIGO',
+                    items: listePanelExt,
+                    renderTo: that.options.div,
+                    border: that.options.aBordure || false,
+                    plugins: ['fittoparent'],
+                    scope: that,
+                    listeners: {
+                        afterrender: function(e) {
+                            e.scope.isReady = true;
+                            if (typeof callback === "function") callback.call(cible, optCallback);
+                        }
+                    }
+                });
+            });
+        } else {
+            this._viewport = new Ext.Viewport({
+                layout:'border',
+                id: 'monNavigateurIGO',
+                items: listePanelExt,
+                scope: this,
+                listeners: {
+                    afterrender: function(e) {
+                        e.scope.isReady = true;
+                        if (typeof callback === "function") callback.call(cible, optCallback);
+                    }
+                }
+            });
+        }
+
+    };
+
+   /* Navigateur.prototype.ready = function(){
+
+    };*/
+    
+    /** 
+     * Création de l'object {@link BarreOutils}.
+     * @method 
+     * @name Navigateur#creerBarreOutils
+     * @returns {BarreOutils} Instance de {@link BarreOutils}
+    */
+    Navigateur.prototype.creerBarreOutils = function(){
+        var that=this;
+        this.barreOutils = new BarreOutils(this.carte);
+        //Si présence du PanneauCarte, alors établir le lien avec la barre d'outil.
+        $.each(this.obtenirPanneaux(), function(key, panneau){
+            if (panneau.obtenirTypeClasse() === 'PanneauCarte') {
+                that.barreOutils._setMapComponent(panneau._getMapComponent());
+            };
+        });
+        return this.barreOutils;
+    };
+
+    /** 
+     * Obtenir la barreOutils liée au navigateur
+     * @method 
+     * @name Navigateur#obtenirBarreOutils
+     * @returns {BarreOutils} Instance de {@link BarreOutils}
+    */
+    Navigateur.prototype.obtenirBarreOutils = function(){
+        return this.barreOutils;
+    };
+
+    /** 
+     * Ajouter un panneau au navigateur.
+     * Doit être fait avant {@link Navigateur#init).
+     * @method 
+     * @name Navigateur#ajouterPanneau
+     * @param {Panneau} panneau Panneau à ajouter.
+     * @exception L'intrant panneau est du bon type
+    */
+    Navigateur.prototype.ajouterPanneau = function(panneau){
+        if (panneau instanceof Panneau === false){
+            throw new Error("Igo.Navigateur.ajouterPanneau(panneau) a besoin d'un objet de type Igo.Panneaux");
+            return false;
+        } 
+        
+        panneau.definirCarte(this.carte);
+        if (panneau.obtenirTypeClasse()=== 'PanneauCarte') {
+            panneau.barreOutils = this.barreOutils;
+        }
+        panneau._init();
+        this.listePanneaux.push(panneau);
+    };
+    
+    /** 
+     * Obtenir la liste des panneaux
+     * @method 
+     * @name Navigateur#obtenirPanneaux
+     * @returns {Tableau} Liste de {@link Panneau}
+    */
+    Navigateur.prototype.obtenirPanneaux = function(){
+        return this.listePanneaux;
+    };
+   
+    /** 
+     * Obtenir le panneau ayant l'identifiant fourni en intrant
+     * @method 
+     * @name Navigateur#obtenirPanneauParId
+     * @param {String} id Identifiant du panneau recherché
+     * @returns {Panneau} Instance de {@link Panneau}
+    */
+    Navigateur.prototype.obtenirPanneauParId = function(id){
+        var panneau; 
+        $.each(this.listePanneaux, function(key, value){
+            if(value.obtenirId() === id){
+                panneau=value;
+                return false;
+            };
+        });
+        return panneau;
+    };
+    
+    /** 
+     * Obtenir les panneaux d'un certain type
+     * @method 
+     * @name Navigateur#obtenirPanneauxParType
+     * @param {String} type Type du panneau recherché
+     * @returns {Tableau} Tableau de {@link Panneau}
+    */
+    Navigateur.prototype.obtenirPanneauxParType = function(type){
+        var panneau=[]; 
+        $.each(this.listePanneaux, function(key, value){
+            if(value.obtenirTypeClasse() === type){
+                panneau.push(value);
+            };
+        });
+        return panneau;
+    };
+    
+    return Navigateur;
+
+});
+
+</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		Navigateur Copyright © 2014
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-dev</a>
+		on Wed Jun 18 2014 14:09:12 GMT-0400 (EDT) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+			    anchorName  : function(i, heading, prefix) {
+					return $(heading).attr("id") || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+
+</body>
+</html>

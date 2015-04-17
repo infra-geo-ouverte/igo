@@ -1,0 +1,38 @@
+<?php use Phalcon\Tag; ?>
+<?php echo $this->getContent(); ?>
+<?php $this->partial("commun/titre", array("titre" =>"Géométries")) ?>
+<?php $this->partial("commun/search_entete") ?>
+
+<table class="table table-striped table-search">
+    <thead>
+        <tr>
+            <th class="id"><?php echo $this->tag->linkTo("igo_geometrie/search?order=id", "Id<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th>Classe d'entité</th>
+            <th>Type de géométrie</th>
+            <th>Date de chargement</th>
+            <th>Remarque</th>
+            <th class="date_modif"><?php echo $this->tag->linkTo("igo_geometrie/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="editer"></th>
+            <th class="detruire"></th>
+            <th class="attributs"></th>
+            <th class="couches"></th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($page->items as $igo_geometrie) { ?>
+        <tr>
+            <td><?php echo $igo_geometrie->id ?></td>
+            <td><?php if ($igo_geometrie->IgoClasseEntite) { echo $igo_geometrie->IgoClasseEntite->nom;} ?></td>
+            <td><?php if ($igo_geometrie->IgoGeometrieType) { echo $igo_geometrie->IgoGeometrieType->nom;} ?></td>
+            <td><?php echo $igo_geometrie->date_chargement ?></td>
+            <td><?php echo $igo_geometrie->remarque ?></td>
+            <td><?php echo $igo_geometrie->date_modif ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie/edit/" . $igo_geometrie->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
+            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie/delete/". $igo_geometrie->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td><?php echo $this->tag->linkTo(array("geometrie_et_attribut/do/" . $igo_geometrie->id, "Attributs", "target"=>"_parent")); ?></td>
+            <td><?php echo $this->tag->linkTo(array("geometrie_et_couche/do/" . $igo_geometrie->id, "Couches", "target"=>"_parent")); ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php $this->partial("commun/search_pagination") ?>

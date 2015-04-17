@@ -1,0 +1,32 @@
+html body{
+    background-color:white;
+}
+
+body{
+    background-color:white;
+    padding:0px;
+    color: #000;
+}
+
+.container{
+    margin: 30px 20px;
+}
+
+#gris{
+    background-color: #eeeeee;
+    border: 1px solid #bbbbbb;
+    border-radius:8px;
+}
+form .row{
+    padding:0.5em 0;
+}   
+.bloc-connexion{
+    border-radius:8px;
+    background-color: white;
+    margin:1em 0;
+    padding:1em 0;
+}
+
+.login_error {
+    font-weight: bold;
+}
