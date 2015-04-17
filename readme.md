@@ -40,3 +40,35 @@ All contributors in the project will keep their property rights on the project.
 * Adapted to change backend libraries (OL3, Leaflet)
 * Made also for integration in web site/portal as iframe
 * IGO is an API based on MVC
+
+# Installation et démarrage de l'environnement de développement
+
+Guide d'installation rapide pour installer et démarrer la machine virtuelle pour tester et/ou développer dans IGO.
+
+## Installation
+
+Cette procédure a été testée avec un système d'exploitation Ubuntu 14.04. Elle permet d'installer Vagrant avec comme provider VirtualBox.
+
+```sh
+$ sudo apt-get install virtualbox
+$ wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
+$ sudo dpkg -i vagrant_1.7.2_x86_64.deb
+$ vagrant plugin install vagrant-r10k
+```
+
+## Démarrage
+
+À la racine de votre dépôt git (où se trouve le fichier Vagrantfile), exécutez la commande suivante:
+
+```sh
+$ vagrant up
+```
+
+Cela prendra plusieurs minutes la première fois (téléchargement de l'image ubuntu/trusty64) et environ 2 minutes par la suite.
+
+
+Documentation Vagrant: **http://docs.vagrantup.com/v2/cli/index.html**
+
+## Accès avec le navigateur web
+
+IGO-Navigateur: **http://localhost:4579/navigateur/**
