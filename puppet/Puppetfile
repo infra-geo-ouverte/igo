@@ -25,8 +25,8 @@ mod 'ntp',
   :ref => '3.3.0'
 
 mod 'php',
-  :git => 'https://github.com/jippi/puppet-php.git',
-  :ref => '4d0648af32dff3b5e78dd8a3c964888257271d89'
+   :git => 'https://github.com/tremblaysimon/puppet-php.git',
+   :ref => 'addMapscriptExtension'
 
 mod 'postgresql',
   :git => 'https://github.com/puppetlabs/puppetlabs-postgresql.git',
