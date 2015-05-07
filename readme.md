@@ -43,7 +43,7 @@ All contributors in the project will keep their property rights on the project.
 
 # Installation et démarrage de l'environnement de développement
 
-Guide d'installation rapide pour installer et démarrer la machine virtuelle pour tester et/ou développer dans IGO.
+Guide d'installation rapide pour installer et démarrer une machine virtuelle préconfigurée pour tester et/ou développer dans IGO.
 
 ## Installation
 
