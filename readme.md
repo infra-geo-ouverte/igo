@@ -55,6 +55,7 @@ $ wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
 $ sudo dpkg -i vagrant_1.7.2_x86_64.deb
 $ vagrant plugin install vagrant-r10k
 ```
+* Sur Windows, il suffit de télécharger et installer VirtualBox (https://www.virtualbox.org/wiki/Downloads) et Vagrant (https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.msi) et ensuite le plugin vagrant-r10k (en ligne de commande). Le reste de la procédure pour démarrer la machine virtuelle demeure la même (en ligne de commande Windows).
 
 ## Démarrage
 
