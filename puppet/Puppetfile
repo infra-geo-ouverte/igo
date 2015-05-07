@@ -14,7 +14,7 @@ mod 'concat',
 
 mod 'igo',
   :git => 'https://github.com/tremblaysimon/puppet-igo.git',
-  :ref => 'cleanupCode' # To be set to a fixed version when it will be done.
+  :ref => 'newPuppetModule' # To be set to a fixed version when it will be done.
 
 mod 'inifile',
   :git => 'https://github.com/puppetlabs/puppetlabs-inifile.git',
