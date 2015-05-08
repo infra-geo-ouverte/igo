@@ -5,16 +5,16 @@ mod 'apache',
   :ref => '1.2.0'
 
 mod 'apt',
-  :git => 'https://github.com/puppetlabs/puppetlabs-apt',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apt.git',
   :ref => '1.7.0'
 
 mod 'concat',
-  :git => 'https://github.com/puppetlabs/puppetlabs-concat',
+  :git => 'https://github.com/puppetlabs/puppetlabs-concat.git',
   :ref => '1.1.2'
 
 mod 'igo',
-  :git => 'https://github.com/tremblaysimon/puppet-igo.git',
-  :ref => 'newPuppetModule' # To be set to a fixed version when it will be done.
+  :git => 'https://github.com/infra-geo-ouverte/puppet-igo.git',
+  :ref => '1.0.0'
 
 mod 'inifile',
   :git => 'https://github.com/puppetlabs/puppetlabs-inifile.git',
