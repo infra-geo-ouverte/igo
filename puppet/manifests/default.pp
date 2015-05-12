@@ -8,6 +8,8 @@ node default {
         timezone => 'America/Montreal',
     }
 
-    class { 'igo': }
+    class { 'igo':
+      usedByVagrant => true
+    }
 
 }
