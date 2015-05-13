@@ -73,8 +73,6 @@ Vagrant.configure(2) do |config|
   config.r10k.puppetfile_path = 'puppet/Puppetfile'
   config.r10k.module_path = 'puppet/externalmodules'
 
-  config.vm.provision "shell", inline: "apt-get update"
-
   config.vm.provision "puppet" do |puppet|
     puppet.hiera_config_path = 'puppet/hiera.yaml'
     puppet.manifests_path = 'puppet/manifests'
