@@ -2,44 +2,50 @@
 
 mod 'apache',
   :git => 'https://github.com/puppetlabs/puppetlabs-apache.git',
-  :ref => '1.2.0'
-
-mod 'apt',
-  :git => 'https://github.com/puppetlabs/puppetlabs-apt.git',
-  :ref => '1.7.0'
-
-mod 'concat',
-  :git => 'https://github.com/puppetlabs/puppetlabs-concat.git',
-  :ref => '1.1.2'
+  :ref => '1.4.1'
 
 mod 'igo',
   :git => 'https://github.com/infra-geo-ouverte/puppet-igo.git',
-  :ref => '1.0.0'
-
-mod 'inifile',
-  :git => 'https://github.com/puppetlabs/puppetlabs-inifile.git',
-  :ref => '1.2.0'
+  :ref => '1.1.0'
 
 mod 'ntp',
   :git => 'https://github.com/puppetlabs/puppetlabs-ntp.git',
   :ref => '3.3.0'
 
 mod 'php',
-   :git => 'https://github.com/tremblaysimon/puppet-php.git',
-   :ref => 'addMapscriptExtension'
+   :git => 'https://github.com/example42/puppet-php.git',
+   :ref => 'v2.0.20'
 
 mod 'postgresql',
   :git => 'https://github.com/puppetlabs/puppetlabs-postgresql.git',
   :ref => '4.3.0'
 
-mod 'stdlib',
-  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git',
-  :ref => '4.5.1'
-
 mod 'timezone',
   :git => 'https://github.com/saz/puppet-timezone.git',
-  :ref => 'v3.1.1'
+  :ref => 'v3.3.0'
 
 mod 'vcsrepo',
   :git => 'https://github.com/puppetlabs/puppetlabs-vcsrepo.git',
   :ref => '1.2.0'
+
+### DEPENDENCIES (used indirectly by igo module) ###
+
+# Required by postgresql,
+mod 'apt',
+  :git => 'https://github.com/puppetlabs/puppetlabs-apt.git',
+  :ref => '2.0.0'
+
+# Required by apache, ntp, postgresql, timezone
+mod 'stdlib',
+  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git',
+  :ref => '4.5.1'
+
+# Required by apache, postgresql
+mod 'concat',
+  :git => 'https://github.com/puppetlabs/puppetlabs-concat.git',
+  :ref => '1.2.2'
+
+# Required by php,
+mod 'puppi',
+   :git => 'https://github.com/example42/puppi.git',
+   :ref => 'v2.1.11'
