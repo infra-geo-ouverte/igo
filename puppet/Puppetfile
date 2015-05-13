@@ -5,8 +5,8 @@ mod 'apache',
   :ref => '1.4.1'
 
 mod 'igo',
-  :git => 'https://github.com/tremblaysimon/puppet-igo.git',
-  :ref => 'improveModule'
+  :git => 'https://github.com/infra-geo-ouverte/puppet-igo.git',
+  :ref => '1.1.0'
 
 mod 'ntp',
   :git => 'https://github.com/puppetlabs/puppetlabs-ntp.git',
