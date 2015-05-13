@@ -57,6 +57,38 @@ Windows
 * Made also for integration in web site/portal as iframe
 * IGO is an API based on MVC
 
+# Installation et démarrage de l'environnement de développement
+
+Guide d'installation rapide pour installer et démarrer une machine virtuelle préconfigurée pour tester et/ou développer dans IGO.
+
+## Installation
+
+Cette procédure a été testée avec un système d'exploitation Ubuntu 14.04. Elle permet d'installer Vagrant avec comme provider VirtualBox.
+
+```sh
+$ sudo apt-get install virtualbox
+$ wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
+$ sudo dpkg -i vagrant_1.7.2_x86_64.deb
+$ vagrant plugin install vagrant-r10k
+```
+* Sur Windows, il suffit de télécharger et installer VirtualBox (https://www.virtualbox.org/wiki/Downloads) et Vagrant (https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.msi) et ensuite le plugin vagrant-r10k (en ligne de commande). Le reste de la procédure pour démarrer la machine virtuelle demeure la même (en ligne de commande Windows).
+
+## Démarrage
+
+À la racine de votre dépôt git (où se trouve le fichier Vagrantfile), exécutez la commande suivante:
+
+```sh
+$ vagrant up
+```
+
+Cela prendra plusieurs minutes la première fois (téléchargement de l'image ubuntu/trusty64) et environ 2 minutes par la suite.
+
+
+Documentation Vagrant: **http://docs.vagrantup.com/v2/cli/index.html**
+
+## Accès avec le navigateur web
+
+IGO-Navigateur: **http://localhost:4579/navigateur/**
 ***
 ### Contribuer
 Nous sommes bien content que vous pensiez contribuer à IGO ! Avant de le faire, nous vous encourageons à lire le guide de contribution, la LICENCE et la FAQ qui sont tous dans ce même dépôt. Si vous avez d'autres questions, n'hésitez pas à écrier à IGO à ce courriel : igo(a)msp.gouv.qc.ca ou à la liste courriel http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique.
