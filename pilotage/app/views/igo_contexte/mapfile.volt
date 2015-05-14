@@ -46,7 +46,6 @@ MAP
     {% if couche.ind_data and (couche.est_visible or couche.est_active) %}
             LAYER
                     NAME "{{couche.mf_layer_name}}"
-                    IGO_NAME "{{couche.mf_layer_name_original}}"
                     TYPE {{couche.IgoCouche.IgoGeometrie.IgoGeometrieType.layer_type}}
 
                     GROUP "{{couche.mf_layer_group}}"
@@ -76,6 +75,7 @@ MAP
                     {% endif  %}
 
                     METADATA
+                            "layer_name_igo" "{{couche.mf_layer_name_igo}}"
                             "wms_group_title"      "{{ couche.mf_layer_meta_group_title}}"
                             "wms_name"             "{{ couche.mf_layer_meta_name}}"
                             "wms_title"            "{{ couche.mf_layer_meta_title}}"
