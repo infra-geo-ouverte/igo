@@ -158,7 +158,8 @@ class IgoContexteController extends ControllerBase {
      
      public function saveAction($r_controller = null, $r_action = null, $r_id = null) { 
          $this->traiterCodeOnlineRessource();
-         parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+         //parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+         parent::saveAction(null, null, null);
          
      }
 
