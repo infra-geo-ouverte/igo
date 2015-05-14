@@ -97,8 +97,6 @@ class IgoContexteController extends ControllerBase {
         }
         
         $contexte = $igo_contexte->toArray();
-        $couches = array();
-       // $igo_couches = $igo_contexte->getCouches();
 
         $contexte["wms_onlineresource"] = $this->view->host . $igo_contexte->mf_map_meta_onlineresource;
 
@@ -147,7 +145,7 @@ class IgoContexteController extends ControllerBase {
         $this->view->contexte = $contexte;
         $this->view->preview = true;
         
-        return array($contexte, $couches);
+        return array($contexte);
     }
 
     public function saveMapFile($contexte_id) {
@@ -160,7 +158,8 @@ class IgoContexteController extends ControllerBase {
      
      public function saveAction($r_controller = null, $r_action = null, $r_id = null) { 
          $this->traiterCodeOnlineRessource();
-         parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+         //parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+         parent::saveAction(null, null, null);
          
      }
 
