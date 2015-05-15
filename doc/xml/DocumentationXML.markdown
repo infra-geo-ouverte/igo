@@ -1491,7 +1491,11 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |titre	|Titre de la couche			|Non	|Chaîne alphanumérique|*Valeur de l’attribut nom*|
 |extraParams|Paramètres supplémentaires à spécifier lors de l’appel au service de carte|Non|Chaîne alphanumérique||
 |mapdir	|Chemin du mapfile à utiliser (dans le cas d’un service de carte publié avec MapServer)|Non (sauf dans le cas d’un service de carte publié avec MapServer)|Chaîne alphanumérique||
-
+|infoFormat|Spécifier le format du GetFeatureInfo disponible pour la couche WMS|Non    |*html*,*xml*,*gml*,*gml311*||
+|infoEncodage|Spécifier l'encodage de la couche WMS|Non |Chaîne alphanumérique||
+|infoGabarit|Indiquer l'emplacement d'un gabarit personnalisé|Non|Chaîne alphanumérique||
+|impressionURL|URL du service de la carte|Non   |URL||
+|mode|Intégrer l'ensemble des couches d'un service WMS|Non  |*getCapabilities*||
 *Exemples*
 ```xml
 <couche url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"

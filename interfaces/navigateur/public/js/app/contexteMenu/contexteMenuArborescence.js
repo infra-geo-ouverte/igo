@@ -32,6 +32,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
         this.ajouterFonctionsConstruction(this.initOrdreAffichageSubmenu);
         this.ajouterFonctionsConstruction(this.initOuvrirTableVecteur);
         this.ajouterFonctionsConstruction(this.initZoomEmprise);
+        this.ajouterFonctionsConstruction(this.initSelectionnerTout);
         this.ajouterFonctionsConstruction(this.initActiverImportationSubmenu);
         this.ajouterFonctionsConstruction(this.initWMStime);
         this.ajouterFonctionsConstruction(this.initMetadonneeSubmenu);
@@ -309,6 +310,20 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
     	//TODO else if WMS
     	
     };
+
+    ContexteMenuArborescence.prototype.initSelectionnerTout = function(args){
+      
+        if( args.couche.obtenirTypeClasse() === 'Vecteur' ) {
+    	    return {
+                id: 'arborescenceSelectionnerToutVecteur',
+                text : 'Sélectionner tout',
+                handler : function() {
+                    args.couche.selectionnerTout();
+                }
+            };
+    	}  
+    };
+    
     
     
     ContexteMenuArborescence.prototype.initOuvrirTableVecteur = function(args){      

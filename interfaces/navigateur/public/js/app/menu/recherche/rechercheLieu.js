@@ -22,7 +22,6 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             typeRecherche:"lieu",
-            recherchePrefixe:"LIEU",
             titre:"Lieu"
         });
     };
@@ -169,7 +168,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         });
         Recherche.prototype.initEventResultat.call(this);
     };
-    
+
     return RechercheLieu;
     
 });

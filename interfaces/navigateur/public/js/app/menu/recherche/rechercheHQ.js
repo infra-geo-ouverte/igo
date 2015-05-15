@@ -22,7 +22,6 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             typeRecherche:"hq",
-            recherchePrefixe:"HQ",
             titre:"HQ"
         });
     };
@@ -132,7 +131,6 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         this.definirResultat(resultat, this.initEventResultat, this);
         Recherche.prototype.traiterResultatVecteur.call(this, vecteur);
     };
-
     
     return RechercheHQ;
     

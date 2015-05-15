@@ -138,6 +138,44 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     };
     
     /** 
+    * Obtenir la liste des couches avec l'aide d'un regex
+    * @method 
+    * @name GestionCouches#trouverCouches
+    * @param {String} regex Regex à chercher
+    * @returns {Tableau} Tableau de {@link Couche}
+    */
+    GestionCouches.prototype.trouverCouches = function(regex, opt) {
+        opt = opt || {};
+        var testerTitre = opt.testerTitre !== false ? true : false;
+        var testerGroupe = opt.testerGroupe !== false ? true : false;
+        
+        if(typeof regex === "string"){
+            var ignorerCase = opt.ignorerCase !== false ? 'i' : '';
+            var string = regex;
+            if(opt.exacte !== true){
+                //todo: il faut que ça soit dans le bon ordre, devrait peut-être séparer les regex.test pour en faire un par mot
+                string = string.replace(/ /g, ".*");
+            }
+            regex = new RegExp(string, ignorerCase);
+        } else if (regex instanceof RegExp){
+            //ne prend pas en compte les options
+//            if(opt.ignoreCase){
+//                regex.ignoreCase = opt.sensibleCase;
+//            }
+        } else {
+            return false;
+        }
+        
+        var couches = [];
+        $.each(this.listeCouches, function(index, value){
+            if((testerTitre && regex.test(value.obtenirTitre())) || (testerGroupe && regex.test(value.obtenirGroupe()))){
+                couches.push(value);
+            }
+        });
+        return couches;
+    };
+    
+    /** 
     * Obtenir la liste des couches de type BaseLayer.
     * @method 
     * @name GestionCouches#obtenirCouchesDeBase

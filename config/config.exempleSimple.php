@@ -37,13 +37,17 @@ return array(
         'OutilRapporterBogue'    => array('lien' => 'http://geoegl.msp.gouv.qc.ca/mantis/login_page.php'),
         'OutilAjoutWMS'         => array('urlPreenregistre' => "http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi,"
                                                             . "http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi"),
-        'OutilAide'     => array ('lien' => "guides/guide.pdf")
+        'OutilZoomPreselection'  => array('service' => '[zoomPreSelection]'), //Fait référence à servicesExternes->zoomPreSelection
+        'OutilAide'     => array ('lien' => "guides/guide.pdf"),
+        'WMS'     =>  array(
+            'infoFormat' => "application/vnd.ogc.gml"
+        )
     ),
     //Services permis par le proxy
     'servicesExternes' => array(
+        'zoomPreSelection'  => 'http://spssogl97d.sso.msp.gouv.qc.ca/libcommunes/MSPwidgets/coordonnees.php',
         'regex'         =>  array(
-            "#http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi#",
-            "#http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi#",
+            "#http://geoegl\.msp\.gouv\.qc\.ca/cgi-wms/(.)+\.fcgi#"
         )
     ),
     // les configurations permettent d'appeler un fichier xml en mode rest et d'associer une clé avec un lien vers un fichier

@@ -312,11 +312,22 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
 
         this.declencher({type: "appelerServiceRecherche", recherche: this});
     };
-
-    Recherche.prototype.appelerServiceErreur = function(jqXHR) {
-        this.definirResultat(jqXHR.responseText);
-    };
     
+    Recherche.prototype.appelerServiceErreur = function(jqXHR){
+        var messageErreur = jqXHR.responseText;
+        
+        if(jqXHR.responseJSON){
+            messageErreur = jqXHR.responseJSON.message_erreur;
+        
+            if(jqXHR.responseJSON.detail_message){
+                $.each(jqXHR.responseJSON.detail_message, function(key, value){
+                    messageErreur += "<br>"+value;
+                });
+            }
+        }
+        this.definirResultat(messageErreur);
+    };
+
     Recherche.prototype.traiterResultatVecteur = function(vecteur){
         vecteur.garderHistorique = true;
         var occurence = vecteur.obtenirOccurences()[0];
@@ -506,10 +517,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     Recherche.prototype.definirResultat = function(resultatTexte, callback, target) {
         //Masquer le message d'attente
         Aide.cacherMessageChargement();
-
-        this.resultatPanneau.items.items[0].body.update(resultatTexte);
+        
         this.resultatPanneau.show().expand();
-
+        this.resultatPanneau.items.items[0].body.update(resultatTexte);
         if (typeof callback === "function"){
             callback.call(target);
         }
@@ -517,7 +527,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     
     Recherche.prototype.verifierParamsUrl = function(){
     };
-
+    
     return Recherche;
 
 });

@@ -30,7 +30,7 @@
     {% include "partials/requireConfig.volt" %}
 
     require(buildIGO, function(){
-        var igoNavReq = ['aide', 'browserDetect', 'analyseurConfig'];
+        var igoNavReq = ['aide', 'browserDetect', 'fonctions', 'analyseurConfig'];
         var igoAideReq = ['requireAide', 'proj4js', 'epsgDef' ];
 
         var igoReq = igoNavReq.concat(igoAideReq);

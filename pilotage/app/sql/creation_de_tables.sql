@@ -396,7 +396,7 @@ ALTER SEQUENCE igo_geometrie_type_id_seq OWNED BY igo_geometrie_type.id;
 
 CREATE TABLE igo_groupe (
     id integer NOT NULL,
-    nom character varying(100),
+    nom character varying(150),
     description character varying(200),
     date_modif timestamp without time zone,
     profil_proprietaire_id integer,
