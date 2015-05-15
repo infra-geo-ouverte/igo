@@ -73,11 +73,11 @@ class MapfileParser {
                 $mapParameters = array(
                     "projection"
                 );
-
+                
                 foreach ($mapMetaData as $metaData) {
                     $m[$metaData] = $map->getMeta($metaData);
                 }
-
+             
                 foreach ($mapParameters as $parameter) {
                     $m[$parameter] = $map->getParam($parameter);
                 }

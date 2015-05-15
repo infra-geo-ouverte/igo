@@ -92,7 +92,7 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
                 $.ajax({
                     url: coucheWFSActive.options.url, //'http://geodev10.sso.msp.gouv.qc.ca/cgi-wms/mapserv.fcgi',
                     data: {
-                        MAP: coucheWFSActive.options.mapdir,//'/srv/www/geomatique/partage/services/map/igo_mapfile/contextes/gouvouvertqc.map',
+                        MAP: coucheWFSActive.options.mapdir,
                         SERVICE:'WFS',
                         VERSION: '1.0.0',
                         REQUEST: 'getfeature',

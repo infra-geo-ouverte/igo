@@ -78,7 +78,8 @@ class Map{
             "ows_exclude_items",
             "ows_include_items",
             "msp_classe_meta",
-            "wms_attribution_title"
+            "wms_attribution_title",
+            "layer_name_igo"
         );
 
         $layerZIndex = array(
@@ -101,7 +102,7 @@ class Map{
         for($i = 0; $i < $this->oMap->numlayers; $i++){
             //create new layer object
             $layer = new Layer($this->oMap->getLayer($i));
-
+            
             //Create new empty hash array to store layer data
             $l = array();
 
@@ -113,6 +114,10 @@ class Map{
             //Get some metadata
             foreach ($layerMetaData as $metaData) {
                 $l[$metaData] = $layer->getMeta($metaData);
+                //Utiliser le layer name destiné à l'usage de IGO au besoin
+                if($metaData == "layer_name_igo"){
+                    $l['name'] = $l[$metaData];
+                }
             }
             //Get other parameters as plain text
             $l['layer_def'] = $layer->getLayerDef($layerParameters);
@@ -137,7 +142,7 @@ class Map{
             $l['zIndex'] = $index;            
             $layers[] = $l;
         }
-
+        
         return $layers;
     }
 }
