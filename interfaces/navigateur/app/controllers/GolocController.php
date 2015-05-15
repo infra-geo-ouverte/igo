@@ -84,48 +84,45 @@ class GolocController extends ControllerBase
         }                
     }
     
-    public function contexteAction($id) {
-        if(!is_numeric($id)){
-            $this->dispatcher->forward(array(
-                "controller" => "error",
-                "action" => "error404"
-            ));
-            return;
-        }
-
+    public function contexteAction($code) {
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
         $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
         $filemtime = filemtime ($xmlPath);
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
         $this->view->setVar("couche", "null");
+        
+        $type = "id";
+        if(!is_numeric($code)){
+            $type = "code";      
+            $contexte = IgoContexte::findFirst("$type='$code'");
+        } else {
+            $contexte = IgoContexte::findFirst("$type=$code");
+        }
 
-        $contexte = IgoContexte::findFirst("id=$id");
-
+        $this->view->setVar("contexteCode", "null");
+        $this->view->setVar("contexteId", "null");
         if($contexte){
-            $this->view->setVar("contexteId", $id . "?v=" . md5($contexte->date_modif));
-            $this->view->setVar("contexteCode", "null");
+            $this->view->setVar("contexte".ucfirst($type), $code . "?v=" . md5($contexte->date_modif));
         }else {
-            $this->view->setVar("avertissement", "Le contexte avec le id:$id n'existe pas");
-            $this->view->setVar("contexteCode", "null");
-            $this->view->setVar("contexteId", "null");
+            $this->view->setVar("avertissement", "Le contexte avec le $type:$code n'existe pas");
         }
     }
 
-    public function coucheAction($id) {
+    public function coucheAction($id) {  
          
-        function filterArray($value){
+        $filterArray = function ($value){
             if(is_numeric($value)){
                 return $value;
             }
-        }
+        };
                 
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
         $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];    
         $filemtime = filemtime ($xmlPath);        
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
-        $arrayCoucheId = array_filter(explode(",",$id), "filterArray");    
+        $arrayCoucheId = array_filter(explode(",",$id), $filterArray);    
             
         $couches = array();
         foreach ($arrayCoucheId as $key => $value) {
@@ -148,18 +145,18 @@ class GolocController extends ControllerBase
     
      public function groupeAction($id) {
          
-        function filterArray($value){
+        $filterArray = function ($value){
             if(is_numeric($value)){
                 return $value;
             }
-        }
+        };
                   
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
         $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];    
         $filemtime = filemtime ($xmlPath);        
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
-        $arrayGroupeCoucheId = array_filter(explode(",",$id), "filterArray");    
+        $arrayGroupeCoucheId = array_filter(explode(",",$id), $filterArray);    
         
         $couches = array();
         foreach ($arrayGroupeCoucheId as $key => $value) {

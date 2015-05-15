@@ -54,13 +54,14 @@ class MapfileParser {
                 try {
                     $projLib = getenv("PROJ_LIB");
                     $mapFileContent = $this->fopen_file_get_contents($file);
-                    $mapFileContent = str_replace("MAP\r\n", "MAP\r\nCONFIG PROJ_LIB {$projLib}\r\n", $mapFileContent);
+                    $mapFileContent = preg_replace('/(\n|^)\s*MAP\s*(\n|#)/', "$0\nCONFIG PROJ_LIB {$projLib}\n", $mapFileContent, 1);
                     $oMap = ms_newMapObjFromString($mapFileContent, dirname($file));
                 } catch (Exception $e) {
                     $error = ms_getErrorObj();
                     throw new Exception($error->message);
                     exit;
                 }
+
                 $map = new Map($oMap);
 
                 $m = array();

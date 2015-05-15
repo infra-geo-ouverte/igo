@@ -180,6 +180,7 @@ $di->set('profiler', function(){
 $di->setShared('session', function () {
    
     $session = new SessionAdapter();
+    session_name('sessionIGO');
     $session->start();
 
     return $session;
@@ -194,7 +195,7 @@ $di->set('router', function(){
     $router = new \Phalcon\Mvc\Router();
     //Define a route
     $router->add(
-        "/contexte/{contexteId:[0-9]+}",
+        "/contexte/{contexte}",
         array(
             "controller" => "goloc",
             "action"     => "contexte",

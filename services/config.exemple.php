@@ -2,12 +2,12 @@
 
 // Config pour le service d'impression
 $GLOBALS['apps_config']['impression'] = array(
-	'imagepath'			=> 	'/tmp/',
+	'imagepath'			=> 	'/srv/www/geomatique/partage/services/tmp/',
 	'imageurl'			=> 	'/ms_tmp/',
-	'proj_lib'			=> 	'epsg',
-	'symbol_path'		=>	'symbol_path',
-	'map_path'			=>	'map_path',
-	'map_template'		=>	'map_template'	
+	'proj_lib'			=> 	'/srv/www/geomatique/services/epsg/',
+	'symbol_path'		=>	'/srv/www/geomatique/services/symbols/',
+	'map_path'			=>	'/srv/www/geomatique/partage/services/map/',
+	'map_template'	=>	'/srv/www/geomatique/partage/services/map/print_vecteurs_annotations_template.map'	
 );
 
 // Config pour le service GeoNetwork

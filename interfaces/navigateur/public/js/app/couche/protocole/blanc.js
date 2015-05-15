@@ -22,14 +22,8 @@ define(['couche'], function(Couche) {
     function Blanc(options){
         this.options = options || {};
         this.options.fond = true;
-        
-        this._optionsOL = {
-            sphericalMercator: true, 
-            numZoomLevels: 20
-        };
-        
-        this._init(options);
-        
+
+        this._init(options); 
     };
     
     Blanc.prototype = new Couche();
@@ -50,6 +44,11 @@ define(['couche'], function(Couche) {
             this._optionsOL
         );
     };
+    
+    Blanc.prototype._ajoutCallback = function(target, callback, optCallback){
+        this._layer.numZoomLevels=this.carte._carteOL.numZoomLevels;
+        Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
+    };    
     
     return Blanc;
     

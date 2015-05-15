@@ -164,6 +164,7 @@ $di->setShared('cache', function() {
  */
 $di->setShared('session', function () use ($config) {
     $session = new SessionAdapter();
+    session_name('sessionIGO');
     $session->start();
     return $session;
 });

@@ -416,7 +416,16 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
         this._ = _;
         this.activerOccurenceEvenement();
         if(Aide.toBoolean(this._.options.aContexteMenu) !== false){
-            this.contexteMenu = new ContexteMenuCarte({carte: this._, cible: '#OpenLayers_Map_2_OpenLayers_ViewPort'});
+            var nav = Aide.obtenirNavigateur();
+            var initContexteMenuCarte = function(e){
+                var scope = e.options.scope;
+                scope.contexteMenu = new ContexteMenuCarte({carte: scope._, cible: '#mapComponent .olMapViewport'});
+            }
+            if(nav && nav.isReady){
+                initContexteMenuCarte({options:{scope: this}});      
+            } else {
+                this._.ajouterDeclencheur('carteInit', initContexteMenuCarte, {scope: this})
+            }
         }
     };
     
