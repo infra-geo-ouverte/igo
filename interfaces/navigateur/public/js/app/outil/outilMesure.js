@@ -1,4 +1,4 @@
-define(['outil', 'aide'], function(Outil, Aide) {
+define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
     var oWindowMeasr;
     function OutilMesure(options){
         this.options = options || {};
@@ -68,15 +68,84 @@ define(['outil', 'aide'], function(Outil, Aide) {
         return this.controle;
     };
     
+    OutilMesure.prototype.traiterMeasr = function(mesure, unite, type, changeAuto) {
+        var that=this;
+        if(!this.$mesureComboPeriUnite){
+            this.$mesureComboPeriUnite = $("#mesureComboPeriUnite");
+            var previous;
+            this.$mesureComboPeriUnite.on('focus', function () {
+                previous = this.value;
+            }).change(function(e) {
+                that.changeUniteEvent(previous, "lineaire");
+                previous = this.value;
+            });
+        }
+        if(!this.$mesureComboAireUnite){
+            this.$mesureComboAireUnite = $("#mesureComboAireUnite");
+            this.$mesureComboAireUnite.on('focus', function () {
+                previous = this.value;
+            }).change(function(e) {
+                that.changeUniteEvent(previous, "aire");
+                previous = this.value;
+            });
+        }
+        var $mesureComboUnite;
+        if(type === "lineaire"){
+            $mesureComboUnite = this.$mesureComboPeriUnite;
+        } else {
+            $mesureComboUnite = this.$mesureComboAireUnite;
+        }
+        if(changeAuto !== false){
+            $mesureComboUnite.children()[0].text= "auto ("+unite+")";
+        }
+        var typeChoisi = $mesureComboUnite.val();
+        if(typeChoisi === "auto"){
+            var text = $mesureComboUnite.children()[0].text;
+            typeChoisi = text.substring(6, text.length-1);
+        }
+        mesure = Fonctions.convertirMesure(mesure, unite, typeChoisi);
+        return mesure.toFixed(3);
+    };
+    
+    
+    OutilMesure.prototype.changeUniteEvent = function(oldUnite, type) {
+        var $mesureComboUnite;
+        var mesure = 0;
+        var oFormMeasr = oWindowMeasr.items.items[0].items.items[0];
+        var length = oFormMeasr.get('length').getValue();
+        var area = oFormMeasr.get('area').getValue();
+        if(type === "lineaire"){
+            $mesureComboUnite = this.$mesureComboPeriUnite;
+            mesure=length;
+        } else {
+            $mesureComboUnite = this.$mesureComboAireUnite;
+            mesure=area;
+        }
+        if(oldUnite === "auto"){
+            var text = $mesureComboUnite.children()[0].text;
+            oldUnite = text.substring(6, text.length-1);
+        }
+        if(mesure){
+            mesure = this.traiterMeasr(mesure, oldUnite, type, false);
+        }
+        if(type === "lineaire"){
+            length = mesure;
+        } else {
+            area = mesure;
+        }
+        this.displayMeasr(length, area);
+    };
+    
     OutilMesure.prototype.executerMeasr = function(event) {
         if(event.order===1){ // LINEAR
-            this.displayMeasr(event.measure.toFixed(3) + " " + event.units);
+            var length = this.traiterMeasr(event.measure, event.units, "lineaire");
+            this.displayMeasr(length);
         }
         else // POLYGON
         {
-            var area = event.measure.toFixed(3) + " " + event.units;
+            var area = this.traiterMeasr(event.measure, event.units + "²", "aire");
             var lengthObj = this.controle.getBestLength(event.geometry);
-            var length = (lengthObj[0]).toFixed(3) + " " + lengthObj[1];
+            var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
             this.displayMeasr(length, area);
         }
     };
@@ -100,16 +169,15 @@ define(['outil', 'aide'], function(Outil, Aide) {
         if(occurence.type == 'Ligne'){
             var geometry = occurence._obtenirGeomOL();
             var lengthObj = this.controle.getBestLength(geometry);
-            var length = (lengthObj[0]).toFixed(3) + " " + lengthObj[1];
-
+            var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
             this.displayMeasr(length);
         } else if(occurence.type == 'Polygone'){
             var geometry = occurence._obtenirGeomOL();
             var lengthObj = this.controle.getBestLength(geometry);
-            var length = (lengthObj[0]).toFixed(3) + " " + lengthObj[1];
+            var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
 
             var areaObj = this.controle.getBestArea(geometry);
-            var area = (areaObj[0]).toFixed(3) + " " + areaObj[1];
+            var area = this.traiterMeasr(areaObj[0], areaObj[1] + "²", "aire");
             this.displayMeasr(length, area);
         };
     };
@@ -117,7 +185,10 @@ define(['outil', 'aide'], function(Outil, Aide) {
     OutilMesure.prototype.displayMeasr = function(length, area) {
         // CREATE THE WINDOW ON THE FIRST CLICK AND REUSE ON SUBSEQUENT CLICKS
         if(!oWindowMeasr){
+                
+
             this.oFormMeasr = new Ext.form.FormPanel({
+                columnWidth: 1,
                 baseCls: 'x-plain',
                 labelWidth: 75,
                 defaultType: 'textfield',
@@ -137,7 +208,8 @@ define(['outil', 'aide'], function(Outil, Aide) {
                     enableLists : false,
                     enableSourceEdit : false,
                     height:32
-                }, {
+                },
+                {
                     id: 'area',
                     fieldLabel: 'Superficie',
                     anchor: '100%',
@@ -156,6 +228,40 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 }]
             });
 
+
+            var oFormMeasrPanel = new Ext.Panel({
+                baseCls: 'x-plain',
+                layout:'column',
+                items: [
+                    this.oFormMeasr,
+                    {
+                        width: 83,
+                        baseCls: '',
+                        items: [{
+                            baseCls: '',
+                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\n\
+                                        <option value='auto'>auto (km)</option> \n\
+                                        <option value='m'>m</option> \n\
+                                        <option value='km'>km</option>  \n\
+                                        <option value='mile'>miles</option>\n\
+                                    </select>"
+                        },
+                        {
+                            baseCls: '',
+                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\n\
+                                        <option value='auto'>auto (km²)</option> \n\
+                                        <option value='m'>m²</option> \n\
+                                        <option value='km²'>km²</option>  \n\
+                                        <option value='mile²'>mile²</option> \n\
+                                        <option value='acre'>acre</option> \n\
+                                        <option value='hectare'>hectare</option>\n\
+                                    </select>"
+                        }]
+                    }                      
+                ]
+            });
+
+
             Ext.override(Ext.form.Field, {
                 setLabel: function(text){
                     if(this.label){
@@ -166,15 +272,15 @@ define(['outil', 'aide'], function(Outil, Aide) {
 
             oWindowMeasr = new Ext.Window({
                 title: 'Mesure',
-                width: 230,
-                height: 114,
+                width: 280,
+                height: 120,
                 closeAction: 'hide',
                 minimizable: true,
                 resizable: true,
                 layout: 'fit',
                 plain:true,
                 bodyStyle:'padding:5px;',
-                items: this.oFormMeasr
+                items: oFormMeasrPanel
             });
             
             var that=this;
@@ -192,7 +298,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
             });
         }
         // UPDATE MEASURES
-        var oFormMeasr = oWindowMeasr.items.items[0];
+        var oFormMeasr = oWindowMeasr.items.items[0].items.items[0];
         var l=oFormMeasr.get('length');
         l.setValue(length);
 
@@ -203,9 +309,8 @@ define(['outil', 'aide'], function(Outil, Aide) {
             a.disable();
         } else {
             l.setLabel('Périmètre');
-            var txtDeux = '2';
             if(area !== ' '){
-                a.setValue(area + txtDeux.sup());
+                a.setValue(area);
             }
             a.enable();
             if(a.iframe){

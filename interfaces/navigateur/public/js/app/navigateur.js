@@ -106,6 +106,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                         afterrender: function(e) {
                             e.scope.isReady = true;
                             if (typeof callback === "function") callback.call(cible, optCallback);
+                            e.scope.carte.declencher({ type: "carteInit"}); 
                             e.scope.declencher({ type: "navigateurInit"}); 
                         }
                     }
@@ -121,6 +122,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                     afterrender: function(e) {
                         e.scope.isReady = true;
                         if (typeof callback === "function") callback.call(cible, optCallback);
+                        e.scope.carte.declencher({ type: "carteInit"}); 
                         e.scope.declencher({ type: "navigateurInit"}); 
                     }
                 }

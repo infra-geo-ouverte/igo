@@ -178,12 +178,12 @@ define([], function() {
     };
     
     Fonctions.convertirMesure = function(mesure, uniteDepart, uniteConvertie){
-        if(!mesure || !uniteDepart || !uniteConvertie){return false;}
+        if(!mesure || !uniteDepart || !uniteConvertie){return 0;}
         
         var metresParUniteDepart = this.obtenirMetresParUnite(uniteDepart);
         var metresParUniteConvertie = this.obtenirMetresParUnite(uniteConvertie);
         
-        if(!metresParUniteDepart || !metresParUniteConvertie){return false;}
+        if(!metresParUniteDepart || !metresParUniteConvertie){return 0;}
 
         return mesure*metresParUniteDepart/metresParUniteConvertie;
     };
@@ -200,7 +200,7 @@ define([], function() {
                 metres = 1000;
                 break; 
             case 'pied':
-                metres = 3.2808399;
+                metres = 0.304799999536704;
                 break;         
             case 'mile':
                 metres = 1609.3440;

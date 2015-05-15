@@ -148,7 +148,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         var capabilityLayers, arrayLayers, len;
         //InfoFormat absent dans le fichier contexte alors on le prend 
         //dans le getCapabilities pour le nouveau GetInfo
-        if(!this.options.infoFormat){
+        if(!this.options.infoFormat && xml.capability.request.getfeatureinfo !== undefined ){
            var arrayInfoFormat = xml.capability.request.getfeatureinfo.formats;
              for (var i = 0; i < arrayInfoFormat.length; i++){
                 if (arrayInfoFormat[i] == "text/html"){

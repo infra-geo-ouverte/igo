@@ -344,7 +344,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_analyserContexte
     */
     AnalyseurConfig.prototype._analyserContexte = function() {
-        if (this.fin.panneaux && this.fin.couches) {
+        if (this.fin.panneaux && this.fin.couches && this.fin.actions) {
             var contexte = new Contexte();
             contexte.charger();
             this._fin();
@@ -706,6 +706,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
     AnalyseurConfig.prototype._analyserActions = function(actions, callback) {
         var that=this;
         if (!actions) {
+            this.fin.actions = true;
             return true;
         }
         var arrayActions = $.isArray(actions.action) ? actions.action : [actions.action];
@@ -730,6 +731,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         });
         require(listActionsReq, function() {
             that.igo.nav.actions = Aide.getRequisObjet(listActionsReq, arguments, false);
+            that.fin.actions = true;
+            that._analyserContexte();
         });
     };
 

@@ -7,7 +7,9 @@
  * @based on Marc-André Barbeau, MSP
  * @version 1.0
  */
-define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) {
+
+define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect) {
+
     /** 
      * Création de l'object Outil.OutilInfo.
      * Pour la liste complète des paramètres, voir {@link Outil}
@@ -29,13 +31,15 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             infobulle: 'Information : sélectionner une couche additionnelle dans ' +
                     'l\'arborescence des couches puis cliquer à l\'endroit voulu sur la carte'
         });
-    };
+    }
+    ;
 
     OutilInfo.prototype = new Outil();
     OutilInfo.prototype.constructor = OutilInfo;
 
     OutilInfo.prototype._init = function () {
         Outil.prototype._init.call(this);
+
     };
 
     OutilInfo.prototype.activerEvent = function () {
@@ -60,8 +64,10 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
 
         this.couchesInterroger = [];
         this.features = [];
+        this.featuresHbars = [];
         this.requetes = 0;
         this.erreurs = 0;
+        this.px;
     };
 
     OutilInfo.prototype.eteindre = function () {
@@ -73,40 +79,109 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
     OutilInfo.prototype.reinitialiser = function () {
         this.couchesInterroger = [];
         this.features = [];
+        this.featuresHbars = [];
         this.requetes = 0;
         this.erreurs = 0;
+        this.px;
     };
-
+  
     OutilInfo.prototype.cliqueCarte = function (e) {
-        Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
-
+       
         var lonlat = e.point._obtenirLonLatOL();
-        var px = this.carte._carteOL.getViewPortPxFromLonLat(lonlat);
+        this.px = this.carte._carteOL.getViewPortPxFromLonLat(lonlat);
 
+        //Appeller la fonction pour obtenir les couche interrogable
         this.couchesInterroger = this.obtCouchesInterrogable();
 
         if (this.couchesInterroger.length == 0) {
             // TODO : this is HARDCODED
             var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
-            Aide.afficherMessage("Erreur", szErrMsg, "OK", "ERROR");
+            Aide.afficherMessage("Outil Information", szErrMsg, "OK", "Info");
             return;
         }
+        
+        //Appller la fonction pour obtenir les gabarit Handlebars pour les couche qui en ont
+        this.obtCouchesHbars(this.couchesInterroger);
+    }
 
-        for (var j = 0; j < this.couchesInterroger.length; j++) {
-            var oLayerToQuery = this.couchesInterroger[j];
-            var nomCoucheLegende = oLayerToQuery.titre;
+ OutilInfo.prototype.obtCouchesInterrogable = function () {
+        var that = this;
+        var couchesInterrogable = [];
+        var couches = that.carte.gestionCouches.obtenirCouchesParType('WMS', true);
+
+        for (var l = 0; l < couches.length; ++l) {
+            var couche = couches[l];
+          
+            couche.options.estInterrogable = couche._layer.queryable;
+
+            if (couche.estActive() &&
+                    couche._layer.getVisibility() && couche._layer.calculateInRange() && couche._layer.queryable &&
+                    (!couche.estFond() || couche._layer.inRange)) {
+
+
+                couchesInterrogable.push({
+                    'layer': couche,
+                    'id': couche.id,
+                    'infoFormat': couche.options.infoFormat,
+                    'infoEncodage': couche.options.infoEncodage,
+                    'infoDeclencheur': couche.options.infoDeclencheur,
+                    'infoGabarit': couche.options.infoGabarit,
+                    'estInterrogable': couche.options.estInterrogable,
+                    'url': couche.options.url,
+                    'nom': couche.options.nom,
+                    'titre': couche.options.titre,
+                    'version': couche.options.version
+                });
+            }
+        }
+        return couchesInterrogable;
+    };
+
+
+
+ OutilInfo.prototype.obtCouchesHbars = function (couches) {
+        var that = this;
+       
+        //On va chercher tous les templates nécessaires pour faire un seul require
+        var doitRequire = [];
+        for (var d = 0; d < couches.length; ++d) {
+            var couche = couches[d];
+            if (couche.infoGabarit !== undefined) {
+                doitRequire.push('hbars!' + couche.infoGabarit);
+            }
+        }
+
+        var i = 0;
+      
+        require(doitRequire, function () {
+            for (var c = 0; c < couches.length; ++c) {
+                var couche = couches[c];
+                //On obtient toutes les couches avec un gabarit 
+                if (couche.infoGabarit !== undefined) {
+                    couche._template = arguments[i];
+                    i++;
+                };
+            }
+
+            //Appeler la fonction pour le traitement ajax
+            that.appelerGetInfo(couches);
+        });
+    };
+
+    OutilInfo.prototype.appelerGetInfo = function (couchesInterroger) {
+        var that = this;
+        var jqXHRs = [];
+
+        for (var j = 0; j < couchesInterroger.length; j++) {
+            var oCoucheObtnInfo = couchesInterroger[j];
+            var nomCoucheLegende = oCoucheObtnInfo.titre;
+            var Template = oCoucheObtnInfo._template;
+
             var coucheInfoFormat;
             var coucheDataType;
             var encodage;
 
-            //Vous devez ajouter l'attribut infoFormat dans la balise XML 
-            //de couche pour cet outil dans votre XML de context
-            //pour le moment c'est le gml si pas défini.
-            if (oLayerToQuery.infoFormat === undefined) {
-                oLayerToQuery.infoFormat = "gml";
-            }
-
-            switch (oLayerToQuery.infoFormat)
+            switch (oCoucheObtnInfo.infoFormat)
             {
                 case "html":
                     coucheInfoFormat = "text/html";
@@ -118,7 +193,7 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
                     break;
                 case "gml311":
                     coucheInfoFormat = "application/vnd.ogc.gml/3.1.1";
-                    coucheDataType = "xml";
+                    coucheDataType = "text";
                     break;
                 case "xml":
                     coucheInfoFormat = "application/vnd.ogc.wms_xml";
@@ -131,113 +206,176 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             }
 
             //Exceptionellement IE on doit passer par le proxy pour encodage
-            if (BrowserDetect.browser == "Explorer") {               
-                encodage = oLayerToQuery.infoEncodage ;
+            if (BrowserDetect.browser == "Explorer") {
+                encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : encodage;
             }
-                
-            $.ajax({
-                url: Aide.utiliserProxy(decodeURIComponent(oLayerToQuery.url)),
-                data:  {
-                    LAYERS: oLayerToQuery.nom,
+
+            jqXHRs.push($.ajax({
+                url: Aide.utiliserProxy(decodeURIComponent(oCoucheObtnInfo.url)),
+                data: {
+                    LAYERS: oCoucheObtnInfo.nom,
                     SERVICE: 'WMS',
                     REQUEST: "GetFeatureInfo",
                     EXCEPTIONS: "application/vnd.ogc.se_xml",
-                    VERSION: oLayerToQuery.version,
+                    VERSION: oCoucheObtnInfo.version,
                     SRS: this.carte._carteOL.getProjection(),
                     BBOX: this.carte._carteOL.getExtent().toBBOX(),
-                    QUERY_LAYERS: oLayerToQuery.nom,
-                    X: Math.floor(px.x),
-                    Y: Math.floor(px.y),
+                    QUERY_LAYERS: oCoucheObtnInfo.nom,
+                    X: Math.floor(this.px.x),
+                    Y: Math.floor(this.px.y),
                     INFO_FORMAT: coucheInfoFormat,
                     FEATURE_COUNT: 100,
                     WIDTH: this.carte._carteOL.size.w,
                     HEIGHT: this.carte._carteOL.size.h,
                     _encodage: encodage
                 },
-                context: this, 
+                context: this,
                 dataType: coucheDataType,
                 beforeSend: function (jqXHR) {
-                    if (oLayerToQuery.infoEncodage !== undefined) {
+                    if (oCoucheObtnInfo.infoEncodage !== undefined) {
                         if (jqXHR.overrideMimeType) {
-                            jqXHR.overrideMimeType(coucheInfoFormat + "; charset=" + oLayerToQuery.infoEncodage); 
+                            jqXHR.overrideMimeType(coucheInfoFormat + "; charset=" + oCoucheObtnInfo.infoEncodage);
                         }
                     }
                 },
-                success: this.traiterRetourInfo(nomCoucheLegende, coucheDataType),
-                error: this.gestionRetourErreur()
+                success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Template),
+                error: this.gestionRetourErreur
+            }));
+
+        }
+
+
+        $(function () {
+            Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
+            $.when.apply(that, jqXHRs).done(function () {
+                that.afficherResultats();
+            Aide.cacherMessageChargement();
             });
-        }
+        });
     };
 
-    OutilInfo.prototype.obtCouchesInterrogable = function () {
+    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, nomGabarit) {
 
-        var couchesInterrogable = [];
-        var couches = this.carte.gestionCouches.obtenirCouchesParType('WMS', true);
+        // On traduit le format de sortie en GeoJson peu import l'appel xml,gml ou gml311
+        var oGeoJSON = new OpenLayers.Format.GeoJSON();
 
-        for (var l = 0; l < couches.length; ++l) {
-            var couche = couches[l];
-
-            if (couche.estActive() &&
-                    couche._layer.getVisibility() && couche._layer.calculateInRange() &&
-                    (!couche.estFond() || couche._layer.inRange)) {
-                couchesInterrogable.push({
-                    'layer': couche,
-                    'infoFormat': couche.options.infoFormat,
-                    'infoEncodage': couche.options.infoEncodage,
-                    'url': couche.options.url || couche._layer.url,
-                    'nom': couche.options.nom || couche._layer.params.LAYERS,
-                    'titre': couche.options.titre || couche._layer.name,
-                    'version': couche.options.version || couche._layer.params.VERSION
-                });
-            }
-        }
-        return couchesInterrogable;
-    };
-
-
-    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheDataType) {
-        
         return function gestionRetour(data, textStatus, jqXhr) {
-            if (coucheDataType == "html") {
-                if (this.gestionRetourHtml(data)){   //Si html est vide ne pas ajouter onglet
-                    this.features = this.features.concat([nomCoucheLegende, data]);//nomCouche et son retour ajax html
+
+            // nomCouche et son retour ajax html
+            if (coucheInfoFormat === "text/html") {
+                //Si html est vide ne pas ajouter onglet
+                if (this.gestionRetourHtml(data)) {
+                    this.features = this.features.concat([nomCoucheLegende, data]);
                 }
-                this.couchesInterroger.splice(-1, 1)
-            }
-            if (coucheDataType == "xml") {
-                var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
-                var oFeatures = oFormat.read_msGMLOutput(data);
-                if (this.gestionRetourXml(oFeatures)){
-                    this.features = this.features.concat([nomCoucheLegende, oFeatures]);// nomCouche et son retour ajax xml
-                }
-                this.couchesInterroger.splice(-1, 1);
             }
 
-            if (this.couchesInterroger.length == 0) {
-                this.afficherResultats();
+            // nomCouche et son retour ajax xml et applique Hbars si defini
+            if (coucheDataType === "xml" && coucheInfoFormat === "application/vnd.ogc.wms_xml") {
+                var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
+                var oFeatures = oFormat.read_FeatureInfoResponse(data);
+
+                if (nomGabarit !== undefined) {
+                    if (this.gestionRetourXml(oFeatures)) {
+                        this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                    }
+                } else {
+                    if (this.gestionRetourXml(oFeatures)) {
+                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures)]);
+                    }
+                }
+            }
+            // nomCouche et son retour ajax text et applique Hbars si defini
+            if (coucheDataType === "xml" && coucheInfoFormat === "application/vnd.ogc.gml") {
+
+                var oFeatures = this.lireGetInfoGml(data);
+
+                if (nomGabarit !== undefined) {
+                    if (this.gestionRetourXml(oFeatures)) {
+                        this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                    }
+                } else {
+                    if (this.gestionRetourXml(oFeatures)) {
+                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures)]);
+                    }
+                }
+            }
+
+            // nomCouche et son retour ajax text et applique Hbars si defini
+            if (coucheInfoFormat === "application/vnd.ogc.gml/3.1.1" ) {
+
+                var oFeatures = this.lireGetInfoGml3(data);
+
+                if (nomGabarit !== undefined) {
+                    if (this.gestionRetourXml(oFeatures)) {
+                        this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                    }
+                } else {
+                    if (this.gestionRetourXml(oFeatures)) {
+                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures)]);
+                    }
+                }
+
             }
         };
     };
 
+    OutilInfo.prototype.lireGetInfoGml = function (gml) {
 
+        //Cas GeoServer
+        var gmlOptions = {
+            featureType: "feature",
+            featureName: "featureMember",
+            featureNS: "http://www.opengis.net/gml"
+        };
+        var gmlOptionsIn = OpenLayers.Util.extend(
+                OpenLayers.Util.extend({}, gmlOptions)
+                );
+
+        var format = new OpenLayers.Format.GML(gmlOptionsIn);
+
+        var oFeatures = format.read(gml);
+        //Cas MapServer
+        if (oFeatures.length == 0) {
+            var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
+            var oFeatures = oFormat.read_msGMLOutput(gml);
+        }
+        return oFeatures
+
+    };
+
+    OutilInfo.prototype.lireGetInfoGml3 = function (gml) {
+
+        var gmlOptions = {
+            featureType: "feature",
+            featureName: "featureMembers",
+            featureNS: "http://www.opengis.net/gml"
+        };
+        var gmlOptionsIn = OpenLayers.Util.extend(
+                OpenLayers.Util.extend({}, gmlOptions)
+                );
+
+        var format = new OpenLayers.Format.GML(gmlOptionsIn);
+
+        return  format.read(gml);
+
+    };
 
     OutilInfo.prototype.gestionRetourXml = function (data) {
 
-        var htmlCheck = false;
+        var xmlCheck = false;
 
         //Erreur Serveur WMS
-        if (data.toString().toLowerCase().indexOf('wms server error') > -1){
-            htmlCheck = false;
+        if (data.toString().toLowerCase().indexOf('wms server error') > -1) {
+            xmlCheck = false;
         }
-        if (data == ""){
-            htmlCheck = false;
+        if (data === "") {
+            xmlCheck = false;
         }
-        if (data.length != 0){
-            htmlCheck = true;
+        if (data.length !== 0) {
+            xmlCheck = true;
         }
-        return htmlCheck;
+        return xmlCheck;
     };
-
 
     OutilInfo.prototype.gestionRetourHtml = function (data) {
 
@@ -247,51 +385,58 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
         var tbl = $('<div/>').html(data).find('table');
 
         //GeoServer 
-        if (tbl.length == 0 && strip.toLowerCase().indexOf('geoserver getfeatureinfo output') > -1){
+        if (tbl.length === 0 && strip.toLowerCase().indexOf('geoserver getfeatureinfo output') > -1) {
             strip = "";
         }
         //ESRI
-        if (tbl.length == 0 && data.toLowerCase().indexOf('esri_wms') > -1){
+        if (tbl.length === 0 && data.toLowerCase().indexOf('esri_wms') > -1) {
             strip = "";
         }
         //Erreur Serveur WMS
-        if (strip.toLowerCase().indexOf('wms server error') > -1){
+        if (strip.toLowerCase().indexOf('wms server error') > -1) {
             strip = "";
         }
 
-        if (tbl.length != 0){
+        if (tbl.length !== 0) {
             htmlCheck = true;
         }
-        if (strip.length != 0){
+        if (strip.length !== 0) {
             htmlCheck = true;
         }
-        if (data == ""){
+        if (data === "") {
             htmlCheck = false;
         }
 
         return htmlCheck;
     };
 
-
     OutilInfo.prototype.gestionRetourErreur = function (nomCoucheLegende) {
+
         return function gestionRetour(data, textStatus, jqXhr) {
             this.erreurs++;
-            var responseBody = jqXhr.responseText;
+            var responseBody = data.responseText;
+            var status = data.statusText + " (" + data.status + ")";
+            if (data.status === 200) {
+                status = "XML invalide";
+                responseBody = "La donnée originale n'est pas valide pour cet outil.";
+                console.error(textStatus + ": " + jqXhr.message);
+            }
             //alert("ERROR: " + textStatus + " : " + textStatus + " : " + contentType + " : " + responseBody);
-            Aide.afficherMessage(textStatus, responseBody, "OK", "ERROR");
+            Aide.afficherMessage(status, responseBody, "OK", "ERROR");
         };
     };
-    
+
     OutilInfo.prototype.afficherResultats = function () {
 
-        if (this.features.length == 0) {
+        var that = this;
+        if (this.features.length === 0 && this.featuresHbars.length === 0) {
             Aide.cacherMessageChargement();
             // TODO : this is HARDCODED
             var szErrMsg = "Aucun enregistrement n'a été trouvé.";
             var szErrTitle = "Aucun enregistrement trouvé";
             var szIcon = "INFO";
 
-            if (this.erreurs == 1) {
+            if (this.erreurs === 1) {
                 szErrMsg += "  De plus, " + this.erreurs +
                         " erreur est survenue.";
                 szErrTitle += " et erreur";
@@ -308,7 +453,6 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             return;
         }
 
-
         var tabs = new Ext.TabPanel({
             activeTab: 0
                     //,autoHeight: true
@@ -317,9 +461,9 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             , height: 490
         });
 
-
         var oResultWindow = new Ext.Window({
             title: 'Résultats de la requête',
+            id: 'divGetInfo',
             width: 600,
             height: 600,
             border: false,
@@ -339,11 +483,18 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             var nonCouche = this.features[i];
             var oFeature = this.features[i + 1];
 
-            if (oFeature.length > 0) {
-                //Gestion du retour type Gml et Xml
-                if ($.isArray(oFeature)) {
+            if (String(oFeature).length > 0) {
 
-                    var oFeaturesXml = oFeature;
+                try {
+                    oFeature = $.parseJSON(oFeature);
+                }
+                catch (e) {
+                }
+
+                //Gestion du retour type Gml et Xml            
+                if ($.isArray(oFeature.features)) {
+
+                    var oFeaturesXml = oFeature.features;
 
                     var aoStores = {}, aoColumns = {}, nStores = 0, aNbItem = [];
                     for (var j = 0; j < oFeaturesXml.length; j++)
@@ -389,9 +540,9 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
                         var szType = oFeatureXml.type;
                         aNbItem[szType]++;//numéro unique Couche-feature
 
-                        for (var szAttribute in oFeatureXml.attributes)
+                        for (var szAttribute in oFeatureXml.properties)
                         {
-                            var newRecord = new RecordTemplate({/*Couche: szType, */Item: aNbItem[szType], Attribut: szAttribute, Valeur: oFeatureXml.attributes[szAttribute]});
+                            var newRecord = new RecordTemplate({/*Couche: szType, */Item: aNbItem[szType], Attribut: szAttribute, Valeur: oFeatureXml.properties[szAttribute]});
                             aoStores[szType].add(newRecord);
                         }
                     }
@@ -438,7 +589,6 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
                                     })
                         });
                     }
-
                     //Ajout du retour getFeatureInfo  Gml,Xml
                     for (var szType in aoStores)
                     {
@@ -446,6 +596,7 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
                     }
                 } else {
                     //Ajout du retour getFeatureInfo html
+                   // font:16px tahoma,arial,helvetica,sans-serif;
                     tabs.add({title: nonCouche,
                         html: oFeature
                     });
@@ -453,12 +604,66 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             }
         }
 
-        oResultWindow.add(tabs);
-        Aide.cacherMessageChargement();
- 
-        oResultWindow.show();
-        this.reinitialiser();
 
+        if (tabs.items.length > 0) {
+            oResultWindow.add(tabs);
+        };
+
+        //Si nous avons des gabarit Handlebars on appel la fonction
+        if (this.featuresHbars.length > 0) {
+
+            var hbarTabs = this.afficherResultatsGabaritHbars(tabs);
+
+            oResultWindow.add(hbarTabs);
+            hbarTabs.setActiveTab(0);
+        };
+
+        oResultWindow.show();
+        //Fin du clique on reinitialise
+        that.reinitialiser();
+
+    };
+
+
+    OutilInfo.prototype.afficherResultatsGabaritHbars = function (content) {
+        var that = this;
+
+        //Iteration par 3 array contiens nomCouche, son gabarit et son retour ajax
+        for (var i = 0; i < that.featuresHbars.length; i += 3)
+        {
+            var nonCouche = that.featuresHbars[i];
+            
+            var oFeature = $.parseJSON(that.featuresHbars[i + 1]);
+            var nomGabarit = that.featuresHbars[i + 2];
+            var result = nomGabarit(oFeature);
+      
+            content.add({title: nonCouche,
+                html: result
+            });
+
+        }
+          
+        return content;
+
+    };
+
+
+    /** 
+     * Cacher le GetInfo
+     * @method 
+     * @name OutilInfo#cacherGetInfo
+     */
+    OutilInfo.prototype.cacherGetInfo = function () {
+        $('#divGetInfo').hide();
+    };
+
+    /** 
+     * Cacher le GetInfo
+     * @method 
+     * @name OutilInfo#afficherGetInfo
+     */
+    OutilInfo.prototype.afficherGetInfo = function () {
+        $('#divGetInfo').show();
     };
 
     return OutilInfo;

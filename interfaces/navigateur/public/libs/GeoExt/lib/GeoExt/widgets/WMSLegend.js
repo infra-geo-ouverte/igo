@@ -144,7 +144,7 @@ GeoExt.WMSLegend = Ext.extend(GeoExt.LayerLegend, {
                 TIME: null
             });
         }
-        if(layer.options.opacity){
+        if(layer.options.opacity && layer.options.opacity !== 1){
             var opacityPropertie='map.layer['+layerName+']';
             var opacityUrl = opacityPropertie + '=OPACITY+'+ layer.options.opacity*100;
             url=Ext.urlAppend(url, opacityUrl);

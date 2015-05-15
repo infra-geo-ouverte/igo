@@ -409,3 +409,11 @@ div.olControlMousePosition {
     background-image: url("../images/toolbar/supprimer.png") !important;
 
 }
+
+.mesureComboUnite {
+    width: 83px;
+    height: 31px;
+    margin: 4px 0px;
+    background-color: #CCD9E8;
+    border: none;
+}

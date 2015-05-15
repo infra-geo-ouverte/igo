@@ -63,6 +63,10 @@ define(['text', 'handlebars'], function (text, Handlebars) {
                     };
 
                 textOnload.error = onload.error;
+                var extModuleName= moduleName.substr(moduleName.lastIndexOf("."));
+                if(extModuleName === ".html" || extModuleName === ".hbar"){
+                    ext = "";
+                }
                 text.load(path + moduleName + ext, parentRequire, textOnload, config);
             }
         },
