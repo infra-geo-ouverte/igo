@@ -150,6 +150,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
             this._analyserCouches(groupeCouches);
         } else {
             Aide.afficherMessageChargement({titre: "Chargement des couches"});
+
             require(['point'], function(Point){
                 if (that.contexteAttributs.centre){
                     var x,y;
@@ -534,15 +535,37 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_analyserContexteBD
     */
     AnalyseurConfig.prototype._analyserContexteBD = function() {
-        var contexteId = this.options.contexteId;
-        var contexteCode = this.options.contexteCode;
-        if(!contexteId && !contexteCode){
-            contexteId = this.contexteAttributs.id;
-            contexteCode = this.contexteAttributs.code;
+        var that=this;
+        var contexteId = this.contexteAttributs.id;
+        var contexteCode = this.contexteAttributs.code;
+
+        if($.isArray(this.options.contexteCode)){
+            if(this.contexteAttributs.code && this.contexteAttributs.code !== 'null'){
+                $.each(this.options.contexteCode, function(key, value){
+                    if(that.contexteAttributs.code === value.split("?v=")[0]){
+                        contexteCode = value;
+                        return false;
+                    }
+                });
+            }
+        } else if(this.options.contexteCode) {
+            contexteCode = this.options.contexteCode;
         }
-        
+
+        if($.isArray(this.options.contexteId)){
+            if(this.contexteAttributs.id && this.contexteAttributs.id !== 'null'){
+                $.each(this.options.contexteId, function(key, value){
+                    if(that.contexteAttributs.id === value.split("?v=")[0]){
+                        contexteId = value;
+                        return false;
+                    }
+                });
+            }
+        } else if(this.options.contexteId) {
+            contexteId = this.options.contexteId;
+        }
+   
         var contexteUrl;
-        
         if (contexteId && contexteId !== "null") {
             contexteUrl = Aide.obtenirConfig('uri.api')+"contexte/" + contexteId;
         } else if (contexteCode && contexteCode !== "null"){

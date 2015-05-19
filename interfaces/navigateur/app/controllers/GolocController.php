@@ -26,43 +26,35 @@ class GolocController extends ControllerBase
         $this->view->setVar("titre", $titre);
         $filemtime = filemtime($xmlPath);
         $this->view->setVar("configuration", $configuration . "?v={$filemtime}");
-        $contexte = null;
-        $contexteId = null;
-        $contexteCode = null;
+        
+        $contexteArrayId = array();
+        $contexteArrayCode = array();
         $this->view->setVar("couche", "null");
         
         if(isset($element->contexte)){
-            if(isset($element->contexte->attributes()->id)) {
-                $contexteId = $element->contexte->attributes()->id;
-                $contexte = IgoContexte::findFirst("id=$contexteId"); 
-                if($contexte){
-                    $this->view->setVar("contexteId", $element->contexte->attributes()->id . "?v=" . md5($contexte->date_modif));
-                    $this->view->setVar("contexteCode", "null");                    
-                }else{
-                    $this->view->setVar("avertissement", "Le contexte avec le id:$contexteId n'existe pas");
-                    $this->view->setVar("contexteId", "null");
-                    $this->view->setVar("contexteCode", "null");
-                }
-            } else if (isset($element->contexte->attributes()->code)) {
-                $contexteCode = $element->contexte->attributes()->code;
-                $contexte = IgoContexte::findFirst("code='$contexteCode'"); 
-                if($contexte){
-                    $this->view->setVar("contexteCode", $element->contexte->attributes()->code . "?v=" . md5($contexte->date_modif));
-                    $this->view->setVar("contexteId", "null");                    
-                }else{
-                    $this->view->setVar("avertissement", "Le contexte '$contexteCode' n'existe pas");
-                    $this->view->setVar("contexteCode", "null");
-                    $this->view->setVar("contexteId", "null"); 
-                }
+            $contexte = null;
+            for($i = 0; $i < count($element->contexte); $i++) {
+                if(isset($element->contexte[$i]->attributes()->id)) {
+                    $contexteId = $element->contexte[$i]->attributes()->id;
+                    $contexte = IgoContexte::findFirst("id=$contexteId"); 
+                    if($contexte){
+                        $contexteArrayId[] = $element->contexte[$i]->attributes()->id . "?v=" . md5($contexte->date_modif);            
+                    }else{
+                        $this->view->setVar("avertissement", "Le contexte avec le id:$contexteId n'existe pas");
+                    }
+                } else if (isset($element->contexte[$i]->attributes()->code)) {
+                    $contexteCode = $element->contexte[$i]->attributes()->code;
+                    $contexte = IgoContexte::findFirst("code='$contexteCode'"); 
+                    if($contexte){
+                        $contexteArrayCode[] = $element->contexte[$i]->attributes()->code . "?v=" . md5($contexte->date_modif);             
+                    }else{
+                        $this->view->setVar("avertissement", "Le contexte '$contexteCode' n'existe pas");
+                    }
+                } 
             }
-            else{
-                $this->view->setVar("contexteCode", "null");
-                $this->view->setVar("contexteId", "null"); 
-            }
-        } else {
-            $this->view->setVar("contexteCode", "null");
-            $this->view->setVar("contexteId", "null"); 
         }
+        $this->view->setVar("contexteCode", $contexteArrayCode);
+        $this->view->setVar("contexteId", $contexteArrayId);
                 
         if(isset($element->attributes()->baseUri) && isset($element->attributes()->libUri)){
             $this->config->uri->librairies = $element->attributes()->baseUri . $element->attributes()->libUri;
