@@ -6,8 +6,17 @@
  <?php echo $this->getContent(); ?>
 
     <script>
-    var contexteId = "{{contexteId}}";
-    var contexteCode = "{{contexteCode}}";
+    var contexteId = [];
+    var contexteCode = [];
+    <?php
+    foreach ($contexteId as $key => $value) {
+        echo "contexteId.push('$value'); \n";
+    }
+    foreach ($contexteCode as $key => $value) {
+        echo "contexteCode.push('$value'); \n";
+    }
+    ?>
+    
     var configuration = "{{configuration}}";
     var coucheId = "{{couche}}";
     var callbackInitIGO={{callbackInitIGO}};
