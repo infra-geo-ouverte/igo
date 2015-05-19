@@ -36,9 +36,14 @@
 }
 
 #depart input{
-    position: relative;
-    left: 4px;
+    margin-left: 4px;
+    width: 175px;
 }
+
+#arrive input{
+    width: 175px;
+}
+
 
 #inverserItineraire {
     font-family: Arial;
