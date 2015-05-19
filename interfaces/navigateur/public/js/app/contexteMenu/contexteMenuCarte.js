@@ -90,9 +90,9 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
                 var filtre = "<Filter><BBOX><PropertyName>Geometry</PropertyName><Box srsName='EPSG:32198'><coordinates>"+minX+","+minY+" "+maxX+","+maxY+"</coordinates></Box></BBOX></Filter>";
                 //pour les attributs, dans le mapfile: "gml_include_items" "all"
                 $.ajax({
-                    url: coucheWFSActive.options.url, //'http://geodev10.sso.msp.gouv.qc.ca/cgi-wms/mapserv.fcgi',
+                    url: coucheWFSActive.options.url,
                     data: {
-                        MAP: coucheWFSActive.options.mapdir,//'/srv/www/geomatique/partage/services/map/igo_mapfile/contextes/gouvouvertqc.map',
+                        MAP: coucheWFSActive.options.mapdir,
                         SERVICE:'WFS',
                         VERSION: '1.0.0',
                         REQUEST: 'getfeature',
