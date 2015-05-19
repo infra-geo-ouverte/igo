@@ -128,6 +128,7 @@ if($config->database->modelsMetadata == 'Apc'){
 $di->set('session', function () {
    
     $session = new SessionAdapter();
+    session_name('sessionIGO');
     $session->start();
 
     return $session;
