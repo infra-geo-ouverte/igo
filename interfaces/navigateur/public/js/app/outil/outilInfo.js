@@ -61,7 +61,8 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
     OutilInfo.prototype.executer = function () {
         this.activerEvent();
         this.carte.controles.activerClique();
-
+        this.activerToggleItem();
+        
         this.couchesInterroger = [];
         this.features = [];
         this.featuresHbars = [];
@@ -73,6 +74,7 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
     OutilInfo.prototype.eteindre = function () {
         this.desactiverEvent();
         this.carte.controles.desactiverClique();
+        this.desactiverToggleItem();
         this.reinitialiser();
     };
 
@@ -92,7 +94,7 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
 
         //Appeller la fonction pour obtenir les couche interrogable
         this.couchesInterroger = this.obtCouchesInterrogable();
-
+    
         if (this.couchesInterroger.length == 0) {
             // TODO : this is HARDCODED
             var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
@@ -114,10 +116,11 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
           
             couche.options.estInterrogable = couche._layer.queryable;
 
-            if (couche.estActive() &&
-                    couche._layer.getVisibility() && couche._layer.calculateInRange() && couche._layer.queryable &&
-                    (!couche.estFond() || couche._layer.inRange)) {
-
+           //Seule les couche activ qui sont pas des fond de carte
+           //qui sont queryable, visible et inrange
+            if (couche.estActive() && !couche.estFond() &&
+                    couche._layer.getVisibility() && couche._layer.calculateInRange() && 
+                    couche._layer.queryable && couche._layer.inRange) {
 
                 couchesInterrogable.push({
                     'layer': couche,
@@ -134,6 +137,15 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
                 });
             }
         }
+        
+        //On fait trier pour faire les appels ajax dans un ordre logique gml,xml et html ensuite Hbars
+        couchesInterrogable.sort(function (a ) {
+            return (a.infoFormat == "html" ? 1 :
+                    a.infoFormat == "gml" ? -1 : 
+                    a.infoFormat == "gml311" ? -1 : 
+                    a.infoFormat == "xml" ? -1 : 0);
+        });
+        
         return couchesInterrogable;
     };
 
@@ -145,8 +157,8 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
         //On va chercher tous les templates nécessaires pour faire un seul require
         var doitRequire = [];
         for (var d = 0; d < couches.length; ++d) {
-            var couche = couches[d];
-            if (couche.infoGabarit !== undefined) {
+            var couche = couches[d];  
+            if (couche.infoGabarit !== undefined && couche.infoGabarit.substring(couche.infoGabarit.lastIndexOf(".")) !== ".xsl") {
                 doitRequire.push('hbars!' + couche.infoGabarit);
             }
         }
@@ -171,7 +183,7 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
     OutilInfo.prototype.appelerGetInfo = function (couchesInterroger) {
         var that = this;
         var jqXHRs = [];
-
+        
         for (var j = 0; j < couchesInterroger.length; j++) {
             var oCoucheObtnInfo = couchesInterroger[j];
             var nomCoucheLegende = oCoucheObtnInfo.titre;
@@ -180,12 +192,13 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
             var coucheInfoFormat;
             var coucheDataType;
             var encodage;
-
+            var xslTemplate;
+       
             switch (oCoucheObtnInfo.infoFormat)
             {
                 case "html":
                     coucheInfoFormat = "text/html";
-                    coucheDataType = "html";
+                    coucheDataType = "html"; 
                     break;
                 case "gml":
                     coucheInfoFormat = "application/vnd.ogc.gml";
@@ -209,6 +222,11 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
             if (BrowserDetect.browser == "Explorer") {
                 encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : encodage;
             }
+            
+            //Appliquer un xsl ESRI
+             if (oCoucheObtnInfo.infoGabarit !== undefined && oCoucheObtnInfo.infoGabarit.substring(oCoucheObtnInfo.infoGabarit.lastIndexOf(".")) === ".xsl" ) {
+                xslTemplate = oCoucheObtnInfo.infoGabarit;
+            }
 
             jqXHRs.push($.ajax({
                 url: Aide.utiliserProxy(decodeURIComponent(oCoucheObtnInfo.url)),
@@ -227,7 +245,8 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
                     FEATURE_COUNT: 100,
                     WIDTH: this.carte._carteOL.size.w,
                     HEIGHT: this.carte._carteOL.size.h,
-                    _encodage: encodage
+                    _encodage: encodage,
+                    xsl_template: xslTemplate
                 },
                 context: this,
                 dataType: coucheDataType,
@@ -247,20 +266,22 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
 
         $(function () {
             Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
-            $.when.apply(that, jqXHRs).done(function () {
+            $.when.apply(null, jqXHRs).done(function () {
                 that.afficherResultats();
-            Aide.cacherMessageChargement();
+                Aide.cacherMessageChargement();
             });
         });
     };
+    
+ 
 
     OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, nomGabarit) {
 
         // On traduit le format de sortie en GeoJson peu import l'appel xml,gml ou gml311
         var oGeoJSON = new OpenLayers.Format.GeoJSON();
 
-        return function gestionRetour(data, textStatus, jqXhr) {
-
+        return function gestionRetour(data, textStatus, jqXHR) {
+        
             // nomCouche et son retour ajax html
             if (coucheInfoFormat === "text/html") {
                 //Si html est vide ne pas ajouter onglet
@@ -411,7 +432,9 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
     };
 
     OutilInfo.prototype.gestionRetourErreur = function (nomCoucheLegende) {
-
+   
+        Aide.cacherMessageChargement();
+   
         return function gestionRetour(data, textStatus, jqXhr) {
             this.erreurs++;
             var responseBody = data.responseText;
@@ -648,6 +671,34 @@ define(['outil', 'aide', 'browserDetect'], function (Outil, Aide, BrowserDetect)
     };
 
 
+    /** 
+     * Activer le toggle l'item du GetInfo
+     * @method 
+     * @name OutilInfo#activerToggleItem
+     */
+    OutilInfo.prototype.activerToggleItem = function () {
+        $(document).on('click', '.toggleItem', function (ev) {
+            var that = $(this);
+            ev.stopPropagation();
+            ev.preventDefault();
+            $(that).next().toggle('fast', function () {
+                if ($(that).parent().hasClass('x-grid-group-collapsed')){
+                    $(that).parent().removeClass('x-grid-group-collapsed');
+                }else{
+                    $(that).parent().addClass('x-grid-group-collapsed');
+                }    
+            });
+        });
+    };
+       /** 
+     * Desactiver le toggle l'item du GetInfo
+     * @method 
+     * @name OutilInfo#desactiverToggleItem
+     */
+    OutilInfo.prototype.desactiverToggleItem = function () {
+        $(document).off('click', '.toggleItem');
+    };
+    
     /** 
      * Cacher le GetInfo
      * @method 
