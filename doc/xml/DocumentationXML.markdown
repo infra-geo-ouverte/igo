@@ -783,7 +783,7 @@ document ou un site d'aide est affiché.
 
 | Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
 |-------|---------------------------------------------|-------------|-----------------------|---------------|
-|id	|					|		|			|*aide\_goloc*|
+|id	|					|		|			|*aide\_igo*|
 |icone	|					|		|			|*aide*|
 |infobulle|					|		|			|*Guide d'autoformation*|
 |lien	|Lien vers le document ou le site d’aide à afficher lors du clic sur le bouton.|Non|URL|*golocmsp/docs/200\_Guide\_Localisation\_GOLOC\_Public\_Gen\_V02.pdf*|
