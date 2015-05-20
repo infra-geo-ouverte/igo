@@ -7,7 +7,8 @@ https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 
 
 #### Installer les modules de PHP
-apt-get install php5-intl php5-curl 
+- php5-intl 
+- php5-curl 
 
 
 # Installation de IGO
