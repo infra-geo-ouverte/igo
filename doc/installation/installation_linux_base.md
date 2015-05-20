@@ -1,6 +1,6 @@
 # Installation des prérequis
 ## Requis 
-Apache avec les modules rewrite <br />  
+Apache avec le module rewrite <br />  
 
 #### Installation de Phalcon - version 1.3.2
 https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
