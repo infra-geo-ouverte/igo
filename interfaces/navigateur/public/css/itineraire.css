@@ -44,7 +44,6 @@
     width: 175px;
 }
 
-
 #inverserItineraire {
     font-family: Arial;
     font-size: small;
@@ -84,13 +83,14 @@
     padding: 8px 5px !important;
 }
 
-#itineraire .directive {
-	cursor: pointer;
-        padding-left: 0px;
+#routing .directive {
+    cursor: pointer;
+    padding: 5px 7px 5px 0px;
+    font-size: 115%;
 }
 
-#itineraire .directive:hover {
-	color: blue;
+#routing .directive:hover {
+    color: blue;
 }
 
 
@@ -144,4 +144,11 @@ button {
 #myTable .instructionImage {
     height: 18px;
     width: 18px;
+}
+
+#routing .loadingItineraireInput {
+    position: relative;
+    top: 4px;
+    margin-top: -4px;
+    display: none;
 }

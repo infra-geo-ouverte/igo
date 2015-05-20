@@ -1,4 +1,4 @@
-<div id="golocLoading"> 
+<div id="igoLoading"> 
         <div class="generic_fullscreen_loading">
             <div class="loading-mask"></div> 
             <div class="loading-container">   
