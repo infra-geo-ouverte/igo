@@ -33,6 +33,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
           geodesic: true,
           eventListeners: {
               activate: function(e){
+                  that.displayMeasr('');
                   that.mesureSelection(undefined, 'Ligne');
               },
               measure: function(e){that.executerMeasr(e);},
@@ -54,6 +55,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             geodesic: true,
             eventListeners: {
                 activate: function(e){
+                    that.displayMeasr('', '');
                     that.mesureSelection(undefined, 'Polygone');        
                 },
                 measure: function(e){that.executerMeasr(e);},
@@ -96,6 +98,9 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             $mesureComboUnite = this.$mesureComboAireUnite;
         }
         if(changeAuto !== false){
+            if(!$mesureComboUnite.children()[0]){
+                return 0;
+            }
             $mesureComboUnite.children()[0].text= "auto ("+unite+")";
         }
         var typeChoisi = $mesureComboUnite.val();
@@ -169,22 +174,24 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.controle.handler.layer.setZIndex(this.carte._carteOL.Z_INDEX_BASE.Feature);
             occurence = this.carte.gestionCouches.obtenirOccurencesSelectionnees(false)[0];
         }
-        if (!occurence || (type && occurence.type !== type)){
-            var area, length='';
-            if(type == 'Polygone'){
-                area = ' ';
+
+        if (!occurence || (type && occurence.type !== type && occurence.type !== 'Multi'+type)){
+            var area;
+            var length = '';
+            if(type === 'Polygone'){
+                area = "";
             }
             this.displayMeasr(length, area);
             return false;
         };
-        if(occurence.type == 'Ligne'){
+        if(occurence.type === 'Ligne' || occurence.type === 'MultiLigne'){
             var geometry = occurence._obtenirGeomOL();
             var lengthObj = this.controle.getBestLength(geometry);
             var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
             this.lengthOL = lengthObj[0];
             this.lengthUnitOL = lengthObj[1];
             this.displayMeasr(length);
-        } else if(occurence.type == 'Polygone'){
+        } else if(occurence.type === 'Polygone' || occurence.type === 'MultiPolygone'){
             var geometry = occurence._obtenirGeomOL();
             var lengthObj = this.controle.getBestLength(geometry);
             var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
@@ -321,15 +328,16 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         l.setValue(length);
 
         var a=oFormMeasr.get('area');
-        if(!area) {
+
+        if(area === undefined) {
             l.setLabel('Longueur');
             a.setValue(area);
             a.disable();
         } else {
             l.setLabel('Périmètre');
-            if(area !== ' '){
+            //if(area !== ' '){
                 a.setValue(area);
-            }
+            //}
             a.enable();
             if(a.iframe){
                 a.getEditorBody().style.color="rgb(33,33,33)";
