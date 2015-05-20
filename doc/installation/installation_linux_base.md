@@ -1,12 +1,13 @@
 # Installation des prérequis
 ## Requis 
-Apache avec le module rewrite <br />  
 
-#### Installation de Phalcon - version 1.3.2
+#### Modules Apache
+- rewrite <br />  
+
+#### Phalcon - version 1.3.2
 https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 
-
-#### Installer les modules de PHP
+#### Modules de PHP
 - php5-intl 
 - php5-curl 
 
