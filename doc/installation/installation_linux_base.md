@@ -14,12 +14,14 @@ https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 # Installation de IGO
 cd /var/www/html/  <br />  
 git clone https://github.com/infra-geo-ouverte/igo.git  <br />  
-chmod 775 /var/www/html/igo/interfaces/navigateur/app/cache  <br />
-chmod 775 /var/www/html/igo/pilotage/app/cache  <br />
-** Remplacer apache par l'usager de votre serveur Web  <br />
+
+** Changer le groupe de ces dossiers par l'usager de votre serveur Web  <br />
 chgrp www-data /var/www/html/igo/interfaces/navigateur/app/cache  <br />
 chgrp www-data /var/www/html/igo/pilotage/app/cache  
 
+** Donner le droit d'écriture à ces dossiers  <br />
+chmod 775 /var/www/html/igo/interfaces/navigateur/app/cache  <br />
+chmod 775 /var/www/html/igo/pilotage/app/cache  <br />
 
 ## Cloner les librairies
 cd igo <br /> 
