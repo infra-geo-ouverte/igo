@@ -307,6 +307,18 @@ class IgoContexte extends \Phalcon\Mvc\Model {
     }
 
     
+    public static function remplacerCodeDansOnlineResource($onlineResource, $ancien, $nouveau){
+        //Trouver où est la dernière occurence
+        $position = strpos($onlineResource, $ancien);
+        
+        //On n'a pas trouvé
+        if(false === $position){
+            return $onlineResource;
+        }
+        
+        return substr_replace($onlineResource, $nouveau, $position, strlen($ancien));
+        
+    }
     /**
      * Créé une copie d'un contexte et de ses dépendances (igo_couche_contexte)
      * return IgoContexte|bool Le IgoContexte, false en cas d'erreur
@@ -326,8 +338,8 @@ class IgoContexte extends \Phalcon\Mvc\Model {
         $igoNouveauContexte->description = $this->description;
         $igoNouveauContexte->ind_ordre_arbre = $this->ind_ordre_arbre;
         $igoNouveauContexte->mf_map_def = $this->mf_map_def;
-        $igoNouveauContexte->mf_map_projection = $this->mf_map_projection;
-        $igoNouveauContexte->mf_map_meta_onlineresource = $this->mf_map_meta_onlineresource;
+        $igoNouveauContexte->mf_map_projection = $this->mf_map_projection;        
+        $igoNouveauContexte->mf_map_meta_onlineresource = self::remplacerCodeDansOnlineResource($this->mf_map_meta_onlineresource, $this->code, $igoNouveauContexte->code);
         $igoNouveauContexte->date_modif = $this->date_modif;
         $igoNouveauContexte->json = $this->json;
         $igoNouveauContexte->generer_onlineresource = $this->generer_onlineresource;
