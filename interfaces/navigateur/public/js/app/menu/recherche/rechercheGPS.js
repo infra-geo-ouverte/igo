@@ -305,44 +305,6 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         $convertirRechercheGPS.remove();
         //this.definirResultat(html+this.resultatPanneau.items.items[0].body.dom.innerHTML);
     };
-    
-    RechercheGPS.prototype.verifierParamsUrl = function(){
-        var recherche = Aide.obtenirParametreURL('recherche');
-        if(recherche === 'gps'){
-            var texte = Aide.obtenirParametreURL('texte');
-            if(texte){
-                var that=this;
-                var zoomP = Number(Aide.obtenirParametreURL('zoom'));
-                if(zoomP){
-                    this.options.zoom = zoomP;
-                }
-                var nav = Aide.obtenirNavigateur();
-                if(nav.isReady){
-                    that.traiterParamsUrl(texte);
-                } else {
-                    nav.ajouterDeclencheur('navigateurInit', function(){
-                        that.traiterParamsUrl(texte);
-                    });
-                }
-
-            }
-        }
-    };
-    
-    RechercheGPS.prototype.traiterParamsUrl = function(texte){
-        var that=this;
-        this.parent.ajouterDeclencheur('ajouterPanneau', function(e){
-            if(that === e.panneau){
-                e.target.enleverDeclencheur('ajouterPanneau', 'rechercheGPSTraiterParamsURL'); 
-                e.panneau.ajouterDeclencheur('RechercheGPSActive', function(e2){
-                    e2.target.enleverDeclencheur('RechercheGPSActive', 'rechercheGPSTraiterParamsURL2');
-                    e2.target.lancerRecherche(texte);
-                }, {id: "rechercheGPSTraiterParamsURL2"});
-                e.target.activerPanneau(e.panneau);
-            } 
-        }, {id: "rechercheGPSTraiterParamsURL"});
-        this.parent.ouvrir();
-    };
         
     return RechercheGPS;
     
