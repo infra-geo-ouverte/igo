@@ -42,7 +42,7 @@ class MapfileController extends ControllerBase {
         if ($this->session->get('mapfile')) {
             $this->view->mapfile = $this->session->get('mapfile');
         } else {
-            $this->view->mapfile = '/srv/www/geomatique/services/map/wms/gouvouvertqc.map';
+            $this->view->mapfile = $this->getDI()->getConfig()->application->pilotage->retroCheminDefaut;
         }
     }
 
