@@ -160,7 +160,7 @@ class IgoContexteController extends ControllerBase {
      
      public function saveAction($r_controller = null, $r_action = null, $r_id = null) { 
          $this->traiterCodeOnlineRessource();
-         parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+         parent::saveAction($r_controller, $r_action, $r_id);
          
      }
 
@@ -176,6 +176,40 @@ class IgoContexteController extends ControllerBase {
         }
 
         parent::deleteAction($id, $r_controller, $r_action, $r_id);
+    }
+    
+    public function dupliquerAction($id, $r_controller = null, $r_action = null, $r_id = null){
+        
+        //Récupérer le contexte qu'on duplique
+        $igoContexte = IgoContexte::findFirst($id);
+        if(!$igoContexte){
+            //TODO retourner erreur pas trouvé
+            die("erreur lors du find first");
+        }
+        
+        $igoNouveauContexte = $igoContexte->dupliquer();
+        if($igoNouveauContexte){
+            
+            //Indiquer que c'est créé
+            $urlEdition = $this->url->get($this->ctlName . '/edit/' . $igoNouveauContexte->id);
+            $this->flash->success("Le contexte {$igoContexte->code} a bien été dupliqué. <a href='{$urlEdition}'>Voir la copie</a>.");
+            //rediriger vers la page d'édition du contexte
+             $this->dispatcher->forward(array(
+                "controller" => $this->ctlName,
+                "action" => "search",
+                "param" =>  ""
+            ));
+        }else{
+        
+            $this->dispatcher->forward(array(
+                "controller" => $this->ctlName,
+                "action" => "search",
+                "param" =>  ""
+            ));
+        }
+        
+        
+        
     }
     
     /**

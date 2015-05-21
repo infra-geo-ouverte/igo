@@ -6,9 +6,8 @@ use Phalcon\Mvc\Model\Validator\Regex;
 use Phalcon\Mvc\Model\Validator\Uniqueness;
 
 class IgoCoucheContexte extends \Phalcon\Mvc\Model {
-   public $id;
-
-   
+    
+    public $id;
     public $contexte_id;
     public $couche_id;
     public $groupe_id;
@@ -169,4 +168,43 @@ class IgoCoucheContexte extends \Phalcon\Mvc\Model {
         return $this->getDI()->getConfig()->database->schema.'.igo_couche_contexte_id_seq';
     }
 
+    /**
+     * Créé une copie d'une association igo_couche_contexte
+     * @param int $contexte_id Id de contexte à associer au igo_couche_contexte
+     * return IgoCoucheContexte|bool Le IgoCoucheContexte, false en cas d'erreur
+     */
+    public function dupliquer($contexte_id = false){
+    //    error_log("Début IgoCoucheContexte->dupliquer()");
+        $igoNouveauCoucheContexte = new IgoCoucheContexte();
+        
+        
+        $igoNouveauCoucheContexte->contexte_id = $contexte_id ? $contexte_id : $this->contexte_id;
+        $igoNouveauCoucheContexte->couche_id = $this->couche_id;
+        $igoNouveauCoucheContexte->groupe_id = $this->groupe_id;
+        $igoNouveauCoucheContexte->arbre_id = $this->arbre_id;
+        $igoNouveauCoucheContexte->attribut_id = $this->attribut_id;
+        $igoNouveauCoucheContexte->est_visible = $this->est_visible;
+        $igoNouveauCoucheContexte->est_active = $this->est_active;
+        $igoNouveauCoucheContexte->est_exclu = $this->est_exclu;
+        $igoNouveauCoucheContexte->ind_fond_de_carte = $this->ind_fond_de_carte;
+        $igoNouveauCoucheContexte->mf_layer_meta_name = $this->mf_layer_meta_name;
+        $igoNouveauCoucheContexte->mf_layer_meta_title = $this->mf_layer_meta_title;
+        $igoNouveauCoucheContexte->mf_layer_meta_group_title = $this->mf_layer_meta_group_title;
+        $igoNouveauCoucheContexte->mf_layer_meta_z_order = $this->mf_layer_meta_z_order;
+        $igoNouveauCoucheContexte->layer_a_order = $this->layer_a_order;
+        $igoNouveauCoucheContexte->mf_layer_class_def = $this->mf_layer_class_def;
+        $igoNouveauCoucheContexte->date_modif = $this->date_modif;
+        
+        if(!$igoNouveauCoucheContexte->save()){
+            $flash = $this->getDI()->getFlash();
+            foreach ($igoNouveauCoucheContexte->getMessages() as $message) {
+                $flash->error($message);
+            }
+            return false;
+        }
+        
+    //    error_log("Fin IgoCoucheContexte->dupliquer()");
+        return $igoNouveauCoucheContexte;
+        
+    }
 }
