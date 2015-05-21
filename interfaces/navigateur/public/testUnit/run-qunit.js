@@ -11,36 +11,38 @@ https://pzolee.blogs.balabit.com/2012/11/jenkins-vs-junit-xml-format/
 var system = require('system');
 
 function showResult(errorMsg) {
-    var failed;
+    var el, failed, passed, total;
     if(!errorMsg){
         try {
-            var el = document.getElementById('qunit-testresult');
-            failed = el.getElementsByClassName('failed')[0].innerHTML;
+            var elResume = document.getElementById('qunit-testresult');
+            failed = elResume.getElementsByClassName('failed')[0].innerHTML;
+            passed = elResume.getElementsByClassName('passed')[0].innerHTML;
+            total = elResume.getElementsByClassName('total')[0].innerHTML;
+            
+            el = document.getElementById('qunit-tests').children;
         } catch (e) { }
     }
 
-    var nbTest = 1;
-    var nbFailed = 0;
-    if(!failed || failed !== '0'){
-        nbTest = 0;
-        nbFailed = 1;
-    }
     console.log("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    console.log("<testsuite classname=\"Tests_qUnit_javascript_suite\" tests=\""+nbTest+"\" failures=\""+nbFailed+"\">");
-    console.log("<testcase classname=\"Tests_qUnit_javascript\">");
+    console.log("<testsuite name=\"Tests_qUnit_javascript.tousLesModules\" tests=\""+total+"\" failures=\""+failed+"\">");
+    
+    
+    for (var i = 0; i < el.length; i++) {
+        var testEl = el[i];
+        
+        var moduleName = testEl.getElementsByClassName("module-name")[0].innerHTML;
+        var testName = testEl.getElementsByClassName("test-name")[0].innerHTML;
+        
+        console.log("<testcase name=\""+moduleName+"."+testName+"\">");
 
-    if(!failed){
-    	if(!errorMsg){
-    		errorMsg = "Echec du test";
-    	}
-    	console.log("<failure type=\"NotEnoughFoo\" message=\"testMessage\" propriete=\"" + errorMsg + "\"> test </failure>");
-    	//console.log("<failure type=\"NotEnoughFoo\">Echec du test</failure>");
-    } else if(failed !== '0'){
-    	console.log("<failure type=\"NotEnoughFoo\" message=\"testMessage\" propriete=\"" + failed + " tests failed\"> tests </failure>");
-    	//console.log("<failure type=\"NotEnoughFoo\">"+failed+" tests failed</failure>");
+        if(testEl.className !== "pass"){
+            //todo: mettre le type de failure
+            console.log("<failure type=\"error\" message=\"Test failed\"> Échec - TODO: indiquer la cause </failure>");
+        }
+
+        console.log("</testcase>");
     }
-
-    console.log("</testcase>");
+    
     console.log("</testsuite>");
     return failed;
 };

@@ -197,7 +197,7 @@ $di->set('router', function(){
     $router->add(
         "/contexte/{contexte}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "contexte",
             "contexteid"   => 1
         )
@@ -205,7 +205,7 @@ $di->set('router', function(){
     $router->add(
         "/configuration/{configuration}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "configuration",
             "configuration" => 1
         )
@@ -213,7 +213,7 @@ $di->set('router', function(){
      $router->add(
         "/couche/{coucheId}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "couche",
             "coucheid" => 1
         )
@@ -221,7 +221,7 @@ $di->set('router', function(){
     $router->add(
         "/groupe/{groupeId}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "groupe",
             "coucheid" => 1
         )

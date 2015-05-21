@@ -18,7 +18,7 @@
 .olImageLoadError { 
 display: none !important; 
 }
-/* Changement pour OpenLayers au MSP, car demande moins de CPU au client pour afficher couche WMS dans GOLOC */
+/* Changement pour OpenLayers au MSP, car demande moins de CPU au client pour afficher couche WMS dans Igo */
 img.olTileImage {
     -webkit-transform: inherit;
     -moz-transform: inherit;
