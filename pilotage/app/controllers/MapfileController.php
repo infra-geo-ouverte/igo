@@ -483,7 +483,7 @@ class MapfileController extends ControllerBase {
                 //echo "connexion: "."<br>";
                 //var_dump($d);
                 foreach ($d['layers'] as $layer) {
-                    echo "nom: " . $layer['name'] . "<br>";
+
                     //var_dump($layer);
 
                     if (isset($layer['connection']) and isset($layer['connectiontype']) and !""==trim($layer['connection']) and !""==trim($layer['connectiontype'])) {

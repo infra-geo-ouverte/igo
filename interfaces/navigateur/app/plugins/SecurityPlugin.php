@@ -22,7 +22,7 @@ class SecurityPlugin extends Plugin
         if($controller === "connexion" || $controller === "error"){
             $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
-        }else if($controller === "goloc" && ($action === "configuration" || $action === "index")){
+        }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
             if(!isset($this->getDi()->getConfig()->configurations[$configuration]) || !file_exists($this->getDi()->getConfig()->configurations[$configuration])){
                 return $this->forwardToErrorPage();
@@ -54,7 +54,7 @@ class SecurityPlugin extends Plugin
                 return $this->forwardToUnauthorizedPage();
             }
 
-        }else if ($controller == "goloc" && ($action == "contexte" || $action == "couche" || $action == "groupe")){                        
+        }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){                        
             if(!$this->estAnonyme() && !$this->estAuthentifie()){                
                 return $this->forwardToLoginPage();
             }else if($this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
