@@ -91,9 +91,9 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $profil_proprietaire_id;
     
-   public function validation(){
+    public function validation(){
         return !$this->validationHasFailed();
-   }
+    }
    
     
    function getMapFile() {
@@ -226,7 +226,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
             $this->validate(new Regex(array(
                 'field' => 'code',
                 'pattern' => '/^[A-Z0-9]{1,}$/i',
-                'message' => 'Le code peux seulement contenir les caractères suivants : a-z, 0-9.'
+                'message' => 'Le code peut seulement contenir les caractères suivants : a-z, 0-9.'
             )));
         }
         
@@ -304,5 +304,72 @@ class IgoContexte extends \Phalcon\Mvc\Model {
         }
 
         return !$this->validationHasFailed();
+    }
+
+    
+    /**
+     * Créé une copie d'un contexte et de ses dépendances (igo_couche_contexte)
+     * return IgoContexte|bool Le IgoContexte, false en cas d'erreur
+     */
+    public function dupliquer(){
+    //    error_log("Début IgoContexte->dupliquer()");
+        //Trouver un code unique pour le nouveau contexte
+        $code = $this->genererCodeUniquePourContexte();
+           
+        //Copier le contexte
+        $igoNouveauContexte = new IgoContexte();
+        $igoNouveauContexte->mode = $this->mode;
+        $igoNouveauContexte->position = $this->position;
+        $igoNouveauContexte->zoom = $this->zoom;
+        $igoNouveauContexte->code = $code;
+        $igoNouveauContexte->nom = 'Copie de ' . $this->nom;
+        $igoNouveauContexte->description = $this->description;
+        $igoNouveauContexte->ind_ordre_arbre = $this->ind_ordre_arbre;
+        $igoNouveauContexte->mf_map_def = $this->mf_map_def;
+        $igoNouveauContexte->mf_map_projection = $this->mf_map_projection;
+        $igoNouveauContexte->mf_map_meta_onlineresource = $this->mf_map_meta_onlineresource;
+        $igoNouveauContexte->date_modif = $this->date_modif;
+        $igoNouveauContexte->json = $this->json;
+        $igoNouveauContexte->generer_onlineresource = $this->generer_onlineresource;
+        $igoNouveauContexte->profil_proprietaire_id = $this->profil_proprietaire_id;
+        if(!$igoNouveauContexte->save()){
+            $flash = $this->getDI()->getFlash();
+            foreach ($igoNouveauContexte->getMessages() as $message) {
+                $flash->error($message);
+            }
+            return false;
+        }
+
+
+        //Créer les associations couche/contexte
+        $igoCoucheContextes = $this->IgoCoucheContexte;
+        $nbCoucheContexte = 0;
+        foreach($igoCoucheContextes as $igoCoucheContexte){
+            
+            $nbCoucheContexte++;
+          //  error_log("$nbCoucheContexte eme appel de igoCoucheContexte->dupliquer())");
+            $igoCoucheContexte->dupliquer($igoNouveauContexte->id);
+
+            
+        }
+      //  error_log("Fin IgoContexte->dupliquer()");
+        return $igoNouveauContexte;
+    }
+    
+    /**
+     * Génère un code de contexte qui n'existe pas déjà
+     * @return string
+     */
+    private function genererCodeUniquePourContexte(){
+        $code = 'CopieDe' . $this->code;
+        
+     
+        //Trouver un nom unique de code
+        while(count(self::find("code = '$code'"))){
+            error_log($code);
+            $code = 'CopieDe' . $code;
+        }
+        return $code;
+  
     }
 }
