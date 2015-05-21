@@ -213,20 +213,8 @@ define([], function() {
      * @returns {String} Racine
     */
     Aide.obtenirCheminRacine= function(){
-       // return "/igo_navigateur/";
-        //return window.location.pathname;
-        return this.cheminRacine;
-    };
-    
-    /** 
-     * Définir le chemin de la racine
-     * @method 
-     * @static
-     * @name helper.Aide#definirCheminRacine
-     * @param {String} racine Racine de l'application
-    */
-    Aide.definirCheminRacine= function(racine){
-        this.cheminRacine = racine;
+        return this.obtenirConfig("uri.navigateur");
+        //return this.cheminRacine;
     };
     
     

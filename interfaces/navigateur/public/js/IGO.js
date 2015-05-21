@@ -6,7 +6,7 @@ function Igo(options){
 Igo.prototype.init = function(){
     var that=this;
     var debug= this.options.debug; 
-    var baseUri = this.options.baseUri;
+    var baseUri = this.options.uri.navigateur;
     var version = this.options.version || '0.0.0';
     var buildIGO = ['build'];
     
@@ -51,17 +51,21 @@ Igo.prototype.init = function(){
             panneauEntete: 'js/app/panneau/panneauEntete',
             panneauCarte: 'js/app/panneau/panneauCarte',
             panneauOnglet: 'js/app/panneau/panneauOnglet',
-            style: 'js/app/geometrie/style',
-            point: 'js/app/geometrie/point',
-            limites: 'js/app/geometrie/limites',
-            polygone: 'js/app/geometrie/polygone',
-            ligne: 'js/app/geometrie/ligne',
-            multiPolygone: 'js/app/geometrie/multiPolygone',
-            occurence: 'js/app/geometrie/occurence',
+            style: 'js/app/occurence/style',
+            point: 'js/app/occurence/geometrie/point',
+            limites: 'js/app/occurence/geometrie/limites',
+            polygone: 'js/app/occurence/geometrie/polygone',
+            ligne: 'js/app/occurence/geometrie/ligne',
+            multiPoint: 'js/app/occurence/geometrie/multiPoint',
+            multiLigne: 'js/app/occurence/geometrie/multiLigne',
+            multiPolygone: 'js/app/occurence/geometrie/multiPolygone',
+            occurence: 'js/app/occurence/occurence',
+            cluster: 'js/app/occurence/cluster',
             gestionCouches: 'js/app/couche/gestionCouches',
             couche: 'js/app/couche/protocole/couche',
             TMS: 'js/app/couche/protocole/TMS',
             vecteur: 'js/app/couche/protocole/vecteur',
+            vecteurCluster: 'js/app/couche/protocole/vecteurCluster',
             WMS: 'js/app/couche/protocole/WMS',
             blanc: 'js/app/couche/protocole/blanc',
             OSM: 'js/app/couche/protocole/OSM',
@@ -144,7 +148,6 @@ Igo.prototype.init = function(){
             //=============================================
             
             //Config
-            Aide.definirCheminRacine(baseUri);
             Aide.definirVersion(version);
             Aide.definirConfig(that.options);
             
