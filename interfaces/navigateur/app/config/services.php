@@ -250,21 +250,21 @@ class igoView extends Phalcon\Mvc\View {
 
     public $config = null;
 
-    public function ajouterJavascript($chemin, $estExterne, $version=null){
+    public function ajouterJavascript($chemin, $estExterne, $dansUriLibrairies=null){
         if($estExterne === true){
-            if($version === true){
+            if($dansUriLibrairies === true){
                 print('<script src="'. $this->config->uri->librairies . $chemin . "?version=" . $this->config->application->version . '" type="text/javascript"></script>'. "\n");
             } else {
-                print('<script src="$chemin" type="text/javascript"></script>'. "\n");
+                print('<script src="'. $chemin .'" type="text/javascript"></script>'. "\n");
             }   
         }else{
             print('<script src="'. $this->config->application->baseUri . $chemin . "?version=" . $this->config->application->version . '" type="text/javascript"></script>'. "\n");
         }
     }
 
-    public function ajouterCss($chemin, $estExterne, $version=null){       
+    public function ajouterCss($chemin, $estExterne, $dansUriLibrairies=null){       
         if($estExterne === true){
-            if($version === true){
+            if($dansUriLibrairies === true){
                 print('<link rel="stylesheet" href="'. $this->config->uri->librairies . $chemin . "?version=" . $this->config->application->version .  '" type="text/css"/>'. "\n");
             } else {
                 print('<link rel="stylesheet" href="'. $chemin . '" type="text/css"/>'. "\n");
