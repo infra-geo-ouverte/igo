@@ -103,7 +103,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
             eventListeners: this._initEvents()
         };  
         //todo: pouvoir donner un div, un centre et un niveau de zoom a la carte
-        this._carteOL = new OpenLayers.Map('golocInstance', mapOptions);
+        this._carteOL = new OpenLayers.Map('igoInstance', mapOptions);
         //this.gestionCouches.ajouterCouche(new Blanc({visible:true, active:true}));
 
         //Controles

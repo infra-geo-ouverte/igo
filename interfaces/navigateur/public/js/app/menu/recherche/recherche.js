@@ -526,6 +526,40 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     };
     
     Recherche.prototype.verifierParamsUrl = function(){
+        var recherche = Aide.obtenirParametreURL('recherche');
+        if(recherche === this.obtenirTypeRecherche()){
+            var texte = Aide.obtenirParametreURL('texte');
+            if(texte){
+                var that=this;
+                var zoomP = Number(Aide.obtenirParametreURL('zoom'));
+                if(zoomP){
+                    this.options.zoom = zoomP;
+                }
+                var nav = Aide.obtenirNavigateur();
+                if(nav.isReady){
+                    that.traiterParamsUrl(texte);
+                } else {
+                    nav.ajouterDeclencheur('navigateurInit', function(){
+                        that.traiterParamsUrl(texte);
+                    });
+                }
+            }
+        }
+    };
+    
+    Recherche.prototype.traiterParamsUrl = function(texte){
+        var that=this;
+        this.parent.ajouterDeclencheur('ajouterPanneau', function(e){
+            if(that === e.panneau){
+                e.target.enleverDeclencheur('ajouterPanneau', 'rechercheTraiterParamsURL'); 
+                e.panneau.ajouterDeclencheur(that.obtenirTypeClasse()+'Active', function(e2){
+                    e2.target.enleverDeclencheur(that.obtenirTypeClasse()+'Active', 'rechercheTraiterParamsURL2');
+                    e2.target.lancerRecherche(texte);
+                }, {id: "rechercheTraiterParamsURL2"});
+                e.target.activerPanneau(e.panneau);
+            } 
+        }, {id: "rechercheTraiterParamsURL"});
+        this.parent.ouvrir();
     };
     
     return Recherche;
