@@ -114,7 +114,7 @@ class IgoGroupeController extends ControllerBase {
         //    $this->definirGroupesPourSelecteur();
         //    $this->definirCouchesPourSelecteur();
 
-        parent::newAction($r_controller = null, $r_action = null, $r_id = null);
+        parent::newAction($r_controller, $r_action, $r_id);
     }
 
     function editAction($id, $r_controller = null, $r_action = null, $r_id = null) {
@@ -261,7 +261,7 @@ class IgoGroupeController extends ControllerBase {
     function saveAction($r_controller = null, $r_action = null, $r_id = null) {
 
         try {
-            $save = parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+            $save = parent::saveAction($r_controller, $r_action, $r_id);
         } catch (Exception $ex) {
             $this->flash->error($e->getMessage());
 
@@ -308,7 +308,7 @@ class IgoGroupeController extends ControllerBase {
             }
             
         }
-
+   
         $igo_groupe_couche = new IgoGroupeCouche();
 
         switch ($specifier) {
@@ -318,7 +318,7 @@ class IgoGroupeController extends ControllerBase {
 
                 //Supprimer tous les sous-groupes de ce groupe
                 $this->modelsManager->executeQuery("DELETE FROM IgoGroupeGroupe WHERE parent_groupe_id = {$id}");
-
+     
                 $igo_groupe_couche->enleverCouchesDuGroupe(implode(',', $ids), $id, $profil_id);
                 $igo_groupe_couche->ajouterCouchesAuGroupe(implode(',', $ids), $id, $profil_id);
 
@@ -457,8 +457,8 @@ class IgoGroupeController extends ControllerBase {
         if ($estAdmin) {
             //Couches qui ne sont pas dans le groupe
             $sql = "SELECT DISTINCT c.id , c.mf_layer_name AS valeur "
-                    . "FROM igo_groupe_couche AS gc "
-                    . "INNER JOIN igo_couche AS c ON c.id = gc.couche_id WHERE gc.groupe_id <> {$id} "
+                    . "FROM igo_couche AS c "
+                    . "LEFT JOIN igo_groupe_couche AS gc ON c.id = gc.couche_id WHERE gc.groupe_id <> {$id} "
                     . "AND NOT EXISTS (SELECT id FROM igo_groupe_couche AS sr_gc WHERE sr_gc.couche_id = c.id AND sr_gc.groupe_id = {$id}) ";
 
             $igo_groupe = new IgoGroupe();
@@ -475,7 +475,8 @@ class IgoGroupeController extends ControllerBase {
 
             //Couches qui ne sont pas dans le groupe
             $sql = "SELECT DISTINCT c.id , c.mf_layer_name AS valeur
-                    FROM IgoGroupeCouche AS gc INNER JOIN IgoCouche AS c ON c.id = gc.couche_id 
+                    FROM igo_couche AS c 
+                    LEFT JOIN igo_groupe_couche AS gc  ON c.id = gc.couche_id 
                     INNER JOIN IgoVuePermissionsPourCouches AS vpc
                     ON vpc.couche_id = gc.id
                     WHERE gc.groupe_id <> :groupe_id:

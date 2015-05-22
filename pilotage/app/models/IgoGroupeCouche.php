@@ -65,7 +65,7 @@ class IgoGroupeCouche extends \Phalcon\Mvc\Model {
         if(!$id_couches){
             $id_couches = 0;
         }
-      
+
         $estAdmin = $this->getDi()->getSession()->get("info_utilisateur")->estAdmin;
         if(!$estAdmin){
             
@@ -92,19 +92,11 @@ class IgoGroupeCouche extends \Phalcon\Mvc\Model {
                 
             }
             
+            //L'utilisateur a le droit d'enlever la couche du groupe
             if($estAdmin || ($igoVuePermissionsPourCouches && $igoVuePermissionsPourCouches->est_association)){
-                /* TODO vérifier la pertinence
-                $igoPermissions = IgoPermission::find("groupe_couche_id = {$igoGroupeCouche->id}");
-      
-                foreach($igoPermissions as $igoPermission){
-                    if(!$igoPermission->delete()){
-                        foreach ($igoContexte->getMessages() as $message) {
-                            $this->flash->error($message);
-                        }
-                    }
-                }
-                */
-                $igoCoucheContextes = IgoCoucheContexte::find("groupe_couche_id = {$igoGroupeCouche->id}");
+             
+                //Supprimer les associations de cette couche dans les contextes
+                $igoCoucheContextes = IgoCoucheContexte::find("groupe_id = {$igoGroupeCouche->id}");
                 foreach($igoCoucheContextes as $igoCoucheContexte){
                     if(!$igoCoucheContextes->delete()){
                         foreach ($igoCoucheContextes->getMessages() as $message) {
