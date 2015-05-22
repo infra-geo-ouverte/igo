@@ -1,5 +1,5 @@
 <?php
-class GolocController extends ControllerBase
+class IgoController extends ControllerBase
 {
     public function indexAction() {
         $this->definirVariablesCommunes();

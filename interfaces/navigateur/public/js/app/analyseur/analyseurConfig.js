@@ -84,7 +84,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_chargementError
     */
     AnalyseurConfig.prototype._chargementConfigError = function(XMLHttpRequest, textStatus, errorThrown) {
-        $("#golocLoading").remove();
+        $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
         Aide.afficherMessage("Erreur chargement configuration", message, null, 'ERROR');
     };
@@ -331,7 +331,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 that.igo.nav.init(function() {
                     that.fin.panneaux = true;
                     that._analyserContexte();
-                    $("#golocLoading").remove();
+                    $("#igoLoading").remove();
                 });
             }
             ;
@@ -359,7 +359,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         }
         this.fin.analyse = true;
         this._analyserDeclencheurs(Aide.obtenirConfigXML('declencheurs'));
-        $("#golocLoading").remove();
+        $("#igoLoading").remove();
         if(this.options.callback){
             this.options.callback.call(this.igo.nav);
         }
@@ -593,7 +593,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_analyserContexteBDError
     */
     AnalyseurConfig.prototype._analyserContexteBDError = function(XMLHttpRequest, textStatus, errorThrown) {
-        $("#golocLoading").remove();
+        $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
         Aide.afficherMessage("Erreur chargement contexte", message, null, 'ERROR');
     };

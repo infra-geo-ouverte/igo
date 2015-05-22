@@ -58,7 +58,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             iconeOffsetY: -34,
             filtres: [ {
                     filtre: "[geocodeMatchCode]>0",
-                    style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-gold.png')}
+                    style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-yellow.png')}
                 }, {
                     filtre: "[geocodeMatchCode]==100",
                     style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-green.png')}
