@@ -6,23 +6,34 @@
 <table class="table table-striped table-search">
     <thead>
         <tr>
-            <th><?php echo $this->tag->linkTo("igo_classe/search?order=id", "Classe") ?></th>
-            <!--th>Couche</th-->
+            <th class="id"><?php echo $this->tag->linkTo("igo_classe/search?order=id", "Id<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th>Couche</th>
             <th>Mf Class Def</th>
             <th>Ordre Z</th>
-            <th><?php echo $this->tag->linkTo("igo_classe/search?order=date_modif", "Date de modification") ?></th>
+            <th><?php echo $this->tag->linkTo("igo_classe/search?order=date_modif", "Date de modification<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="actions"></th>
          </tr>
     </thead>
     <tbody>
     <?php foreach ($page->items as $igo_classe) { ?>
         <tr>
             <td><?php echo $igo_classe->id ?></td>
-            <!--td><php  if ($igo_classe->IgoCouche){echo $igo_classe->IgoCouche->description;} ?></td-->
+            <td><?php if ($igo_classe->IgoCouche){echo $igo_classe->IgoCouche->mf_layer_name;} ?></td>
             <td><pre><?php echo $igo_classe->mf_class_def; ?></pre></td>
             <td><?php echo $igo_classe->mf_class_z_order ?></td>
             <td><?php echo $igo_classe->date_modif ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe/edit/" . $igo_classe->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe/delete/" . $igo_classe->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td class="overflow-visible"> 
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                      Actions
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe/edit/" . $igo_classe->id."/".$r_controller."/".$action."/".$parameters, "Éditer")); ?></li>
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe/delete/" . $igo_classe->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     <?php } ?>
     </tbody>

@@ -13,8 +13,7 @@
             <th>Groupe parent</th>
             <th><?php echo $this->tag->linkTo("igo_groupe/search?order=profil_proprietaire_id", "Propriétaire ID <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
             <th><?php echo $this->tag->linkTo("igo_groupe/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
-            <th class="editer"></th>
-            <th class="detruire"></th> 
+            <th class="actions"></th>
         </tr>
     </thead>
     <tbody>
@@ -37,8 +36,18 @@
             </td>
             <td><?php echo $igo_groupe->profil_proprietaire_id ?></td>
             <td><?php echo $igo_groupe->date_modif ?></td>
-            <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_groupe/edit/" . $igo_groupe->id."/".$r_controller."/".$action."/".$parameters, "Editer"), $igo_groupe->profil_proprietaire_id); ?></td>
-            <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_groupe/delete/" . $igo_groupe->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer'), $igo_groupe->profil_proprietaire_id); ?></td>
+            <td class="overflow-visible"> 
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_groupe/edit/" . $igo_groupe->id."/".$r_controller."/".$action."/".$parameters, "Éditer"), $igo_groupe->profil_proprietaire_id); ?></li>
+                        <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_groupe/delete/" . $igo_groupe->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer'), $igo_groupe->profil_proprietaire_id); ?></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     <?php } ?>
     </tbody>

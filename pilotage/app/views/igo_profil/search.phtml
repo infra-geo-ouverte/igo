@@ -11,11 +11,7 @@
             <th><?php echo $this->tag->linkTo("igo_profil/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
             <th><?php echo $this->tag->linkTo("igo_profil/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
 	    <th>Propriétaire ID</th>
-            <th class="editer"></th>
-            <th class="detruire"></th>  
-            <th class="associer"></th>
-            <th class="permissions"></th>  
-            <th class="utilisateurs"></th>
+            <th class="actions"></th>
         </tr>
     </thead>
     <tbody>
@@ -26,11 +22,21 @@
                 <td><?php echo $igo_profil->nom ?></td>
                 <td><?php echo $igo_profil->date_modif ?></td>
 		<td><?php echo $igo_profil->profil_proprietaire_id ?>
-                <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_profil/edit/" . $igo_profil->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Editer"), $igo_profil->profil_proprietaire_id); ?></td>
-                <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_profil/delete/" . $igo_profil->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer'), $igo_profil->profil_proprietaire_id); ?></td>
-                <td><?php echo $this->igo_tag->linkIfProprietaire(array("igo_permission/arbreCouches/" . $igo_profil->id, "Associer"), $igo_profil->profil_proprietaire_id); ?></td>
-                <td><?php echo $this->tag->linkTo(array("profil_et_permission/do/" . $igo_profil->id, "Permissions")); ?></td>
-                <td><?php echo $this->tag->linkTo(array("profil_et_utilisateur/do/" . $igo_profil->id, "Utilisateurs")); ?></td>
+                <td class="overflow-visible"> 
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                            Actions
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                            <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_profil/edit/" . $igo_profil->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Éditer"), $igo_profil->profil_proprietaire_id); ?></li>
+                            <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_profil/delete/" . $igo_profil->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer'), $igo_profil->profil_proprietaire_id); ?></li>
+                            <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_permission/arbreCouches/" . $igo_profil->id, "Associer des permissions"), $igo_profil->profil_proprietaire_id); ?></li>
+                            <li><?php echo $this->tag->linkTo(array("profil_et_permission/do/" . $igo_profil->id, "Voir les permissions")); ?></li>
+                            <li><?php echo $this->tag->linkTo(array("profil_et_utilisateur/do/" . $igo_profil->id, "Voir les utilisateurs")); ?></li>
+                        </ul>
+                   </div>
+               </td>
             </tr>
     <?php } ?>
     </tbody>
