@@ -56,7 +56,7 @@ define(['panneau', 'point', 'aide'], function(Panneau, Point, Aide) {
                 title: opt.titre || 'Carte'
                 }]
         }); */
-        var centreString = decodeURIComponent(Aide.obtenirParametreURL('centre')) || opt.centre;
+        var centreString = Aide.obtenirParametreURL('centre') || opt.centre;
         if (centreString){ //-71.3,48.3;EPSG:4326
             var centre = centreString.split(/[,;]/);
             opt.x = centre[0];
