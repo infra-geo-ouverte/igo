@@ -12,10 +12,7 @@
             <th>Date de chargement</th>
             <th>Remarque</th>
             <th class="date_modif"><?php echo $this->tag->linkTo("igo_geometrie/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
-            <th class="editer"></th>
-            <th class="detruire"></th>
-            <th class="attributs"></th>
-            <th class="couches"></th>
+            <th class="actions"></th>
         </tr>
     </thead>
     <tbody>
@@ -27,10 +24,20 @@
             <td><?php echo $igo_geometrie->date_chargement ?></td>
             <td><?php echo $igo_geometrie->remarque ?></td>
             <td><?php echo $igo_geometrie->date_modif ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie/edit/" . $igo_geometrie->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie/delete/". $igo_geometrie->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
-            <td><?php echo $this->tag->linkTo(array("geometrie_et_attribut/do/" . $igo_geometrie->id, "Attributs", "target"=>"_parent")); ?></td>
-            <td><?php echo $this->tag->linkTo(array("geometrie_et_couche/do/" . $igo_geometrie->id, "Couches", "target"=>"_parent")); ?></td>
+            <td class="overflow-visible"> 
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie/edit/" . $igo_geometrie->id."/".$r_controller."/".$action."/".$parameters, "Éditer")); ?></li>
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie/delete/". $igo_geometrie->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                        <li><?php echo $this->tag->linkTo(array("geometrie_et_attribut/do/" . $igo_geometrie->id, "Voir ses attributs", "target"=>"_parent")); ?></li>
+                        <li><?php echo $this->tag->linkTo(array("geometrie_et_couche/do/" . $igo_geometrie->id, "Voir ses couches", "target"=>"_parent")); ?></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     <?php } ?>
     </tbody>

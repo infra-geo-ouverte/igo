@@ -13,8 +13,7 @@
             <th>Contact</th>
             <th>Remarque</th>
             <th>Date modifié</th>            
-            <th class="editer"></th>
-            <th class="detruire"></th> 
+            <th></th>
          </tr>
     </thead>
     <tbody>
@@ -27,8 +26,18 @@
             <td><?php if ($igo_organisme_responsable->IgoContact) { echo $igo_organisme_responsable->IgoContact->nom.", ".$igo_organisme_responsable->IgoContact->prenom;} ?></td>
             <td><?php echo $igo_organisme_responsable->remarque ?></td>
             <td><?php echo $igo_organisme_responsable->date_modif ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_organisme_responsable/edit/" . $igo_organisme_responsable->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_organisme_responsable/delete/" . $igo_organisme_responsable->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td class="overflow-visible"> 
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_organisme_responsable/edit/" . $igo_organisme_responsable->id."/".$r_controller."/".$action."/".$parameters, "Éditer")); ?></li>
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_organisme_responsable/delete/" . $igo_organisme_responsable->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     <?php } ?>
     </tbody>

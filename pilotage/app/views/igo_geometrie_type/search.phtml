@@ -6,14 +6,13 @@
 <table class="table table-striped table-search">
     <thead>
         <tr>
-            <th class="id">Id</th>
+            <th class="id"><?php echo $this->tag->linkTo("igo_geometrie_type/search?order=id", "Id<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
             <th><?php echo $this->tag->linkTo("igo_geometrie_type/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
             <th>Code LayerType</th>
             <th>Type de géométrie</th>          
             <th>Ordre</th>
-            <th>Date modifié</th>
-            <th class="editer"></th>
-            <th class="detruire"></th>   
+            <th class="date_modif"><?php echo $this->tag->linkTo("igo_geometrie_type/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="actions"></th>
          </tr>
     </thead>
     <tbody>
@@ -21,12 +20,22 @@
         <tr>
             <td><?php echo $igo_geometrie_type->id ?></td>
             <td><?php echo $igo_geometrie_type->nom ?></td> 
-           <td><?php echo $igo_geometrie_type->layer_type ?></td>
-           <td><?php echo $igo_geometrie_type->geometrie_type=="Q"?"Query":($igo_geometrie_type->geometrie_type=="C"?"Chart":($igo_geometrie_type->geometrie_type=="R"?"Raster":"Vectoriel")) ?></td>
+            <td><?php echo $igo_geometrie_type->layer_type ?></td>
+            <td><?php echo $igo_geometrie_type->geometrie_type=="Q"?"Query":($igo_geometrie_type->geometrie_type=="C"?"Chart":($igo_geometrie_type->geometrie_type=="R"?"Raster":"Vectoriel")) ?></td>
             <td><?php echo $igo_geometrie_type->mf_layer_meta_z_order ?></td>
             <td><?php echo $igo_geometrie_type->date_modif ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie_type/edit/" . $igo_geometrie_type->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie_type/delete/" . $igo_geometrie_type->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
+            <td class="overflow-visible"> 
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">	
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_geometrie_type/edit/" . $igo_geometrie_type->id."/".$r_controller."/".$action."/".$parameters, "Éditer")); ?></li>
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_contact/delete/" . $igo_geometrie_type->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     <?php } ?>
     </tbody>

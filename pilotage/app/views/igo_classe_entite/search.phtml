@@ -12,10 +12,8 @@
             <th>Organisme responsable</th>
             <th>Contact</th>
             <th class='catalogue-csw'>Catalogue CSW</th>
-            <th><?php echo $this->tag->linkTo("igo_classe_entite/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
-            <th class="editer"></th>
-            <th class="detruire"></th>
-            <th class="geometries"></th>
+            <th class="date_modif"><?php echo $this->tag->linkTo("igo_classe_entite/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="actions"></th>
         </tr>
     </thead>
     <tbody>
@@ -42,9 +40,19 @@
                  <td></td>
                 <?php } ?>
                 <td><?php echo $igo_classe_entite->date_modif ?></td>
-                <td class="editer"><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/edit/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Editer")); ?></td>
-                <td class="detruire"><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/delete/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
-                <td class="geometries"><?php echo $this->tag->linkTo(array("classe_entite_et_geometrie/do/" . $igo_classe_entite->id, "Géométries")); ?></td>
+                <td class="overflow-visible"> 
+                    <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                              Actions
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/edit/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Editer")); ?></li>
+                                <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/delete/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                                <li><?php echo $this->tag->linkTo(array("classe_entite_et_geometrie/do/" . $igo_classe_entite->id, "Géométries")); ?></li>
+                            </ul>
+                    </div>
+                </td>
             </tr>
             <?php } ?>
     </tbody>

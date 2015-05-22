@@ -9,12 +9,10 @@
 <table class="table table-striped table-search">
     <thead>
         <tr>
-            <th class="id">Id</th>
+            <th class="id"><?php echo $this->tag->linkTo("igo_catalogue_csw/search?order=id", "Id<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
             <th>URL</th>
-            <th>Date modifié</th>
-            <th class="editer"></th>
-            <th class="detruire"></th>   
-            <th class="get-records"></th>   
+            <th class="date_modif"><?php echo $this->tag->linkTo("igo_catalogue_csw/search?order=date_modif", "Date de modification<span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="actions"></th>
          </tr>
     </thead>
     <tbody>
@@ -23,9 +21,19 @@
             <td><?php echo $igo_catalogue_csw->id ?></td>
             <td><?php echo $igo_catalogue_csw->url ?></td>
             <td><?php echo $igo_catalogue_csw->date_modif ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_catalogue_csw/edit/" . $igo_catalogue_csw->id."/".$r_controller."/".$action."/".$parameters, "Editer")); ?></td>
-            <td><?php echo $this->igo_tag->linkIfAdmin(array("igo_catalogue_csw/delete/" . $igo_catalogue_csw->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></td>
-            <td><a href="http://<?php echo $igo_catalogue_csw->url;?>?REQUEST=GetRecords&SERVICE=CSW&VERSION=2.0.2&CONSTRAINTLANGUAGE=FILTER&CONSTRAINT_LANGUAGE_VERSION=1.1.0&RESULTTYPE=results&TYPENAMES=csw:Record">GetRecords</a></td>
+            <td class="overflow-visible"> 
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-actions" data-toggle="dropdown" aria-expanded="true">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_catalogue_csw/edit/" . $igo_catalogue_csw->id."/".$r_controller."/".$action."/".$parameters, "Éditer")); ?></li>
+                        <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_catalogue_csw/delete/" . $igo_catalogue_csw->id."/".$r_controller."/".$action."/".$parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                        <li><a href="http://<?php echo $igo_catalogue_csw->url;?>?REQUEST=GetRecords&SERVICE=CSW&VERSION=2.0.2&CONSTRAINTLANGUAGE=FILTER&CONSTRAINT_LANGUAGE_VERSION=1.1.0&RESULTTYPE=results&TYPENAMES=csw:Record">GetRecords</a></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     <?php } ?>
     </tbody>
