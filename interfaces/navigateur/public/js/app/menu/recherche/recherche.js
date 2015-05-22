@@ -528,7 +528,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     Recherche.prototype.verifierParamsUrl = function(){
         var recherche = Aide.obtenirParametreURL('recherche');
         if(recherche === this.obtenirTypeRecherche()){
-            var texte = decodeURIComponent(Aide.obtenirParametreURL('texte'));
+            var texte = Aide.obtenirParametreURL('texte');
             if(texte){
                 var that=this;
                 var zoomP = Number(Aide.obtenirParametreURL('zoom'));
