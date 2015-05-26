@@ -79,10 +79,64 @@ define(['couche', 'aide'], function(Couche, Aide) {
         require(['async!'+googleConnexion], function(){
             that._init();
             Couche.prototype._ajoutCallback.call(that, target, callback, optCallback);
+
+            var nav = Aide.obtenirNavigateur();
+            var arbo = nav.obtenirPanneauxParType('Arborescence', 2)[0];
+            if(arbo){
+                that._ajouterContexteSubmenu(arbo.contexteMenu);
+                return true;
+            } else {
+                if(!nav.evenements.obtenirDeclencheur('initArborescence', 'googleAjouterContexteSubmenu').length){
+                    nav.evenements.ajouterDeclencheur('initArborescence', function(e){
+                        that._ajouterContexteSubmenu(e.target.contexteMenu);
+                        nav.evenements.enleverDeclencheur('initArborescence', 'googleAjouterContexteSubmenu');
+                    }, {id: 'googleAjouterContexteSubmenu'});
+                }
+            }
         }, function (err) {
             Aide.afficherMessage("Google indisponible", "Impossible d'ajouter la couche Google", 'Ok', 'Error');
         });
     }
         
+    Google.prototype.activerTrafic = function(){
+        if(!this.trafficLayer){
+            this.trafficLayer = new google.maps.TrafficLayer();
+        }
+        this.trafficLayer.setMap(this._layer.mapObject);
+    }
+    
+    Google.prototype.desactiverTrafic = function(){
+        this.trafficLayer.setMap();
+    }
+    
+    Google.prototype._ajouterContexteSubmenu = function(contexteMenu){
+        if(contexteMenu._googleSubmenuBool){return true;}
+        contexteMenu._googleSubmenuBool=true;
+        var that=this;
+        contexteMenu.ajouter({
+            id: 'afficherTraficGoogle',
+            titre: 'Afficher traffic', 
+            action: function(args){
+                that.activerTrafic();
+                that.activer();
+            }, 
+            condition: function(args){
+                return (args.couche.obtenirTypeClasse()=='Google' && (!args.couche.trafficLayer || !args.couche.trafficLayer.getMap()));
+            },
+            position: 3
+        });
+        contexteMenu.ajouter({
+            id: 'cacherTraficGoogle',
+            titre: "Cacher traffic", 
+            action: function(args){
+                that.desactiverTrafic();
+            }, 
+            condition: function(args){
+                return (args.couche.obtenirTypeClasse()=='Google' && args.couche.trafficLayer && args.couche.trafficLayer.getMap());
+            },
+            position: 3
+        });
+    }
+    
     return Google;
 });
