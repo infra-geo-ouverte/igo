@@ -51,11 +51,34 @@ define(['vecteur', 'occurence', 'aide', 'style', 'cluster'], function(Vecteur, O
             strategies: [new OpenLayers.Strategy.Cluster({
                     threshold: this.options.seuilCluster || 1,
                     distance: this.options.distance || 20,
-                    shouldCluster: this.options._shouldCluster || undefined
+                    shouldCluster: $.proxy( this._shouldCluster, this )
             })]   
         };
         Vecteur.prototype._init.call(this);
     };
+
+
+    VecteurCluster.prototype._shouldCluster = function(cluster, feature){
+        if(this.options.clusteriser){
+            var clusterIgo = new Cluster(cluster, undefined, undefined, undefined, {_keepFeature: true});
+            return this.options.clusteriser(clusterIgo, this.obtenirOccurenceParId(feature.id));
+        }
+        
+        var zoom = this.carte.obtenirZoom();
+        if(this.options.clusterZoomMax && this.options.clusterZoomMax < zoom){
+            return false;
+        }
+        
+        var strategie = this._optionsOL.strategies[0];
+        var cc = cluster.geometry.getBounds().getCenterLonLat();
+        var fc = feature.geometry.getBounds().getCenterLonLat();
+        var distance = (
+            Math.sqrt(
+                Math.pow((cc.lon - fc.lon), 2) + Math.pow((cc.lat - fc.lat), 2)
+            ) / strategie.resolution
+        );
+        return (distance <= strategie.distance);
+    }
 
     VecteurCluster.prototype._ajoutCallback = function(target, callback, optCallback){
         var that=this;

@@ -3,12 +3,15 @@
 $baseDir = __DIR__ . '/../';
 $baseNavigateurDir = $baseDir . 'interfaces/navigateur/';
 $baseServicesDir = $baseDir . 'services/';
+//Emplacement par défaut des fichiers xml de configuration
 $baseXmlDir = $baseDir . 'xml/';
 
 return array(
     'application' => array(
-        'version'        =>  '0.4.dev1', // Permet de versionner les fichiers javascripts et css
-        'debug'          => true,
+        // Permet de versionner les fichiers javascripts et css (possible de mettre 'aleatoire')
+        'version'        =>  '0.4.dev1', 
+        // Mode debug: des fichiers non-compillés, aucune cache serveur, messages d'erreurs plus nombreux
+        'debug'          => true, 
         'navigateur'  => array(
             'controllersDir' => $baseNavigateurDir . 'app/controllers/',      
             'modelsDir'      => $baseNavigateurDir . 'app/models/',
@@ -37,7 +40,7 @@ return array(
         'OutilRapporterBogue'    => array('lien' => 'http://geoegl.msp.gouv.qc.ca/mantis/login_page.php'),
         'OutilAjoutWMS'         => array('urlPreenregistre' => "http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi,"
                                                             . "http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi"),
-        'OutilZoomPreselection'  => array('service' => '[zoomPreSelection]'), //Fait référence à servicesExternes->zoomPreSelection
+        'OutilZoomPreselection'  => array('service' => '[zoomPreSelection]'), // [] -> Fait référence à servicesExternes->zoomPreSelection
         'OutilAide'     => array ('lien' => "guides/guide.pdf"),
         'WMS'     =>  array(
             'infoFormat' => "application/vnd.ogc.gml"
@@ -45,9 +48,12 @@ return array(
     ),
     //Services permis par le proxy
     'servicesExternes' => array(
+        //services = '[zoomPreSelection]'
         'zoomPreSelection'  => 'http://spssogl97d.sso.msp.gouv.qc.ca/libcommunes/MSPwidgets/coordonnees.php',
+        //Les urls utilisés dans l'application doivent correspondre à un regex pour être permis
         'regex'         =>  array(
-            "#http://geoegl\.msp\.gouv\.qc\.ca/cgi-wms/(.)+\.fcgi#"
+            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi")."#",
+            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi")."#"
         )
     ),
     // les configurations permettent d'appeler un fichier xml en mode rest et d'associer une clé avec un lien vers un fichier

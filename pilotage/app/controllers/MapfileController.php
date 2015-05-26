@@ -42,7 +42,7 @@ class MapfileController extends ControllerBase {
         if ($this->session->get('mapfile')) {
             $this->view->mapfile = $this->session->get('mapfile');
         } else {
-            $this->view->mapfile = '/srv/www/geomatique/services/map/wms/gouvouvertqc.map';
+            $this->view->mapfile = $this->getDI()->getConfig()->application->pilotage->retroCheminDefaut;
         }
     }
 
@@ -483,7 +483,7 @@ class MapfileController extends ControllerBase {
                 //echo "connexion: "."<br>";
                 //var_dump($d);
                 foreach ($d['layers'] as $layer) {
-                    echo "nom: " . $layer['name'] . "<br>";
+
                     //var_dump($layer);
 
                     if (isset($layer['connection']) and isset($layer['connectiontype']) and !""==trim($layer['connection']) and !""==trim($layer['connectiontype'])) {

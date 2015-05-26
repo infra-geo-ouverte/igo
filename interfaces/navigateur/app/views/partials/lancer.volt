@@ -43,7 +43,6 @@
             //=============================================
            
             //Config
-            Aide.definirCheminRacine(baseUri);
             Aide.definirVersion(version);
 
             {% include "partials/configClient.volt" %}
