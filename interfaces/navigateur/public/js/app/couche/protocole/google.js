@@ -27,7 +27,8 @@ define(['couche', 'aide'], function(Couche, Aide) {
             this._optionsOL = {
                 sphericalMercator: true, 
                 numZoomLevels: 20,
-                printOptions: false
+                printOptions: false,
+                visibility: true 
             };
 
             //this._init();
