@@ -16,7 +16,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
      * @alias outilAide:Outil.OutilAide
      * @extends Outil
      * @requires outilAide
-     * @param {string} [options.id='aide_goloc##'] Identifiant du bouton. Si absent, XX est un nombre généré.
+     * @param {string} [options.id='aide_igo##'] Identifiant du bouton. Si absent, XX est un nombre généré.
      * @param {string} [options.icone='aide'] Icone du bouton. Lien vers l'image ou une classe CSS
      * @param {string} [options.infobulle='Guide d'auto-formation'] Description (tooltip) du bouton
      * @param {string} [options.lien] Lien vers l'aide. Si absent, lien vers l'aide du MSP.
@@ -26,7 +26,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: 'aide',
-            id: 'aide_goloc',
+            id: 'aide_igo',
             infobulle: "Guide d'auto-formation",
             lien: "guides/guide.pdf"
         });

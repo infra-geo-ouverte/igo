@@ -29,28 +29,33 @@ Fichier XML de configuration
 			* [1.1.4 Edition](#edition)
 			* [1.1.4.1 Edition Simple](#editionsimple)
 			* [1.1.4.2 Edition Multiple](#editionmultiple)
+			* [1.1.4.3 PanneauOngletEdition](#panneauongletedition)
+			* [1.1.4.4 PanneauEdition](#panneauedition)
 		* [1.2 Liste des Outils](#liste-des-outils)
 			* [1.2.1 Groupe d'outils](#groupe-outils)
 			* [1.2.2 Menu d'outils](#menu-outils)
 			* [1.2.3 Outil](#outil)
 			* [1.2.3.1 outilAide](#outilaide)
 			* [1.2.3.2 outilAjoutWMS](#outilajoutwms)
-			* [1.2.3.3 outilAnalyseSpatiale](#outilanalysespatiale)
-			* [1.2.3.4 outilDeplacement](#outildeplacement)
-			* [1.2.3.5 outilDessin](#outildessin)
-			* [1.2.3.6 outilHistoriqueNavigation](#outilhistoriquenavigation)
-			* [1.2.3.7 outilnfo](#outilinfo)
-			* [1.2.3.9 outilMesure](#outilmesure)
-			* [1.2.3.1 outilDeplacerCentre](#outildeplacercentre)
-			* [1.2.3.11 outilPartagerCarte](#outilpartagercarte)
-			* [1.2.3.12 outilRapporterBogue](#outilrapporterbogue)
-			* [1.2.3.13 outilZoomEtendueMaximale](#outilzoometenduemaximale)
-			* [1.2.3.14 outilZoomPreselection](#outilzoompreselection)
-			* [1.2.3.15 outilZoomRectangle](#outilzoomrectangle)
-			* [1.2.3.15 outilEdition](#outiledition)
-			* [1.2.3.15 outilItineraire](#outilitineraire)
-			* [1.2.3.15 outilSelection](#outilSelection)
-			* [1.2.3.17 Création d'un outil personnalisé](#creation-outil-personnalise)
+			* [1.2.3.3 outilAssocierFichier](#outilassocierFichier) 
+			* [1.2.3.4 outilAnalyseSpatiale](#outilanalysespatiale)
+			* [1.2.3.5 outilDeplacement](#outildeplacement)
+			* [1.2.3.6 outilDessin](#outildessin)
+			* [1.2.3.7 outilExportGPX](#outilexportgpx)
+			* [1.2.3.8 outilExportShp](#outilexportshp) 
+			* [1.2.3.9 outilHistoriqueNavigation](#outilhistoriquenavigation)
+			* [1.2.3.10 outilnfo](#outilinfo)
+			* [1.2.3.11 outilMesure](#outilmesure)
+			* [1.2.3.12 outilDeplacerCentre](#outildeplacercentre)
+			* [1.2.3.13 outilPartagerCarte](#outilpartagercarte)
+			* [1.2.3.14 outilRapporterBogue](#outilrapporterbogue)
+			* [1.2.3.15 outilZoomEtendueMaximale](#outilzoometenduemaximale)
+			* [1.2.3.16 outilZoomPreselection](#outilzoompreselection)
+			* [1.2.3.17 outilZoomRectangle](#outilzoomrectangle)
+			* [1.2.3.18 outilEdition](#outiledition)
+			* [1.2.3.19 outilItineraire](#outilitineraire)
+			* [1.2.3.20 outilSelection](#outilSelection)
+			* [1.2.3.21 Création d'un outil personnalisé](#creation-outil-personnalise)
 	* [4 Contexte](#contexte)
 	* [5 Liste des couches](#liste-des-couches)
 		* [5.1 Groupe de couche](#groupe-couche)
@@ -680,7 +685,65 @@ Aucun
 EditionMultiple
 ---------------
 
+Permet d'éditer des géométries d'une couche définie dans le service d'édition.
+Ce module nécessite l'inclusion du module PanneauOngletEdition
 
+*Attributs ou valeurs spécifiques*
+
+Aucun
+
+*Exemple 1*
+
+```xml
+<element-accordeon classe="Edition" urlModule="edition/public/js/app/menu/edition"/>
+```
+
+*Aperçu*
+
+![](media/Menu-edition-multiple.png)
+
+PanneauOngletEdition
+---------------
+
+Permet d'inclure un ou des panneauEdition
+
+*Attributs ou valeurs spécifiques*
+
+| Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
+|-------|---------------------------------------------|-------------|-----------------------|---------------|
+|titre|Titre affiché du panneau |Non|Texte|*Éléments géométriques*|
+
+*Exemple 1*
+
+```xml
+<element-accordeon classe="PanneauOngletEdition" urlModule="/igo/edition/public/js/app/panneau/panneauOngletEdition"/>
+```
+
+*Aperçu*
+
+![](media/PanneauOnglet-edition-multiple.png)
+
+PanneauEdition
+---------------
+
+Inclus par PanneauOngletEdition.
+Réimplémentation de panneauTable
+Permet l'édition des attributs de une ou des géométrie(s) d'un type spécifique (point, ligne, surface) ainsi que la création et la suppression de géométrie.
+
+
+*Attributs ou valeurs spécifiques*
+
+| Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
+|-------|---------------------------------------------|-------------|-----------------------|---------------|
+|titre|Titre affiché du panneau |Oui|Texte||
+|colonnes|Descriptif des colonnes |Oui|Tableau||
+|donnees|Donnnées à afficher dans le panneau |Oui|Tableau||
+|typeGeom|Type de géométrie |Non|point, LineString, polygon| *Point*|
+|fermable|Si le panneau peut être fermé |Non|Booléen| *Non*|
+
+*Aperçu*
+
+![](media/Panneau-edition-multiple.png)
 
 
 Liste des outils
@@ -699,7 +762,7 @@ Groupe outils
 *Balise XML : `groupe-outils`*
 
 Permet la définition d'un groupe d'outils. Chaque groupe d’outils est
-entouré d’éléments « séparateur » afin qu’il soit possible de les
+entouré d’éléments « séparateur » afin qu’il soit possible de les
 distinguer. Possibilité de mettre un attribut de la balise 'Outil' 
 qu'on veut appliquer à tous les enfants du 'groupe-outils'.
 
@@ -707,7 +770,7 @@ qu'on veut appliquer à tous les enfants du 'groupe-outils'.
 
 | Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
 |-------|---------------------------------------------|-------------|-----------------------|---------------|
-|division|Indique si les éléments « séparateur » doivent être affichés ou non|Non|Booléen|*true*|
+|division|Indique si les éléments « séparateur » doivent être affichés ou non|Non|Booléen|*true*|
 |position|Position du groupe d'outils dans la barre d'outils. |Non|*gauche / droite*|*gauche*|
 
 *Exemple*s
@@ -783,7 +846,7 @@ document ou un site d'aide est affiché.
 
 | Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
 |-------|---------------------------------------------|-------------|-----------------------|---------------|
-|id	|					|		|			|*aide\_goloc*|
+|id	|					|		|			|*aide\_igo*|
 |icone	|					|		|			|*aide*|
 |infobulle|					|		|			|*Guide d'autoformation*|
 |lien	|Lien vers le document ou le site d’aide à afficher lors du clic sur le bouton.|Non|URL|*golocmsp/docs/200\_Guide\_Localisation\_GOLOC\_Public\_Gen\_V02.pdf*|
@@ -818,7 +881,7 @@ des couches à ajouter sur la carte.
 |titre	|					|		|			|*Ajout de services Web*|
 |infobulle|					|		|			|*Outil d'ajout de couches à la carte*|
 |urlPreenregistre|Liste d'URL de services WMS préenregistrés disponible dans la fenêtre de l'outil.|Non|Liste d'URL séparées par des virgules|Dans le config.php|
-|ajoutUrl|Indique si les urls preenregistrés sont ajoutés à la liste présente dans le fichier « config.php ». Si false, alors les urls preenregistrés du config.php sont remplacés par ceux du XML.|Non|Boolean|true|
+|ajoutUrl|Indique si les urls preenregistrés sont ajoutés à la liste présente dans le fichier « config.php ». Si false, alors les urls preenregistrés du config.php sont remplacés par ceux du XML.|Non|Boolean|true|
 
 *Exemple*s
 ```xml
@@ -833,6 +896,27 @@ urlPreenregistre="http://www.google.ca"/>
 
 ![](media/image18.png)
 
+outilAssocierFichier
+-------------
+
+Implémenté pour le module d'édition, cet outil permet d'associer un ou des fichier(s) à un regroupement. Il a été prévu pour être réutilisé à d'autres besoins (Exemple associer un fichier à un élément géométrique)
+
+*Attributs ou valeurs spécifiques*
+
+| Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
+|-------|---------------------------------------------|-------------|-----------------------|---------------|
+|supprimerFichier	|Fonction à appeler lors de la suppression	|Oui|Fonction	||
+|associerFichier	|Fonction à appeler lors de l'ajout d'un fichier	|Oui|Fonction	||
+|visualiserFichier	|Fonction à appeler lors de la demande de visualisation du fichier	|Oui|Fonction	||
+|listerFichier	|Fonction à appeler pour lister les fichiers associés	|Oui|Fonction	||
+|champs	|Liste des champs pour construire le store de données des fichiers	|Oui|Tableau	||
+|colonnes	|Liste des colonnes pour construire la grille de la liste de fichier	|Oui|Tableau	||
+
+
+*Aperçu*
+
+![](media/outilAssocierFichierBtn.png)
+![](media/outilAssocierFichierPan.png)
 
 outilAnalyseSpatiale - Non implanté
 --------------------
@@ -914,6 +998,44 @@ infobulle="Dessin/Annotations" visible="true" actif="true"/>
 
 ![](media/image21.png)
 
+outilExportGPX
+-----------
+
+
+Permet d'exporter une sélection de géométrie vers un fichier GPX
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
+*Exemple*
+```xml
+<outil classe="OutilExportGPX"/>
+```
+
+*Aperçu*
+
+![](media/outilExportGPX.png)
+
+outilExportShp
+-----------
+
+
+Permet d'exporter une sélection de géométrie vers un ou des fichier(s) zippé de shapeFile
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
+*Exemple*
+```xml
+<outil classe="OutilExportShp"/>
+```
+
+*Aperçu*
+
+![](media/outilExportShapeFile.png)
+
 
 outilHistoriqueNavigation
 -------------------------
@@ -973,6 +1095,28 @@ actif="true"/>
 *Aperçu*
 
 ![](media/image23.png)
+
+outilmportFichier
+--------
+
+Permet d'importer dans la carte des géométries contenu dans des fichiers de type:
+bna, csv, dgn, dxf, shp, dbf, shx (prj optionel), gxt, txt, json, geojson, rss, georss, xml, gml, xsd, gmt, gpx, itf, ili (fmt optionel), kml, kmz, tab, map, id, dat, 000 (001-00N optional) ,rt1,vrt
+Les shapeFiles doivent être zippés
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
+*Exemple*
+```xml
+<outil classe="OutilImportFichier"/>
+```
+
+*Aperçu*
+
+![](media/outilImportFichier.png)
+![](media/outilImportFichierPan1.png)
+![](media/outilImportFichierPan2.png)
 
 
 outilMenu
@@ -1321,7 +1465,7 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 | Nom   | Description                                 	| Obligatoire 	| Valeurs possibles     | Valeur défaut |
 |-------|-----------------------------------------------|---------------|-----------------------|---------------|
 |id	| Identifiant de la couche. Est utilisé pour accéder à celle-ci. Doit être unique.| Non| Chaîne alphanumérique| *couche\_ + index*|
-|idbd	| Identifiant de la couche dans la BD. Représente le 'id' ou le 'mf\_layer\_name' de la couche| Non | Chaîne alphanumérique | |
+|idbd	| Identifiant de la couche dans la BD. Représente le 'id' ou le 'mf\_layer\_name' de la couche| Non | Chaîne alphanumérique | |
 |titre	| Titre de la couche. Est affiché dans l’arborescence.| Non   	|Chaîne alphanumérique	|		|
 |protocole| Type de la couche				| Oui		|*Blanc*, *Google*, *Marqueurs*, *OSM*, *TMS*, *Vecteur*, *WMS*||
 |fond	| Indique si la couche doit être considérée comme un fond de carte|Non|Booléen		| *false*	|
@@ -1345,7 +1489,7 @@ Permet la définition d'une couche de fond blanche.
 
 | Nom   | Description                                 	| Obligatoire 	| Valeurs possibles     | Valeur défaut |
 |-------|-----------------------------------------------|---------------|-----------------------|---------------|
-|titre	| Titre de la couche				|Non 		| Chaîne alphanumérique	|*Blanc*	|
+|titre	| Titre de la couche				|Non 		| Chaîne alphanumérique	|*Blanc*	|
 
 *Exemples*
 ```xml
@@ -1362,7 +1506,7 @@ Google
 ------
 
 Permet la définition d'une couche de fond provenant de Google. Quatre
-couches sont disponibles : *terrain, satellite, hybride* et *route*.
+couches sont disponibles : *terrain, satellite, hybride* et *route*.
 
 *Attributs ou valeurs spécifiques*
 
@@ -1406,7 +1550,7 @@ OSM
 ---
 
 Permet la définition d'une couche de fond provenant d’OpenStreetMap.
-Trois couches sont disponibles : *defaut, humanitaire*et*velo*.
+Trois couches sont disponibles : *defaut, humanitaire*et*velo*.
 
 *Attributs ou valeurs spécifiques*
 
@@ -1491,11 +1635,7 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |titre	|Titre de la couche			|Non	|Chaîne alphanumérique|*Valeur de l’attribut nom*|
 |extraParams|Paramètres supplémentaires à spécifier lors de l’appel au service de carte|Non|Chaîne alphanumérique||
 |mapdir	|Chemin du mapfile à utiliser (dans le cas d’un service de carte publié avec MapServer)|Non (sauf dans le cas d’un service de carte publié avec MapServer)|Chaîne alphanumérique||
-|infoFormat|Spécifier le format du GetFeatureInfo disponible pour la couche WMS|Non    |*html*,*xml*,*gml*,*gml311*||
-|infoEncodage|Spécifier l'encodage de la couche WMS|Non |Chaîne alphanumérique||
-|infoGabarit|Indiquer l'emplacement d'un gabarit personnalisé|Non|Chaîne alphanumérique||
-|impressionURL|URL du service de la carte|Non   |URL||
-|mode|Intégrer l'ensemble des couches d'un service WMS|Non  |*getCapabilities*||
+
 *Exemples*
 ```xml
 <couche url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"
