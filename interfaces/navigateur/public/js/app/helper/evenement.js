@@ -97,7 +97,7 @@ define(['aide'], function(Aide) {
             }
 
             if (this.declencheurs && this.declencheurs[event.type] instanceof Array){
-                var declencheurs = this.declencheurs[event.type];
+                var declencheurs = this.declencheurs[event.type].slice();
                 for (var i=0, len=declencheurs.length; i < len; i++){
                     if(!declencheurs[i]){break};
                     if(event.avant === declencheurs[i].options.avant){
