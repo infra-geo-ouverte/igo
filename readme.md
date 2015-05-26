@@ -91,7 +91,7 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 * Gestion des métadonnées : GeoNetwork et PostgreSQL
 * Localisation : Service web, Rest et SOAP
 * IGO avec façade XML (API) s'appuyant sur du code : JavaScript & PHP dans Phalcon
-* Dépendence d'IGO à ces projets externes : [OpenLayers 2](https://github.com/openlayers/openlayers), [ExtJS](http://docs.sencha.com/extjs/3.4.0/), [GeoExt](http://geoext.github.io/geoext2/),  [JQuery](https://github.com/jquery/jquery) et [UMN MapServery](https://github.com/mapserver/mapserver)
+* Projets libres connexes et ré-utilisés au sein d'IGO : [OpenLayers 2](https://github.com/openlayers/openlayers), [ExtJS](http://docs.sencha.com/extjs/3.4.0/), [GeoExt](http://geoext.org/downloads.html),  [JQuery](https://github.com/jquery/jquery) et [UMN MapServer](https://github.com/mapserver/mapserver)
 * IGO avec façade XML (API) est basé sur le Modèle-Vue-Contrôleur
 * Adapté au changement de librairies externes futurs (ex. OpenLayers 3, Leaflet).
 
@@ -105,7 +105,7 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 * Metadata Service - GeoNetwork - PostgreSQL
 * Geocoding Service - as PHP Service - SOAP
 * IGO is an API on top of JavaScript & Phalcon
-* IGO depends on [OpenLayers 2](https://github.com/openlayers/openlayers), [ExtJS](http://docs.sencha.com/extjs/3.4.0/), [GeoExt](http://geoext.org/downloads.html),  [JQuery](https://github.com/jquery/jquery) and [UMN MapServer](https://github.com/mapserver/mapserver)
+* External projects and used by IGO: [OpenLayers 2](https://github.com/openlayers/openlayers), [ExtJS](http://docs.sencha.com/extjs/3.4.0/), [GeoExt](http://geoext.org/downloads.html),  [JQuery](https://github.com/jquery/jquery) and [UMN MapServer](https://github.com/mapserver/mapserver)
 * Adapted to change future backend libraries (OL3, Leaflet)
 * Made also for integration in web site/portal as iframe
 * IGO is an API based on MVC
