@@ -114,7 +114,7 @@ class IgoGroupeController extends ControllerBase {
         //    $this->definirGroupesPourSelecteur();
         //    $this->definirCouchesPourSelecteur();
 
-        parent::newAction($r_controller = null, $r_action = null, $r_id = null);
+        parent::newAction($r_controller, $r_action, $r_id);
     }
 
     function editAction($id, $r_controller = null, $r_action = null, $r_id = null) {
@@ -261,7 +261,7 @@ class IgoGroupeController extends ControllerBase {
     function saveAction($r_controller = null, $r_action = null, $r_id = null) {
 
         try {
-            $save = parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+            $save = parent::saveAction($r_controller, $r_action, $r_id);
         } catch (Exception $ex) {
             $this->flash->error($e->getMessage());
 
