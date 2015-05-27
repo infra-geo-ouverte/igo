@@ -277,11 +277,11 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
                 var prmt = [];
                 var lonlat = this.carte._carteOL.getLonLatFromPixel(this.px);
-                var point = new Point(lonlat.lon, lonlat.lat).projeter('EPSG:3798');
+                var point = new Point(lonlat.lon, lonlat.lat);
 
                 prmt.push({
                     'name': oCoucheObtnInfo.nom,
-                    'projection': 'EPSG:3798',
+                    'projection': this.carte._carteOL.getProjection(),
                     'x': Math.floor(point.x),
                     'y': Math.floor(point.y)
                 });
