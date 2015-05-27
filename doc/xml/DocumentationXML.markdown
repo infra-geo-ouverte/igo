@@ -1330,11 +1330,6 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |groupe	| Groupe auquel appartient la couche dans l’arborescence| Non	| Chaîne alphanumérique	|		|
 |visible| Indique si la couche doit être affichée dans l'arborescence| Non| Booléen		| *true*	|
 |active | Indique si la couche doit être affichée sur la carte au démarrage du navigateur| Non| Booléen| *false*|
-|infoFormat | Indique le format voulu pour l' *OutilInfo* qui sera affiché dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| *gml*,*gml311*,*xml*,*html*| *gml*|
-|infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
-|infoGabarit | Indique l'emplacement du script HandleBars qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|		|
-|infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoDeclencheur | Indique l'emplacement du script qui recevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le déclencheur| Non| URL|		|
 |opacite| Transparence de la couche 			| Non		| Nombre décimal entre 0 et 100| *1*	|
 |ordreAffichage| Ordre d'affichage de la couche		| Non		| Nombre entier		| *Valeurs par défaut d’OpenLayers*|
 |droit	| Indique les droits de la couche (Copyrights)	| Non		| Chaîne alphanumérique	| 		|
@@ -1498,6 +1493,12 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |mapdir	|Chemin du mapfile à utiliser (dans le cas d’un service de carte publié avec MapServer)|Non (sauf dans le cas d’un service de carte publié avec MapServer)|Chaîne alphanumérique||
 |impressionURL|URL du service de la carte|Non   |URL||
 |mode|Intégrer l'ensemble des couches d'un service WMS|Non  |*getCapabilities*||
+|infoFormat | Indique le format voulu pour l' *OutilInfo* qui sera affiché dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| *gml*,*gml311*,*xml*,*html*| *gml*|
+|infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
+|infoGabarit | Indique l'emplacement du script HandleBars qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|		|
+|infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
+|infoDeclencheur | Indique l'emplacement du script qui recevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le déclencheur| Non| URL|		|
+
 *Exemples*
 ```xml
 <couche url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"
