@@ -7,6 +7,7 @@
  */
 
 define(['couche', 'aide'], function(Couche, Aide) {
+    var trafficLayer = false;
     /** 
      * Création de l'object Couche.Google.
      * Pour la liste complète des paramètres, voir {@link Couche}
@@ -100,14 +101,18 @@ define(['couche', 'aide'], function(Couche, Aide) {
     }
         
     Google.prototype.activerTrafic = function(){
-        if(!this.trafficLayer){
-            this.trafficLayer = new google.maps.TrafficLayer();
+        if(!trafficLayer){
+            trafficLayer = new google.maps.TrafficLayer();
         }
-        this.trafficLayer.setMap(this._layer.mapObject);
+        trafficLayer.setMap(this._layer.mapObject);
     }
     
     Google.prototype.desactiverTrafic = function(){
-        this.trafficLayer.setMap();
+        trafficLayer.setMap();
+    }
+    
+    Google.prototype.aTrafic = function(){
+        return trafficLayer;
     }
     
     Google.prototype._ajouterContexteSubmenu = function(contexteMenu){
@@ -118,11 +123,11 @@ define(['couche', 'aide'], function(Couche, Aide) {
             id: 'afficherTraficGoogle',
             titre: 'Afficher traffic', 
             action: function(args){
-                that.activerTrafic();
-                that.activer();
+                args.couche.activerTrafic();
+                args.couche.activer();
             }, 
             condition: function(args){
-                return (args.couche.obtenirTypeClasse()=='Google' && (!args.couche.trafficLayer || !args.couche.trafficLayer.getMap()));
+                return (args.couche.obtenirTypeClasse()==='Google' && (!trafficLayer || !trafficLayer.getMap()));
             },
             position: 3
         });
@@ -130,10 +135,10 @@ define(['couche', 'aide'], function(Couche, Aide) {
             id: 'cacherTraficGoogle',
             titre: "Cacher traffic", 
             action: function(args){
-                that.desactiverTrafic();
+                args.couche.desactiverTrafic();
             }, 
             condition: function(args){
-                return (args.couche.obtenirTypeClasse()=='Google' && args.couche.trafficLayer && args.couche.trafficLayer.getMap());
+                return (args.couche.obtenirTypeClasse()==='Google' && trafficLayer && trafficLayer.getMap());
             },
             position: 3
         });
