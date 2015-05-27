@@ -178,7 +178,7 @@ class IgoCoucheController extends ControllerBase {
     public function saveAction($r_controller = null, $r_action = null, $r_id = null){
         
         $this->setGeometrieDesc();
-        parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+        parent::saveAction($r_controller, $r_action, $r_id);
         
     }
 
