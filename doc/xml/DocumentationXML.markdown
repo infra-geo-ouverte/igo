@@ -1330,7 +1330,7 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |groupe	| Groupe auquel appartient la couche dans l’arborescence| Non	| Chaîne alphanumérique	|		|
 |visible| Indique si la couche doit être affichée dans l'arborescence| Non| Booléen		| *true*	|
 |active | Indique si la couche doit être affichée sur la carte au démarrage du navigateur| Non| Booléen| *false*|
-|infoFormat | Indique le format voulu pour un GetFeatureInfo qui doit être affichée dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| Chaîne alphanumérique| *gml*,*gml311*,*xml*,*html*|
+|infoFormat | Indique le format voulu pour un GetFeatureInfo qui doit être affichée dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| *gml*,*gml311*,*xml*,*html*| *gml*|
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour un GetFeatureInfo sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
 |infoGabarit | Indique l'emplacement du script HandleBars qui sera apliqué dans la fenêtre de résultats sur le GettFeatureInfo après le clique sur la couche dans la carte | Non|  URL|		|
 |infoUrl | Indique un url qui sera remplacer par l'url du GettFeatureInfo| Non| URL| |
