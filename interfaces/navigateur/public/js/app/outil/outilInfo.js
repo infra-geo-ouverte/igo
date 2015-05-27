@@ -264,7 +264,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
             //Exceptionellement IE on doit passer par le proxy pour encodage
             if (BrowserDetect.browser === "Explorer") {
-                encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : encodage;
+                encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : oCoucheObtnInfo.infoEncodage;
             }
 
             //Appliquer un xsl ESRI
