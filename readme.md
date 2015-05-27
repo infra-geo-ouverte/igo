@@ -112,8 +112,8 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 
 ***
 ### Contribuer
-Nous sommes bien content que vous pensiez contribuer à IGO ! Avant de le faire, nous vous encourageons à lire le guide de contribution, la LICENCE et la FAQ qui sont tous dans ce même dépôt. Si vous avez d'autres questions, n'hésitez pas à écrier à IGO à ce courriel : igo(a)msp.gouv.qc.ca ou à la liste courriel http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique.
+Nous sommes bien content que vous pensiez contribuer à IGO ! Avant de le faire, nous vous encourageons à lire le guide de contribution, la LICENCE et la FAQ qui sont tous dans ce même dépôt. Si vous avez d'autres questions, n'hésitez pas à écrier à IGO à ce courriel : info(a)igouverte.org ou à la liste courriel http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique.
 
 ***
 ### Contribution
-If you have any question and want to contribute, contact the main email of the project: igo(a)msp.gouv.qc.ca or subscribe to the mailing-list (http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique) mainly in French, but do not hesiate to ask questions in English, most of the IGO Team is bilingual. The documentation and API-XML is mainly in French, but if there is a demand, the project can be translate if needed, just contact us for more information.
+If you have any question and want to contribute, contact the main email of the project: info(a)igouverte.org or subscribe to the mailing-list (http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique) mainly in French, but do not hesitate to ask questions in English, most of the IGO Team is bilingual. The documentation and API-XML is mainly in French, but if there is a demand, the project can be translate if needed, just contact us for more information at: info(a)igouverte.org
