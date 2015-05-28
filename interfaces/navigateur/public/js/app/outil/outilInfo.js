@@ -341,7 +341,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
                 that.afficherResultats();
                 Aide.cacherMessageChargement();
             }).fail(function (jqXHRs, textStatus, errorThrown) {
-                Aide.afficherMessageConsole('Erreur Critique: ' + textStatus + " : " + jqXHRs.url + " : " + errorThrown);
+                Aide.afficherMessageConsole('Erreur: ' + textStatus + " : " + jqXHRs.responseText + " : " + errorThrown);
                 Aide.cacherMessageChargement();
             });
         });
