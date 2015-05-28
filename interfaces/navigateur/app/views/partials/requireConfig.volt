@@ -20,11 +20,13 @@ require.config({
                     if(is_dir($repertoire.'/'.$fichier)) {
                          ScanRepertoireJS($repertoire.'/'.$fichier, $baseUri);
                     }
-                    else {                
-                        $name = substr($fichier,0,-3);
-                                
-                        if (preg_match('/^[a-z0-9_-]+$/i', $name)) { 
-                            echo "\t\t".$name.": '".$repertoire."/".$name."',\n";
+                    else {       
+                        if(substr($fichier, -3) === ".js"){
+                            $name = substr($fichier,0,-3);
+
+                            if (preg_match('/^[a-z0-9_-]+$/i', $name)) { 
+                                echo "\t\t".$name.": '".$repertoire."/".$name."',\n";
+                            }
                         }
                     }
                 }
