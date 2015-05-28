@@ -25,7 +25,6 @@ class IgoTag extends \Phalcon\Tag {
      *  Fonction qui vérifie si l'utilisateur possède le profil propriétaire
      *  et affiche le lien le cas échéant
      */
-
     public function linkIfProprietaire($parameters, $proprietaire_id) {
 
         $di = \Phalcon\DI::getDefault();
@@ -37,11 +36,14 @@ class IgoTag extends \Phalcon\Tag {
             return $this->linkTo($parameters);
         }
 
+        //TODO Cette vérification ne prend pas en compte les propriétaires au 
+        //delà du premier niveau. Il faudrait que ça soit récursif
         foreach ($profils as $profil) {
 
             if ($profil["id"] == $proprietaire_id) {
                 return $this->linkTo($parameters);
             }
+            
         }
     }
 

@@ -288,21 +288,6 @@ class IgoContexte extends \Phalcon\Mvc\Model {
              'min' => 0
          )));
 
-        $info_u  = $this->getDi()->getSession()->get("info_utilisateur");
-        $profils = $this->getDi()->getSession()->get("profils");
-        if(!$info_u->estAdmin) {
-            if(count($profils) == 0) {
-                $this->appendMessage(new \Phalcon\Mvc\Model\Message("Vous n'avez pas de profils.", ''));
-                return false;
-            }
- 
-            if(is_null($this->profil_proprietaire_id)) {
-                $this->appendMessage(new \Phalcon\Mvc\Model\Message("Veuillez indiquer le profil propriétaire.", ''));
-                return false;
-            }
-
-        }
-
         return !$this->validationHasFailed();
     }
 
@@ -321,37 +306,9 @@ class IgoContexte extends \Phalcon\Mvc\Model {
     }
     /**
      * Créé une copie d'un contexte et de ses dépendances (igo_couche_contexte)
-     * return IgoContexte|bool Le IgoContexte, false en cas d'erreur
+     * @param int $idContexteCible Id du contexte où va la copie
      */
-    public function dupliquer(){
-    //    error_log("Début IgoContexte->dupliquer()");
-        //Trouver un code unique pour le nouveau contexte
-        $code = $this->genererCodeUniquePourContexte();
-           
-        //Copier le contexte
-        $igoNouveauContexte = new IgoContexte();
-        $igoNouveauContexte->mode = $this->mode;
-        $igoNouveauContexte->position = $this->position;
-        $igoNouveauContexte->zoom = $this->zoom;
-        $igoNouveauContexte->code = $code;
-        $igoNouveauContexte->nom = 'Copie de ' . $this->nom;
-        $igoNouveauContexte->description = $this->description;
-        $igoNouveauContexte->ind_ordre_arbre = $this->ind_ordre_arbre;
-        $igoNouveauContexte->mf_map_def = $this->mf_map_def;
-        $igoNouveauContexte->mf_map_projection = $this->mf_map_projection;        
-        $igoNouveauContexte->mf_map_meta_onlineresource = self::remplacerCodeDansOnlineResource($this->mf_map_meta_onlineresource, $this->code, $igoNouveauContexte->code);
-        $igoNouveauContexte->date_modif = $this->date_modif;
-        $igoNouveauContexte->json = $this->json;
-        $igoNouveauContexte->generer_onlineresource = $this->generer_onlineresource;
-        $igoNouveauContexte->profil_proprietaire_id = $this->profil_proprietaire_id;
-        if(!$igoNouveauContexte->save()){
-            $flash = $this->getDI()->getFlash();
-            foreach ($igoNouveauContexte->getMessages() as $message) {
-                $flash->error($message);
-            }
-            return false;
-        }
-
+    public function dupliquer($idContexteCible){
 
         //Créer les associations couche/contexte
         $igoCoucheContextes = $this->IgoCoucheContexte;
@@ -359,29 +316,11 @@ class IgoContexte extends \Phalcon\Mvc\Model {
         foreach($igoCoucheContextes as $igoCoucheContexte){
             
             $nbCoucheContexte++;
-          //  error_log("$nbCoucheContexte eme appel de igoCoucheContexte->dupliquer())");
-            $igoCoucheContexte->dupliquer($igoNouveauContexte->id);
 
-            
+            $igoCoucheContexte->dupliquer($idContexteCible);
+
         }
-      //  error_log("Fin IgoContexte->dupliquer()");
-        return $igoNouveauContexte;
+
     }
-    
-    /**
-     * Génère un code de contexte qui n'existe pas déjà
-     * @return string
-     */
-    private function genererCodeUniquePourContexte(){
-        $code = 'CopieDe' . $this->code;
-        
-     
-        //Trouver un nom unique de code
-        while(count(self::find("code = '$code'"))){
-            error_log($code);
-            $code = 'CopieDe' . $code;
-        }
-        return $code;
-  
-    }
+
 }
