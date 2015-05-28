@@ -147,13 +147,10 @@ $estAdmin = $this->session->get("info_utilisateur")->estAdmin;
     </div>
 </div>
 <div class="row">
-    
     <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-5 col-xs-12">        
         Vous pouvez insérer automatiquement le <i>Code</i> du contexte en utilisant le mot clé <b>{Code}</b>. Par ex : /cgi-wms/mapserv.fcgi?map={Code}.map
     </div>
-    
 </div>
-
 <div class="row">
     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-right">
         <label for="generer_onlineResource">Générer <i>Online Resource</i> dans le Mapfile</label>
@@ -179,3 +176,38 @@ $estAdmin = $this->session->get("info_utilisateur")->estAdmin;
         ?>
     </div>
 </div>
+<?php
+//Afficher seulement lors de la création d'un contexte
+if('new' == $this->view->getActionName()):
+?>
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-right">
+        Fonctionalitées avancées
+    </div>
+    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-12">
+       
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-right">
+        <label for="json">Copier les groupes et les couches de </label>
+    </div>
+    <div class="col-lg-3 col-md-4 col-sm-5 col-xs-12">
+          <?php
+          
+	    echo $this->tag->select(array(
+				        "id_contexte_a_dupliquer",
+					$igoContextesQuilPossede,
+					"emptyText" => "Choisir...",
+					"useEmpty" => true,
+					"class" => "form-control"
+        				));
+        ?>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-5 col-xs-12">        
+        Les groupes et les couches du contexte sélectionné seront automatiquement ajouté au nouveau contexte.
+    </div>
+</div>
+<?php endif; ?>

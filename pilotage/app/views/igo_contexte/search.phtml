@@ -48,11 +48,12 @@
                         </button>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                             <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_contexte/edit/" . $igo_contexte->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Éditer le contexte"), $igo_contexte->profil_proprietaire_id); ?></li>
-                            <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_contexte/delete/" . $igo_contexte->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Détruire le contexte", 'data-confirmation'=>'supprimer'), $igo_contexte->profil_proprietaire_id); ?></li>
+                            <li role="presentation" class="divider"></li>
                             <li><?php echo $this->tag->linkTo(array("igo_couche_contexte/arbreCouches/" . $igo_contexte->id, "Associer des groupes/couches")); ?></li>
                             <li><?php echo $this->tag->linkTo(array("contexte_et_couche/do/" . $igo_contexte->id, "Liste des associations")); ?></li>
                             <li><?php echo $this->tag->linkTo(array("igo_contexte/mapfile/" . $igo_contexte->id, "Voir le mapfile")); ?></li>
-                            <li><?php echo $this->tag->linkTo(array("igo_contexte/dupliquer/" . $igo_contexte->id, "Dupliquer le contexte")); ?></li>
+                            <li role="presentation" class="divider"></li>
+                            <li><?php echo $this->igo_tag->linkIfProprietaire(array("igo_contexte/delete/" . $igo_contexte->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Détruire le contexte", 'data-confirmation'=>'supprimer'), $igo_contexte->profil_proprietaire_id); ?></li>
                         </ul>
                     </div>
                 </td>
