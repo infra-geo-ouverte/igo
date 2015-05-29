@@ -59,7 +59,7 @@ echo extension=phalcon.so >> /etc/php5/apache2/conf.d/30-phalcon.ini   <br />
 # Installation des librairies
 ## Clone des librairies
 cd /var/www/html   <br />  
-git clone https://gitlab.forge.gouv.qc.ca/geomatique/librairie.git   
+git clone https://github.com/infra-geo-ouverte/igo-lib.git librairie
 
 # Installation de IGO
 ## Clone des services

@@ -6,7 +6,7 @@
  * @version 1.0
  */
 
-define(['panneau', 'point'], function(Panneau, Point) {
+define(['panneau', 'point', 'aide'], function(Panneau, Point, Aide) {
      /** 
      * Création de l'object Panneau.PanneauCarte.
      * Pour la liste complète des paramètres, voir {@link Panneau}
@@ -56,8 +56,9 @@ define(['panneau', 'point'], function(Panneau, Point) {
                 title: opt.titre || 'Carte'
                 }]
         }); */
-        if (opt.centre){ //-71.3,48.3;EPSG:4326
-            var centre = opt.centre.split(/[,;]/);
+        var centreString = Aide.obtenirParametreURL('centre') || opt.centre;
+        if (centreString){ //-71.3,48.3;EPSG:4326
+            var centre = centreString.split(/[,;]/);
             opt.x = centre[0];
             opt.y = centre[1];
             var centreProj = centre[2];
@@ -68,9 +69,9 @@ define(['panneau', 'point'], function(Panneau, Point) {
                 opt.y = igoPointProj.y;
             }
         };
-        var x = opt.x || -7994004;
-        var y = opt.y || 6034079;         
-        var z = opt.zoom || 7;
+        var x = Aide.obtenirParametreURL('x') || opt.x || -7994004;
+        var y = Aide.obtenirParametreURL('y') || opt.y || 6034079;         
+        var z = Aide.obtenirParametreURL('zoom') || opt.zoom || 7;
         
         var barreOutilsExt;
         if (this.barreOutils){

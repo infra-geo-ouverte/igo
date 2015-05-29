@@ -57,14 +57,13 @@ define(['outil', 'aide'], function(Outil, Aide) {
         var nav = Aide.obtenirNavigateur();
         var arbo = nav.obtenirPanneauxParType('Arborescence',2)[0];
         if(arbo){
-            if(arbo.contexteMenu._edtionSubmenuBool){return true;}
             this._ajouterContexteSubmenu(arbo.contexteMenu);
             return true;
         }
         
         if(!nav.evenements.obtenirDeclencheur('initArborescence', 'outilEditionAjouterContexteSubmenu').length){
             nav.evenements.ajouterDeclencheur('initArborescence', function(e){
-                that._ajouterContexteSubmenu(e.panneau.contexteMenu);
+                that._ajouterContexteSubmenu(e.target.contexteMenu);
                 nav.evenements.enleverDeclencheur('initArborescence', 'outilEditionAjouterContexteSubmenu');
             }, {id: 'outilEditionAjouterContexteSubmenu'});
         }
