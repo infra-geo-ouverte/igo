@@ -47,9 +47,9 @@
                               <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                                <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/edit/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Editer")); ?></li>
-                                <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/delete/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "Détruire", 'data-confirmation'=>'supprimer')); ?></li>
-                                <li><?php echo $this->tag->linkTo(array("classe_entite_et_geometrie/do/" . $igo_classe_entite->id, "Géométries")); ?></li>
+                                <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/edit/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "<span class='glyphicon glyphicon-pencil' aria-hidden='true'></span> Modifier")); ?></li>
+                                <li><?php echo $this->igo_tag->linkIfAdmin(array("igo_classe_entite/delete/" . $igo_classe_entite->id . "/" . $r_controller . "/" . $action . "/" . $parameters, "<span class='glyphicon glyphicon-trash' aria-hidden='true'></span> Détruire", 'data-confirmation'=>'supprimer')); ?></li>
+                                <li><?php echo $this->tag->linkTo(array("classe_entite_et_geometrie/do/" . $igo_classe_entite->id, "<span class='glyphicon glyphicon' aria-hidden='true'></span> Géométries")); ?></li>
                             </ul>
                     </div>
                 </td>
