@@ -45,7 +45,8 @@ return array(
             'libraryDir'     => $basePilotageDir . 'app/library/',
             'cacheDir'       => $basePilotageDir . 'app/cache/',
             'helpersDir'     => $basePilotageDir . 'app/helpers/',
-            'validatorsDir'  => $basePilotageDir . 'app/validators/'  // Temporaire, TODO refactor de validator dans services.
+            'validatorsDir'  => $basePilotageDir . 'app/validators/',  // Temporaire, TODO refactor de validator dans services.
+            'retroCheminDefaut' => '' //Chemin serveur où sont les mapfile pour la rétroingénierie
         ),
         'edition' => array(
             'fieldsDir' => $baseEditionDir . 'app/fields/',

@@ -7,6 +7,7 @@
  */
 
 define(['couche', 'aide'], function(Couche, Aide) {
+    var trafficLayer = false;
     /** 
      * Création de l'object Couche.Google.
      * Pour la liste complète des paramètres, voir {@link Couche}
@@ -27,7 +28,8 @@ define(['couche', 'aide'], function(Couche, Aide) {
             this._optionsOL = {
                 sphericalMercator: true, 
                 numZoomLevels: 20,
-                printOptions: false
+                printOptions: false,
+                visibility: true 
             };
 
             //this._init();
@@ -79,10 +81,68 @@ define(['couche', 'aide'], function(Couche, Aide) {
         require(['async!'+googleConnexion], function(){
             that._init();
             Couche.prototype._ajoutCallback.call(that, target, callback, optCallback);
+
+            var nav = Aide.obtenirNavigateur();
+            var arbo = nav.obtenirPanneauxParType('Arborescence', 2)[0];
+            if(arbo){
+                that._ajouterContexteSubmenu(arbo.contexteMenu);
+                return true;
+            } else {
+                if(!nav.evenements.obtenirDeclencheur('initArborescence', 'googleAjouterContexteSubmenu').length){
+                    nav.evenements.ajouterDeclencheur('initArborescence', function(e){
+                        that._ajouterContexteSubmenu(e.target.contexteMenu);
+                        nav.evenements.enleverDeclencheur('initArborescence', 'googleAjouterContexteSubmenu');
+                    }, {id: 'googleAjouterContexteSubmenu'});
+                }
+            }
         }, function (err) {
             Aide.afficherMessage("Google indisponible", "Impossible d'ajouter la couche Google", 'Ok', 'Error');
         });
     }
         
+    Google.prototype.activerTrafic = function(){
+        if(!trafficLayer){
+            trafficLayer = new google.maps.TrafficLayer();
+        }
+        trafficLayer.setMap(this._layer.mapObject);
+    }
+    
+    Google.prototype.desactiverTrafic = function(){
+        trafficLayer.setMap();
+    }
+    
+    Google.prototype.aTrafic = function(){
+        return trafficLayer;
+    }
+    
+    Google.prototype._ajouterContexteSubmenu = function(contexteMenu){
+        if(contexteMenu._googleSubmenuBool){return true;}
+        contexteMenu._googleSubmenuBool=true;
+        var that=this;
+        contexteMenu.ajouter({
+            id: 'afficherTraficGoogle',
+            titre: 'Afficher traffic', 
+            action: function(args){
+                args.couche.activerTrafic();
+                args.couche.activer();
+            }, 
+            condition: function(args){
+                return (args.couche.obtenirTypeClasse()==='Google' && (!trafficLayer || !trafficLayer.getMap()));
+            },
+            position: 3
+        });
+        contexteMenu.ajouter({
+            id: 'cacherTraficGoogle',
+            titre: "Cacher traffic", 
+            action: function(args){
+                args.couche.desactiverTrafic();
+            }, 
+            condition: function(args){
+                return (args.couche.obtenirTypeClasse()==='Google' && trafficLayer && trafficLayer.getMap());
+            },
+            position: 3
+        });
+    }
+    
     return Google;
 });
