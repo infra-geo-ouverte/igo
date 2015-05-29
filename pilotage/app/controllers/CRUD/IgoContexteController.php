@@ -73,24 +73,22 @@ class IgoContexteController extends ControllerBase {
         $igoContexte->date_modif = $this->request->getPost("date_modif");
         $igoContexte->json = $this->request->getPost("json");
         $igoContexte->mf_map_projection = $this->request->getPost("mf_map_projection");
-        // Si le contexte est vide on change la string "" à null.
         $igoContexte->profil_proprietaire_id = $this->request->getPost("profil_proprietaire_id");
         
         if($igoContexte->profil_proprietaire_id == "") {
             $igoContexte->profil_proprietaire_id = null;
         }
         
-        //L'utilisateur n'a pas le droit d'assigner ce profil
-        if(!($this->getDI()->get('session')->get('info_utilisateur')->estAdmin
-            || $this->getDI()->get('session')->get('info_utilisateur')->aProfil($igoContexte->profil_proprietaire_id))){
-            $this->flash->error("Vous n'avez pas le droit d'assigner ce profil. Vous devez en être propriétaire ou être administrateur.");
-            
+        //Valider la sélection ou pas du profil propriétaire
+        if(!$this->validationProfilProprietaire($igoContexte->profil_proprietaire_id, $messageErreurProfilProprietaire)){
+            foreach($messageErreurProfilProprietaire as $message){
+                $this->flash->error($message);    
+            }
             return $this->dispatcher->forward(array(
                 "controller" => $this->ctlName,
                 "action" => "new",
                 "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
-            ));
-            
+              ));
         }
         
         $igoContexte->mf_map_meta_onlineresource = $this->request->getPost("mf_map_meta_onlineresource");
@@ -111,25 +109,45 @@ class IgoContexteController extends ControllerBase {
                 ));
             }
      
-            
             if($idContexteADupliquer){
-                //Vérfiier si il a le droit de le dupliquer
-                if(true){
-                    //Dupliquer les droits
-                    $this->dupliquerContexte($idContexteADupliquer, $igoContexte->id);
-                }
+                $this->dupliquerContexte($idContexteADupliquer, $igoContexte->id);
             }
                 
             $this->flash->success(Text::camelize(str_replace("igo_", "", $this->ctlName)) . " " . $igoContexte->id . " créé avec succès");
+          
             
         } catch (\Exception $e) {
             $this->flash->error($e->getMessage());
             return $this->dispatcher->forward(array(
-                        "controller" => $this->ctlName,
-                        "action" => "new",
-                        "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
+                "controller" => $this->ctlName,
+                "action" => "new",
+                "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
             ));
         }
+    }
+    
+    /*
+     * S'assurer que le profil propriétaire soit bien assigné
+     * @param int $idProfil Id du profil fourni dans le formulaire
+     * @param array $messages Messages d'erreur à retourner
+     * return bool Est valide
+     */
+    private function validationProfilProprietaire($idProfil, &$messages){
+        $messages = array();
+        //L'utilisateur doit préciser le profil propriétaire
+        if(!$this->getDI()->get('session')->get('info_utilisateur')->estAdmin){
+            
+            if(!$idProfil){
+                $messages[] = "Vous devez spécifier quel est le profil propriétaire.";
+                return false;
+            }
+
+            if(!$this->getDI()->get('session')->get('info_utilisateur')->aProfil($idProfil)){
+                $messages[] = "Vous n'avez pas le droit d'assigner ce profil. Vous devez en être propriétaire ou être administrateur.";
+                return false;
+            }
+        }
+        return true;
     }
     
     /**
@@ -141,7 +159,6 @@ class IgoContexteController extends ControllerBase {
         
         //Récupérer les couchecontexte de la source
         $igoContexteSource = IgoContexte::findFirst($idContexteSource);
-     
    
         $igoContexteSource->dupliquer($idContexteCible);
         
@@ -180,8 +197,6 @@ class IgoContexteController extends ControllerBase {
                 //"order"=>array("mf_layer_meta_z_order")
                 "order"=>array("mf_layer_meta_group_title", "mf_layer_meta_title")                
             ));
-        
-        
         
         // Il faut trier les classes par mf_class_z_order, c'est impossible de
         // le faire avec l'orm ou encore avec le volt... Il faudrait étendre volt 
@@ -222,8 +237,22 @@ class IgoContexteController extends ControllerBase {
      }
      
      public function saveAction($r_controller = null, $r_action = null, $r_id = null) { 
-         $this->traiterCodeOnlineRessource();
-         parent::saveAction($r_controller, $r_action, $r_id);
+        $this->traiterCodeOnlineRessource();
+        
+        //Valider la sélection ou pas du profil propriétaire
+        if(!$this->validationProfilProprietaire($this->request->getPost("profil_proprietaire_id"), $messageErreurProfilProprietaire)){
+            foreach($messageErreurProfilProprietaire as $message){
+                $this->flash->error($message);    
+            }
+            
+            return $this->dispatcher->forward(array(
+                "controller" => $this->ctlName,
+                "action" => "edit"
+             ));
+          
+        }
+
+         parent::saveAction($r_controller, $r_action);
          
      }
 
@@ -266,7 +295,7 @@ class IgoContexteController extends ControllerBase {
      * @return igoContexte[]
      */
     private function igoContextesQuilPossede(){
-        $requeteContextes = '';
+        $sql = '';
         if(!$this->getDI()->get('session')->get('info_utilisateur')->estAdmin){
             
             //Récupérer les profils de l'utilisateurs
@@ -281,12 +310,12 @@ class IgoContexteController extends ControllerBase {
                 $idsProfils[] = $profil['id'];
             }
             $idsProfils = implode(',', $idsProfils);
-             
+            
             //Récupérer les contextes auquels ces profils donne droit
-            $igoContextes = IgoContexte::find('profil_proprietaire_id IN ('.$idsProfils.')');
+            $sql = "profil_proprietaire_id IN ($idsProfils)";
         }
         
-        return IgoContexte::find($requeteContextes);
+        return IgoContexte::find($sql);
     }
     
     /**
@@ -303,6 +332,7 @@ class IgoContexteController extends ControllerBase {
         $contextes = $this->igoContextesQuilPossede();
         foreach($contextes as $contexte){
             if($contexte->id == $idContexte){
+                die("$contexte->id == $idContexte");
                 return true;
             }
         }
