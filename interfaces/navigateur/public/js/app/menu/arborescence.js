@@ -72,7 +72,6 @@ define(['panneau', 'aide', 'contexteMenuArborescence', 'layerTreeBuilderBuild'],
     Arborescence.prototype.callbackCreation = function(){
         this.contexteMenu = new ContexteMenuArborescence({arborescence: this, selecteur: '#'+this.obtenirId(), cible: '.x-tree-node'});
         Panneau.prototype.callbackCreation.call(this);
-        this.declencher({ type: "arborescenceInit"}); 
         this.carte.gestionCouches.ajouterDeclencheur("enleverToutesLesCouches", this._enleverTousLesGroupes, {scope: this});
     };
     

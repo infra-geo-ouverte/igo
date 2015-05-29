@@ -26,7 +26,7 @@ chmod 775 /var/www/html/igo/pilotage/app/cache  <br />
 
 ## Cloner les librairies
 cd igo <br /> 
-git clone https://gitlab.forge.gouv.qc.ca/geomatique/librairie.git   
+git clone https://github.com/infra-geo-ouverte/igo-lib.git librairie
 
 
 ## Configurer IGO  
