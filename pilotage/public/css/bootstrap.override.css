@@ -128,7 +128,7 @@ select {
 
 .table-search .date_modif,
 .table-search .date_chargement{
-    width:176px;
+    width:180px;
 }
 
 .table-search .connexion{
@@ -141,6 +141,14 @@ select {
 
 .table-search .actions{
     width:100px;
+}
+
+.table-search .description{
+    width:115px;
+}
+
+.table-search .proprietaire{
+    width:85px;
 }
 
 .table-search.table-search-igo_classe_entite .geometries{
