@@ -95,6 +95,7 @@ class AuthentificationMSP extends AuthentificationController {
      * On les ajoute ensuite dans le tableau de profil.
      *
      * On retourne ensuite le tableau profil qui sera stocké dans la session.
+     * @return ???
      */
     public function obtenirProfils(){
       
@@ -123,7 +124,7 @@ class AuthentificationMSP extends AuthentificationController {
           
         return array_merge($profils_bd, $profils_ldap);
     }
-  
+
     public function obtenirIdentifiantUtilisateur(){
         return $this->identifiant;
     }

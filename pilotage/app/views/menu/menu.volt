@@ -2,7 +2,7 @@
 <ul class="nav nav-tabs">
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-          Classes entitée <span class="caret"></span>
+          Classes entité <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
             {% if this.getDI().get('session').get('info_utilisateur').estAdmin %}
@@ -17,7 +17,7 @@
     </li>
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-          Contexte <span class="caret"></span>
+          Contextes <span class="caret"></span>
         </a>
     <ul class="dropdown-menu">
         <li class="enabled">{{ link_to("igo_contexte/search","Contextes" )}}</li> 

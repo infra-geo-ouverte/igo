@@ -47,6 +47,15 @@ class SessionController {
         $this->estAuthentifie = false;
         $this->profilActif = null;
     }
+    
+    public function aProfil($idProfil){
+        foreach($this->profils as $profil){
+            if($profil['id'] == $idProfil){
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 ?>
