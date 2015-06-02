@@ -75,9 +75,20 @@ define(['couche', 'aide'], function(Couche, Aide) {
 
     Google.prototype._ajoutCallback = function(target, callback, optCallback){
         var that=this;
-        //todo: pouvoir mettre une clé à google
-        var googleConnexion = this.options.url?window.location.protocol+this.options.url:window.location.protocol+'//maps.google.com/maps/api/js?sensor=false';
-        
+        var options = $.extend({}, that.defautOptions, Aide.obtenirConfig(that.obtenirTypeClasse()), that.options);
+        var googleConnexion = options.url ? window.location.protocol + options.url : window.location.protocol + '//maps.google.com/maps/api/js?sensor=false';
+        if(options.client){
+            googleConnexion += "&client=" + options.client;
+            if(options.signature){
+                googleConnexion += "&signature=" + options.signature;
+            }
+            if(options.channel){
+                googleConnexion += "&channel=" + options.channel;
+            }
+        } else if (options.key){
+            googleConnexion += "&key=" + options.key;
+        }
+
         require(['async!'+googleConnexion], function(){
             that._init();
             Couche.prototype._ajoutCallback.call(that, target, callback, optCallback);

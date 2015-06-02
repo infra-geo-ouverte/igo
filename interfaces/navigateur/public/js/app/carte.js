@@ -57,7 +57,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
         
         if(this.options.etendueMax) {
             
-            if(this.options.etendueMax == "aucune"){
+            if(this.options.etendueMax === "aucune"){
                 etendueMax = undefined;
             }
             else{
@@ -73,7 +73,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
         }
         
         if(this.options.limiteEtendue) {
-            if(this.options.limiteEtendue == "aucune") {
+            if(this.options.limiteEtendue === "aucune") {
                 limiteEtendue = undefined;
             }
             else{
