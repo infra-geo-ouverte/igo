@@ -151,6 +151,10 @@ select {
     width:85px;
 }
 
+.table-search .ordre{
+    width:70px;
+}
+
 .table-search.table-search-igo_classe_entite .geometries{
     width:90px;
 }
