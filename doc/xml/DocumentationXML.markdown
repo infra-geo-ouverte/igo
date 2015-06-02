@@ -1497,20 +1497,11 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
 |infoGabarit | Indique l'emplacement du script HandleBars qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|		|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoDeclencheur | Indique l'emplacement du script qui recevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le déclencheur| Non| URL|		|
+|infoAction | Indique l'emplacement du script qui recevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
 
-*Exemples*
+*Exemples mode infoFormat*
 ```xml
-<couche url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"
-protocole="WMS"
-couche titre="Structures MTQ"
-url="http://www.dds.mtq.gouv.qc.ca/dds.aspx" nom="strct\_mtq"
-protocole="WMS" extraParams="NUM\_DOSSR=18475"
-couche id="idCoucheWMS" titre="RFN Voies ferrées"
-url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"
-protocole="WMS" fond="false" echelleMin="6000000" echelleMax="1"
-groupe="Test" visible="true" active="faux" opacite="100"
-ordreAffichage="1"/>
+   <couche protocole="WMS" mode="getCapabilities" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdga.fcgi?" infoFormat="gml" />
 ```
 
 
@@ -1630,7 +1621,7 @@ Configuration minimale XML
 Configuration minimale BD
 -------------------------
 
-(avec contexte chargé à partir de la BD)
+(avec contexte chargé à partir de la BD)
 
 ```xml
 <navigateur authentification="false" titre="G.O.LOC - Données ouvertes - Gouvernement du Québec">
@@ -1827,7 +1818,7 @@ Contient des ajouts de composantes personnalisées.
 ![](media/igo_avec_edition.png)
 
 
-Configuration maximale
+Configuration maximale
 ----------------------
 
 ```xml
