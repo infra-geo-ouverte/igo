@@ -1495,14 +1495,30 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |mode|Intégrer l'ensemble des couches d'un service WMS|Non  |*getCapabilities*||
 |infoFormat | Indique le format voulu pour l' *OutilInfo* qui sera affiché dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| *gml*,*gml311*,*xml*,*html*| *gml*|
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
-|infoGabarit | Indique l'emplacement du script HandleBars qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|		|
+|infoGabarit | Indique l'emplacement du script [HandleBars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoAction | Indique l'emplacement du script qui recevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
+|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
 
-*Exemples mode infoFormat*
+*Exemples*
 ```xml
-   <couche protocole="WMS" mode="getCapabilities" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdga.fcgi?" infoFormat="gml" />
+   <couche protocole="WMS" mode="getCapabilities"
+   url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdga.fcgi?" infoFormat="gml" />
 ```
+
+*Exemples*
+```xml
+  <couche titre="Région Administrative" protocole="WMS" 
+   url="http://sigeom.mrn.gouv.qc.ca/SIGEOM_WMS/Request.aspx?" nom="Region_Administrative" active="vrai" infoFormat="html"  />
+```
+
+*Exemples*
+```xml
+    <couche titre="Stations hydrométriques - Seuil de conséquence (public)" protocole="WMS" 
+    url="http://geoegl.msp.gouv.qc.ca/cgi-wms/adnInternetV2.fcgi?" nom="adn_station_max_public_v" 
+    echelleMin="4000000" />
+```
+
+
 
 
 Actions
