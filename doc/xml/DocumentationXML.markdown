@@ -1495,7 +1495,7 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |mode|Intégrer l'ensemble des couches d'un service WMS|Non  |*getCapabilities*||
 |infoFormat | Indique le format voulu pour l' *OutilInfo* qui sera affiché dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| *gml*,*gml311*,*xml*,*html*| *gml*|
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
-|infoGabarit | Indique l'emplacement du script [HandleBars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|
+|infoGabarit | Indique l'emplacement du script [Handlebars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte ([exemple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exemple.html),[ exemple simple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exempleSimple.html)) | Non|  URL|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
 |infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
 
