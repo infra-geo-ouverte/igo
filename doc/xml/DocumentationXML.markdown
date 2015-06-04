@@ -1505,20 +1505,23 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
    url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdga.fcgi?" infoFormat="gml" />
 ```
 
-*Exemples*
 ```xml
   <couche titre="Région Administrative" protocole="WMS" 
-   url="http://sigeom.mrn.gouv.qc.ca/SIGEOM_WMS/Request.aspx?" nom="Region_Administrative" active="vrai" infoFormat="html"  />
+   url="http://sigeom.mrn.gouv.qc.ca/SIGEOM_WMS/Request.aspx?" nom="Region_Administrative" 
+   active="vrai" infoFormat="html"  />
 ```
 
-*Exemples*
 ```xml
     <couche titre="Stations hydrométriques - Seuil de conséquence (public)" protocole="WMS" 
     url="http://geoegl.msp.gouv.qc.ca/cgi-wms/adnInternetV2.fcgi?" nom="adn_station_max_public_v" 
     echelleMin="4000000" />
 ```
 
-
+```xml
+  <couche titre="Structures MTQ" url="http://www.dds.mtq.gouv.qc.ca/dds.aspx" 
+   nom="strct" protocole="WMS"  fond="false" echelleMin="6000000" echelleMax="1" 
+   visible="true" active="faux" opacite="100" ordreAffichage="1"/>
+```
 
 
 Actions
