@@ -346,7 +346,6 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
             $.when.apply(null, jqXHRs).done(function () {
                 that.afficherResultats();
-                Aide.cacherMessageChargement();
             }).fail(function (jqXHRs, textStatus, errorThrown) {
                 Aide.afficherMessageConsole('Erreur: ' + textStatus + " : " + jqXHRs.responseText + " : " + errorThrown);
                 Aide.cacherMessageChargement();
@@ -643,6 +642,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
         //Afficher le résultat seulemnt si nous avons des résultats
         if (tabExist) {
             oResultWindow.show();
+            Aide.cacherMessageChargement();
         }
 
         //Fin du clique on reinitialise
