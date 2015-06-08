@@ -7,7 +7,7 @@
  * @version 1.0
  */
 
-define(['aide', 'evenement'], function(Aide, Evenement) {
+define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) {
     var compteur=0;
     /** 
      * Création de l'object Outil.
@@ -136,38 +136,21 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
     * @name Outil#executer
     */
     Outil.prototype.executer =  function () {
+        var that=this;
         var action = this.options.action || this.defautOptions.action;
-        
-        if(typeof(action) === "string"){
-            var actionLength=action.length;
-            var isActionJs = action.substr(actionLength-3, actionLength) === '.js';
-        };
-        if(isActionJs){
-            var action = action.substr(0, actionLength-3);
-            var idAction = this.obtenirId() + 'Action';
-            var path = {};
-            path[idAction] = action;
-            require.ajouterConfig({
-                paths: path
-            });
-
-            var that=this;
-            require([idAction], function(actionJs) {
+        Fonctions.executerAction({
+            scope: this,
+            action: action,
+            actionScope: this.options.actionScope,
+            actionsParams: this.options.actionParams,
+           // requireId: this.obtenirId() + 'Action',
+            requireFct: function(actionJs) {
                 if (actionJs){
                     that.options.action = actionJs;
                     that.executer();
                 }
-            }); 
-        } else {
-            if (typeof(action) !== "function"){
-                var fn = (new Function("return " + action + ";"))();
-                if (typeof(fn) === "function"){
-                    fn();
-                }
-                return;
-            };
-            action.call(this);
-        };
+            }            
+        });        
     };
     
     Outil.prototype.eteindre =  function () {
