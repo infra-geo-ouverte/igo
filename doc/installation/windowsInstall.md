@@ -22,7 +22,7 @@ $ git config --global core.autocrlf input
 
 #### Démarrage
 
-À la racine de votre dépôt git (où se trouve le fichier Vagrantfile), exécutez la commande suivante en utilisant Git Bash:
+À la racine de votre dépôt git (où se trouve le fichier Vagrantfile), exécutez la commande suivante **en utilisant Git Bash**:
 
 ```sh
 $ vagrant up
@@ -54,7 +54,7 @@ $ git config --global core.autocrlf input
 
 #### Start-up
 
-At the root of your git repository (where is the Vagrantfile), enter following command using Git Bash:
+At the root of your git repository (where is the Vagrantfile), enter following command **using Git Bash**:
 
 ```sh
 $ vagrant up
