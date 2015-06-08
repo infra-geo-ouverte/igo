@@ -4,142 +4,230 @@
  * and open the template in the editor.
  */
 
-define([], function() {
+define(['aide', 'analyseurGeoJSON'], function(Aide, AnalyseurGeoJSON) {
 
     function Fonctions(){
 
     };
 
-    Fonctions.afficherProprietes = function(occurences){
-        var tabs = new Ext.TabPanel({
-            activeTab: 0,
-            enableTabScroll: true,
-            height :490
-        });
-        var oResultWindow = new Ext.Window({
-            id: 'occurencesResultatsWindow',
-            title    : 'Résultats de la requête',
-            width    : 600,
-            height   : 600,
-            border : false,
-            modal: true,
-            plain    : true,
-            closable : true,
-            resizable : true,
-            autoScroll: true,
-            constrain: true,
-            layout:'fit',
-            items: [tabs]
-        });
+    Fonctions.afficherProprietes = function(input, options){
+        //input: [occurences] ou vecteur ou [{titre: "test", occurences: geoJSON}]
+        options = options || {};
+        var defautTitre = "Couche inconnue";
+        var defautGabarit = "template/afficherProprietes";
+        var messageErreur = options.messageErreur || "Aucun enregistrement n'a été trouvé";
+        var titreErreur = options.messageTitre || "Propriétés";
+        if(!input){
+            Aide.afficherMessage(titreErreur, messageErreur);
+            return false;
+        }
 
-        var aColumns = [];
-        aColumns.push({header: 'Item', sortable: true, dataIndex: 'Item', width: 50});
-        aColumns.push({header: 'Objet', sortable: false, dataIndex: 'Objet', hidden:true, width: 50});
-        aColumns.push({header: 'Attribut', sortable: false, dataIndex: 'Attribut', width: 150});
-        aColumns.push({id: 'Valeur', header: 'Valeur', sortable: false, dataIndex: 'Valeur',
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                metaData.css = 'multilineColumn'; return value;
-            }
-        });
+        if (input.obtenirTypeClasse && input.obtenirTypeClasse() === "Vecteur"){
+            var occGroupe = {};
+            occGroupe[input.id] = input.obtenirOccurences();
+            input = occGroupe;
+        } else if (!$.isArray(input)){
+            input = [input];
+        }   
+        
+        if(input.length === 0 && !$.isPlainObject(occGroupe)){
+            Aide.afficherMessage(titreErreur, messageErreur);
+            return false;
+        }
+        
+        if(input[0] && input[0].obtenirTypeClasse && input[0].obtenirTypeClasse() === "Occurence"){
+            var occGroupe = {};
+            $.each(input, function(key, value){
+                var id = value.vecteur ? value.vecteur.id : "sansCouche";
+                if(!occGroupe[id]){
+                    occGroupe[id] = [];
+                }
+                occGroupe[id].push(value);
+            });
+            input = occGroupe;
+        }
 
-        var RecordTemplate = Ext.data.Record.create([{name:'Item'}, {name:'Objet'}, {name:'Attribut'}, {name:'Valeur'}]);
-
-        var aoStores={};
-        var monGridPanel={};
-        $.each(occurences, function(key, occurence){
-            var id = occurence.vecteur.obtenirId();
-            if(!aoStores[id]){
-                aoStores[id] = new Ext.data.GroupingStore({
-                        fields: ['Item', 'Objet', 'Attribut', 'Valeur'],
-                        sortInfo: {field: 'Item', direction: 'DESC'},
-                        groupOnSort: true,
-                        remoteGroup: false,
-                        groupField: 'Item'
+        var analyseur = new AnalyseurGeoJSON();
+        var arrayOccGeoJson = [];
+        var gabarits = [];
+        $.each(input, function(key, value){
+            var obj;
+            if ($.isArray(value)){
+                if(!value[0]){
+                    return true;
+                }
+                var infoTemplate;
+                var titre;
+                if(!value[0].vecteur){
+                   infoTemplate = {};
+                   titre = defautTitre;
+                } else {
+                    infoTemplate = value[0].vecteur.templates.info || {};
+                    titre = value[0].vecteur.obtenirTitre();
+                }
+                obj = {
+                    titre: titre,
+                    gabarit: infoTemplate.gabarit || defautGabarit,
+                    alias: infoTemplate.alias,
+                    occurencesGeoJSON: JSON.parse(analyseur.ecrire(value))
+                };         
+            } else if(value.html){
+                obj = {
+                    titre: value.titre || defautTitre,
+                    html: value.html
+                };
+            } else {
+                if(!value.occurences){
+                    value = {occurences: value};
+                }
+                var occ = value.occurences;
+                if(typeof value.occurences === "string"){
+                    occ = JSON.parse(value.occurences);
+                } else if(value.occurences.obtenirTypeClasse && value.occurences.obtenirTypeClasse() === "Vecteur"){
+                    value.occurences = value.occurences.obtenirOccurences();
+                } 
+                
+                if (value.occurences[0] && value.occurences[0].obtenirTypeClasse && value.occurences[0].obtenirTypeClasse() === "Occurence"){
+                    occ = JSON.parse(analyseur.ecrire(value.occurences));
+                    if(value.occurences[0].vecteur){
+                       if(!value.titre){
+                           value.titre = value.occurences[0].vecteur.obtenirTitre();
+                       }
+                       if(!value.gabarit && value.occurences[0].vecteur.templates.info){
+                           value.gabarit = value.occurences[0].vecteur.templates.info.gabarit;
+                       }
                     }
-                );
+                } 
+                if (!occ.features || !occ.features.length){
+                    return true;
+                }
+                obj = {
+                    titre: value.titre || defautTitre,
+                    gabarit: value.gabarit || defautGabarit,
+                    alias: value.alias,
+                    occurencesGeoJSON: jQuery.extend({}, occ)
+                };
+            }
+            gabarits.push("hbars!"+obj.gabarit);
+            arrayOccGeoJson.push(obj);       
+        });
+        
+        if(!arrayOccGeoJson.length){
+            Aide.afficherMessage(titreErreur, messageErreur);
+            return false;
+        }
+
+        var oResultWindow = Ext.getCmp("occurencesResultatsWindow");
+        if(!Ext.get("occurencesResultatsWindow")){
+            var tabs = new Ext.TabPanel({
+                activeTab: 0,
+                enableTabScroll: true,
+                height :490
+            });
+            oResultWindow = new Ext.Window({
+                id: 'occurencesResultatsWindow',
+                title    : 'Résultats de la requête',
+                width    : 600,
+                height   : 575,
+                border : false,
+                modal: true,
+                plain    : true,
+                closable : true,
+                resizable : false,
+                autoScroll: true,
+                constrain: true,
+                layout:'fit',
+                items: [tabs]
+            });
+        }
+
+        if(!('utiliserAlias' in Handlebars.helpers)) {
+            Handlebars.registerHelper('utiliserAlias', function(key, alias, opts) {
+                if(!alias){return key}
+                if(alias[key]){
+                    return alias[key];
+                }
+                
+                var keySplit = key.split(".");
+                var firstKey = keySplit.shift();
+                var out = alias[firstKey] || firstKey;
+                while (keySplit.length) {
+                    var nextKey = keySplit.shift();
+                    out += ".";
+                    out += alias["*"+nextKey] || nextKey;
+                }
+                return out;
+            });
+
+            Handlebars.registerHelper('requireJS', function(js) {
+                require([js], function(){}) 
+            });
+
+            Handlebars.registerHelper('ifObjet', function(content, opts) {
+                if($.isPlainObject(content) || $.isArray(content)){
+                    return opts.fn(content);
+                }
+                return opts.inverse(content);
+            });
+
+            var loopRecursiveObjet = function(children, options, audaciousFn, previousKey, previousIndex){
+                var out = "";
+                var index = 0;
+                $.each(children, function(key, child){
+                    out += audaciousFn({
+                        index: previousIndex + "." + index,
+                        key: previousKey + "." + key,
+                        value: child,
+                        visible: false
+                    });
+
+                    if($.isPlainObject(child) || $.isArray(child)){
+                        out += loopRecursiveObjet(child, options, audaciousFn, previousKey + "." + key, previousIndex + "." + index);
+                    }
+                    index ++;
+                });
+
+                return out;
             };
 
-            var proprietes = occurence.obtenirProprietes();
-            if($.isEmptyObject(proprietes)){
-                var newRecord = new RecordTemplate({Item: occurence.id, Objet: undefined, Attribut: 'Propriétés', Valeur: 'Aucune'});
-                aoStores[id].add(newRecord);
-            }
-            $.each(proprietes, function(attribut, valeur){
-                var newRecord;
-                if($.isPlainObject(valeur) || $.isArray(valeur)){
-                    newRecord = new RecordTemplate({Item: occurence.id, Objet: valeur, Attribut: attribut, Valeur: "+"});
-                } else {
-                    newRecord = new RecordTemplate({Item: occurence.id, Objet: undefined, Attribut: attribut, Valeur: valeur});
+            Handlebars.registerHelper('recursive', function(children, options) {
+                var audaciousFn;
+                if (options.fn !== undefined) {
+                    audaciousFn = options.fn;
                 }
-                aoStores[id].add(newRecord);
-            });
 
-            if(!monGridPanel[id]){
-                monGridPanel[id] = new Ext.grid.GridPanel({
-                    title: occurence.vecteur.obtenirTitre(),
-                    store: aoStores[id],
-                    columns:aColumns,
-                    stripeRows: true,
-                    autoExpandColumn: 'Valeur',
-                    height:500,
-                    disableSelection : false,
-                    trackMouseOver : false,
-                    enableHdMenu : false,
-                    view: new Ext.grid.GroupingView({
-                        scrollOffset: 30,
-                        hideGroupedColumn: true,
-                        startCollapsed: false,
-                        getRowClass: function(record, index, rowParams) {
-                            var classe = '';
-                            if(record.data.Objet){
-                                classe = 'cursor-pointer ';
-                            }
-                            if( record.get('Item') % 2.0 == 0.0 ){
-                                return classe+'background-bleupale-row';
-                            }
-                            return classe+'background-white-row';
-                        }
-                    })	
+                var out = audaciousFn({
+                    index: options.data.index,
+                    key: options.data.key,
+                    value: children,
+                    visible: true
                 });
-            }
-        });
-        $.each(monGridPanel, function(key, gridPanel){
-            tabs.add(gridPanel);
 
-            gridPanel.getSelectionModel().on('rowselect', function(sm, rowIdx, r) {
-                if(sm.getCount() !== 1 || !r.data.Objet){
-                    sm.selectRange();
-                    return false;
-                }
-                if(r.data.Valeur == '+') {
-                    r.data.Valeur='-';
-                    r.commit();
-                    $.each(r.data.Objet, function(attribut, valeur){
-                        var newRecord;
-                        if($.isPlainObject(valeur) || $.isArray(valeur)){
-                            newRecord = new RecordTemplate({Item: r.data.Item, Objet: valeur, Attribut: r.data.Attribut + '.' + attribut, Valeur: "+"});
-                        } else {
-                            newRecord = new RecordTemplate({Item: r.data.Item, Objet: undefined, Attribut: r.data.Attribut + '.' + attribut, Valeur: valeur});
-                        }
+                if(!$.isPlainObject(children) && !$.isArray(children)){
+                    return out;
+                }        
 
-                        gridPanel.store.insert(rowIdx+1, newRecord)
-                    });         
-                } else {
-                    r.data.Valeur='+';
-                    r.commit();
-                    $.each(gridPanel.store.getRange(), function(recordKey, record){
-                        if(record.data.Item !== r.data.Item){return true};
-                        if(record.data.Attribut.match('^'+r.data.Attribut+'.')){
-                            gridPanel.store.remove(record);
-                        }
-                    });
-                }
-                sm.selectRange();
+                out += loopRecursiveObjet(children, options, audaciousFn, options.data.key, options.data.index);
+                return out;
             });
-        });
+        }
 
-        oResultWindow.show();
-        
+        require(gabarits, function(){
+            var args = arguments;
+            $.each(arrayOccGeoJson, function(key, value){
+                var html = value.html;
+                if(value.occurencesGeoJSON){
+                    value.occurencesGeoJSON.alias = value.alias;
+                    html = args[key](value.occurencesGeoJSON);
+                }
+                oResultWindow.items.get(0).add({
+                    title: value.titre,
+                    html: html
+                 });
+                
+            });
+            oResultWindow.show();
+        });
     };
     
     Fonctions.createDateFromIsoString = function(isoDateString){		
@@ -227,6 +315,55 @@ define([], function() {
                 break;  
         }
         return metres;
+    };
+    
+    Fonctions.executerAction =  function (options) {
+        var action = options.action; 
+        var scope = options.scope || this;
+        if(typeof(action) === "string"){
+            var actionLength=action.length;
+            var isActionJs = action.substr(actionLength-3, actionLength) === '.js';
+        };
+        if(isActionJs){
+            var action = action.substr(0, actionLength-3);
+            var idAction = options.requireId || action;
+            if(!requirejs.estDansConfig(idAction)){
+                var path = {};
+                path[idAction] = action;
+                require.ajouterConfig({
+                    paths: path
+                });
+            }
+            var requireFct =  options.requireFct || function(actionJs) {
+                if (actionJs){
+                    Fonctions.executerAction({
+                        action: actionJs,
+                        actionScope: options.actionScope,
+                        actionsParams: options.actionParams,
+                        scope: scope
+                    });
+                }
+            };
+            require([idAction], requireFct); 
+        } else {
+            if (typeof(action) !== "function"){
+                var scopeA = options.actionScope || "this";
+                var params = options.actionParams || undefined;
+                var fn = (new Function("\
+                    if(typeof("+action+") === 'function'){\n\
+                        return " + action+".call("+scopeA+","+params+")" + ";\n\
+                    } else {\n\
+                        return " + action + ";\n\
+                    }")
+                ).call(scope);
+                
+                if (typeof(fn) === "function"){
+                    fn.call(scope); 
+                }
+                return;
+            };
+            action.call(scope);
+        };
     };
     
     return Fonctions;
