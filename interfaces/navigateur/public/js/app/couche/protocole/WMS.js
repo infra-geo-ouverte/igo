@@ -116,14 +116,14 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
      * @name Couche.WMS#_getCapabilities
     */
     WMS.prototype._getCapabilities = function(target, callback, optCalback){
-        var tjrsProxy = this.options._encodage ? true : false;
+        var tjrsProxy = this.options.encodage ? true : false;
         $.ajax({
             url: Aide.utiliserProxy(this.options.url, tjrsProxy),//this.options.url.split('?')[0],
             data: {
                 SERVICE: "WMS",
                 VERSION: this.options.version || this.defautOptions.version,
                 REQUEST: "GetCapabilities",
-                _encodage: this.options._encodage //"wms_encoding" "ISO-8859-1"
+                _encodage: this.options.encodage //"wms_encoding" "ISO-8859-1"
             },
             //crossDomain: true, //utilisation du proxy
             async:false,
