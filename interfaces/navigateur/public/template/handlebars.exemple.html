@@ -1,0 +1,13 @@
+{{!-- Fichier gabarit hbars qui affiche tout les champs et ces valeurs version IGO 1.0.0 --}}
+<ul>
+  {{#each .}}
+    {{#each .}}
+     {{#each .}}
+       {{#each .}}
+     <li> {{@key}}:{{this}} </li>
+        {{/each}}
+       {{/each}}
+     {{/each}}
+   {{/each}}
+</ul>
+
