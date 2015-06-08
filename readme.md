@@ -22,13 +22,14 @@ Guide d'installation rapide pour installer et démarrer une machine virtuelle pr
 
 Cette procédure a été testée avec un système d'exploitation Ubuntu 14.04. Elle permet d'installer Vagrant avec comme provider VirtualBox.
 
+Documentation Windows disponible [ici](doc/installation/windowsInstall.md).
+
 ```sh
 $ sudo apt-get install virtualbox
 $ wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
 $ sudo dpkg -i vagrant_1.7.2_x86_64.deb
 $ vagrant plugin install vagrant-r10k
 ```
-* Sur Windows, il suffit de télécharger et installer VirtualBox (https://www.virtualbox.org/wiki/Downloads) et Vagrant (https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.msi) et ensuite le plugin vagrant-r10k (en ligne de commande). Le reste de la procédure pour démarrer la machine virtuelle demeure la même (en ligne de commande Windows).
 
 #### Démarrage
 
@@ -56,13 +57,14 @@ Quick installation and start-up guide to install and start a VM to test and/or d
 
 These steps has been tested with Ubuntu 14.04. It allows to install Vagrant with VirtualBox as a provider.
 
+Windows documentation available [here](doc/installation/windowsInstall.md).
+
 ```sh
 $ sudo apt-get install virtualbox
 $ wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
 $ sudo dpkg -i vagrant_1.7.2_x86_64.deb
 $ vagrant plugin install vagrant-r10k
 ```
-* On Windows, you only need to download and install VirtualBox (https://www.virtualbox.org/wiki/Downloads) and Vagrant (https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.msi) and finally the vagrant-r10k plugin (with command line). Other steps to start the VM are the same as Linux (but with Windows command line).
 
 #### Start-up
 
