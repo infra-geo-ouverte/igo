@@ -421,12 +421,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                             return;
                         }
                         if(options.action){
-                            if(options.action[0] === '#'){
-                                options.action = "Igo.Aide.obtenirNavigateur().actions." + options.action.substr(1);
-                            } else if(options.action[0] === '/'){
-                                options.action = "Igo.Aide.obtenirNavigateur()." + options.action.substr(1);
-                            }
+                            options.action = that._pathShortToLong(options.action);
                         }
+                        if(options.actionScope){
+                            options.actionScope = that._pathShortToLong(options.actionScope);
+                        }                   
                         var outilOccurence = new Igo.Outils[classe](options);
                         listOutils.push(outilOccurence);
 
@@ -481,6 +480,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 var propriete = $.isArray(couches.couche) ? couches.couche : [couches.couche];
                 $.each(propriete, function(key, couche) {
                     var options = couche["@attributes"] || couche["attributs"];
+                    if(options.infoAction){
+                        options.infoAction = that._pathShortToLong(options.infoAction);
+                    }   
+                    options.droit = options.droit || couche.droit;
                     options = $.extend({}, couchesOptions, options);
                     var classe = options.protocole;
                     options.typeContexte = 'contexte';
@@ -657,6 +660,46 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         that._analyserContexte();
     };
 
+
+    AnalyseurConfig.prototype._pathShortToLong = function(objet){
+        if(objet[0] === '/' || objet[0] === '#' || objet[0] === '@'){
+            var prefix = 'Igo.Aide.obtenirNavigateur()';
+            var objetR = objet.substr(1);
+            if(objet[0] === '@'){
+                prefix += ".actions";
+            } else if(objet[0] === '#'){
+                var nav = Aide.obtenirNavigateur();
+                var index = objet.indexOf('.');
+                index = index !== -1 ? index-1 : undefined;
+                var id = objet.substr(1, index);
+                var panneau = nav.obtenirPanneauParId(id, -1);
+                if(panneau){
+                    prefix += ".obtenirPanneauParId('"+id+"', -1)";
+                    if(index){
+                        objetR = objet.substr(index+2);
+                    } else {
+                        objetR = "";
+                    }
+                } else {
+                    var outil = nav.barreOutils.obtenirOutilParId(id, -1);
+                    if(outil){
+                        prefix += ".barreOutils.obtenirOutilParId('"+id+"', -1)";
+                        if(index){
+                            objetR = objet.substr(index+2);
+                        } else {
+                            objetR = "";
+                        }
+                    }
+                }
+            }
+            if(objetR.length !== 0){
+                prefix += '.';
+            }
+            objet = prefix + objetR;
+        }
+        return objet;
+    }
+
     /** 
      * Analyser la section "declencheurs" de la config
      * @param {object} json Partie de la configuration concernant les déclencheurs
@@ -668,53 +711,18 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         if (!declencheurs) {
             return true;
         }
+        var that=this;
         var arrayDeclencheurs = $.isArray(declencheurs.declencheur) ? declencheurs.declencheur : [declencheurs.declencheur];
         $.each(arrayDeclencheurs, function(key, declencheur) {
             if(!declencheur){return false;};
             var options = declencheur["@attributes"] || declencheur["attributs"] || {};
             if(!options.evenement || !options.action){return true;}
             var objet = options.objet || '/evenements';
-            if(objet[0] === '/' || objet[0] === '#'){
-                var prefix = 'Igo.Aide.obtenirNavigateur()';
-                var objetR = objet.substr(1);
-                if(objet[0] === '#'){
-                    var nav = Aide.obtenirNavigateur();
-                    var index = objet.indexOf('.');
-                    index = index !== -1 ? index-1 : undefined;
-                    var id = objet.substr(1, index);
-                    var panneau = nav.obtenirPanneauParId(id, -1);
-                    if(panneau){
-                        prefix += ".obtenirPanneauParId('"+id+"', -1)";
-                        if(index){
-                            objetR = objet.substr(index+2);
-                        } else {
-                            objetR = "";
-                        }
-                    } else {
-                        var outil = nav.barreOutils.obtenirOutilParId(id, -1);
-                        if(outil){
-                            prefix += ".barreOutils.obtenirOutilParId('"+id+"', -1)";
-                            if(index){
-                                objetR = objet.substr(index+2);
-                            } else {
-                                objetR = "";
-                            }
-                        }
-                    }
-                }
-                if(objetR.length !== 0){
-                    prefix += '.';
-                }
-                objet = prefix + objetR;
-            }
-            var action = options.action[0];
-            if(action[0] === '#'){
-                action = "Igo.Aide.obtenirNavigateur().actions." + options.action.substr(1);
-            } else if(action[0] === '/'){
-                action = "Igo.Aide.obtenirNavigateur()." + options.action.substr(1);
-            }
+            objet = that._pathShortToLong(objet);
+            var action = that._pathShortToLong(options.action);
+            var scope = that._pathShortToLong(options.scope);
             var code = objet + ".ajouterDeclencheur('" + options.evenement + "', " + action +
-                    ", {avant:" + options.avant + ", id:" + options.id + "})";
+                    ", {scope:" + scope + ", avant:" + options.avant + ", id:" + options.id + "})";
             new Function(code)();
         });
     };
@@ -726,7 +734,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @private
      * @name AnalyseurConfig#_analyserActions
     */
-    AnalyseurConfig.prototype._analyserActions = function(actions, callback) {
+    AnalyseurConfig.prototype._analyserActions = function(actions) {
         var that=this;
         if (!actions) {
             this.fin.actions = true;
@@ -744,7 +752,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 if (aJSExt !== -1) {
                     source = source.substr(0, aJSExt);
                 }
-                ;
+                
                 var paths = {};
                 paths[id] = source;
                 require.ajouterConfig({
