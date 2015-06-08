@@ -1,7 +1,9 @@
 
 {{!-- Fichier gabarit pour remplacer tableau Ext-JS pour les cas du gml version IGO 1.0.0 --}}
 
-<div class="x-panel-body x-panel-body-noheader x-panel-body-noborder" id="hbs-gen269"
+{{!-- partiel "partial" "template/partial" --}}
+
+<div class="x-panel-body x-panel-body-noheader x-panel-body-noborder" id="infoResultatsWindows"
      style="overflow: auto; width: 627px; height: 516px;">
     <div class="x-grid3" hidefocus="true" id="hbs-gen270" style="width: 627px; height: 516px;">
         <div class="x-grid3-viewport" id="hbs-gen271">
@@ -47,32 +49,53 @@
                         </div>
 
                         <div id="hbs-gen306-gp-Item-{{@index}}-bd" class="x-grid-group-body">
-
+                            {{#with properties}}
                             {{#each .}}
-                            {{#each .}}
-
-                            <div class="x-grid3-row   background-white-row x-grid3-row-first " style="width: 668px;">
-                                <table class="x-grid3-row-table" border="0" cellspacing="0" cellpadding="0" style="width: 668px;">
+                            
+                            
+                            {{#recursive .}} 
+                                <div class="x-grid3-row background-white-row x-grid3-row-first {{#unless visible}}cacher{{/unless}} {{#ifObjet value}}infoObjetMore{{/ifObjet}}" style="width: 668px;">
+                                    <table class="x-grid3-row-table" border="0" cellspacing="0" cellpadding="0" style="width: 668px;">
+                                        <tbody>
+                                            <tr>
+                                                <td tabindex="0" style="width: 48px; display: none;" class="x-grid3-col x-grid3-cell x-grid3-td-0 x-grid3-cell-first ">
+                                                    <div unselectable="on" class="x-grid3-cell-inner x-grid3-col-0">{{{index}}}</div>
+                                                </td>
+                                                <td class="x-grid3-col x-grid3-cell x-grid3-td-1" style="width: 150px;" tabindex="0">
+                                                    <div title="{{{utiliserAlias key @root.alias}}}" class="x-grid3-cell-inner x-grid3-col-1" unselectable="on"> {{{utiliserAlias key @root.alias}}}</div>
+                                                </td>
+                                                <td class="x-grid3-col x-grid3-cell x-grid3-td-Valeur multilineColumn" style="width: 518px;"
+                                                    tabindex="0">
+                                                    <div class="x-grid3-cell-inner x-grid3-col-Valeur" unselectable="on">
+                                                        {{#ifObjet value}}
+                                                            +
+                                                        {{else}}
+                                                            {{{this}}}
+                                                        {{/ifObjet}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {{/recursive}}
+                            
+                            {{else}}
+                            <div class="x-grid3-row background-white-row x-grid3-row-first">
+                                <table class="x-grid3-row-table" border="0" cellspacing="0" cellpadding="0">
                                     <tbody>
                                         <tr>
-                                            <td tabindex="0" style="width: 48px; display: none;" class="x-grid3-col x-grid3-cell x-grid3-td-0 x-grid3-cell-first ">
-                                                <div unselectable="on" class="x-grid3-cell-inner x-grid3-col-0">
-                                                    {{@index}}</div>
-                                            </td>
-                                            <td class="x-grid3-col x-grid3-cell x-grid3-td-1 " style="width: 150px;" tabindex="0">
-                                                <div class="x-grid3-cell-inner x-grid3-col-1" unselectable="on"> {{@key}}</div>
-                                            </td>
-                                            <td class="x-grid3-col x-grid3-cell x-grid3-td-Valeur multilineColumn" style="width: 518px;"
-                                                tabindex="0">
-                                                <div class="x-grid3-cell-inner x-grid3-col-Valeur" unselectable="on">{{{this}}}</div>
+                                            <td class="x-grid3-col x-grid3-cell x-grid3-td-1" tabindex="0">
+                                                <div class="x-grid3-cell-inner x-grid3-col-Valeur">
+                                                    Aucune propriété
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-
-                            {{/each}}
-                            {{/each}}
+                            {{/each}}              
+                            {{/with}}
 
                         </div>
                     </div>
@@ -89,3 +112,5 @@
         </div>
     </div>
 </div>
+
+{{requireJS "afficherProprietesFct"}}
