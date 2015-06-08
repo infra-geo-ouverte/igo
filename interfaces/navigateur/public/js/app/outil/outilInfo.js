@@ -127,7 +127,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
                     'id': couche.id,
                     'infoFormat': couche.options.infoFormat,
                     'infoEncodage': couche.options.infoEncodage,
-                    'infoDeclencheur': couche.options.infoDeclencheur,
+                    'infoAction': couche.options.infoAction,
                     'infoUrl': couche.options.infoUrl,
                     'infoGabarit': couche.options.infoGabarit,
                     'estInterrogable': couche.options.estInterrogable,
@@ -165,11 +165,18 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
     OutilInfo.prototype.obtCouchesHbars = function (couches) {
         var that = this;
+        
 
         //On va chercher tous les templates nécessaires pour faire un seul require
         var doitRequire = [];
         for (var d = 0; d < couches.length; ++d) {
             var couche = couches[d];
+          
+            //On apllique systématiquement hbars 
+            if (couche.infoGabarit === undefined) {
+                couche.infoGabarit = "template/defaut"
+            }
+            
             if (couche.infoGabarit !== undefined && couche.infoGabarit.substring(couche.infoGabarit.lastIndexOf(".")) !== ".xsl") {
                 doitRequire.push('hbars!' + couche.infoGabarit);
             }
@@ -199,8 +206,8 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
         var doitRequire = [];
         for (var d = 0; d < couches.length; ++d) {
             var couche = couches[d];
-            if (couche.infoDeclencheur !== undefined) {
-                doitRequire.push(couche.infoDeclencheur + '.js');
+            if (couche.infoAction !== undefined) {
+                doitRequire.push(couche.infoAction + '.js');
             }
         }
 
@@ -210,8 +217,8 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             for (var c = 0; c < couches.length; ++c) {
                 var couche = couches[c];
                 //On obtient toutes les couches avec un gabarit 
-                if (couche.infoDeclencheur !== undefined) {
-                    couche._declencheur = arguments[i];
+                if (couche.infoAction !== undefined) {
+                    couche._action = arguments[i];
                     i++;
                 };
             }
@@ -230,7 +237,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             var oCoucheObtnInfo = couchesInterroger[j];
             var nomCoucheLegende = oCoucheObtnInfo.titre;
             var Template = oCoucheObtnInfo._template;
-            var Declencheur = oCoucheObtnInfo._declencheur;
+            var Declencheur = oCoucheObtnInfo._action;
 
             var coucheInfoFormat;
 
@@ -339,7 +346,6 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
             $.when.apply(null, jqXHRs).done(function () {
                 that.afficherResultats();
-                Aide.cacherMessageChargement();
             }).fail(function (jqXHRs, textStatus, errorThrown) {
                 Aide.afficherMessageConsole('Erreur: ' + textStatus + " : " + jqXHRs.responseText + " : " + errorThrown);
                 Aide.cacherMessageChargement();
@@ -349,7 +355,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
 
 
-    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, coucheDeclencheur, nomGabarit) {
+    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, coucheAction, nomGabarit) {
 
         // On traduit le format de sortie en GeoJson peu import l'appel xml,gml ou gml311
         var oGeoJSON = new OpenLayers.Format.GeoJSON();
@@ -369,13 +375,13 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
                 var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
                 var oFeatures = oFormat.read_FeatureInfoResponse(data);
 
-                if (nomGabarit !== undefined) {
+                if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
                         this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheDeclencheur]);
+                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
                     }
                 }
             }
@@ -384,13 +390,13 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
                 var oFeatures = this.lireGetInfoGml(data);
 
-                if (nomGabarit !== undefined) {
+                if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
                         this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheDeclencheur]);
+                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
                     }
                 }
             }
@@ -400,13 +406,13 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
                 var oFeatures = this.lireGetInfoGml3(data);
 
-                if (nomGabarit !== undefined) {
+                if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
                         this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheDeclencheur]);
+                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
                     }
                 }
 
@@ -581,118 +587,12 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
         {
             var nonCouche = this.features[i];
             var oFeature = this.features[i + 1];
-            var monDeclencheur = this.features[i + 2];
+            var monAction = this.features[i + 2];
 
-            if (String(oFeature).length > 0 && monDeclencheur === undefined && monDeclencheur !== "html") {
+            if (String(oFeature).length > 0 && monAction === undefined && monAction !== "html") {
 
-                try {
-
-                    oFeature = $.parseJSON(oFeature);
-
-                    //Gestion du retour type Gml et Xml            
-                    if ($.isArray(oFeature.features)) {
-
-                        var oFeaturesXml = oFeature.features;
-
-                        var aoStores = {}, aoColumns = {}, nStores = 0, aNbItem = [];
-                        for (var j = 0; j < oFeaturesXml.length; j++)
-                        {
-                            var oFeatureXml = oFeaturesXml[j];
-                            var szType = oFeatureXml.type;
-                            var aColumns = [];
-
-                            if (!aoStores[szType])
-                            {
-
-                                aoStores[szType] = new Ext.data.GroupingStore(
-                                        {
-                                            fields: [/*'Couche',*/ 'Item', 'Attribut', 'Valeur'],
-                                            sortInfo: {field: 'Item', direction: 'DESC'},
-                                            groupOnSort: true,
-                                            remoteGroup: false,
-                                            groupField: 'Item'
-                                        }
-                                );
-
-                                aNbItem[szType] = 0;
-                                aColumns.push({header: 'Item', sortable: true, dataIndex: 'Item', width: 50});
-                                aColumns.push({header: 'Attribut', sortable: false, dataIndex: 'Attribut', width: 150});
-                                aColumns.push(
-                                        {id: 'Valeur', header: 'Valeur', sortable: false, dataIndex: 'Valeur',
-                                            renderer: function (value, metaData, record, rowIndex, colIndex, store) {
-                                                metaData.css = 'multilineColumn';
-                                                return value;
-                                            }
-                                        });
-
-                                aoColumns[szType] = aColumns;
-                                nStores++;
-                            }
-                        }
-
-
-                        var RecordTemplate = Ext.data.Record.create([/*{name:'Couche'}, */{name: 'Item'}, {name: 'Attribut'}, {name: 'Valeur'}]);
-                        for (var k = 0; k < oFeaturesXml.length; k++)
-                        {
-                            var oFeatureXml = oFeaturesXml[k];
-                            var szType = oFeatureXml.type;
-                            aNbItem[szType]++;//numéro unique Couche-feature
-
-                            for (var szAttribute in oFeatureXml.properties)
-                            {
-                                var newRecord = new RecordTemplate({/*Couche: szType, */Item: aNbItem[szType], Attribut: szAttribute, Valeur: oFeatureXml.properties[szAttribute]});
-                                aoStores[szType].add(newRecord);
-                            }
-                        }
-
-                        var nGridHeight;
-                        if (nStores > 2) {
-                            nGridHeight = 200;
-                        } else {
-                            nGridHeight = 570 / nStores;
-                        }
-
-
-                        var aoGrids = {};
-                        for (var szType in aoStores)
-                        {
-                            var gridTitle = '';
-                            if (aNbItem[szType] == 1)
-                                gridTitle = nonCouche + ' (' + aNbItem[szType] + ' item)';
-                            else
-                                gridTitle = nonCouche + ' (' + aNbItem[szType] + ' items)';
-
-                            aoGrids[szType] = new Ext.grid.GridPanel({
-                                store: aoStores[szType],
-                                columns: aoColumns[szType],
-                                title: gridTitle,
-                                stripeRows: true,
-                                autoExpandColumn: 'Valeur',
-                                height: 500,
-                                disableSelection: true,
-                                trackMouseOver: false,
-                                enableHdMenu: false,
-                                view: new Ext.grid.GroupingView(
-                                        {
-                                            scrollOffset: 30,
-                                            hideGroupedColumn: true,
-                                            startCollapsed: false,
-                                            getRowClass: function (record, index, rowParams)
-                                            {
-                                                if (record.get('Item') % 2.0 == 0.0)
-                                                    return 'background-bleupale-row';
-                                                else
-                                                    return 'background-white-row';
-                                            }
-                                        })
-                            });
-                        }
-                        //Ajout du retour getFeatureInfo  Gml,Xml
-                        for (var szType in aoStores)
-                        {
-                            tabs.add(aoGrids[szType]);
-                        }
-                    }
+                try {  
+                   oFeature = $.parseJSON(oFeature);
                 }
                 catch (e) {
                     Aide.afficherMessageConsole('Erreur: GetFeatureInfo: <br> Solution possible ajouté le paramètre infoEncodage pour la couche \'' + nonCouche + '<br>' + oFeature + '\' a échoué. <br>' + e);
@@ -700,7 +600,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
                 
             } else {
 
-                if (monDeclencheur === 'html')
+                if (monAction === 'html')
                 {
                     //Ajout du retour getFeatureInfo html
                     tabExist = true;
@@ -709,11 +609,11 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
                     });
                 }
 
-                if (monDeclencheur !== undefined && monDeclencheur !== 'html') {
+                if (monAction !== undefined && monAction !== 'html') {
 
                     try {
                         //Le declencheur recoit toujours un json en parapètre
-                        monDeclencheur(oFeature);
+                        monAction(oFeature);
                     }
                     catch (e) {
                         Aide.afficherMessageConsole('Erreur: GetFeatureInfo: <br>Le Declencheur pour \'' + nonCouche + '<br>' + oFeature + '\' a échoué. <br>' + e);
@@ -742,6 +642,7 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
         //Afficher le résultat seulemnt si nous avons des résultats
         if (tabExist) {
             oResultWindow.show();
+            Aide.cacherMessageChargement();
         }
 
         //Fin du clique on reinitialise
@@ -760,7 +661,13 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             var oFeature = $.parseJSON(that.featuresHbars[i + 1]);
             var nomGabarit = that.featuresHbars[i + 2];
             var result = nomGabarit(oFeature);
-
+            
+            //Pour avoir le nombre d'item dans le titre
+            if (oFeature.features !== undefined && oFeature.features.length === 1)
+                                nonCouche = nonCouche + ' (' + oFeature.features.length + ' item)';
+                            else
+                                nonCouche = nonCouche + ' (' + oFeature.features.length + ' items)';
+            
             content.add({title: nonCouche,
                 html: result
             });
