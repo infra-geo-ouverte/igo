@@ -139,10 +139,10 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
         var that=this;
         var action = this.options.action || this.defautOptions.action;
         Fonctions.executerAction({
-            scope: this,
+            scope: this.options.actionScope || this,
             action: action,
-            actionScope: this.options.actionScope,
-            actionsParams: this.options.actionParams,
+            params: this.options.actionParams,
+            paramsStr: this.options.actionParamsStr,
            // requireId: this.obtenirId() + 'Action',
             requireFct: function(actionJs) {
                 if (actionJs){

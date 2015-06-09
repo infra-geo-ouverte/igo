@@ -4,229 +4,232 @@
  * and open the template in the editor.
  */
 
-define(['aide', 'analyseurGeoJSON','handlebars'], function(Aide, AnalyseurGeoJSON, Handlebars) {
+
+define([], function() {
 
     function Fonctions(){
 
     };
 
     Fonctions.afficherProprietes = function(input, options){
-        //input: [occurences] ou vecteur ou [{titre: "test", occurences: geoJSON}]
-        options = options || {};
-        var defautTitre = "Couche inconnue";
-        var defautGabarit = "template/afficherProprietes";
-        var messageErreur = options.messageErreur || "Aucun enregistrement n'a été trouvé";
-        var titreErreur = options.messageTitre || "Propriétés";
-        if(!input){
-            Aide.afficherMessage(titreErreur, messageErreur);
-            return false;
-        }
-
-        if (input.obtenirTypeClasse && input.obtenirTypeClasse() === "Vecteur"){
-            var occGroupe = {};
-            occGroupe[input.id] = input.obtenirOccurences();
-            input = occGroupe;
-        } else if (!$.isArray(input)){
-            input = [input];
-        }   
-        
-        if(input.length === 0 && !$.isPlainObject(occGroupe)){
-            Aide.afficherMessage(titreErreur, messageErreur);
-            return false;
-        }
-        
-        if(input[0] && input[0].obtenirTypeClasse && input[0].obtenirTypeClasse() === "Occurence"){
-            var occGroupe = {};
-            $.each(input, function(key, value){
-                var id = value.vecteur ? value.vecteur.id : "sansCouche";
-                if(!occGroupe[id]){
-                    occGroupe[id] = [];
-                }
-                occGroupe[id].push(value);
-            });
-            input = occGroupe;
-        }
-
-        var analyseur = new AnalyseurGeoJSON();
-        var arrayOccGeoJson = [];
-        var gabarits = [];
-        $.each(input, function(key, value){
-            var obj;
-            if ($.isArray(value)){
-                if(!value[0]){
-                    return true;
-                }
-                var infoTemplate;
-                var titre;
-                if(!value[0].vecteur){
-                   infoTemplate = {};
-                   titre = defautTitre;
-                } else {
-                    infoTemplate = value[0].vecteur.templates.info || {};
-                    titre = value[0].vecteur.obtenirTitre();
-                }
-                obj = {
-                    titre: titre,
-                    gabarit: infoTemplate.gabarit || defautGabarit,
-                    alias: infoTemplate.alias,
-                    occurencesGeoJSON: JSON.parse(analyseur.ecrire(value))
-                };         
-            } else if(value.html){
-                obj = {
-                    titre: value.titre || defautTitre,
-                    html: value.html
-                };
-            } else {
-                if(!value.occurences){
-                    value = {occurences: value};
-                }
-                var occ = value.occurences;
-                if(typeof value.occurences === "string"){
-                    occ = JSON.parse(value.occurences);
-                } else if(value.occurences.obtenirTypeClasse && value.occurences.obtenirTypeClasse() === "Vecteur"){
-                    value.occurences = value.occurences.obtenirOccurences();
-                } 
-                
-                if (value.occurences[0] && value.occurences[0].obtenirTypeClasse && value.occurences[0].obtenirTypeClasse() === "Occurence"){
-                    occ = JSON.parse(analyseur.ecrire(value.occurences));
-                    if(value.occurences[0].vecteur){
-                       if(!value.titre){
-                           value.titre = value.occurences[0].vecteur.obtenirTitre();
-                       }
-                       if(!value.gabarit && value.occurences[0].vecteur.templates.info){
-                           value.gabarit = value.occurences[0].vecteur.templates.info.gabarit;
-                       }
-                    }
-                } 
-                if (!occ.features || !occ.features.length){
-                    return true;
-                }
-                obj = {
-                    titre: value.titre || defautTitre,
-                    gabarit: value.gabarit || defautGabarit,
-                    alias: value.alias,
-                    occurencesGeoJSON: jQuery.extend({}, occ)
-                };
+        require(['aide', 'analyseurGeoJSON', 'handlebars'], function(Aide, AnalyseurGeoJSON, Handlebars) {
+            //input: [occurences] ou vecteur ou [{titre: "test", occurences: geoJSON}]
+            options = options || {};
+            var defautTitre = "Couche inconnue";
+            var defautGabarit = "template/afficherProprietes";
+            var messageErreur = options.messageErreur || "Aucun enregistrement n'a été trouvé";
+            var titreErreur = options.messageTitre || "Propriétés";
+            if(!input){
+                Aide.afficherMessage(titreErreur, messageErreur);
+                return false;
             }
-            gabarits.push("hbars!"+obj.gabarit);
-            arrayOccGeoJson.push(obj);       
-        });
-        
-        if(!arrayOccGeoJson.length){
-            Aide.afficherMessage(titreErreur, messageErreur);
-            return false;
-        }
 
-        var oResultWindow = Ext.getCmp("occurencesResultatsWindow");
-        if(!Ext.get("occurencesResultatsWindow")){
-            var tabs = new Ext.TabPanel({
-                activeTab: 0,
-                enableTabScroll: true,
-                height :490
-            });
-            oResultWindow = new Ext.Window({
-                id: 'occurencesResultatsWindow',
-                title    : 'Résultats de la requête',
-                width    : 600,
-                height   : 575,
-                border : false,
-                modal: true,
-                plain    : true,
-                closable : true,
-                resizable : false,
-                autoScroll: true,
-                constrain: true,
-                layout:'fit',
-                items: [tabs]
-            });
-        }
+            if (input.obtenirTypeClasse && input.obtenirTypeClasse() === "Vecteur"){
+                var occGroupe = {};
+                occGroupe[input.id] = input.obtenirOccurences();
+                input = occGroupe;
+            } else if (!$.isArray(input)){
+                input = [input];
+            }   
 
-        if(!('utiliserAlias' in Handlebars.helpers)) {
-            Handlebars.registerHelper('utiliserAlias', function(key, alias, opts) {
-                if(!alias){return key}
-                if(alias[key]){
-                    return alias[key];
+            if(input.length === 0 && !$.isPlainObject(occGroupe)){
+                Aide.afficherMessage(titreErreur, messageErreur);
+                return false;
+            }
+
+            if(input[0] && input[0].obtenirTypeClasse && input[0].obtenirTypeClasse() === "Occurence"){
+                var occGroupe = {};
+                $.each(input, function(key, value){
+                    var id = value.vecteur ? value.vecteur.id : "sansCouche";
+                    if(!occGroupe[id]){
+                        occGroupe[id] = [];
+                    }
+                    occGroupe[id].push(value);
+                });
+                input = occGroupe;
+            }
+
+            var analyseur = new AnalyseurGeoJSON();
+            var arrayOccGeoJson = [];
+            var gabarits = [];
+            $.each(input, function(key, value){
+                var obj;
+                if ($.isArray(value)){
+                    if(!value[0]){
+                        return true;
+                    }
+                    var infoTemplate;
+                    var titre;
+                    if(!value[0].vecteur){
+                       infoTemplate = {};
+                       titre = defautTitre;
+                    } else {
+                        infoTemplate = value[0].vecteur.templates.info || {};
+                        titre = value[0].vecteur.obtenirTitre();
+                    }
+                    obj = {
+                        titre: titre,
+                        gabarit: infoTemplate.gabarit || defautGabarit,
+                        alias: infoTemplate.alias,
+                        occurencesGeoJSON: JSON.parse(analyseur.ecrire(value))
+                    };         
+                } else if(value.html){
+                    obj = {
+                        titre: value.titre || defautTitre,
+                        html: value.html
+                    };
+                } else {
+                    if(!value.occurences){
+                        value = {occurences: value};
+                    }
+                    var occ = value.occurences;
+                    if(typeof value.occurences === "string"){
+                        occ = JSON.parse(value.occurences);
+                    } else if(value.occurences.obtenirTypeClasse && value.occurences.obtenirTypeClasse() === "Vecteur"){
+                        value.occurences = value.occurences.obtenirOccurences();
+                    } 
+
+                    if (value.occurences[0] && value.occurences[0].obtenirTypeClasse && value.occurences[0].obtenirTypeClasse() === "Occurence"){
+                        occ = JSON.parse(analyseur.ecrire(value.occurences));
+                        if(value.occurences[0].vecteur){
+                           if(!value.titre){
+                               value.titre = value.occurences[0].vecteur.obtenirTitre();
+                           }
+                           if(!value.gabarit && value.occurences[0].vecteur.templates.info){
+                               value.gabarit = value.occurences[0].vecteur.templates.info.gabarit;
+                           }
+                        }
+                    } 
+                    if (!occ.features || !occ.features.length){
+                        return true;
+                    }
+                    obj = {
+                        titre: value.titre || defautTitre,
+                        gabarit: value.gabarit || defautGabarit,
+                        alias: value.alias,
+                        occurencesGeoJSON: jQuery.extend({}, occ)
+                    };
                 }
-                
-                var keySplit = key.split(".");
-                var firstKey = keySplit.shift();
-                var out = alias[firstKey] || firstKey;
-                while (keySplit.length) {
-                    var nextKey = keySplit.shift();
-                    out += ".";
-                    out += alias["*"+nextKey] || nextKey;
-                }
-                return out;
+                gabarits.push("hbars!"+obj.gabarit);
+                arrayOccGeoJson.push(obj);       
             });
 
-            Handlebars.registerHelper('requireJS', function(js) {
-                require([js], function(){}) 
-            });
+            if(!arrayOccGeoJson.length){
+                Aide.afficherMessage(titreErreur, messageErreur);
+                return false;
+            }
 
-            Handlebars.registerHelper('ifObjet', function(content, opts) {
-                if($.isPlainObject(content) || $.isArray(content)){
-                    return opts.fn(content);
-                }
-                return opts.inverse(content);
-            });
+            var oResultWindow = Ext.getCmp("occurencesResultatsWindow");
+            if(!Ext.get("occurencesResultatsWindow")){
+                var tabs = new Ext.TabPanel({
+                    activeTab: 0,
+                    enableTabScroll: true,
+                    height :490
+                });
+                oResultWindow = new Ext.Window({
+                    id: 'occurencesResultatsWindow',
+                    title    : 'Résultats de la requête',
+                    width    : 600,
+                    height   : 575,
+                    border : false,
+                    modal: true,
+                    plain    : true,
+                    closable : true,
+                    resizable : false,
+                    autoScroll: true,
+                    constrain: true,
+                    layout:'fit',
+                    items: [tabs]
+                });
+            }
 
-            var loopRecursiveObjet = function(children, options, audaciousFn, previousKey, previousIndex){
-                var out = "";
-                var index = 0;
-                $.each(children, function(key, child){
-                    out += audaciousFn({
-                        index: previousIndex + "." + index,
-                        key: previousKey + "." + key,
-                        value: child,
-                        visible: false
+            if(!('utiliserAlias' in Handlebars.helpers)) {
+                Handlebars.registerHelper('utiliserAlias', function(key, alias, opts) {
+                    if(!alias){return key}
+                    if(alias[key]){
+                        return alias[key];
+                    }
+
+                    var keySplit = key.split(".");
+                    var firstKey = keySplit.shift();
+                    var out = alias[firstKey] || firstKey;
+                    while (keySplit.length) {
+                        var nextKey = keySplit.shift();
+                        out += ".";
+                        out += alias["*"+nextKey] || nextKey;
+                    }
+                    return out;
+                });
+
+                Handlebars.registerHelper('requireJS', function(js) {
+                    require([js], function(){}) 
+                });
+
+                Handlebars.registerHelper('ifObjet', function(content, opts) {
+                    if($.isPlainObject(content) || $.isArray(content)){
+                        return opts.fn(content);
+                    }
+                    return opts.inverse(content);
+                });
+
+                var loopRecursiveObjet = function(children, options, audaciousFn, previousKey, previousIndex){
+                    var out = "";
+                    var index = 0;
+                    $.each(children, function(key, child){
+                        out += audaciousFn({
+                            index: previousIndex + "." + index,
+                            key: previousKey + "." + key,
+                            value: child,
+                            visible: false
+                        });
+
+                        if($.isPlainObject(child) || $.isArray(child)){
+                            out += loopRecursiveObjet(child, options, audaciousFn, previousKey + "." + key, previousIndex + "." + index);
+                        }
+                        index ++;
                     });
 
-                    if($.isPlainObject(child) || $.isArray(child)){
-                        out += loopRecursiveObjet(child, options, audaciousFn, previousKey + "." + key, previousIndex + "." + index);
-                    }
-                    index ++;
-                });
-
-                return out;
-            };
-
-            Handlebars.registerHelper('recursive', function(children, options) {
-                var audaciousFn;
-                if (options.fn !== undefined) {
-                    audaciousFn = options.fn;
-                }
-
-                var out = audaciousFn({
-                    index: options.data.index,
-                    key: options.data.key,
-                    value: children,
-                    visible: true
-                });
-
-                if(!$.isPlainObject(children) && !$.isArray(children)){
                     return out;
-                }        
+                };
 
-                out += loopRecursiveObjet(children, options, audaciousFn, options.data.key, options.data.index);
-                return out;
-            });
-        }
+                Handlebars.registerHelper('recursive', function(children, options) {
+                    var audaciousFn;
+                    if (options.fn !== undefined) {
+                        audaciousFn = options.fn;
+                    }
 
-        require(gabarits, function(){
-            var args = arguments;
-            $.each(arrayOccGeoJson, function(key, value){
-                var html = value.html;
-                if(value.occurencesGeoJSON){
-                    value.occurencesGeoJSON.alias = value.alias;
-                    html = args[key](value.occurencesGeoJSON);
-                }
-                oResultWindow.items.get(0).add({
-                    title: value.titre,
-                    html: html
-                 });
-                
+                    var out = audaciousFn({
+                        index: options.data.index,
+                        key: options.data.key,
+                        value: children,
+                        visible: true
+                    });
+
+                    if(!$.isPlainObject(children) && !$.isArray(children)){
+                        return out;
+                    }        
+
+                    out += loopRecursiveObjet(children, options, audaciousFn, options.data.key, options.data.index);
+                    return out;
+                });
+            }
+
+            require(gabarits, function(){
+                var args = arguments;
+                $.each(arrayOccGeoJson, function(key, value){
+                    var html = value.html;
+                    if(value.occurencesGeoJSON){
+                        value.occurencesGeoJSON.alias = value.alias;
+                        html = args[key](value.occurencesGeoJSON);
+                    }
+                    oResultWindow.items.get(0).add({
+                        title: value.titre,
+                        html: html
+                     });
+
+                });
+                oResultWindow.show();
             });
-            oResultWindow.show();
         });
     };
     
@@ -320,6 +323,7 @@ define(['aide', 'analyseurGeoJSON','handlebars'], function(Aide, AnalyseurGeoJSO
     Fonctions.executerAction =  function (options) {
         var action = options.action; 
         var scope = options.scope || this;
+        var params = options.params || undefined;
         if(typeof(action) === "string"){
             var actionLength=action.length;
             var isActionJs = action.substr(actionLength-3, actionLength) === '.js';
@@ -338,31 +342,36 @@ define(['aide', 'analyseurGeoJSON','handlebars'], function(Aide, AnalyseurGeoJSO
                 if (actionJs){
                     Fonctions.executerAction({
                         action: actionJs,
-                        actionScope: options.actionScope,
-                        actionsParams: options.actionParams,
+                        params: params,
                         scope: scope
                     });
                 }
             };
             require([idAction], requireFct); 
         } else {
+            if(typeof(scope) === "string"){
+                scope = new Function("params", "\
+                        return " + scope + ";\n\
+                    ").call(this, params);
+            }
+            if(options.paramsStr){
+                params = new Function("params", "\
+                        return " + options.paramsStr + ";\n\
+                    ").call(scope, params);
+            }
+            
             if (typeof(action) !== "function"){
-                var scopeA = options.actionScope || "this";
-                var params = options.actionParams || undefined;
-                var fn = (new Function("\
-                    if(typeof("+action+") === 'function'){\n\
-                        return " + action+".call("+scopeA+","+params+")" + ";\n\
-                    } else {\n\
+                var fn = (new Function("params", "\
                         return " + action + ";\n\
-                    }")
-                ).call(scope);
-                
+                     ")
+                ).call(scope, params);
+
                 if (typeof(fn) === "function"){
-                    fn.call(scope); 
+                    fn.call(scope, params); 
                 }
                 return;
             };
-            action.call(scope);
+            action.call(scope, params);
         };
     };
     
