@@ -1,19 +1,35 @@
-# VERSION BÊTA
-
-# Infrastructure Géomatique Ouverte (IGO) / Open GIS Infrastructure
-
-### Qu'est-ce qu'IGO ?
-Le projet IGO (Infrastructure Géomatique Ouverte) est une communauté de pratique qui regroupe des spécialistes en géomatique issus de plusieurs organismes et ministères du gouvernement du Québec. IGO a vu le jour en 2014 et il se concrétise par des avancées et des valeurs ajoutées remarquables, au plus grand bénéfice de ses utilisateurs, principalement des partenaires du gouvernement. 
-Ce projet constitue un travail, entre autres, du gouvernement du Québec sujet aux droits d'auteurs, mais il n'est pas exclusif au gouvernement du Québec. 
-D'ailleurs, tous les contributeurs externes au gouvernement du Québec au projet IGO pourront conserver leurs droits d'auteurs en acceptant de les partager selon les mêmes termes de la [LICENCE](LICENCE.txt) d'IGO. 
+# Infrastructure géomatique ouverte (IGO) / Open GIS Infrastructure
 ***
-### What is IGO ?
-This IGO (for Open GIS Infrastructure) project involved 6 organisations in Quebec, Canada.
-IGO is an evolution of an internal Web GIS project at the government of Quebec and the objective to make it more open, common, modular and based on open source and governance model with multiple organisations outside the government of Quebec.
-Since this project is open source, anyone can contribute as long as they share their work on the same open source [LICENCE LGPL-Style](LICENSE_ENGLISH.txt). 
-All contributors in the project will keep their property rights on the project.
+
+### Qu'est-ce qu'[IGO](http://igouverte.org/)?
+IGO est une solution Web gratuite en géomatique. Consultez le site Web d'IGO pour en savoir davantage: [http://igouverte.org/](http://igouverte.org/).
+Elle permet de tirer profit d’une multitude de données géographiques grâce à une interface cartographique accessible par un navigateur Web.
+Les membres du public et d'organisations en géomatique ou du Web qui soumettent des contributions conservent leurs droits d'auteur s'ils partagent leur code source selon la [LICENCE LiLiQ-R de type LGPL](LICENSE.txt).
 
 ***
+### What is IGO?
+IGO (for Open GIS Infrastructure) is a free Web Geospatial solution developed in Quebec, Canada. See this Web site for more information: [http://igouverte.org/english/](http://igouverte.org/english/).
+IGO has multiple features, such as Web GIS viewer, layer tree Manager and many more at [http://igouverte.org/english/](http://igouverte.org/english/).
+Since this project is open source, anyone can contribute as long as they share their work on the same open source [LICENCE LGPL-Style](LICENSE_ENGLISH.txt). All contributors in IGO keep their property rights.
+
+***
+
+---
+## Table des matières
+
+- [Documentation](http://igouverte.org/documentation/)
+- [Installation recommandée](#installation-et-démarrage)
+- [Autres installations](http://igouverte.org/installation/)
+***
+
+---
+## Table of Contents
+
+- [Documentation](http://igouverte.org/documentation/)
+- [Installation](#installation-and-start-up)
+- [Development](#igo-development-completed-andor-planned)
+
+
 ### Installation et démarrage
 
 Guide d'installation rapide pour installer et démarrer une machine virtuelle préconfigurée pour tester et/ou développer dans IGO.
@@ -89,19 +105,12 @@ Vagrant Documentation: **http://docs.vagrantup.com/v2/cli/index.html**
 #### Navigator Web Access
 
 IGO-Navigator: **http://localhost:4579/navigateur/**
+
 ***
-### Les développements complétés et planifiés d'IGO :
-* Navigateur cartographique : configuration par fichier XML sans avoir à connaitre un langage de programmation
-* Arborescence de couches WMS : configuration par fichier XML & base de données
-* Édition en ligne : support des bases de données PostgreSQL et Oracle
-* Analyse spatiale : WFS & Zoo Project
-* Détermination de parcours : Open Source Routing Machine
-* Gestion des métadonnées : GeoNetwork et PostgreSQL
-* Localisation : Service web, Rest et SOAP
-* IGO avec façade XML (API) s'appuyant sur du code : JavaScript & PHP dans Phalcon
-* Projets libres connexes et ré-utilisés au sein d'IGO : [OpenLayers 2](https://github.com/openlayers/openlayers), [ExtJS](http://docs.sencha.com/extjs/3.4.0/), [GeoExt](http://geoext.org/downloads.html),  [JQuery](https://github.com/jquery/jquery) et [UMN MapServer](https://github.com/mapserver/mapserver)
-* IGO avec façade XML (API) est basé sur le Modèle-Vue-Contrôleur
-* Adapté au changement de librairies externes futurs (ex. OpenLayers 3, Leaflet).
+
+### Les modules complétés et planifiés d'IGO :
+- Disponible [ici](http://igouverte.org/documentation/module/)
+
 
 ***
 ### IGO Development completed and/or planned:
@@ -120,8 +129,8 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 
 ***
 ### Contribuer
-Nous sommes bien content que vous pensiez contribuer à IGO ! Avant de le faire, nous vous encourageons à lire le guide de contribution, la LICENCE et la FAQ qui sont tous dans ce même dépôt. Si vous avez d'autres questions, n'hésitez pas à écrier à IGO à ce courriel : info(a)igouverte.org ou à la liste courriel http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique.
+Nous sommes bien heureux que vous pensiez contribuer à IGO! Avant de le faire, nous vous encourageons à lire le guide de [contribution](http://igouverte.org/contribuer/), la [LICENCE](LICENSE.txt) et la [FAQ](http://igouverte.org/faq/). Si vous avez d'autres questions, n'hésitez pas à communiquer avec nous à l'adresse suivante : info(a)igouverte.org ou à vous inscrire à la liste [courriel](http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique).
 
 ***
 ### Contribution
-If you have any question and want to contribute, contact the main email of the project: info(a)igouverte.org or subscribe to the mailing-list (http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique) mainly in French, but do not hesitate to ask questions in English, most of the IGO Team is bilingual. The documentation and API-XML is mainly in French, but if there is a demand, the project can be translate if needed, just contact us for more information at: info(a)igouverte.org
+If you have any question and want to contribute, contact the main email of IGO: info(a)igouverte.org or subscribe to the mailing-list (http://listes.securitepublique.gouv.qc.ca/sympa/info/igo-publique) mainly in French, but do not hesitate to ask questions in English, most of the IGO Team is bilingual. The documentation and API-XML is mainly in French, but if there is a demand, the project can be translate if needed, just contact us for more information at: info(a)igouverte.org
