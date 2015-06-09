@@ -207,10 +207,12 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             }
 
             //Exceptionellement IE on doit passer par le proxy pour encodage
-            if (BrowserDetect.browser === "Explorer") {
+            if (oCoucheObtnInfo.layer.options.encodage) {
+                encodage = oCoucheObtnInfo.layer.options.encodage;
+            } else if (BrowserDetect.browser === "Explorer") {
                 encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : oCoucheObtnInfo.infoEncodage;
             }
-
+            
             //Appliquer un xsl ESRI
             if (oCoucheObtnInfo.infoGabarit !== undefined && oCoucheObtnInfo.infoGabarit.substring(oCoucheObtnInfo.infoGabarit.lastIndexOf(".")) === ".xsl") {
                 xslTemplate = oCoucheObtnInfo.infoGabarit;
