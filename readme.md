@@ -7,7 +7,7 @@ Elle permet de tirer profit d’une multitude de données géographiques grâce 
 Les membres du public et d'organisations en géomatique ou du Web qui soumettent des contributions conservent leurs droits d'auteur s'ils partagent leur code source selon la [LICENCE LiLiQ-R de type LGPL](LICENSE.txt).
 
 ***
-### What is IGO?
+### What is [IGO](http://igouverte.org/english/)?
 IGO (for Open GIS Infrastructure) is a free Web Geospatial solution developed in Quebec, Canada. See this Web site for more information: [http://igouverte.org/english/](http://igouverte.org/english/).
 IGO has multiple features, such as Web GIS viewer, layer tree Manager and many more at [http://igouverte.org/english/](http://igouverte.org/english/).
 Since this project is open source, anyone can contribute as long as they share their work on the same open source [LICENCE LGPL-Style](LICENSE_ENGLISH.txt). All contributors in IGO keep their property rights.
@@ -20,6 +20,7 @@ Since this project is open source, anyone can contribute as long as they share t
 - [Documentation](http://igouverte.org/documentation/)
 - [Installation recommandée](#installation-et-démarrage)
 - [Autres installations](http://igouverte.org/installation/)
+
 ***
 
 ---
@@ -36,7 +37,7 @@ Guide d'installation rapide pour installer et démarrer une machine virtuelle pr
 
 #### Installation
 
-Cette procédure a été testée avec un système d'exploitation Ubuntu 14.04. Elle permet d'installer Vagrant avec comme provider VirtualBox.
+Cette procédure a été testée avec un système d'exploitation *Ubuntu 14.04*. Elle permet d'installer Vagrant avec comme provider VirtualBox.
 
 > **Note pour les utilisateurs de Windows**
 
@@ -98,7 +99,7 @@ $ vagrant up
 
 It will take a few time for the first start-up (mostly because of ubuntu/trusty64 box download) and about 2 minutes thereafter.
 
-You can now access the IGO-Navigator!
+You can now access the IGO-Viewer!
 
 Vagrant Documentation: **http://docs.vagrantup.com/v2/cli/index.html**
 
