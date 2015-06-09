@@ -8,7 +8,7 @@
  * @version 1.0
  */
 
-define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, BrowserDetect, Point) {
+define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil, Aide, BrowserDetect, Fonctions, Point) {
 
     /** 
      * Création de l'object Outil.OutilInfo.
@@ -61,11 +61,10 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
     OutilInfo.prototype.executer = function () {
         this.activerEvent();
         this.carte.controles.activerClique();
-        this.activerToggleItem();
 
         this.couchesInterroger = [];
-        this.features = [];
-        this.featuresHbars = [];
+        this.afficherProprietes = [];
+        this.executerAction = [];
         this.requetes = 0;
         this.erreurs = 0;
         this.px;
@@ -80,8 +79,8 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
     OutilInfo.prototype.reinitialiser = function () {
         this.couchesInterroger = [];
-        this.features = [];
-        this.featuresHbars = [];
+        this.afficherProprietes = [];
+        this.executerAction = [];
         this.requetes = 0;
         this.erreurs = 0;
         this.px;
@@ -102,8 +101,9 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             return;
         }
 
-        //Appller la fonction pour obtenir les gabarit Handlebars pour les couche qui en ont
-        this.obtCouchesHbars(this.couchesInterroger);
+       //Appller la fonction pour obtenir les gabarit Handlebars pour les couche qui en ont
+       //this.obtCouchesHbars(this.couchesInterroger);
+       this.appelerGetInfo(this.couchesInterroger);
     };
 
     OutilInfo.prototype.obtCouchesInterrogable = function () {
@@ -163,71 +163,6 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
     };
 
 
-    OutilInfo.prototype.obtCouchesHbars = function (couches) {
-        var that = this;
-        
-
-        //On va chercher tous les templates nécessaires pour faire un seul require
-        var doitRequire = [];
-        for (var d = 0; d < couches.length; ++d) {
-            var couche = couches[d];
-          
-            //On apllique systématiquement hbars 
-            if (couche.infoGabarit === undefined) {
-                couche.infoGabarit = "template/defaut"
-            }
-            
-            if (couche.infoGabarit !== undefined && couche.infoGabarit.substring(couche.infoGabarit.lastIndexOf(".")) !== ".xsl") {
-                doitRequire.push('hbars!' + couche.infoGabarit);
-            }
-        }
-
-        var i = 0;
-
-        require(doitRequire, function () {
-            for (var c = 0; c < couches.length; ++c) {
-                var couche = couches[c];
-                //On obtient toutes les couches avec un gabarit 
-                if (couche.infoGabarit !== undefined) {
-                    couche._template = arguments[i];
-                    i++;
-                };
-            }
-
-            //Appller la fonction pour obtenir les declencheures pour les couche qui en ont
-            that.obtCouchesDeclencheur(couches);
-        });
-    };
-
-    OutilInfo.prototype.obtCouchesDeclencheur = function (couches) {
-        var that = this;
-
-        //On va chercher tous les declencheur nécessaires pour faire un seul require
-        var doitRequire = [];
-        for (var d = 0; d < couches.length; ++d) {
-            var couche = couches[d];
-            if (couche.infoAction !== undefined) {
-                doitRequire.push(couche.infoAction + '.js');
-            }
-        }
-
-        var i = 0;
-
-        require(doitRequire, function () {
-            for (var c = 0; c < couches.length; ++c) {
-                var couche = couches[c];
-                //On obtient toutes les couches avec un gabarit 
-                if (couche.infoAction !== undefined) {
-                    couche._action = arguments[i];
-                    i++;
-                };
-            }
-
-            //Appeler la fonction pour le traitement ajax
-            that.appelerGetInfo(couches);
-
-        });
-    };
 
     OutilInfo.prototype.appelerGetInfo = function (couchesInterroger) {
         var that = this;
@@ -236,8 +171,10 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
         for (var j = 0; j < couchesInterroger.length; j++) {
             var oCoucheObtnInfo = couchesInterroger[j];
             var nomCoucheLegende = oCoucheObtnInfo.titre;
-            var Template = oCoucheObtnInfo._template;
-            var Declencheur = oCoucheObtnInfo._action;
+            //var Template = oCoucheObtnInfo._template;
+            //var Declencheur = oCoucheObtnInfo._action;
+            var Template = oCoucheObtnInfo.infoGabarit;
+            var Declencheur = oCoucheObtnInfo.infoAction;
 
             var coucheInfoFormat;
 
@@ -292,6 +229,17 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
                     'x': Math.floor(point.x),
                     'y': Math.floor(point.y)
                 });
+
+//                var prmt = [];
+//                var lonlat = this.carte._carteOL.getLonLatFromPixel(this.px);
+//                var point = new Point(lonlat.lon, lonlat.lat).projeter('EPSG:3798');
+//
+//                prmt.push({
+//                    'name': oCoucheObtnInfo.nom,
+//                    'projection': 'EPSG:3798',
+//                    'x': Math.floor(point.x),
+//                    'y': Math.floor(point.y)
+//                });
 
                 //Formatter l'url
                 var infoUrlFormat = this.formatUrl(oCoucheObtnInfo.infoUrl, [prmt[0].name, prmt[0].projection, prmt[0].x, prmt[0].y]);
@@ -359,14 +307,19 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
         // On traduit le format de sortie en GeoJson peu import l'appel xml,gml ou gml311
         var oGeoJSON = new OpenLayers.Format.GeoJSON();
-
+      
         return function gestionRetour(data, textStatus, jqXHR) {
 
             // nomCouche et son retour ajax html
             if (coucheInfoFormat === "text/html") {
                 //Si html est vide ne pas ajouter onglet
                 if (this.gestionRetourHtml(data)) {
-                    this.features = this.features.concat([nomCoucheLegende, data, coucheDataType]);
+                    //this.features = this.features.concat([nomCoucheLegende, data, coucheDataType]);
+                    this.afficherProprietes = this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            html: data
+                        });
+                    
                 }
             }
 
@@ -377,11 +330,21 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                       // this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                      this.afficherProprietes =  this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            gabarit: nomGabarit,
+                            occurences: oGeoJSON.write(oFeatures)
+                        });
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
+                       // this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
+                           this.executerAction =    this.executerAction.concat({
+                            scope: oGeoJSON.write(oFeatures),
+                            action: coucheAction
+                        });
+     
                     }
                 }
             }
@@ -392,11 +355,20 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                       // this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                       this.afficherProprietes =  this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            gabarit: nomGabarit,
+                            occurences: oGeoJSON.write(oFeatures)
+                        });
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
+                        //this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
+                           this.executerAction =    this.executerAction.concat({
+                            scope: oGeoJSON.write(oFeatures),
+                            action: coucheAction
+                        });
                     }
                 }
             }
@@ -408,11 +380,20 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                        //this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
+                    this.afficherProprietes =      this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            gabarit: nomGabarit,
+                            occurences: oGeoJSON.write(oFeatures)
+                        });
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
+                        //this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
+                            this.executerAction =    this.executerAction.concat({
+                            scope: oGeoJSON.write(oFeatures),
+                            action: coucheAction
+                        });
                     }
                 }
 
@@ -531,10 +512,8 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
 
     OutilInfo.prototype.afficherResultats = function () {
 
-        var that = this;
-        var tabExist = false;
 
-        if (this.features.length === 0 && this.featuresHbars.length === 0) {
+        if (this.afficherProprietes.length === 0 && this.executerAction.length === 0) {
             Aide.cacherMessageChargement();
             // TODO : this is HARDCODED
             var szErrMsg = "Aucun enregistrement n'a été trouvé.";
@@ -558,154 +537,22 @@ define(['outil', 'aide', 'browserDetect', 'point'], function (Outil, Aide, Brows
             return;
         }
 
-        var tabs = new Ext.TabPanel({
-            activeTab: 0
-                    //,autoHeight: true
-            , defaults: {autoScroll: true}
-            , enableTabScroll: true
-            , height: 490
-        });
+        if (this.afficherProprietes.length > 0) {
+            Fonctions.afficherProprietes(this.afficherProprietes);
+        }
 
-        var oResultWindow = new Ext.Window({
-            title: 'Résultats de la requête',
-            id: 'divGetInfo',
-            width: 600,
-            height: 600,
-            border: false,
-            modal: true,
-            plain: true,
-            closable: true,
-            resizable: true,
-            autoScroll: true,
-            constrain: true,
-            layout: 'fit',
-            items: [tabs]
-        });
-
-        //Iteration par 3 : array contient nomCouche, le retour ajax en json et un declencheur s il y en as
-        for (var i = 0; i < this.features.length; i += 3)
-        {
-            var nonCouche = this.features[i];
-            var oFeature = this.features[i + 1];
-            var monAction = this.features[i + 2];
-
-            if (String(oFeature).length > 0 && monAction === undefined && monAction !== "html") {
-
-                try {  
-                   oFeature = $.parseJSON(oFeature);
-                }
-                catch (e) {
-                    Aide.afficherMessageConsole('Erreur: GetFeatureInfo: <br> Solution possible ajouté le paramètre infoEncodage pour la couche \'' + nonCouche + '<br>' + oFeature + '\' a échoué. <br>' + e);
-                }
-                
-            } else {
-
-                if (monAction === 'html')
-                {
-                    //Ajout du retour getFeatureInfo html
-                    tabExist = true;
-                    tabs.add({title: nonCouche,
-                        html: oFeature
-                    });
-                }
-
-                if (monAction !== undefined && monAction !== 'html') {
-
-                    try {
-                        //Le declencheur recoit toujours un json en parapètre
-                        monAction(oFeature);
-                    }
-                    catch (e) {
-                        Aide.afficherMessageConsole('Erreur: GetFeatureInfo: <br>Le Declencheur pour \'' + nonCouche + '<br>' + oFeature + '\' a échoué. <br>' + e);
-                    }
-
-                }
-
-            }
+        if (this.executerAction.length > 0) {
+            Fonctions.executerAction(this.executerAction);
         }
 
 
-        if (tabs.items.length > 0) {
-            tabExist = true;
-            oResultWindow.add(tabs);
-        }
-
-        //Si nous avons des gabarit Handlebars on appel la fonction
-        if (this.featuresHbars.length > 0) {
-
-            var hbarTabs = this.afficherResultatsGabaritHbars(tabs);
-            tabExist = true;
-            oResultWindow.add(hbarTabs);
-            hbarTabs.setActiveTab(0);
-        }
-
-        //Afficher le résultat seulemnt si nous avons des résultats
-        if (tabExist) {
-            oResultWindow.show();
-            Aide.cacherMessageChargement();
-        }
+        Aide.cacherMessageChargement();
 
         //Fin du clique on reinitialise
-        that.reinitialiser();
+        this.reinitialiser();
 
     };
 
-
-    OutilInfo.prototype.afficherResultatsGabaritHbars = function (content) {
-        var that = this;
-
-        //Iteration par 3 array contiens nomCouche, son gabarit et son retour ajax
-        for (var i = 0; i < that.featuresHbars.length; i += 3)
-        {
-            var nonCouche = that.featuresHbars[i];
-            var oFeature = $.parseJSON(that.featuresHbars[i + 1]);
-            var nomGabarit = that.featuresHbars[i + 2];
-            var result = nomGabarit(oFeature);
-            
-            //Pour avoir le nombre d'item dans le titre
-            if (oFeature.features !== undefined && oFeature.features.length === 1)
-                                nonCouche = nonCouche + ' (' + oFeature.features.length + ' item)';
-                            else
-                                nonCouche = nonCouche + ' (' + oFeature.features.length + ' items)';
-            
-            content.add({title: nonCouche,
-                html: result
-            });
-
-        }
-
-        return content;
-
-    };
-
-
-    /** 
-     * Activer le toggle l'item du GetInfo
-     * @method 
-     * @name OutilInfo#activerToggleItem
-     */
-    OutilInfo.prototype.activerToggleItem = function () {
-        $(document).on('click', '.toggleItem', function (ev) {
-            var that = $(this);
-            ev.stopPropagation();
-            ev.preventDefault();
-            $(that).next().toggle('fast', function () {
-                if ($(that).parent().hasClass('x-grid-group-collapsed')) {
-                    $(that).parent().removeClass('x-grid-group-collapsed');
-                } else {
-                    $(that).parent().addClass('x-grid-group-collapsed');
-                }
-            });
-        });
-    };
-    /** 
-     * Desactiver le toggle l'item du GetInfo
-     * @method 
-     * @name OutilInfo#desactiverToggleItem
-     */
-    OutilInfo.prototype.desactiverToggleItem = function () {
-        $(document).off('click', '.toggleItem');
-    };
 
     /** 
      * Cacher le GetInfo
