@@ -1,4 +1,4 @@
-### Installation depuis Windows
+### Installation d'une machine virtuelle avec Vagrant depuis Windows
 
 Cette documentation a été testée avec Windows 8.1.
 
@@ -30,7 +30,7 @@ $ vagrant up
 
 ***
 
-### Installation from Windows host
+### Installation of virtual machine with Vagrant from Windows host
 
 This has been tested on Windows 8.1.
 
@@ -52,7 +52,7 @@ About Git configuration, be sure to have the option core.autocrlf = input. In Gi
 $ git config --global core.autocrlf input
 ```
 
-#### Start-up
+#### Start-Up
 
 At the root of your git repository (where is the Vagrantfile), enter following command **using Git Bash**:
 

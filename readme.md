@@ -14,7 +14,7 @@ Since this project is open source, anyone can contribute as long as they share t
 All contributors in the project will keep their property rights on the project.
 
 ***
-### Installation et démarrage de l'environnement de développement
+### Installation et démarrage
 
 Guide d'installation rapide pour installer et démarrer une machine virtuelle préconfigurée pour tester et/ou développer dans IGO.
 
@@ -22,7 +22,11 @@ Guide d'installation rapide pour installer et démarrer une machine virtuelle pr
 
 Cette procédure a été testée avec un système d'exploitation Ubuntu 14.04. Elle permet d'installer Vagrant avec comme provider VirtualBox.
 
-Documentation Windows disponible [ici](doc/installation/windowsInstall.md).
+> **Note pour les utilisateurs de Windows**
+
+> La documentation pour l'installation sous Windows avec Vagrant est disponible [ici](doc/installation/windowsInstall.md).
+
+Entrez les commandes suivantes dans un terminal:
 
 ```sh
 $ sudo apt-get install virtualbox
@@ -49,7 +53,7 @@ Documentation Vagrant: **http://docs.vagrantup.com/v2/cli/index.html**
 
 IGO-Navigateur: **http://localhost:4579/navigateur/**
 ***
-### Development environnement installation and start-up
+### Installation and start-up
 
 Quick installation and start-up guide to install and start a VM to test and/or develop in IGO.
 
@@ -57,7 +61,9 @@ Quick installation and start-up guide to install and start a VM to test and/or d
 
 These steps has been tested with Ubuntu 14.04. It allows to install Vagrant with VirtualBox as a provider.
 
-Windows documentation available [here](doc/installation/windowsInstall.md).
+> **Note for Windows users**
+
+> Windows documentation to install IGO with Vagrant is available [here](doc/installation/windowsInstall.md).
 
 ```sh
 $ sudo apt-get install virtualbox
@@ -66,7 +72,7 @@ $ sudo dpkg -i vagrant_1.7.2_x86_64.deb
 $ vagrant plugin install vagrant-r10k
 ```
 
-#### Start-up
+#### Start-Up
 
 At the root of your git repository (where is the Vagrantfile), enter following command:
 
