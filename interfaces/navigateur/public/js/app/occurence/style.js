@@ -367,5 +367,50 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
         };
     };  
     
+    Style.prototype.evaluerFiltre = function(fitre, occurence){
+        var that=this;
+        var out = false;
+        $.each(this.filtres, function(key, value){
+            if(value === fitre){
+                if(that._filtresOL[key] && that._filtresOL[key].evaluate && occurence){
+                    out = that._filtresOL[key].evaluate(occurence._feature);
+                }
+                return false;
+            }      
+        });
+        return out;
+    };  
+    
+    Style.prototype.obtenirFiltreIdParOccurence = function(occurence){
+        var that=this;
+        var out = true;
+        $.each(this.filtres, function(key, value){
+            out = false;
+            if(that._filtresOL[key] && that._filtresOL[key].evaluate && occurence){
+                if(that._filtresOL[key].evaluate(occurence._feature)){
+                    out = key;
+                    return false;
+                }
+            }
+            
+        });
+        return out;
+    };  
+    
+    Style.prototype.obtenirStyleFiltreParOccurence = function(occurence){
+        var keyFiltre = this.obtenirFiltreIdParOccurence(occurence);
+        if(keyFiltre === true){ return this;}
+        if(keyFiltre === false){ return false;} 
+        
+        var filtre = this.filtres[keyFiltre].style;
+        if(filtre && filtre.propriete){
+            filtre = filtre.propriete;
+        }
+        
+        var style = new Style($.extend({}, this.propriete, filtre));
+        style.defautPropriete = this.defautPropriete;
+        return style;
+    };  
+    
     return Style;
 });

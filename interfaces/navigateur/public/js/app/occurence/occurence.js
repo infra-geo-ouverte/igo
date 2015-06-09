@@ -341,11 +341,18 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {String} [regle='courant'] règle du style désiré (defaut, select, survol, courant)
      * @returns {Geometrie.Style} Style de l'occurence
      */
-    Occurence.prototype.obtenirStyle = function(regle) {
+    Occurence.prototype.obtenirStyle = function(regle, verifierVecteur, verifierFiltre) {
         regle = regle || 'courant';
         regle = regle === 'courant' ? this.regleCourant : regle;
         if (!this.styles[regle] || !this.styles[regle].obtenirTypeClasse || !this.styles[regle].obtenirTypeClasse() === 'Style') {
-            return undefined;
+            var style;
+            if(verifierVecteur == true && this.vecteur){
+                style = this.vecteur.styles[regle];
+                if(style && verifierFiltre === true){
+                    style = style.obtenirStyleFiltreParOccurence(this);
+                }
+            }
+            return style;
         }
         return this.styles[regle];
     };
@@ -486,15 +493,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     Occurence.prototype.obtenirProprieteStyle = function(nom, regle) {
         regle = regle || 'courant';
         regle = regle === 'courant' ? this.regleCourant : regle;
-        if (this.obtenirStyle(regle)) {
-            if (this.obtenirStyle(regle).obtenirPropriete(nom)) {
-                return this.obtenirStyle(regle).obtenirPropriete(nom);
-            } else {
-                return undefined;
-            }
-        }
-        if (this.vecteur && this.vecteur.obtenirStyle(regle)) {
-            return this.vecteur.obtenirStyle(regle).obtenirPropriete(nom);
+        var style= this.obtenirStyle(regle, true, true);
+        if (style) {
+            return style.obtenirPropriete(nom);
         }
         return undefined;
     };
@@ -516,8 +517,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         regle = regle == 'courant' ? this.regleCourant : regle;
         if (this.obtenirStyle(regle)) {
             this.obtenirStyle(regle).definirPropriete(nom, valeur);
-        } else if (this.vecteur && this.vecteur.obtenirStyle(regle)) {
-            var style = this.vecteur.obtenirStyle(regle).cloner();
+        } else if (this.obtenirStyle(regle, true, true)) {
+            var style = this.obtenirStyle(regle, true, true);
             $.extend(style.defautPropriete, style.propriete);
             style.propriete = {};
             this.definirStyle(style, regle);
@@ -530,6 +531,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (this.styles[regle] && $.isEmptyObject(this.styles[regle].propriete)) {
             delete this.styles[regle];
         }
+        this.appliquerStyle("courant")
     };
 
     /** 
