@@ -76,7 +76,7 @@ Quick installation and start-up guide to install and start a VM to test and/or d
 
 #### Installation
 
-These steps has been tested with Ubuntu 14.04. It allows to install Vagrant with VirtualBox as a provider.
+These steps has been tested with *Ubuntu 14.04*. It allows to install Vagrant with VirtualBox as a provider.
 
 > **Note for Windows users**
 
