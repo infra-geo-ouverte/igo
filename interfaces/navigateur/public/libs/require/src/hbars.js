@@ -31,10 +31,8 @@
 /*jslint nomen: true */
 /*global define: false */
 
-define(['text', 'handlebars'], function (text, HandlebarsT) {
+define(['text', 'handlebars'], function (text, Handlebars) {
     //'use strict';
-    Handlebars = HandlebarsT; 
-
     var buildMap = {},
         buildTemplateSource = "define('{pluginName}!{moduleName}', ['handlebars'], function (Handlebars) { return Handlebars.template({content}); });\n";
 

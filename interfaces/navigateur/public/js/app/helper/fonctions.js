@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-define(['aide', 'analyseurGeoJSON'], function(Aide, AnalyseurGeoJSON) {
+define(['aide', 'analyseurGeoJSON', 'handlebars'], function(Aide, AnalyseurGeoJSON, Handlebars) {
 
     function Fonctions(){
 
