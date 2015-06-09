@@ -24,12 +24,13 @@ define(['couche', 'aide'], function(Couche, Aide) {
     function Google(options){
             this.options = options || {};
             this.options.fond = true;
+            this.options.opaciteSlider = false;
             
             this._optionsOL = {
                 sphericalMercator: true, 
                 numZoomLevels: 20,
                 printOptions: false,
-                visibility: true 
+                visibility: true
             };
 
             //this._init();
