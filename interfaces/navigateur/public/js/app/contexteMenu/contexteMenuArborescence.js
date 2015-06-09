@@ -4,7 +4,7 @@ require.ajouterConfig({
     }
 });
 
-define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable) {
+define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable, DateTimeIntervalPicker) {
   
     function ContexteMenuArborescence(options){
         this.options = options || {};   
