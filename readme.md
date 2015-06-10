@@ -21,7 +21,7 @@ Since this project is open source, anyone can contribute as long as they share t
 - [Installation recommandée](#installation-et-démarrage)
 - [Autres installations](http://igouverte.org/installation/)
 - [Documentation](http://igouverte.org/documentation/)
-- [Modules et technologies](#modulesservices-développés-et-technologies-utilisées-)
+- [Modules et technologies](#modulesservices-et-technologies-)
 
 
 ***
@@ -113,7 +113,7 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 ***
 
 ### Modules/services et technologies :
-- [Modules et services supportés et en développement](http://igouverte.org/documentation/module/)
+- [Modules et services supportés ou en développement](http://igouverte.org/documentation/module/)
 - [Technologies intégrées et utilisées par la communauté IGO](http://igouverte.org/documentation/techno/)
 
 ***
