@@ -4,7 +4,8 @@
 ### Qu'est-ce qu'[IGO](http://igouverte.org/)?
 IGO est une solution Web gratuite en géomatique. Consultez le site Web d'IGO pour en savoir davantage: [http://igouverte.org/](http://igouverte.org/).
 Elle permet de tirer profit d’une multitude de données géographiques grâce à une interface cartographique accessible par un navigateur Web.
-Les membres du public et d'organisations en géomatique ou du Web qui soumettent des contributions conservent leurs droits d'auteur s'ils partagent leur code source selon la [LICENCE LiLiQ-R de type LGPL](LICENSE.txt).
+Les membres du public en géomatique et du Web qui soumettent des contributions conservent leurs droits d'auteur s'ils partagent leur code source selon la [LICENCE LiLiQ-R de type LGPL](LICENSE.txt).
+IGO est un produit du gouvernement du Québec (Canada) et issu d’un travail collaboratif basé sur la philosophie des logiciels libres et ouverts (« open source »).
 
 ***
 ### What is [IGO](http://igouverte.org/english/)?
@@ -17,17 +18,19 @@ Since this project is open source, anyone can contribute as long as they share t
 ---
 ## Table des matières
 
-- [Documentation](http://igouverte.org/documentation/)
 - [Installation recommandée](#installation-et-démarrage)
 - [Autres installations](http://igouverte.org/installation/)
+- [Documentation](http://igouverte.org/documentation/)
+- [Modules et technologies](#installation-et-démarrage)
+
 
 ***
 
 ---
 ## Table of Contents
 
-- [Documentation](http://igouverte.org/documentation/)
 - [Installation](#installation-and-start-up)
+- [Documentation (mostly in French)](http://igouverte.org/documentation/)
 - [Development](#igo-development-completed-andor-planned)
 
 
@@ -109,9 +112,9 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 
 ***
 
-### Les modules complétés et planifiés d'IGO :
-- Disponible [ici](http://igouverte.org/documentation/module/)
-
+### Modules/services développés et technologies utilisées :
+- [Modules et services supportés et en développement](http://igouverte.org/documentation/module/)
+- [Technologies intégrées et utilisées par la communauté IGO](http://igouverte.org/documentation/techno/)
 
 ***
 ### IGO Development completed and/or planned:
