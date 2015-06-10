@@ -112,7 +112,7 @@ IGO-Navigator: **http://localhost:4579/navigateur/**
 
 ***
 
-### Modules/services développés et technologies utilisées :
+### Modules/services et technologies :
 - [Modules et services supportés et en développement](http://igouverte.org/documentation/module/)
 - [Technologies intégrées et utilisées par la communauté IGO](http://igouverte.org/documentation/techno/)
 
