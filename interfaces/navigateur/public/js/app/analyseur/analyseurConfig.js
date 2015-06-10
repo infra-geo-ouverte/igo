@@ -120,24 +120,42 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         var couchesApp = config.couches || [];
         var groupeCouches = [];
         if (couchesApp) {
+            var cAttributs = couchesApp["@attributes"] || couchesApp["attributs"];
+            if(couchesApp.couche){
+                groupeCouches.push({"@attributes": cAttributs, couche: couchesApp.couche});
+            }
             var c1 = couchesApp["groupe-couches"];
             if(c1){
-                groupeCouches = $.isArray(c1) ? c1 : [c1];
-            }
-            if(couchesApp.couche){
-                groupeCouches.push({couche: couchesApp.couche});
+                var c2 = $.isArray(c1) ? c1 : [c1];
+                $.each(c2, function(key, value){
+                    if(value["attributs"]){
+                        value["attributs"] = $.extend({}, cAttributs, value["attributs"]);
+                    } else {
+                        value["@attributes"] = $.extend({}, cAttributs, value["@attributes"]);
+                    }
+                });
+                groupeCouches = groupeCouches.concat(c2);
             }
         }
         this.contexteAttributs = {};
         if(contexte){
             var couchesContexte = contexte.couches || contexte || [];
             if (couchesContexte) {
+                var cAttributs = couchesContexte["@attributes"] || couchesContexte["attributs"];
+                if(couchesContexte.couche){
+                    groupeCouches.push({"@attributes": cAttributs, couche: couchesContexte.couche});
+                }
                 var c1 = couchesContexte["groupe-couches"];
                 if(c1){
-                    $.merge(groupeCouches, $.isArray(c1) ? c1 : [c1]);
-                }
-                if(couchesContexte.couche){
-                    groupeCouches.push({couche: couchesContexte.couche});
+                    var c2 = $.isArray(c1) ? c1 : [c1];
+                    $.each(c2, function(key, value){
+                        if(value["attributs"]){
+                            value["attributs"] = $.extend({}, cAttributs, value["attributs"]);
+                        } else {
+                            value["@attributes"] = $.extend({}, cAttributs, value["@attributes"]);
+                        }
+                    });
+                    groupeCouches = groupeCouches.concat(c2);
                 }
             }
             this.contexteAttributs = contexte["@attributes"] || contexte["attributs"] || {};
@@ -647,6 +665,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 options.url = Aide.obtenirConfig("uri.api") + "wms/" + data.id;
             }
             var classe = couche.protocole;
+            options = $.extend({}, that.contexteAttributs, options);
             var coucheOccurence = new Igo.Couches[classe](options);
 
             listCouches.push(coucheOccurence);
