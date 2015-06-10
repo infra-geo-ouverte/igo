@@ -62,7 +62,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             this.defautOptions.groupe = 'Fond de carte';
         };
         
-        this.options = $.extend({}, this.defautOptions, Aide.obtenirConfig(this.obtenirTypeClasse()), this.options);
+        this.options = $.extend({}, this.defautOptions, Aide.obtenirConfig("Couche"), Aide.obtenirConfig(this.obtenirTypeClasse()), this.options);
                 
         var opt = this.options;
 
@@ -83,7 +83,6 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             maxScale: opt.echelleMax, //|| this.carte.getResolutionForZoom(opt.niveauZoomMax), //echelleMax: petit nombre
             group: opt.groupe,
             attribution: opt.droit,
-            mspClassMeta: opt.metadonnee,
             typeContexte: opt.typeContexte,
             displayInLayerSwitcher: Aide.toBoolean(opt.visible),
             legende: Aide.toBoolean(opt.legende),
