@@ -381,33 +381,25 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
         return out;
     };  
     
-    Style.prototype.obtenirFiltreIdParOccurence = function(occurence){
+    Style.prototype.obtenirStyleFiltreParOccurence = function(occurence){
         var that=this;
-        var out = true;
+        if(!this.filtres.length){ return this;}
+        var styleFiltre = {};
         $.each(this.filtres, function(key, value){
-            out = false;
             if(that._filtresOL[key] && that._filtresOL[key].evaluate && occurence){
                 if(that._filtresOL[key].evaluate(occurence._feature)){
-                    out = key;
-                    return false;
+                    var styleFiltreT = value.style;
+                    if(styleFiltreT && styleFiltreT.propriete){
+                        styleFiltreT = styleFiltreT.propriete;
+                    }
+                    $.extend(styleFiltre, styleFiltreT);
                 }
             }
             
         });
-        return out;
-    };  
-    
-    Style.prototype.obtenirStyleFiltreParOccurence = function(occurence){
-        var keyFiltre = this.obtenirFiltreIdParOccurence(occurence);
-        if(keyFiltre === true){ return this;}
-        if(keyFiltre === false){ return false;} 
         
-        var filtre = this.filtres[keyFiltre].style;
-        if(filtre && filtre.propriete){
-            filtre = filtre.propriete;
-        }
-        
-        var style = new Style($.extend({}, this.propriete, filtre));
+        if($.isEmptyObject(styleFiltre)){return false};
+        var style = new Style($.extend({}, this.propriete, styleFiltre));
         style.defautPropriete = this.defautPropriete;
         return style;
     };  
