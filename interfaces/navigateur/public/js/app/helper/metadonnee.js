@@ -14,8 +14,14 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
 //            nomClasse = "MSP_RADARSAT";
 //        }
 
-        if(Aide.toBoolean(couche.options.metadonneeExterieur) === true) {
-            var lienExt = Aide.obtenirConfig("Metadonnee.lien") || couche.options.metadonneeLien;
+        if(couche.options.metadonneeExterne) {
+            var lienExt;
+            if(Aide.toBoolean(couche.options.metadonneeExterne) === true){
+                lienExt = couche.options.metadonneeLien || Aide.obtenirConfig("Metadonnee.lien");
+            } else {
+                lienExt = couche.options.metadonneeExterne;
+            }
+            
             lienExt = decodeURIComponent(lienExt).replace("{nomClasse}", nomClasse);
             window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
             return true;
