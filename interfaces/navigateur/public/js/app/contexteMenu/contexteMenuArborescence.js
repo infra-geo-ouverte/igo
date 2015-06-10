@@ -263,7 +263,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                 id: 'arborescenceMetadonnee',
                 text : that.locale.mspMetadataText,
                 handler : function() {
-                    Metadonnee.getLayerCapabilities(args.couche._layer);
+                    Metadonnee.getLayerCapabilities(args.couche);
                 }
              };
         }
