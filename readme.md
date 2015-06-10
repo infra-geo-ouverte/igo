@@ -22,6 +22,7 @@ Since this project is open source, anyone can contribute as long as they share t
 - [Autres installations](http://igouverte.org/installation/)
 - [Documentation](http://igouverte.org/documentation/)
 - [Modules et technologies](#modulesservices-et-technologies-)
+- [Contribuer](#contribuer)
 
 
 ***
@@ -32,6 +33,7 @@ Since this project is open source, anyone can contribute as long as they share t
 - [Installation](#installation-and-start-up)
 - [Documentation (mostly in French)](http://igouverte.org/documentation/)
 - [Development](#igo-development-completed-andor-planned)
+- [Contribution](#contribution)
 
 
 ### Installation et démarrage
