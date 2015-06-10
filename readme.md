@@ -21,7 +21,7 @@ Since this project is open source, anyone can contribute as long as they share t
 - [Installation recommandée](#installation-et-démarrage)
 - [Autres installations](http://igouverte.org/installation/)
 - [Documentation](http://igouverte.org/documentation/)
-- [Modules et technologies](#installation-et-démarrage)
+- [Modules et technologies](#modulesservices-développés-et-technologies-utilisées-)
 
 
 ***
