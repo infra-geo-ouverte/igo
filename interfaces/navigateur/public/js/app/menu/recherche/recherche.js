@@ -219,7 +219,15 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                 tooltip: 'Lancer la recherche',
                 scope: this,
                 handler: function(){that.lancerRecherche()}
-            }];
+            },
+            {
+                id: 'reinitialiserButton' + this.options.id,
+                text: 'Réinitialiser',
+                tooltip: 'Réinitialiser les champs de recherche et la carte',
+                scope: this,
+                handler: function(){that.reinitialiserRecherche()}
+            }
+        ];
     };
 
     /**
@@ -560,6 +568,24 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             } 
         }, {id: "rechercheTraiterParamsURL"});
         this.parent.ouvrir();
+    };
+
+    /**
+     * Réinitialiser la recherche
+     * @method
+     * @name Recherche#reinitialiserRecherche
+     */
+    Recherche.prototype.reinitialiserRecherche = function(){
+        this.reinitialiserVecteur();
+        $.each(this._panel.items.items, function(index, item){
+           if(item.xtype == "textfield" || item.xtype == "numberfield" || item.xtype == "combo"){
+               item.reset();
+           }   
+        });
+        
+        if(this.resultatPanneau.isVisible()){
+            this.definirResultat(this.obtenirAideHTML());
+        }
     };
     
     return Recherche;
