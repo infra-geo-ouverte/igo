@@ -859,8 +859,13 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @name Occurence#cloner
      * return {Occurence} Occcurence clonée
      */
-    Occurence.prototype.cloner = function() {        
-        return new Occurence(this._obtenirGeometrie(), this.proprietes, this.styles);
+    Occurence.prototype.cloner = function(garderStyleVecteur) {   
+        if(garderStyleVecteur){
+            return new Occurence(this._obtenirGeometrie(), this.proprietes, this.obtenirStyle(this.regleCourant, true, true));
+        }
+        else{
+            return new Occurence(this._obtenirGeometrie(), this.proprietes, this.styles);
+        } 
     };
     
     /**
