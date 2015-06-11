@@ -87,6 +87,10 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.$mesureComboAireUnite.on('focus', function () {
                 //previous = this.value;
             }).change(function(e) {
+                if(that.options.type === "lineaire"){
+                    return false;
+                }
+                
                 that.changeUniteEvent("aire");
                 //previous = this.value;
             });
@@ -329,7 +333,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
 
         var a=oFormMeasr.get('area');
 
-        if(area === undefined) {
+        if(area === undefined || area == "") {
             l.setLabel('Longueur');
             a.setValue(area);
             a.disable();
