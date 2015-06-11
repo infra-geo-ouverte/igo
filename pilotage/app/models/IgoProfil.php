@@ -50,7 +50,7 @@ class IgoProfil extends \Phalcon\Mvc\Model {
         $this->hasMany("id", "IgoUtilisateurProfil", "profil_id",  array(
             'reusable' => true
         ));
-
+        
         $this->belongsTo("profil_proprietaire_id", "IgoProfil", "id");
  
          $this->addBehavior(new Timestampable(array(

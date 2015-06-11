@@ -151,7 +151,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             var x = value.geometry.location.F; //value.geometry.location.lng;
             var y = value.geometry.location.A; //value.geometry.location.lat;
             var point = new Point(x, y);
-            var limites = new Limites(value.geometry.viewport.va.j, value.geometry.viewport.Da.A, value.geometry.viewport.va.A, value.geometry.viewport.Da.j);
+            var limites = new Limites(value.geometry.viewport.va.j, value.geometry.viewport.Ea.A, value.geometry.viewport.va.A, value.geometry.viewport.Ea.j);
             //var limites = new Limites(value.geometry.viewport.southwest.lng, value.geometry.viewport.southwest.lat, value.geometry.viewport.northeast.lng, value.geometry.viewport.northeast.lat);
             var projCarte = Aide.obtenirNavigateur().carte.obtenirProjection();
             point = point.projeter("EPSG:4326", projCarte);

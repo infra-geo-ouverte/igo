@@ -1,0 +1,116 @@
+
+{{!-- Fichier gabarit pour remplacer tableau Ext-JS pour les cas du gml version IGO 1.0.0 --}}
+
+{{!-- partiel "partial" "template/partial" --}}
+
+<div class="x-panel-body x-panel-body-noheader x-panel-body-noborder" id="infoResultatsWindows"
+     style="overflow: auto; width: 627px; height: 516px;">
+    <div class="x-grid3" hidefocus="true" id="hbs-gen270" style="width: 627px; height: 516px;">
+        <div class="x-grid3-viewport" id="hbs-gen271">
+            <div class="x-grid3-header" id="hbs-gen272">
+                <div class="x-grid3-header-inner" id="hbs-gen274" style="width: 627px;">
+                    <div class="x-grid3-header-offset" style="width: 627px;">
+                        <table border="0" cellspacing="0" cellpadding="0" style="width: 597px;">
+                            <thead>
+                                <tr class="x-grid3-hd-row">
+                                    <td class="x-grid3-hd x-grid3-cell x-grid3-td-0 x-grid3-cell-first sort-desc" style="width: 50px;
+                                        display: none;">
+                                        <div class="x-grid3-hd-inner x-grid3-hd-0" unselectable="on" style="">
+                                            Item<img alt="" class="x-grid3-sort-icon" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></div>
+                                    </td>
+                                    <td class="x-grid3-hd x-grid3-cell x-grid3-td-1" style="width: 150px;">
+                                        <div class="x-grid3-hd-inner x-grid3-hd-1" unselectable="on" style="">
+                                            Attribut<img alt="" class="x-grid3-sort-icon" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></div>
+                                    </td>
+                                    <td class="x-grid3-hd x-grid3-cell x-grid3-td-Valeur x-grid3-cell-last" style="width: 447px;">
+                                        <div class="x-grid3-hd-inner x-grid3-hd-Valeur" unselectable="on" style="">
+                                            Valeur<img alt="" class="x-grid3-sort-icon" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></div>
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="x-clear">
+                </div>
+            </div>
+
+            <div class="x-grid3-scroller" id="hbs-gen310" style="width: 698px; height: 518px;">
+                <div class="x-grid3-body" style="width: 668px;" id="hbs-gen312">
+
+                    {{#each .}}
+                    {{#each .}}
+
+                    <div id="hbs-gen306-gp-Item-{{@index}}" class="x-grid-group" >
+
+                        <div id="hbs-gen306-gp-Item-{{@index}}-hd" class="x-grid-group-hd toggleItem" style="width: 668px;">
+                            <div class="x-grid-group-title">
+                                Item: {{@index}}</div>
+                        </div>
+
+                        <div id="hbs-gen306-gp-Item-{{@index}}-bd" class="x-grid-group-body">
+                            {{#with properties}}
+                            {{#each .}}
+                            
+                            
+                            {{#recursive .}} 
+                                <div class="x-grid3-row background-white-row x-grid3-row-first {{#unless visible}}cacher{{/unless}} {{#ifObjet value}}infoObjetMore{{/ifObjet}}" style="width: 668px;">
+                                    <table class="x-grid3-row-table" border="0" cellspacing="0" cellpadding="0" style="width: 668px;">
+                                        <tbody>
+                                            <tr>
+                                                <td tabindex="0" style="width: 48px; display: none;" class="x-grid3-col x-grid3-cell x-grid3-td-0 x-grid3-cell-first ">
+                                                    <div unselectable="on" class="x-grid3-cell-inner x-grid3-col-0">{{{index}}}</div>
+                                                </td>
+                                                <td class="x-grid3-col x-grid3-cell x-grid3-td-1" style="width: 150px;" tabindex="0">
+                                                    <div title="{{{utiliserAlias key @root.alias}}}" class="x-grid3-cell-inner x-grid3-col-1" unselectable="on"> {{{utiliserAlias key @root.alias}}}</div>
+                                                </td>
+                                                <td class="x-grid3-col x-grid3-cell x-grid3-td-Valeur multilineColumn" style="width: 518px;"
+                                                    tabindex="0">
+                                                    <div class="x-grid3-cell-inner x-grid3-col-Valeur" unselectable="on">
+                                                        {{#ifObjet value}}
+                                                            +
+                                                        {{else}}
+                                                            {{{this}}}
+                                                        {{/ifObjet}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {{/recursive}}
+                            
+                            {{else}}
+                            <div class="x-grid3-row background-white-row x-grid3-row-first">
+                                <table class="x-grid3-row-table" border="0" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                        <tr>
+                                            <td class="x-grid3-col x-grid3-cell x-grid3-td-1" tabindex="0">
+                                                <div class="x-grid3-cell-inner x-grid3-col-Valeur">
+                                                    Aucune propriété
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{/each}}              
+                            {{/with}}
+
+                        </div>
+                    </div>
+
+                    {{/each}}
+                    {{/each}}
+
+                </div>
+                <div class="x-grid3-resize-marker" id="hbs-gen314">
+                    &nbsp;</div>
+                <div class="x-grid3-resize-proxy" id="hbs-gen315">
+                    &nbsp;</div>
+            </div>  
+        </div>
+    </div>
+</div>
+
+{{requireJS "afficherProprietesFct"}}

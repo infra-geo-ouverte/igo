@@ -74,9 +74,17 @@ define(['point', 'ligne', 'polygone', 'multiPoint', 'multiLigne', 'multiPolygone
 
     AnalyseurGML.prototype.ecrire = function(occurences){
         if(!occurences){return false;}
-        if(!$.isArray(occurences)){
-            occurences = [occurences];
+        
+        if(occurences.obtenirTypeClasse && occurences.obtenirTypeClasse() === "Vecteur"){
+            occurences = occurences.obtenirOccurences();
         }
+        
+        if (occurences.obtenirTypeClasse && occurences.obtenirTypeClasse() === "Occurence"){
+            occurences = [occurences];  
+        } else if (occurences._obtenirGeomOL){ //géométrie
+            return this._parser.write(occurences._obtenirGeomOL());
+        }
+
         var listFeaturesOL=[];
         $.each(occurences, function(key, value){
             if(!value.obtenirTypeClasse || value.obtenirTypeClasse() !== 'Occurence'){

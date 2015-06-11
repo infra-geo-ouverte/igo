@@ -1,7 +1,7 @@
 <?php
 
 // Inclusion du fichier de config de l'url du Host de GeoNetwork et son CSW.
-require_once(dirname(__FILE__).'/../config.php');	// connexion au host GeoNetwork sur le spssogl20 au MSP / intranet.donnees.qc pour intranet M/O.
+require_once(dirname(__FILE__).'/../config.php');	
 require_once(dirname(__FILE__). "/../fonctions.php");
 
 function transform($xml, $xsl)

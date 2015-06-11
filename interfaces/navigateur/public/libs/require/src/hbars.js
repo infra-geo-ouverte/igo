@@ -32,8 +32,7 @@
 /*global define: false */
 
 define(['text', 'handlebars'], function (text, Handlebars) {
-    'use strict';
-
+    //'use strict';
     var buildMap = {},
         buildTemplateSource = "define('{pluginName}!{moduleName}', ['handlebars'], function (Handlebars) { return Handlebars.template({content}); });\n";
 
