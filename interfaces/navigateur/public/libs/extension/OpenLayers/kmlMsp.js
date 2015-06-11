@@ -14,13 +14,12 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
         var kml = this.createElementNS(this.kmlns, "kml");
         var document = this.createElementNS(this.kmlns, "Document");
         var folder = this.createFolderXML();
-        //folder.getElementsByTagName("name").item(0).innerHTML = 'vecteur';
-
+        
         for (var i = 0; i < layers.length; ++i) {
 
-            for(var j=0, len=layers[i].features.length; j<len; ++j) {
+            for(var j=0, len=layers[i].listeOccurences.length; j<len; ++j) {
                 
-                var feature = layers[i].features[j];
+                var feature = layers[i].listeOccurences[j].cloner(true);
                 var layer = layers[i];
                 var fillColor = 'FF0000FF';
                 var strokeColor = 'FF0000FF';
@@ -29,57 +28,78 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                 var g="00";
                 var b="00";
                 var alpha="FF";
-                
-                if(typeof(feature.style) == "undefined" ||
-                        feature.style == null){
-                    if(!feature.renderIntent){
-                        var styleOL = layer.styleMap.styles['default'].defaultStyle;
-                    }else{
-                        var styleOL = layer.styleMap.styles[feature.renderIntent].defaultStyle;                        
-                    }
-                    
-                }else{
-                    var styleOL = feature.style;
-                }
-               
-                fillColor = this.convertColorKml(styleOL.fillColor, styleOL.fillOpacity);  
-                strokeColor = this.convertColorKml(styleOL.strokeColor, styleOL.strokeOpacity);  
+                var styleIGO =  feature.obtenirStyle(feature.regleCourant, true, true);
+                  
+                fillColor = this.convertColorKml(styleIGO.obtenirPropriete('couleur'), styleIGO.obtenirPropriete('opacite'));  
+                strokeColor = this.convertColorKml(styleIGO.obtenirPropriete('limiteCouleur'), styleIGO.obtenirPropriete('limiteOpacite'));  
               
                 var style = this.createElementNS(this.kmlns, "Style");
                 style.setAttribute("id",feature.id+"style");
                 var styleLineType = this.createElementNS(this.kmlns, "LineStyle");
                 var width = this.createElementNS(this.kmlns,"width");
-                width.appendChild(this.createTextNode(styleOL.strokeWidth));
+                width.appendChild(this.createTextNode(styleIGO.obtenirPropriete('limiteEpaisseur')));
                 var color = this.createElementNS(this.kmlns,"color");
                 color.appendChild(this.createTextNode(strokeColor));  
                 styleLineType.appendChild(color);
                 styleLineType.appendChild(width);
                 style.appendChild(styleLineType);
 
-                switch(feature.geometry.CLASS_NAME){
-                    case "OpenLayers.Geometry.Point":
-                    case "OpenLayers.Geometry.MultiPoint":
+                switch(feature.obtenirTypeGeometrie()){
+                    case "Point":
+                    case "MultiPoint":
 
-                        if(styleOL.externalGraphic){
+                        if(styleIGO.obtenirPropriete('icone')){
                             
                             var styleIconType = this.createElementNS(this.kmlns, "IconStyle");
+                            
+                            //offset icone
+                            var hotSpot = this.createElementNS(this.kmlns,"hotSpot");
+                            hotSpot.setAttribute('x', 0);
+                            hotSpot.setAttribute('y', 0.5);
+                            hotSpot.setAttribute('xunits', 'fraction');
+                            hotSpot.setAttribute('yunits', 'fraction');
+                            /*PATCH : le tag hotSpot n'est pas pris en compte 
+                             * soit par mapserver ou ogr 
+                             * en attendant une solution, nous devons recalculer 
+                             * les coordonnées du placemark, ce qui amène un petit
+                             * écart dans le résultat, car l'échelle/résolution 
+                             * de l'image résultante de mapserver n'est pratiquement 
+                             * jamais exactement la même que celle de l'écran.
+                             * Pour le KML le 0,0 d'une icone est son centre
+                             */
+                            var deltaX = styleIGO.obtenirPropriete('iconeOffsetX') * Igo.nav.carte.obtenirResolution();
+                            var deltaY = styleIGO.obtenirPropriete('iconeOffsetY') * Igo.nav.carte.obtenirResolution();
+                            deltaX += styleIGO.obtenirPropriete('iconeLargeur')/2 * Igo.nav.carte.obtenirResolution();
+                            deltaY += styleIGO.obtenirPropriete('iconeHauteur')/2 * Igo.nav.carte.obtenirResolution();
+                            deltaX = feature.x<0?deltaX:-deltaX;
+                            deltaY = feature.y<0?deltaY:-deltaY;
+                            feature.deplacerDe(deltaX, deltaY);        
+                            
+                            //direction icone
+                            var heading = this.createElementNS(this.kmlns,"heading");
+                            heading.appendChild(this.createTextNode(styleIGO.obtenirPropriete('rotation')));
+                            
+                            //grosseur icone TODO: HARDCODE À 10
                             var scale = this.createElementNS(this.kmlns,"scale");
                             scale.appendChild(this.createTextNode(10));
-                            var urlImage = styleOL.externalGraphic;
+                            var urlImage = styleIGO.obtenirPropriete('icone');
                             if(urlImage.substring(0,1) == '/'){
                                 urlImage = Igo.Aide.obtenirHote() + urlImage;
                             }
-
+                            
+                            //icone
                             var icon = this.createElementNS(this.kmlns,"Icon");
                             var href = this.createElementNS(this.kmlns,"href");
                             href.appendChild(this.createTextNode(urlImage));
                             icon.appendChild(href);
 
                             styleIconType.appendChild(scale);
+                            styleIconType.appendChild(hotSpot);
                             styleIconType.appendChild(icon);
+                            styleIconType.appendChild(heading);
                             style.appendChild(styleIconType);
                             document.appendChild(style);
-                            folder.appendChild(this.createPlacemarkXML(layer.features[j]));
+                            folder.appendChild(this.createPlacemarkXML(feature,styleIGO));
                         }
                         else{
                             var stylePolyType = this.createElementNS(this.kmlns, "PolyStyle");
@@ -89,32 +109,32 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                             style.appendChild(stylePolyType);
                             document.appendChild(style);
 
-                            var clone = feature.clone();
-                            featureTransform = clone.geometry.transform(layer.projection, this.externalProjection);
+                            var clone = feature.cloner();
+                            var featureTransform = clone._obtenirGeomOL().transform(layer.obtenirProjection(), this.externalProjection);
                             var x = featureTransform.x;
                             var y = featureTransform.y;
-                            var radius = styleOL.pointRadius;
+                            var radius = styleIGO.obtenirPropriete('rayon');
                             var name = feature.id;
                             var description = "";
 
-                            var kmlCircle = this.kml_ring_with_placeMark(x,y,layer.map.getResolution()*radius,20,0,name,description);                 
+                            var kmlCircle = this.kml_ring_with_placeMark(x,y,Igo.nav.carte.obtenirResolution()*radius,20,0,name,description);                 
                             var domParser = new DOMParser();
                             var kmlCircleDOM = domParser.parseFromString(kmlCircle, "application/xml");
 
                             //ajouter le point en polygone
                             folder.appendChild(kmlCircleDOM.firstChild);
                             //ajouter le point en point pour annotation
-                            folder.appendChild(this.createPlacemarkXML(feature));
+                            folder.appendChild(this.createPlacemarkXML(feature,styleIGO));
                         }
 
                         break;
 
-                    case "OpenLayers.Geometry.LineString":
+                    case "Ligne":
                         document.appendChild(style);
-                        folder.appendChild(this.createPlacemarkXML(feature));
+                        folder.appendChild(this.createPlacemarkXML(feature,styleIGO));
                         break;
-                    case "OpenLayers.Geometry.Polygon":
-                    case "OpenLayers.Geometry.MultiPolygon":
+                    case "Polygone":
+                    case "MultiPolygone":
 
                         var stylePolyType = this.createElementNS(this.kmlns, "PolyStyle");
                         color = this.createElementNS(this.kmlns,"color");
@@ -124,7 +144,7 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
 
                         document.appendChild(style);
 
-                        folder.appendChild(this.createPlacemarkXML(feature));
+                        folder.appendChild(this.createPlacemarkXML(feature, styleIGO));
                         break;
                 }
             }
@@ -146,21 +166,18 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
      * Returns:
      * {DOMElement}
      */
-    createPlacemarkXML: function(feature) {        
+    createPlacemarkXML: function(feature, style) {        
         // Placemark name
         var placemarkName = this.createElementNS(this.kmlns, "name");
-        var label = (feature.style && feature.style.label) ? feature.style.label : feature.id;
+        var label = (style && style.obtenirPropriete('etiquette')) ? style.obtenirPropriete('etiquette') : feature.id;
+        
+         //petit patch pour les icones de recherche d'adresse (feature.proprietes.adresse_libre)
+        var desc = feature.proprietes.adresseLibre || label || feature.proprietes.description;
         
         // Placemark description
         var placemarkDesc = this.createElementNS(this.kmlns, "description");
-        var desc='';
-        if(label.match(/\$\{[A-Za-z]*}/) != null){
-            desc = feature.attributes[label.substr(2,test.length-3)];
-        }else{
-            desc = label || feature.attributes.description || this.placemarksDesc;
-        }
-
-        var name = feature.attributes.name || feature.attributes.id || desc;
+              
+        var name = feature.proprietes.name || feature.proprietes.id || desc;
         placemarkName.appendChild(this.createTextNode(name));
          
         placemarkDesc.appendChild(this.createTextNode(desc));
@@ -180,12 +197,12 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
         placemarkNode.appendChild(placemarkStyleUrl);
 
         // Geometry node (Point, LineString, etc. nodes)
-        var geometryNode = this.buildGeometryNode(feature.geometry);
+        var geometryNode = this.buildGeometryNode(feature._obtenirGeomOL());
         placemarkNode.appendChild(geometryNode);        
         
         // output attributes as extendedData
-        if (feature.attributes) {
-            var edNode = this.buildExtendedData(feature.attributes);
+        if (feature.proprietes) {
+            var edNode = this.buildExtendedData(feature.proprietes);
             if (edNode) {
                 placemarkNode.appendChild(edNode);
             }
@@ -195,7 +212,7 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
     },
     
     /* http://stackoverflow.com/questions/1573053/javascript-function-to-convert-color-names-to-hex-codes 
-     * Permet de changer une couleur en hex
+     * Permet de changer une couleur(string) en hex
      * */
     
     colourNameToHex : function (colour){
@@ -376,12 +393,21 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
     */
     convertColorKml : function (couleur, opacite){
         var output = null;
+        if(typeof(couleur) == 'undefined'){
+           return "FF0000FF";
+        }
+        if(typeof(opacite) == 'undefined'){
+            opacite = 50;
+        }
         
         if(couleur.match(/^#[A-z0-9]{6}$/)){
             r = couleur.substring(1,3);
             g = couleur.substring(3,5);
             b = couleur.substring(5,7);
             alpha = parseInt(opacite*255).toString(16);
+            if(alpha.length < 2){
+                alpha = "0"+alpha;
+            }
             output = alpha+b+g+r;
         }
         else{
@@ -390,11 +416,15 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                 g = output.substring(2,4);
                 b = output.substring(4,6);
                 alpha = parseInt(opacite*255).toString(16);
+                if(alpha.length < 2){
+                    alpha = "0"+alpha;
+                }   
                 output = alpha+b+g+r;
             }else{
                 output = "FF0000FF";
             }
         }
+        
         return output;
     }
 
