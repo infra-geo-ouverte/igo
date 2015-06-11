@@ -89,8 +89,12 @@ define(['aide', 'outil', 'fileUploadField', 'css!fileUploadFieldCss'], function(
                             message: "Désirez-vous supprimer le document?",
                             boutons: "OUINON",
                             icone:"QUESTION",
-                            action: that.supprimerFichier.bind(that, fichier)}
-                        );
+                            action :function(btn) {
+                            if (btn == 'yes') {
+                                that.supprimerFichier.bind(that, fichier).call();
+                            }
+                        }
+                    });
                     } catch(e){}
                 }
             }
