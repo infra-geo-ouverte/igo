@@ -4,7 +4,7 @@ require.ajouterConfig({
     }
 });
 
-define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable) {
+define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable, DateTimeIntervalPicker) {
   
     function ContexteMenuArborescence(options){
         this.options = options || {};   
@@ -134,23 +134,25 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
     };
 
     ContexteMenuArborescence.prototype.initOpaciteSubmenu = function(args){ 
-        var that=args.scope;
-        var sliderOptions = {
-            layer : args.couche._layer,
-            width : 200
-        };
-            
-        sliderOptions.plugins = new GeoExt.SliderTip();
+        if (args.couche.options.opaciteSlider !== false) {      
+            var that=args.scope;
+            var sliderOptions = {
+                layer : args.couche._layer,
+                width : 200
+            };
 
-        return {
-            id: 'arborescenceOpacite',
-            text : that.locale.changeOpacityText,
-            menu : {
-                id: 'arborescenceOpacitySlider',
-                plain : true,
-                items : [ new GeoExt.LayerOpacitySlider(sliderOptions) ]
-            }
-        };
+            sliderOptions.plugins = new GeoExt.SliderTip();
+
+            return {
+                id: 'arborescenceOpacite',
+                text : that.locale.changeOpacityText,
+                menu : {
+                    id: 'arborescenceOpacitySlider',
+                    plain : true,
+                    items : [ new GeoExt.LayerOpacitySlider(sliderOptions) ]
+                }
+            };
+        }
     };
      ContexteMenuArborescence.prototype.initWMStime = function(args){ 
         if (args.couche.options.wms_timeitem) {        
@@ -261,7 +263,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                 id: 'arborescenceMetadonnee',
                 text : that.locale.mspMetadataText,
                 handler : function() {
-                    Metadonnee.getLayerCapabilities(args.couche._layer);
+                    Metadonnee.getLayerCapabilities(args.couche);
                 }
              };
         }

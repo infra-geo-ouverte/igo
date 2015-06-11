@@ -1639,22 +1639,32 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |mode|Intégrer l'ensemble des couches d'un service WMS|Non  |*getCapabilities*||
 |infoFormat | Indique le format voulu pour l' *OutilInfo* qui sera affiché dans la fenêtre de résultats après le clique sur la couche dans la carte | Non| *gml*,*gml311*,*xml*,*html*| *gml*|
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
-|infoGabarit | Indique l'emplacement du script HandleBars qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte | Non|  URL|		|
+|infoGabarit | Indique l'emplacement du script [Handlebars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte ([exemple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exemple.html),[ exemple simple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exempleSimple.html)) | Non|  URL|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoDeclencheur | Indique l'emplacement du script qui recevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le déclencheur| Non| URL|		|
+|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
 
 *Exemples*
 ```xml
-<couche url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"
-protocole="WMS"
-couche titre="Structures MTQ"
-url="http://www.dds.mtq.gouv.qc.ca/dds.aspx" nom="strct\_mtq"
-protocole="WMS" extraParams="NUM\_DOSSR=18475"
-couche id="idCoucheWMS" titre="RFN Voies ferrées"
-url="http://ows.geobase.ca/wms/geobase\_en?" nom="nrwn:track"
-protocole="WMS" fond="false" echelleMin="6000000" echelleMax="1"
-groupe="Test" visible="true" active="faux" opacite="100"
-ordreAffichage="1"/>
+   <couche protocole="WMS" mode="getCapabilities"
+   url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdga.fcgi?" infoFormat="gml" />
+```
+
+```xml
+  <couche titre="Région Administrative" protocole="WMS" 
+   url="http://sigeom.mrn.gouv.qc.ca/SIGEOM_WMS/Request.aspx?" nom="Region_Administrative" 
+   active="vrai" infoFormat="html"  />
+```
+
+```xml
+    <couche titre="Stations hydrométriques - Seuil de conséquence (public)" protocole="WMS" 
+    url="http://geoegl.msp.gouv.qc.ca/cgi-wms/adnInternetV2.fcgi?" nom="adn_station_max_public_v" 
+    echelleMin="4000000" />
+```
+
+```xml
+  <couche titre="Structures MTQ" url="http://www.dds.mtq.gouv.qc.ca/dds.aspx" 
+   nom="strct" protocole="WMS"  fond="false" echelleMin="6000000" echelleMax="1" 
+   visible="true" active="faux" opacite="100" ordreAffichage="1"/>
 ```
 
 
@@ -1681,13 +1691,14 @@ par la façade logicielle.
 | Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
 |-------|---------------------------------------------|-------------|-----------------------|---------------|
 id      |    Identifiant de l'action       |                                   Oui   |            Chaîne alphanumérique   ||
-urlModule  | Url du fichier Javascript contenant la/les fonctions à exposer |  Oui     |         URL      ||
+source  | Url du fichier Javascript contenant la/les fonctions à exposer |  Oui     |         URL      ||
 
 *Exemples*
 ```xml
- <actions action id="acTest"
-    urlModule="/igo\_navigateur/public/libs/testActionOutilsjs.js"
-actions/>
+ <actions 
+ 	<action id="acTest"
+    		source="/igo\_navigateur/public/libs/testActionOutilsjs.js" />
+</actions>
 ```
 
 
@@ -1718,7 +1729,7 @@ respectant certaines conditions en utilisant un filtre.
 |evenement  | Évènement à surveiller|  Oui |  Chaîne alphanumérique ||
 |avant    |   Indique si l’action doit être déclenchée avant l’événement | Non   | Booléen    | *false* |
 |objet   |    Référence à l’objet sur lequel l’événement doit être surveillé.|Non   |       Chaîne alphanumérique  |*Igo.nav.evenements*
-|action | Référence à l’id de l’action à exécuter. Au besoin la sous fonction utilisée peut être ajouté à la suite de l'id. |   Oui |Chaîne alphanumérique Exemple: acTestAction acTestAction.fonctionfiltre||
+|#action | Référence à l’id de l’action à exécuter. Au besoin la sous fonction utilisée peut être ajouté à la suite de l'id. |   Oui |Chaîne alphanumérique Exemple: acTestAction acTestAction.fonctionfiltre||
 |Filtre| à appliquer pour que le déclencheur fonctionne sur un élément spécifique.|Non |Objet selon {attribut1:'valeur1', attribut2:'valeur2'}  ||
 
 
@@ -1727,10 +1738,10 @@ respectant certaines conditions en utilisant un filtre.
 <declencheurs
     <declencheur id="testAjouterCouche" evenement="ajouterCouche"
         objet="Igo.nav.carte.gestionCouches"
-        action="actionTestAjouterCouche">
+        action="#actionTestAjouterCouche" />
     <declencheur id="testAjouterOcc" evenement="ajouterOccurence"
             filtre="{id:'couchePoint'}" objet="Igo.nav.evenements"
-            action="actionTestAjouterOcc">
+            action="#actionTestAjouterOcc" />
 </declencheurs>
 ```
 
@@ -1774,7 +1785,7 @@ Configuration minimale XML
 Configuration minimale BD
 -------------------------
 
-(avec contexte chargé à partir de la BD)
+(avec contexte chargé à partir de la BD)
 
 ```xml
 <navigateur authentification="false" titre="G.O.LOC - Données ouvertes - Gouvernement du Québec">
@@ -1971,7 +1982,7 @@ Contient des ajouts de composantes personnalisées.
 ![](media/igo_avec_edition.png)
 
 
-Configuration maximale
+Configuration maximale
 ----------------------
 
 ```xml

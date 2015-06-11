@@ -37,7 +37,7 @@ try {
         }
         if($encoding === "json"){
             $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();  
-            $element = simplexml_load_file($xmlPath);
+            $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
             if ($element->getName() === "navigateur" ){
                 
                 //Gerer le cas des couches seulement avec un Id

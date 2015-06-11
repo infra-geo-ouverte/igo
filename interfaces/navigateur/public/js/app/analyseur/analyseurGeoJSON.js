@@ -118,10 +118,13 @@ define(['occurence'], function(Occurence) {
 
     AnalyseurGeoJSON.prototype.ecrire = function(occurences){
         if(!occurences){return true;}
+        if(occurences.obtenirTypeClasse && occurences.obtenirTypeClasse() === "Vecteur"){
+            occurences = occurences.obtenirOccurences();
+        }
         
         if (occurences.obtenirTypeClasse && occurences.obtenirTypeClasse() === "Occurence"){
             occurences = [occurences];  
-        } else if (occurences._obtenirGeomOL){
+        } else if (occurences._obtenirGeomOL){ //géométrie
             return this._parser.write(occurences._obtenirGeomOL());
         }
         

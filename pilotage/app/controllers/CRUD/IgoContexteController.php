@@ -5,14 +5,22 @@ use Phalcon\Text;
 use Phalcon\Mvc\Model\Resultset\Simple as Resultset;
 
 class IgoContexteController extends ControllerBase {
-
     
     public function newAction($r_controller = null, $r_action = null, $r_id = null) {
-        
-        //parent::newAction($r_controller, $r_action, $r_id);
+      
         $mapserverConfiguration = $this->getDI()->getConfig()->mapserver;
         $onlineResource = $mapserverConfiguration->mapserver_path . $mapserverConfiguration->executable . $mapserverConfiguration->mapfileCacheDir . $mapserverConfiguration->contextesCacheDir . "{Code}.map";
-                
+ 
+        //Fournir la liste des contexte que l'utilisateur peut dupliquer
+        $igoContextesQuilPossede = $this->igoContextesQuilPossede();
+        $igoContextes = array();
+        foreach($igoContextesQuilPossede as $igoContexte){
+         
+            $igoContextes[$igoContexte->id] = $igoContexte->nom . '(' . $igoContexte->code . ')';
+              
+        }
+        $this->view->setVar('igoContextesQuilPossede', $igoContextes);
+        
         $this->view->setVar("retour", "igo_contexte/search");
         
         $this->tag->setDefault("mf_map_projection", "32198");
@@ -22,11 +30,13 @@ class IgoContexteController extends ControllerBase {
     
     
     public function createAction($r_controller = null, $r_action = null, $r_id = null) {
+      
         $mapServerConfig = $this->getDI()->getConfig()->mapserver;
         $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . $this->request->getPost("code") . ".map";
 
+        //Ne pas créer le contexte si il y en a déjà un avec le même code
         if(file_exists($fileName)) {
-            $this->flash->error("le fichier {$fileName} existe déjà!");
+            $this->flash->error("Le fichier {$fileName} existe déjà!");
             return $this->dispatcher->forward(array(
                 "controller" => $this->ctlName,
                 "action" => "new",
@@ -34,6 +44,21 @@ class IgoContexteController extends ControllerBase {
             ));
         } 
         
+        $idContexteADupliquer = $this->request->getPost('id_contexte_a_dupliquer');
+        
+        //On désire dupliquer un contexte
+        if($idContexteADupliquer){
+                
+            if(!$this->peutDupliquerContexte($idContexteADupliquer)){
+                $this->flash->error("Vous n'avez pas la permission de dupliquer le contexte {$idContexteADupliquer}.");
+                return $this->dispatcher->forward(array(
+                    "controller" => $this->ctlName,
+                    "action" => "new",
+                    "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
+                ));
+                
+            }
+        }
         
         $this->traiterCodeOnlineRessource();
         
@@ -48,11 +73,22 @@ class IgoContexteController extends ControllerBase {
         $igoContexte->date_modif = $this->request->getPost("date_modif");
         $igoContexte->json = $this->request->getPost("json");
         $igoContexte->mf_map_projection = $this->request->getPost("mf_map_projection");
-        // Si le contexte est vide on change la string "" à null.
         $igoContexte->profil_proprietaire_id = $this->request->getPost("profil_proprietaire_id");
         
         if($igoContexte->profil_proprietaire_id == "") {
             $igoContexte->profil_proprietaire_id = null;
+        }
+        
+        //Valider la sélection ou pas du profil propriétaire
+        if(!$this->validationProfilProprietaire($igoContexte->profil_proprietaire_id, $messageErreurProfilProprietaire)){
+            foreach($messageErreurProfilProprietaire as $message){
+                $this->flash->error($message);    
+            }
+            return $this->dispatcher->forward(array(
+                "controller" => $this->ctlName,
+                "action" => "new",
+                "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
+              ));
         }
         
         $igoContexte->mf_map_meta_onlineresource = $this->request->getPost("mf_map_meta_onlineresource");
@@ -65,23 +101,67 @@ class IgoContexteController extends ControllerBase {
                 foreach ($igoContexte->getMessages() as $message) {
                     $this->flash->error($message);
                 }
-
+         
                 return $this->dispatcher->forward(array(
-                            "controller" => $this->ctlName,
-                            "action" => "new",
-                            "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
+                    "controller" => $this->ctlName,
+                    "action" => "new",
+                    "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
                 ));
-            } else {
-                $this->flash->success(Text::camelize(str_replace("igo_", "", $this->ctlName)) . " " . $igoContexte->id . " créé avec succès");
             }
+     
+            if($idContexteADupliquer){
+                $this->dupliquerContexte($idContexteADupliquer, $igoContexte->id);
+            }
+                
+            $this->flash->success(Text::camelize(str_replace("igo_", "", $this->ctlName)) . " " . $igoContexte->id . " créé avec succès");
+          
+            
         } catch (\Exception $e) {
             $this->flash->error($e->getMessage());
             return $this->dispatcher->forward(array(
-                        "controller" => $this->ctlName,
-                        "action" => "new",
-                        "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
+                "controller" => $this->ctlName,
+                "action" => "new",
+                "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
             ));
         }
+    }
+    
+    /*
+     * S'assurer que le profil propriétaire soit bien assigné
+     * @param int $idProfil Id du profil fourni dans le formulaire
+     * @param array $messages Messages d'erreur à retourner
+     * return bool Est valide
+     */
+    private function validationProfilProprietaire($idProfil, &$messages){
+        $messages = array();
+        //L'utilisateur doit préciser le profil propriétaire
+        if(!$this->getDI()->get('session')->get('info_utilisateur')->estAdmin){
+            
+            if(!$idProfil){
+                $messages[] = "Vous devez spécifier quel est le profil propriétaire.";
+                return false;
+            }
+
+            if(!$this->getDI()->get('session')->get('info_utilisateur')->aProfil($idProfil)){
+                $messages[] = "Vous n'avez pas le droit d'assigner ce profil. Vous devez en être propriétaire ou être administrateur.";
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Fait une copie des associations igo_couche_contexte dans le contexte cible
+     * @param int $idContexteSource
+     * @param int $idContexteCible
+     */
+    private function dupliquerContexte($idContexteSource, $idContexteCible){
+        
+        //Récupérer les couchecontexte de la source
+        $igoContexteSource = IgoContexte::findFirst($idContexteSource);
+   
+        $igoContexteSource->dupliquer($idContexteCible);
+        
     }
     
     public function mapfileAction($contexte_id, $profil_id = null, $utilisateur_id = null) {
@@ -117,8 +197,6 @@ class IgoContexteController extends ControllerBase {
                 //"order"=>array("mf_layer_meta_z_order")
                 "order"=>array("mf_layer_meta_group_title", "mf_layer_meta_title")                
             ));
-        
-        
         
         // Il faut trier les classes par mf_class_z_order, c'est impossible de
         // le faire avec l'orm ou encore avec le volt... Il faudrait étendre volt 
@@ -159,8 +237,22 @@ class IgoContexteController extends ControllerBase {
      }
      
      public function saveAction($r_controller = null, $r_action = null, $r_id = null) { 
-         $this->traiterCodeOnlineRessource();
-         parent::saveAction($r_controller = null, $r_action = null, $r_id = null);
+        $this->traiterCodeOnlineRessource();
+        
+        //Valider la sélection ou pas du profil propriétaire
+        if(!$this->validationProfilProprietaire($this->request->getPost("profil_proprietaire_id"), $messageErreurProfilProprietaire)){
+            foreach($messageErreurProfilProprietaire as $message){
+                $this->flash->error($message);    
+            }
+            
+            return $this->dispatcher->forward(array(
+                "controller" => $this->ctlName,
+                "action" => "edit"
+             ));
+          
+        }
+
+         parent::saveAction($r_controller, $r_action);
          
      }
 
@@ -196,5 +288,56 @@ class IgoContexteController extends ControllerBase {
         $_POST['mf_map_meta_onlineresource'] = $onlineResource;
         
     }
+    
+    /**
+     * Récupère la liste de igo_contexte dont l'utilisateur courant est 
+     * propriétaire (un admin possède tous les contextes)
+     * @return igoContexte[]
+     */
+    private function igoContextesQuilPossede(){
+        $sql = '';
+        if(!$this->getDI()->get('session')->get('info_utilisateur')->estAdmin){
+            
+            //Récupérer les profils de l'utilisateurs
+            $profils = $this->getDI()->get('session')->get('info_utilisateur')->profils;
+            if(!count($profils)){
+                return false;
+            }
+            
+            $idsProfils = array();
+          
+            foreach($profils as $profil){
+                $idsProfils[] = $profil['id'];
+            }
+            $idsProfils = implode(',', $idsProfils);
+            
+            //Récupérer les contextes auquels ces profils donne droit
+            $sql = "profil_proprietaire_id IN ($idsProfils)";
+        }
+        
+        return IgoContexte::find($sql);
+    }
+    
+    /**
+     * Indique si l'utilisateur courant peut dupliquer le contexte
+     * @param int $idContexte
+     * return bool
+     */
+    private function peutDupliquerContexte($idContexte){
+        
+        if($this->getDI()->get('session')->get('info_utilisateur')->estAdmin){
+            return true;
+        }
+        
+        $contextes = $this->igoContextesQuilPossede();
+        foreach($contextes as $contexte){
+            if($contexte->id == $idContexte){
+                die("$contexte->id == $idContexte");
+                return true;
+            }
+        }
+        return false;
+    }
+    
 
 }
