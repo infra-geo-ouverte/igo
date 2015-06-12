@@ -21,6 +21,7 @@ return array(
             'cacheDir'       => $baseNavigateurDir . 'app/cache/'
         ),
         'services'  => array(
+            'dir'            => $baseServicesDir,
             'controllersDir' => $baseServicesDir . 'igo_commun/app/controllers/',
             'viewsDir'       => $baseServicesDir . 'igo_commun/app/views/'     
         )
