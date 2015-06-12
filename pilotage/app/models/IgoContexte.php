@@ -158,7 +158,9 @@ class IgoContexte extends \Phalcon\Mvc\Model {
             'reusable' => true
         ));
 
-        $this->belongsTo("profil_proprietaire_id", "IgoProfil", "id");
+        $this->belongsTo("profil_proprietaire_id", "IgoProfil", "id",  array(
+            'reusable' => true
+        ));
 
          $this->addBehavior(new Timestampable(array(
             'beforeCreate' => array(
