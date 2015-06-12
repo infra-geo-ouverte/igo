@@ -73,7 +73,7 @@ Documentation Vagrant: **http://docs.vagrantup.com/v2/cli/index.html**
 
 #### Accès avec le navigateur web
 
-IGO-Navigateur: **http://localhost:4579/navigateur/**
+IGO-Navigateur (en se connectant en tant qu'invité): **http://localhost:4579/navigateur/**
 ***
 ### Installation and start-up
 
@@ -110,7 +110,7 @@ Vagrant Documentation: **http://docs.vagrantup.com/v2/cli/index.html**
 
 #### Navigator Web Access
 
-IGO-Navigator: **http://localhost:4579/navigateur/**
+IGO-Navigator (to connect as guest, click on "en tant qu'invité"): **http://localhost:4579/navigateur/**
 
 ***
 
