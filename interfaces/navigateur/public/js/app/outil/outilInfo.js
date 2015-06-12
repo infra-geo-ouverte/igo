@@ -73,7 +73,6 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     OutilInfo.prototype.eteindre = function () {
         this.desactiverEvent();
         this.carte.controles.desactiverClique();
-        this.desactiverToggleItem();
         this.reinitialiser();
     };
 
