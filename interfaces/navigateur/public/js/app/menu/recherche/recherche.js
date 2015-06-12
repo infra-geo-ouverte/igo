@@ -323,7 +323,6 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     
     Recherche.prototype.appelerServiceErreur = function(jqXHR){
         var messageErreur = jqXHR.responseText;
-        
         if(jqXHR.responseJSON){
             messageErreur = jqXHR.responseJSON.message_erreur;
         
@@ -332,6 +331,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                     messageErreur += "<br>"+value;
                 });
             }
+        }
+        if(jqXHR.status === 404){
+            messageErreur = "Service introuvable.";
         }
         this.definirResultat(messageErreur);
     };
