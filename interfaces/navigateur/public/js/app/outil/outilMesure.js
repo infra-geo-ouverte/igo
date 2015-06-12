@@ -82,6 +82,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                 //previous = this.value;
             });
         }
+
         if(!this.$mesureComboAireUnite){
             this.$mesureComboAireUnite = $("#mesureComboAireUnite");
             this.$mesureComboAireUnite.on('focus', function () {
@@ -119,29 +120,27 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         var mesure = 0;
         var oFormMeasr = oWindowMeasr.items.items[0].items.items[0];
         var length = oFormMeasr.get('length').getValue();
-        var area = oFormMeasr.get('area').getValue();
+        var area = oFormMeasr.get('area').value;
+
         if(type === "lineaire"){
             $mesureComboUnite = this.$mesureComboPeriUnite;
             oldUnite = this.lengthUnitOL;
             mesure = this.lengthOL;
-            //mesure=length;
         } else {
             $mesureComboUnite = this.$mesureComboAireUnite;
             oldUnite = this.areaUnitOL;
             mesure = this.areaOL;
-            //mesure=area;
         }
-        //if(oldUnite === "auto"){
-            //var text = $mesureComboUnite.children()[0].text;
-            //oldUnite = text.substring(6, text.length-1);
-        //}
+
         if(mesure){
             mesure = this.traiterMeasr(mesure, oldUnite, type, false);
         }
         if(type === "lineaire"){
             length = mesure;
-        } else {
+        } else if(area !== undefined){
             area = mesure;
+        } else {
+            return false;
         }
         this.displayMeasr(length, area);
     };
@@ -335,9 +334,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             a.disable();
         } else {
             l.setLabel('Périmètre');
-            //if(area !== ' '){
-                a.setValue(area);
-            //}
+            a.setValue(area);
             a.enable();
             if(a.iframe){
                 a.getEditorBody().style.color="rgb(33,33,33)";
@@ -352,4 +349,3 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
     return OutilMesure;
     
 });
-
