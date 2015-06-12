@@ -219,7 +219,15 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                 tooltip: 'Lancer la recherche',
                 scope: this,
                 handler: function(){that.lancerRecherche()}
-            }];
+            },
+            {
+                id: 'reinitialiserButton' + this.options.id,
+                text: 'Réinitialiser',
+                tooltip: 'Réinitialiser les champs de recherche et la carte',
+                scope: this,
+                handler: function(){that.reinitialiserRecherche()}
+            }
+        ];
     };
 
     /**
@@ -312,11 +320,22 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
 
         this.declencher({type: "appelerServiceRecherche", recherche: this});
     };
-
-    Recherche.prototype.appelerServiceErreur = function(jqXHR) {
-        this.definirResultat(jqXHR.responseText);
-    };
     
+    Recherche.prototype.appelerServiceErreur = function(jqXHR){
+        var messageErreur = jqXHR.responseText;
+        
+        if(jqXHR.responseJSON){
+            messageErreur = jqXHR.responseJSON.message_erreur;
+        
+            if(jqXHR.responseJSON.detail_message){
+                $.each(jqXHR.responseJSON.detail_message, function(key, value){
+                    messageErreur += "<br>"+value;
+                });
+            }
+        }
+        this.definirResultat(messageErreur);
+    };
+
     Recherche.prototype.traiterResultatVecteur = function(vecteur){
         vecteur.garderHistorique = true;
         var occurence = vecteur.obtenirOccurences()[0];
@@ -506,18 +525,69 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     Recherche.prototype.definirResultat = function(resultatTexte, callback, target) {
         //Masquer le message d'attente
         Aide.cacherMessageChargement();
-
-        this.resultatPanneau.items.items[0].body.update(resultatTexte);
+        
         this.resultatPanneau.show().expand();
-
+        this.resultatPanneau.items.items[0].body.update(resultatTexte);
         if (typeof callback === "function"){
             callback.call(target);
         }
     };
     
     Recherche.prototype.verifierParamsUrl = function(){
+        var recherche = Aide.obtenirParametreURL('recherche');
+        if(recherche === this.obtenirTypeRecherche()){
+            var texte = Aide.obtenirParametreURL('texte');
+            if(texte){
+                var that=this;
+                var zoomP = Number(Aide.obtenirParametreURL('zoom'));
+                if(zoomP){
+                    this.options.zoom = zoomP;
+                }
+                var nav = Aide.obtenirNavigateur();
+                if(nav.isReady){
+                    that.traiterParamsUrl(texte);
+                } else {
+                    nav.ajouterDeclencheur('navigateurInit', function(){
+                        that.traiterParamsUrl(texte);
+                    });
+                }
+            }
+        }
+    };
+    
+    Recherche.prototype.traiterParamsUrl = function(texte){
+        var that=this;
+        this.parent.ajouterDeclencheur('ajouterPanneau', function(e){
+            if(that === e.panneau){
+                e.target.enleverDeclencheur('ajouterPanneau', 'rechercheTraiterParamsURL'); 
+                e.panneau.ajouterDeclencheur(that.obtenirTypeClasse()+'Active', function(e2){
+                    e2.target.enleverDeclencheur(that.obtenirTypeClasse()+'Active', 'rechercheTraiterParamsURL2');
+                    e2.target.lancerRecherche(texte);
+                }, {id: "rechercheTraiterParamsURL2"});
+                e.target.activerPanneau(e.panneau);
+            } 
+        }, {id: "rechercheTraiterParamsURL"});
+        this.parent.ouvrir();
     };
 
+    /**
+     * Réinitialiser la recherche
+     * @method
+     * @name Recherche#reinitialiserRecherche
+     */
+    Recherche.prototype.reinitialiserRecherche = function(){
+        this.reinitialiserVecteur();
+        $.each(this._panel.items.items, function(index, item){
+           if(item.xtype == "textfield" || item.xtype == "numberfield" || item.xtype == "combo"){
+               item.reset();
+           }   
+        });
+        
+        if(this.resultatPanneau.isVisible()){
+            this.definirResultat(this.obtenirAideHTML());
+        }
+    };
+    
     return Recherche;
 
 });

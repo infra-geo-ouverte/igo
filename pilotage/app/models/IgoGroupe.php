@@ -164,7 +164,7 @@ class IgoGroupe extends \Phalcon\Mvc\Model {
         $this->validate(new IgoStringLength(array(
             'label' => 'Nom',
             'field' => 'nom',
-            'max' => 100,
+            'max' => 150,
             'min' => 0
         )));
 

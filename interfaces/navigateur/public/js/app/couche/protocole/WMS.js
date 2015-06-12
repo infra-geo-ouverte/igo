@@ -70,9 +70,15 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         if (!this.options.layerOL){
             Couche.prototype._init.call(this);
             
+            var transparence = this.options.transparence || true;
+            
+            if(this.options.format === "jpeg" || this.options.format === "jpg"){
+                transparence = false;
+            }
+            
             var parametreWMS = {
                 layers: this.options.nom,
-                transparent: true, 
+                transparent: transparence, 
                 version: this.options.version
             };
             if (this.options.mapdir){
@@ -116,14 +122,14 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
      * @name Couche.WMS#_getCapabilities
     */
     WMS.prototype._getCapabilities = function(target, callback, optCalback){
-        var tjrsProxy = this.options._encodage ? true : false;
+        var tjrsProxy = this.options.encodage ? true : false;
         $.ajax({
             url: Aide.utiliserProxy(this.options.url, tjrsProxy),//this.options.url.split('?')[0],
             data: {
                 SERVICE: "WMS",
                 VERSION: this.options.version || this.defautOptions.version,
                 REQUEST: "GetCapabilities",
-                _encodage: this.options._encodage //"wms_encoding" "ISO-8859-1"
+                _encodage: this.options.encodage //"wms_encoding" "ISO-8859-1"
             },
             //crossDomain: true, //utilisation du proxy
             async:false,
@@ -148,7 +154,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         var capabilityLayers, arrayLayers, len;
         //InfoFormat absent dans le fichier contexte alors on le prend 
         //dans le getCapabilities pour le nouveau GetInfo
-        if(!this.options.infoFormat){
+        if(!this.options.infoFormat && xml.capability.request.getfeatureinfo !== undefined ){
            var arrayInfoFormat = xml.capability.request.getfeatureinfo.formats;
              for (var i = 0; i < arrayInfoFormat.length; i++){
                 if (arrayInfoFormat[i] == "text/html"){

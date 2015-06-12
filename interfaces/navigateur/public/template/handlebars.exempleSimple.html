@@ -1,0 +1,24 @@
+{{!-- Fichier gabarit hbars exemple simple version IGO 1.0.0 --}}
+<table class="" style="width: 556px;" border="0" cellSpacing="0" cellPadding="0" >
+   {{!-- Format tableau paysage une occurence par ligne --}}
+   <thead>
+    <tr>
+         {{!-- Alias nom des champs --}}
+        <th>Identifiant </th>
+        <th>Date </th>
+        <th>Vidéo </th>
+    </tr>
+ </thead>
+ <tbody>
+     {{#features}}
+       {{#properties}}
+        <tr>
+              {{!-- nom des champs --}}
+            <td>{{IDE_TRACE}}</td>
+            <td>{{DAT_ORIGN}}</td>
+            <td>{{{URL}}}</td>
+        </tr>
+    {{/properties}} 
+   {{/features}}
+ </tbody>
+</table>

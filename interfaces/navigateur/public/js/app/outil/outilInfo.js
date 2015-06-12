@@ -7,7 +7,9 @@
  * @based on Marc-André Barbeau, MSP
  * @version 1.0
  */
-define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) {
+
+define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil, Aide, BrowserDetect, Fonctions, Point) {
+
     /** 
      * Création de l'object Outil.OutilInfo.
      * Pour la liste complète des paramètres, voir {@link Outil}
@@ -29,13 +31,15 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             infobulle: 'Information : sélectionner une couche additionnelle dans ' +
                     'l\'arborescence des couches puis cliquer à l\'endroit voulu sur la carte'
         });
-    };
+    }
+    ;
 
     OutilInfo.prototype = new Outil();
     OutilInfo.prototype.constructor = OutilInfo;
 
     OutilInfo.prototype._init = function () {
         Outil.prototype._init.call(this);
+
     };
 
     OutilInfo.prototype.activerEvent = function () {
@@ -59,54 +63,124 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
         this.carte.controles.activerClique();
 
         this.couchesInterroger = [];
-        this.features = [];
+        this.afficherProprietes = [];
+        this.executerAction = [];
         this.requetes = 0;
         this.erreurs = 0;
+        this.px;
     };
 
     OutilInfo.prototype.eteindre = function () {
         this.desactiverEvent();
         this.carte.controles.desactiverClique();
+        this.desactiverToggleItem();
         this.reinitialiser();
     };
 
     OutilInfo.prototype.reinitialiser = function () {
         this.couchesInterroger = [];
-        this.features = [];
+        this.afficherProprietes = [];
+        this.executerAction = [];
         this.requetes = 0;
         this.erreurs = 0;
+        this.px;
     };
 
     OutilInfo.prototype.cliqueCarte = function (e) {
-        Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
 
         var lonlat = e.point._obtenirLonLatOL();
-        var px = this.carte._carteOL.getViewPortPxFromLonLat(lonlat);
+        this.px = this.carte._carteOL.getViewPortPxFromLonLat(lonlat);
 
+        //Appeller la fonction pour obtenir les couche interrogable
         this.couchesInterroger = this.obtCouchesInterrogable();
 
-        if (this.couchesInterroger.length == 0) {
+        if (this.couchesInterroger.length === 0) {
             // TODO : this is HARDCODED
             var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
-            Aide.afficherMessage("Erreur", szErrMsg, "OK", "ERROR");
+            Aide.afficherMessage("Outil Information", szErrMsg, "OK", "Info");
             return;
         }
 
-        for (var j = 0; j < this.couchesInterroger.length; j++) {
-            var oLayerToQuery = this.couchesInterroger[j];
-            var nomCoucheLegende = oLayerToQuery.titre;
+       //Appller la fonction pour obtenir les gabarit Handlebars pour les couche qui en ont
+       //this.obtCouchesHbars(this.couchesInterroger);
+       this.appelerGetInfo(this.couchesInterroger);
+    };
+
+    OutilInfo.prototype.obtCouchesInterrogable = function () {
+        var that = this;
+        var couchesInterrogable = [];
+        var couches = that.carte.gestionCouches.obtenirCouchesParType('WMS', true);
+
+        for (var l = 0; l < couches.length; ++l) {
+            var couche = couches[l];
+
+            couche.options.estInterrogable = couche._layer.queryable;
+
+            //Seule les couche activ qui sont pas des fond de carte
+            //qui sont queryable, visible et inrange
+            if (couche.estActive() && !couche.estFond() &&
+                    couche._layer.getVisibility() && couche._layer.calculateInRange() &&
+                    couche._layer.queryable && couche._layer.inRange) {
+
+                couchesInterrogable.push({
+                    'layer': couche,
+                    'id': couche.id,
+                    'infoFormat': couche.options.infoFormat,
+                    'infoEncodage': couche.options.infoEncodage,
+                    'infoAction': couche.options.infoAction,
+                    'infoUrl': couche.options.infoUrl,
+                    'infoGabarit': couche.options.infoGabarit,
+                    'estInterrogable': couche.options.estInterrogable,
+                    'url': couche.options.url,
+                    'nom': couche.options.nom,
+                    'titre': couche.options.titre,
+                    'version': couche.options.version
+                });
+            }
+        }
+
+        //On fait trier pour faire les appels ajax dans un ordre logique gml,xml et html ensuite Hbars
+        couchesInterrogable.sort(function (a) {
+            return (a.infoFormat === "html" ? 1 :
+                    a.infoFormat === "gml" ? -1 :
+                    a.infoFormat === "gml311" ? -1 :
+                    a.infoFormat === "xml" ? -1 : 0);
+        });
+
+        return couchesInterrogable;
+    };
+
+ OutilInfo.prototype.formatUrl = function (url, args) {
+
+        var s = url,
+                i = args.length + 1;
+        while (i--) {
+            s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), args[i]);
+        }
+        //Caractère de remplacement pour QS '&' pas permis dans xml de context
+        s = s.replace(/\$/g, '&');
+        return s;
+    };
+
+
+    OutilInfo.prototype.appelerGetInfo = function (couchesInterroger) {
+        var that = this;
+        var jqXHRs = [];
+
+        for (var j = 0; j < couchesInterroger.length; j++) {
+            var oCoucheObtnInfo = couchesInterroger[j];
+            var nomCoucheLegende = oCoucheObtnInfo.titre;
+
+            var Template = oCoucheObtnInfo.infoGabarit;
+            var Declencheur = oCoucheObtnInfo.infoAction;
+
             var coucheInfoFormat;
+
             var coucheDataType;
             var encodage;
+            var xslTemplate;
 
-            //Vous devez ajouter l'attribut infoFormat dans la balise XML 
-            //de couche pour cet outil dans votre XML de context
-            //pour le moment c'est le gml si pas défini.
-            if (oLayerToQuery.infoFormat === undefined) {
-                oLayerToQuery.infoFormat = "gml";
-            }
-
-            switch (oLayerToQuery.infoFormat)
+            switch (oCoucheObtnInfo.infoFormat)
             {
                 case "html":
                     coucheInfoFormat = "text/html";
@@ -118,7 +192,7 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
                     break;
                 case "gml311":
                     coucheInfoFormat = "application/vnd.ogc.gml/3.1.1";
-                    coucheDataType = "xml";
+                    coucheDataType = "text";
                     break;
                 case "xml":
                     coucheInfoFormat = "application/vnd.ogc.wms_xml";
@@ -131,113 +205,267 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             }
 
             //Exceptionellement IE on doit passer par le proxy pour encodage
-            if (BrowserDetect.browser == "Explorer") {               
-                encodage = oLayerToQuery.infoEncodage ;
+            if (oCoucheObtnInfo.layer.options.encodage) {
+                encodage = oCoucheObtnInfo.layer.options.encodage;
+            } else if (BrowserDetect.browser === "Explorer") {
+                encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : oCoucheObtnInfo.infoEncodage;
             }
-                
-            $.ajax({
-                url: Aide.utiliserProxy(decodeURIComponent(oLayerToQuery.url)),
-                data:  {
-                    LAYERS: oLayerToQuery.nom,
-                    SERVICE: 'WMS',
-                    REQUEST: "GetFeatureInfo",
-                    EXCEPTIONS: "application/vnd.ogc.se_xml",
-                    VERSION: oLayerToQuery.version,
-                    SRS: this.carte._carteOL.getProjection(),
-                    BBOX: this.carte._carteOL.getExtent().toBBOX(),
-                    QUERY_LAYERS: oLayerToQuery.nom,
-                    X: Math.floor(px.x),
-                    Y: Math.floor(px.y),
-                    INFO_FORMAT: coucheInfoFormat,
-                    FEATURE_COUNT: 100,
-                    WIDTH: this.carte._carteOL.size.w,
-                    HEIGHT: this.carte._carteOL.size.h,
-                    _encodage: encodage
-                },
-                context: this, 
-                dataType: coucheDataType,
-                beforeSend: function (jqXHR) {
-                    if (oLayerToQuery.infoEncodage !== undefined) {
-                        if (jqXHR.overrideMimeType) {
-                            jqXHR.overrideMimeType(coucheInfoFormat + "; charset=" + oLayerToQuery.infoEncodage); 
-                        }
-                    }
-                },
-                success: this.traiterRetourInfo(nomCoucheLegende, coucheDataType),
-                error: this.gestionRetourErreur()
-            });
-        }
-    };
 
-    OutilInfo.prototype.obtCouchesInterrogable = function () {
+            //Appliquer un xsl ESRI
+            if (oCoucheObtnInfo.infoGabarit !== undefined && oCoucheObtnInfo.infoGabarit.substring(oCoucheObtnInfo.infoGabarit.lastIndexOf(".")) === ".xsl") {
+                xslTemplate = oCoucheObtnInfo.infoGabarit;
+            }
 
-        var couchesInterrogable = [];
-        var couches = this.carte.gestionCouches.obtenirCouchesParType('WMS', true);
+            //Appliquer infoUrl au lieu de celui du WMS GetFeatureInfo
+            if (oCoucheObtnInfo.infoUrl !== undefined) {
 
-        for (var l = 0; l < couches.length; ++l) {
-            var couche = couches[l];
+                var prmt = [];
+                var lonlat = this.carte._carteOL.getLonLatFromPixel(this.px);
+                var point = new Point(lonlat.lon, lonlat.lat);
 
-            if (couche.estActive() &&
-                    couche._layer.getVisibility() && couche._layer.calculateInRange() &&
-                    (!couche.estFond() || couche._layer.inRange)) {
-                couchesInterrogable.push({
-                    'layer': couche,
-                    'infoFormat': couche.options.infoFormat,
-                    'infoEncodage': couche.options.infoEncodage,
-                    'url': couche.options.url || couche._layer.url,
-                    'nom': couche.options.nom || couche._layer.params.LAYERS,
-                    'titre': couche.options.titre || couche._layer.name,
-                    'version': couche.options.version || couche._layer.params.VERSION
+                prmt.push({
+                    'name': oCoucheObtnInfo.nom,
+                    'projection': this.carte._carteOL.getProjection(),
+                    'x': Math.floor(point.x),
+                    'y': Math.floor(point.y)
                 });
+
+//                var prmt = [];
+//                var lonlat = this.carte._carteOL.getLonLatFromPixel(this.px);
+//                var point = new Point(lonlat.lon, lonlat.lat).projeter('EPSG:4326');
+//
+//                prmt.push({
+//                    'name': oCoucheObtnInfo.nom,
+//                    'projection': 'EPSG:4326',
+//                    'x': point.x,
+//                    'y': point.y
+//                });
+
+
+                var infoUrlFormat = this.formatUrl(oCoucheObtnInfo.infoUrl, [prmt[0].name, prmt[0].projection, prmt[0].x, prmt[0].y]);
+
+                if (oCoucheObtnInfo.infoAction !== undefined) {
+                    this.executerAction = this.executerAction.concat({
+                        scope: oCoucheObtnInfo,
+                        action: Declencheur,
+                        params: infoUrlFormat
+                    });
+                    
+                } else {
+
+                    jqXHRs.push($.ajax({
+                        url: Aide.utiliserProxy(decodeURIComponent(infoUrlFormat)),
+                        context: this,
+                        dataType: coucheDataType,
+                        success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Template, oCoucheObtnInfo.id),
+                        error: this.gestionRetourErreur(nomCoucheLegende)
+                    }));
+
+                }
+                
+            } else {
+                //Appliquer Url WMS GetFeatureInfo
+                jqXHRs.push($.ajax({
+                    url: Aide.utiliserProxy(decodeURIComponent(oCoucheObtnInfo.url)),
+                    data: {
+                        LAYERS: oCoucheObtnInfo.nom,
+                        SERVICE: 'WMS',
+                        REQUEST: "GetFeatureInfo",
+                        EXCEPTIONS: "application/vnd.ogc.se_xml",
+                        VERSION: oCoucheObtnInfo.version,
+                        SRS: this.carte._carteOL.getProjection(),
+                        BBOX: this.carte._carteOL.getExtent().toBBOX(),
+                        QUERY_LAYERS: oCoucheObtnInfo.nom,
+                        X: Math.floor(this.px.x),
+                        Y: Math.floor(this.px.y),
+                        INFO_FORMAT: coucheInfoFormat,
+                        FEATURE_COUNT: 100,
+                        WIDTH: this.carte._carteOL.size.w,
+                        HEIGHT: this.carte._carteOL.size.h,
+                        _encodage: encodage,
+                        xsl_template: xslTemplate
+                    },
+                    context: this,
+                    dataType: coucheDataType,
+                    beforeSend: function (jqXHR) {
+                        if (oCoucheObtnInfo.infoEncodage !== undefined) {
+                            if (jqXHR.overrideMimeType) {
+                                jqXHR.overrideMimeType(coucheInfoFormat + "; charset=" + oCoucheObtnInfo.infoEncodage);
+                            }
+                        }
+                    },
+                    success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Declencheur, Template, oCoucheObtnInfo.id),
+                    error: this.gestionRetourErreur(nomCoucheLegende)
+                }));
             }
         }
-        return couchesInterrogable;
+
+
+        $(function () {
+            Aide.afficherMessageChargement({message: "Chargement de votre requête, patientez un moment..."});
+            $.when.apply(null, jqXHRs).done(function () {
+                that.afficherResultats();
+            }).fail(function (jqXHRs, textStatus, errorThrown) {
+                Aide.afficherMessageConsole('Erreur: ' + textStatus + " : " + jqXHRs.responseText + " : " + errorThrown);
+                Aide.cacherMessageChargement();
+            });
+        });
     };
 
 
-    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheDataType) {
-        
-        return function gestionRetour(data, textStatus, jqXhr) {
-            if (coucheDataType == "html") {
-                if (this.gestionRetourHtml(data)){   //Si html est vide ne pas ajouter onglet
-                    this.features = this.features.concat([nomCoucheLegende, data]);//nomCouche et son retour ajax html
+
+    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, coucheAction, nomGabarit, idCouche) {
+
+        // On traduit le format de sortie en GeoJson peu import l'appel xml,gml ou gml311
+        var oGeoJSON = new OpenLayers.Format.GeoJSON();
+        var couche = this.carte._carteOL.getLayer(idCouche);
+      
+        return function gestionRetour(data, textStatus, jqXHR) {
+
+            // nomCouche et son retour ajax html
+            if (coucheInfoFormat === "text/html") {
+                //Si html est vide ne pas ajouter onglet
+                if (this.gestionRetourHtml(data)) {
+                    this.afficherProprietes = this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            html: data
+                        });
+                    
                 }
-                this.couchesInterroger.splice(-1, 1)
-            }
-            if (coucheDataType == "xml") {
-                var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
-                var oFeatures = oFormat.read_msGMLOutput(data);
-                if (this.gestionRetourXml(oFeatures)){
-                    this.features = this.features.concat([nomCoucheLegende, oFeatures]);// nomCouche et son retour ajax xml
-                }
-                this.couchesInterroger.splice(-1, 1);
             }
 
-            if (this.couchesInterroger.length == 0) {
-                this.afficherResultats();
+            // nomCouche et son retour ajax xml et applique Hbars si defini
+            if (coucheDataType === "xml" && coucheInfoFormat === "application/vnd.ogc.wms_xml") {
+                var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
+                var oFeatures = oFormat.read_FeatureInfoResponse(data);
+
+                if (coucheAction === undefined) {
+                    if (this.gestionRetourXml(oFeatures)) {
+                      this.afficherProprietes = this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            gabarit: nomGabarit,
+                            occurences: oGeoJSON.write(oFeatures)
+                        });
+                    }
+                } else {
+                    if (this.gestionRetourXml(oFeatures)) {
+                           this.executerAction = this.executerAction.concat({
+                            scope: couche,
+                            action: coucheAction,
+                            params:oGeoJSON.write(oFeatures)
+                        });
+     
+                    }
+                }
+            }
+            // nomCouche et son retour ajax text et applique Hbars si defini
+            if (coucheDataType === "xml" && coucheInfoFormat === "application/vnd.ogc.gml") {
+
+                var oFeatures = this.lireGetInfoGml(data);
+
+                if (coucheAction === undefined) {
+                    if (this.gestionRetourXml(oFeatures)) {
+                       this.afficherProprietes = this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            gabarit: nomGabarit,
+                            occurences: oGeoJSON.write(oFeatures)
+                        });
+                    }
+                } else {
+                    if (this.gestionRetourXml(oFeatures)) {
+                          this.executerAction = this.executerAction.concat({
+                            scope: couche,
+                            action: coucheAction,
+                            params:oGeoJSON.write(oFeatures)
+                        });
+                    }
+                }
+            }
+
+            // nomCouche et son retour ajax text et applique Hbars si defini
+            if (coucheInfoFormat === "application/vnd.ogc.gml/3.1.1") {
+
+                var oFeatures = this.lireGetInfoGml3(data);
+
+                if (coucheAction === undefined) {
+                    if (this.gestionRetourXml(oFeatures)) {
+                    this.afficherProprietes = this.afficherProprietes.concat({
+                            titre: nomCoucheLegende,
+                            gabarit: nomGabarit,
+                            occurences: oGeoJSON.write(oFeatures)
+                        });
+                    }
+                } else {
+                    if (this.gestionRetourXml(oFeatures)) {
+                          this.executerAction = this.executerAction.concat({
+                            scope: couche,
+                            action: coucheAction,
+                            params:oGeoJSON.write(oFeatures)
+                        });
+                    }
+                }
+
             }
         };
     };
 
+    OutilInfo.prototype.lireGetInfoGml = function (gml) {
 
+        //Cas GeoServer
+        var gmlOptions = {
+            featureType: "feature",
+            featureName: "featureMember",
+            featureNS: "http://www.opengis.net/gml"
+        };
+        var gmlOptionsIn = OpenLayers.Util.extend(
+                OpenLayers.Util.extend({}, gmlOptions)
+                );
+
+        var format = new OpenLayers.Format.GML(gmlOptionsIn);
+
+        var oFeatures = format.read(gml);
+        //Cas MapServer
+        if (oFeatures.length == 0) {
+            var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
+            var oFeatures = oFormat.read_msGMLOutput(gml);
+        }
+        return oFeatures;
+
+    };
+
+    OutilInfo.prototype.lireGetInfoGml3 = function (gml) {
+
+        var gmlOptions = {
+            featureType: "feature",
+            featureName: "featureMembers",
+            featureNS: "http://www.opengis.net/gml"
+        };
+        var gmlOptionsIn = OpenLayers.Util.extend(
+                OpenLayers.Util.extend({}, gmlOptions)
+                );
+
+        var format = new OpenLayers.Format.GML(gmlOptionsIn);
+
+        return  format.read(gml);
+
+    };
 
     OutilInfo.prototype.gestionRetourXml = function (data) {
 
-        var htmlCheck = false;
+        var xmlCheck = false;
 
         //Erreur Serveur WMS
-        if (data.toString().toLowerCase().indexOf('wms server error') > -1){
-            htmlCheck = false;
+        if (data.toString().toLowerCase().indexOf('wms server error') > -1) {
+            xmlCheck = false;
         }
-        if (data == ""){
-            htmlCheck = false;
+        if (data === "") {
+            xmlCheck = false;
         }
-        if (data.length != 0){
-            htmlCheck = true;
+        if (data.length !== 0) {
+            xmlCheck = true;
         }
-        return htmlCheck;
+        return xmlCheck;
     };
-
 
     OutilInfo.prototype.gestionRetourHtml = function (data) {
 
@@ -247,51 +475,59 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
         var tbl = $('<div/>').html(data).find('table');
 
         //GeoServer 
-        if (tbl.length == 0 && strip.toLowerCase().indexOf('geoserver getfeatureinfo output') > -1){
+        if (tbl.length === 0 && strip.toLowerCase().indexOf('geoserver getfeatureinfo output') > -1) {
             strip = "";
         }
         //ESRI
-        if (tbl.length == 0 && data.toLowerCase().indexOf('esri_wms') > -1){
+        if (tbl.length === 0 && data.toLowerCase().indexOf('esri_wms') > -1) {
             strip = "";
         }
         //Erreur Serveur WMS
-        if (strip.toLowerCase().indexOf('wms server error') > -1){
+        if (strip.toLowerCase().indexOf('wms server error') > -1) {
             strip = "";
         }
 
-        if (tbl.length != 0){
+        if (tbl.length !== 0) {
             htmlCheck = true;
         }
-        if (strip.length != 0){
+        if (strip.length !== 0) {
             htmlCheck = true;
         }
-        if (data == ""){
+        if (data === "") {
             htmlCheck = false;
         }
 
         return htmlCheck;
     };
 
-
     OutilInfo.prototype.gestionRetourErreur = function (nomCoucheLegende) {
+
+        Aide.cacherMessageChargement();
+
         return function gestionRetour(data, textStatus, jqXhr) {
             this.erreurs++;
-            var responseBody = jqXhr.responseText;
+            var responseBody = data.responseText;
+            var status = data.statusText + " (" + data.status + ")";
+            if (data.status === 200) {
+                status = "XML invalide";
+                responseBody = "La donnée originale n'est pas valide pour cet outil.";
+                Aide.afficherMessageConsole(textStatus + ": " + jqXhr.message);
+            }
             //alert("ERROR: " + textStatus + " : " + textStatus + " : " + contentType + " : " + responseBody);
-            Aide.afficherMessage(textStatus, responseBody, "OK", "ERROR");
+            Aide.afficherMessage(status, responseBody, "OK", "ERROR");
         };
     };
-    
+
     OutilInfo.prototype.afficherResultats = function () {
 
-        if (this.features.length == 0) {
+        if (this.afficherProprietes.length === 0 && this.executerAction.length === 0) {
             Aide.cacherMessageChargement();
             // TODO : this is HARDCODED
             var szErrMsg = "Aucun enregistrement n'a été trouvé.";
             var szErrTitle = "Aucun enregistrement trouvé";
             var szIcon = "INFO";
 
-            if (this.erreurs == 1) {
+            if (this.erreurs === 1) {
                 szErrMsg += "  De plus, " + this.erreurs +
                         " erreur est survenue.";
                 szErrTitle += " et erreur";
@@ -307,158 +543,47 @@ define(['outil', 'aide', 'browserDetect'], function(Outil, Aide, BrowserDetect) 
             this.reinitialiser();
             return;
         }
-
-
-        var tabs = new Ext.TabPanel({
-            activeTab: 0
-                    //,autoHeight: true
-            , defaults: {autoScroll: true}
-            , enableTabScroll: true
-            , height: 490
-        });
-
-
-        var oResultWindow = new Ext.Window({
-            title: 'Résultats de la requête',
-            width: 600,
-            height: 600,
-            border: false,
-            modal: true,
-            plain: true,
-            closable: true,
-            resizable: true,
-            autoScroll: true,
-            constrain: true,
-            layout: 'fit',
-            items: [tabs]
-        });
-
-        //Iteration par 2 array contiens nomCouche et son retour ajax
-        for (var i = 0; i < this.features.length; i += 2)
-        {
-            var nonCouche = this.features[i];
-            var oFeature = this.features[i + 1];
-
-            if (oFeature.length > 0) {
-                //Gestion du retour type Gml et Xml
-                if ($.isArray(oFeature)) {
-
-                    var oFeaturesXml = oFeature;
-
-                    var aoStores = {}, aoColumns = {}, nStores = 0, aNbItem = [];
-                    for (var j = 0; j < oFeaturesXml.length; j++)
-                    {
-                        var oFeatureXml = oFeaturesXml[j];
-                        var szType = oFeatureXml.type;
-                        var aColumns = [];
-
-                        if (!aoStores[szType])
-                        {
-
-                            aoStores[szType] = new Ext.data.GroupingStore(
-                                    {
-                                        fields: [/*'Couche',*/ 'Item', 'Attribut', 'Valeur'],
-                                        sortInfo: {field: 'Item', direction: 'DESC'},
-                                        groupOnSort: true,
-                                        remoteGroup: false,
-                                        groupField: 'Item'
-                                    }
-                            );
-
-                            aNbItem[szType] = 0;
-                            aColumns.push({header: 'Item', sortable: true, dataIndex: 'Item', width: 50});
-                            aColumns.push({header: 'Attribut', sortable: false, dataIndex: 'Attribut', width: 150});
-                            aColumns.push(
-                                    {id: 'Valeur', header: 'Valeur', sortable: false, dataIndex: 'Valeur',
-                                        renderer: function (value, metaData, record, rowIndex, colIndex, store) {
-                                            metaData.css = 'multilineColumn';
-                                            return value;
-                                        }
-                                    });
-
-                            aoColumns[szType] = aColumns;
-                            nStores++;
-                        }
-                    }
-
-
-                    var RecordTemplate = Ext.data.Record.create([/*{name:'Couche'}, */{name: 'Item'}, {name: 'Attribut'}, {name: 'Valeur'}]);
-                    for (var k = 0; k < oFeaturesXml.length; k++)
-                    {
-                        var oFeatureXml = oFeaturesXml[k];
-                        var szType = oFeatureXml.type;
-                        aNbItem[szType]++;//numéro unique Couche-feature
-
-                        for (var szAttribute in oFeatureXml.attributes)
-                        {
-                            var newRecord = new RecordTemplate({/*Couche: szType, */Item: aNbItem[szType], Attribut: szAttribute, Valeur: oFeatureXml.attributes[szAttribute]});
-                            aoStores[szType].add(newRecord);
-                        }
-                    }
-
-                    var nGridHeight;
-                    if (nStores > 2) {
-                        nGridHeight = 200;
-                    } else {
-                        nGridHeight = 570 / nStores;
-                    }
-
-
-                    var aoGrids = {};
-                    for (var szType in aoStores)
-                    {
-                        var gridTitle = '';
-                        if (aNbItem[szType] == 1)
-                            gridTitle = nonCouche + ' (' + aNbItem[szType] + ' item)';
-                        else
-                            gridTitle = nonCouche + ' (' + aNbItem[szType] + ' items)';
-
-                        aoGrids[szType] = new Ext.grid.GridPanel({
-                            store: aoStores[szType],
-                            columns: aoColumns[szType],
-                            title: gridTitle,
-                            stripeRows: true,
-                            autoExpandColumn: 'Valeur',
-                            height: 500,
-                            disableSelection: true,
-                            trackMouseOver: false,
-                            enableHdMenu: false,
-                            view: new Ext.grid.GroupingView(
-                                    {
-                                        scrollOffset: 30,
-                                        hideGroupedColumn: true,
-                                        startCollapsed: false,
-                                        getRowClass: function (record, index, rowParams)
-                                        {
-                                            if (record.get('Item') % 2.0 == 0.0)
-                                                return 'background-bleupale-row';
-                                            else
-                                                return 'background-white-row';
-                                        }
-                                    })
-                        });
-                    }
-
-                    //Ajout du retour getFeatureInfo  Gml,Xml
-                    for (var szType in aoStores)
-                    {
-                        tabs.add(aoGrids[szType]);
-                    }
-                } else {
-                    //Ajout du retour getFeatureInfo html
-                    tabs.add({title: nonCouche,
-                        html: oFeature
-                    });
-                }
-            }
+       
+        if (this.afficherProprietes.length > 0) {
+            Fonctions.afficherProprietes(this.afficherProprietes);
         }
 
-        oResultWindow.add(tabs);
+        if (this.executerAction.length > 0) {
+
+            $.each(this.executerAction, function (key, value) {
+                Fonctions.executerAction({
+                    scope: value.scope,
+                    action: value.action,
+                    params: value.params
+                });
+
+            });
+        }
+
         Aide.cacherMessageChargement();
- 
-        oResultWindow.show();
+
+        //Fin du clique on reinitialise
         this.reinitialiser();
 
+    };
+
+
+    /** 
+     * Cacher le GetInfo
+     * @method 
+     * @name OutilInfo#cacherGetInfo
+     */
+    OutilInfo.prototype.cacherGetInfo = function () {
+        $('#divGetInfo').hide();
+    };
+
+    /** 
+     * Cacher le GetInfo
+     * @method 
+     * @name OutilInfo#afficherGetInfo
+     */
+    OutilInfo.prototype.afficherGetInfo = function () {
+        $('#divGetInfo').show();
     };
 
     return OutilInfo;

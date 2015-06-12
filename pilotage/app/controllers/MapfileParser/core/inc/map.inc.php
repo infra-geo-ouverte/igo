@@ -78,7 +78,8 @@ class Map{
             "ows_exclude_items",
             "ows_include_items",
             "msp_classe_meta",
-            "wms_attribution_title"
+            "wms_attribution_title",
+            "layer_name_igo"
         );
 
         $layerZIndex = array(
@@ -112,8 +113,14 @@ class Map{
             }
             //Get some metadata
             foreach ($layerMetaData as $metaData) {
-                $l[$metaData] = $layer->getMeta($metaData);
+                $metaDataValue = $layer->getMeta($metaData);
+                $l[$metaData] = $metaDataValue;
+                if('layer_name_igo' == $metaData && $metaDataValue ){
+                    
+                  $l['name'] = $metaDataValue;
+                }
             }
+           
             //Get other parameters as plain text
             $l['layer_def'] = $layer->getLayerDef($layerParameters);
             //Get other metadata as plain text

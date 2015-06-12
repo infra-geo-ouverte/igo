@@ -569,6 +569,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype.selectionnerParIndex = function(index, garderSelection){
         if(this._panel.selModel.grid && !this._panel.selModel.isSelected(index)){
             this._panel.selModel.selectRow(String(index), garderSelection);
+            if(this._panel.getView().getRow(index)){
+                this._panel.getView().getRow(index).scrollIntoView(this._panel.getView());
+            }
         }
     };
     

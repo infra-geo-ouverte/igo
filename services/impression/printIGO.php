@@ -63,10 +63,9 @@ if (PHP_OS == "WINNT" || PHP_OS == "WIN32"){
   $_IMAGEPATH = "/ms4w/tmp/ms_tmp";
 }
 else{
-//	$_IMAGEPATH = "/srv/www/geomatique/partage/services/tmp/";
   $_IMAGEPATH = $GLOBALS['apps_config']['impression']['imagepath'];
 }
-//$_IMAGEURL = "/ms_tmp";
+
 $_IMAGEURL = $GLOBALS['apps_config']['impression']['imageurl'];
 
 /**
@@ -286,7 +285,6 @@ switch ($aszPositionLegende){
  * on the paper size choosed and its orientation.
  */
 $oMap = ms_newMapObj('') or die("Unable to open mapfile\n");
-//$oMap->setconfigoption("PROJ_LIB", "/srv/www/geomatique/services/epsg/");
 $oMap->setconfigoption("PROJ_LIB", $GLOBALS['apps_config']['impression']['proj_lib']);
 $oMap->applyconfigoptions();
 

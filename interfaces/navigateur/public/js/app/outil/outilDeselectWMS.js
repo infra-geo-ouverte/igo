@@ -22,8 +22,8 @@ define(['outil'], function(Outil) {
         
         this.defautOptions = $.extend({}, this.defautOptions, {
             id: 'deselect_couches',
-            titre: 'Désélection les couches',
-            infobulle: "Désélectionner les couches WMS de l'arborescences"
+            titre: 'Décocher couches',
+            infobulle: "Décocher les couches WMS de l'arborescence"
             //TODO trouver une icone!
         });
     };

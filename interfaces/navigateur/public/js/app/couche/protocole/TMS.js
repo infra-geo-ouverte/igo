@@ -37,16 +37,6 @@ define(['couche', 'aide'], function(Couche, Aide) {
         if(Aide.toBoolean(this.options.utiliserProxy)){
             this.options.url=Aide.utiliserProxy(this.options.url, true);
         }
-				
-        if(this.options.impressionUrl && this.options.impressionNom){
-            var format = this.options.format || "png";
-            this._optionsOL.printOptions = {
-                "url": this.options.impressionUrl,
-                "layers": this.options.impressionNom,
-                "format": "image/" + format,
-                "mapformat": format
-            };
-        }
         
         this._init();
     };

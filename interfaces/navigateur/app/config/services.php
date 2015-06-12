@@ -180,6 +180,7 @@ $di->set('profiler', function(){
 $di->setShared('session', function () {
    
     $session = new SessionAdapter();
+    session_name('sessionIGO');
     $session->start();
 
     return $session;
@@ -194,9 +195,9 @@ $di->set('router', function(){
     $router = new \Phalcon\Mvc\Router();
     //Define a route
     $router->add(
-        "/contexte/{contexteId:[0-9]+}",
+        "/contexte/{contexte}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "contexte",
             "contexteid"   => 1
         )
@@ -204,7 +205,7 @@ $di->set('router', function(){
     $router->add(
         "/configuration/{configuration}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "configuration",
             "configuration" => 1
         )
@@ -212,7 +213,7 @@ $di->set('router', function(){
      $router->add(
         "/couche/{coucheId}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "couche",
             "coucheid" => 1
         )
@@ -220,7 +221,7 @@ $di->set('router', function(){
     $router->add(
         "/groupe/{groupeId}",
         array(
-            "controller" => "goloc",
+            "controller" => "igo",
             "action"     => "groupe",
             "coucheid" => 1
         )
@@ -249,21 +250,21 @@ class igoView extends Phalcon\Mvc\View {
 
     public $config = null;
 
-    public function ajouterJavascript($chemin, $estExterne, $version=null){
+    public function ajouterJavascript($chemin, $estExterne, $dansUriLibrairies=null){
         if($estExterne === true){
-            if($version === true){
+            if($dansUriLibrairies === true){
                 print('<script src="'. $this->config->uri->librairies . $chemin . "?version=" . $this->config->application->version . '" type="text/javascript"></script>'. "\n");
             } else {
-                print('<script src="$chemin" type="text/javascript"></script>'. "\n");
+                print('<script src="'. $chemin .'" type="text/javascript"></script>'. "\n");
             }   
         }else{
             print('<script src="'. $this->config->application->baseUri . $chemin . "?version=" . $this->config->application->version . '" type="text/javascript"></script>'. "\n");
         }
     }
 
-    public function ajouterCss($chemin, $estExterne, $version=null){       
+    public function ajouterCss($chemin, $estExterne, $dansUriLibrairies=null){       
         if($estExterne === true){
-            if($version === true){
+            if($dansUriLibrairies === true){
                 print('<link rel="stylesheet" href="'. $this->config->uri->librairies . $chemin . "?version=" . $this->config->application->version .  '" type="text/css"/>'. "\n");
             } else {
                 print('<link rel="stylesheet" href="'. $chemin . '" type="text/css"/>'. "\n");

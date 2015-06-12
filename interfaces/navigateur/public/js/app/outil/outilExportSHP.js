@@ -45,14 +45,14 @@ define(['outil', 'aide', 'analyseurGeoJSON'], function(Outil, Aide, AnalyseurGeo
             if(that.tabOccu.length !== 0){
                 geojson = JSON.parse(analyseur.ecrire(that.tabOccu));
                 //that.download("http://ogre.adc4gis.com/convertJson", "post", JSON.stringify(geojson), index);
-                that.appelerService(that.options.urlService, JSON.stringify(geojson), index);
+                that.appelerService(that.options.urlService, JSON.stringify(geojson), index, nbFichier);
                 nbFichier++;
             }
         });
         
         //Si aucun fichier n'a été créé
         if(nbFichier === 0){
-            Aide.afficherMessage("Aucune sélection", "S.V.P. faites une sélection");
+            Aide.afficherMessage("Aucune sélection", "Vous devez sélectionner au moins un élément avant de pouvoir l’exporter.");
             return false;
         }             
     };  
@@ -64,7 +64,7 @@ define(['outil', 'aide', 'analyseurGeoJSON'], function(Outil, Aide, AnalyseurGeo
      * @param {string} outputName le nom du fichier de sortie
      * @returns {file} Retour le fichier selon outputName + shape.zip
      */
-    OutilExportSHP.prototype.appelerService = function(url, json, outputName){
+    OutilExportSHP.prototype.appelerService = function(url, json, outputName, nbFichier){
         if( url && json ){
             
             //Retirer l'instance du iframe précédent
@@ -75,14 +75,14 @@ define(['outil', 'aide', 'analyseurGeoJSON'], function(Outil, Aide, AnalyseurGeo
                 };
             })(iframe), 4000);
              */
-            if($("#iframeExportShp")){
-                $("#iframeExportShp").remove();
+            if($("#iframeExportShp"+nbFichier-1)){
+                $("#iframeExportShp"+nbFichier-1).remove();
             }
             
             /*Créer un iframe qui contiendra le form qui servira à soumettre les paramètres aux services de conversion
              * On doit faire ainsi afin de nous permettre de retourner plusieurs fichiers.
              */
-            var iframe = $('<iframe id="iframeExportShp" style="visibility: collapse;"></iframe>');
+            var iframe = $('<iframe id="iframeExportShp"'+nbFichier+ ' style="visibility: collapse;"></iframe>');
             $('body').append(iframe);
             var content = iframe[0].contentDocument;
                  

@@ -32,8 +32,7 @@
 /*global define: false */
 
 define(['text', 'handlebars'], function (text, Handlebars) {
-    'use strict';
-
+    //'use strict';
     var buildMap = {},
         buildTemplateSource = "define('{pluginName}!{moduleName}', ['handlebars'], function (Handlebars) { return Handlebars.template({content}); });\n";
 
@@ -63,6 +62,10 @@ define(['text', 'handlebars'], function (text, Handlebars) {
                     };
 
                 textOnload.error = onload.error;
+                var extModuleName= moduleName.substr(moduleName.lastIndexOf("."));
+                if(extModuleName === ".html" || extModuleName === ".hbar"){
+                    ext = "";
+                }
                 text.load(path + moduleName + ext, parentRequire, textOnload, config);
             }
         },
