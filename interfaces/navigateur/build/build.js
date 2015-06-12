@@ -107,12 +107,13 @@
         noAMD : "libs/require/src/noAMD",
         proj4js: 'libs/proj/Proj4js',
         epsgDef: 'libs/proj/epsgDef',
-	    dateTimeIntervalPicker: 'libs/extension/Extjs/DateTimeIntervalPicker',
-	    MSPDatePicker: 'libs/extension/Extjs/MSPDatePicker',
+        dateTimeIntervalPicker: 'libs/extension/Extjs/DateTimeIntervalPicker',
+        MSPDatePicker: 'libs/extension/Extjs/MSPDatePicker',
         layerTreeBuilderBuild: 'empty:',
         kmlMsp: 'empty:',
         fileUploadField: 'empty:',
         getInfo: 'empty:',
-        handlebars: 'empty:'
+        handlebars: 'empty:',
+        IGODatePicker: 'empty:'
     }
 })
