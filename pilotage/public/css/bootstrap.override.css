@@ -90,6 +90,9 @@ select {
     overflow:hidden; 
     text-overflow:ellipsis; 
 }
+.table-search td.overflow-visible{
+    overflow:visible;
+}
 
 .table-search pre{
     max-height:200px;
@@ -130,48 +133,8 @@ select {
 
 .table-search .date_modif,
 .table-search .date_chargement{
-    max-width:90px;
+    width:180px;
 }
-
-.table-search .editer{
-    width:54px;
-} 
-
-.table-search .detruire{
-    width:67px;
-}
-.table-search .attributs{
-    width:70px;
-}
-
-.table-search .associer{
-    width:73px;
-}
-
-.table-search .couches{
-    width:73px;
-}
-
-.table-search .classes{
-    width:66px;
-}
-
-.table-search .mapfile{
-    width:62px;
-}
-
-.table-search .permissions{
-    width:96px;
-}
-
-.table-search .utilisateurs{
-    width:88px;
-}
-
-.table-search .get-records{
-    width:93px;
-}
-
 
 .table-search .connexion{
     width:600px;
@@ -179,6 +142,22 @@ select {
 
 .table-search .voir{
     width:25px;
+}
+
+.table-search .actions{
+    width:100px;
+}
+
+.table-search .description{
+    width:115px;
+}
+
+.table-search .proprietaire{
+    width:85px;
+}
+
+.table-search .ordre{
+    width:70px;
 }
 
 .table-search.table-search-igo_classe_entite .geometries{

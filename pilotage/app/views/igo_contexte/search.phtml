@@ -19,12 +19,16 @@
             <th>Code</th>
             <th>Mode</th>
             <th><?php echo $this->tag->linkTo("igo_contexte/search?order=nom", "Nom <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
-            <th><?php echo $this->tag->linkTo("igo_contexte/search?order=description", "Description <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
-	    <th>Proprietaire ID</th>
-            <th>Projection</th>
+            <th class="description"><?php echo $this->tag->linkTo("igo_contexte/search?order=description", "Description <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+	    <th class="proprietaire">Propriétaire</th>
+            <th>Proj.</th>
             <th class="onlineressource">Onlineresource</th>
-            <th><?php echo $this->tag->linkTo("igo_contexte/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
-            <th></th>
+            <th class="date_modif"><?php echo $this->tag->linkTo("igo_contexte/search?order=date_modif", "Date de modification <span class='glyphicon glyphicon-resize-vertical'></span>") ?></th>
+            <th class="editer"></th>
+            <th class="detruire"></th>
+            <th class="associer"></th>
+            <th class="editer"></th>
+            <th class="mapfile"></th>
             <th class="voir"></th>
         </tr>
     </thead>
@@ -36,7 +40,7 @@
                 <td><?php echo $igo_contexte->mode == "l" ? "Liste" : "Permission" ?></td>
                 <td><?php echo $igo_contexte->nom ?></td>
                 <td><?php echo $igo_contexte->description ?></td>
-		<td><?php echo $igo_contexte->profil_proprietaire_id ?></td>
+		<td><?php echo $igo_contexte->IgoProfil ? $igo_contexte->IgoProfil->nom : ''; ?></td>
                 <td><?php echo $igo_contexte->mf_map_projection ?></td>
                 <td class="onlineressource" title="<?php echo $igo_contexte->mf_map_meta_onlineresource ?>"><?php echo $igo_contexte->mf_map_meta_onlineresource ?></td>
                 <td><?php echo $igo_contexte->date_modif ?></td>
