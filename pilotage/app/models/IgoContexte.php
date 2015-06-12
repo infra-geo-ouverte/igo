@@ -91,9 +91,9 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $profil_proprietaire_id;
     
-   public function validation(){
+    public function validation(){
         return !$this->validationHasFailed();
-   }
+    }
    
     
    function getMapFile() {
@@ -158,7 +158,9 @@ class IgoContexte extends \Phalcon\Mvc\Model {
             'reusable' => true
         ));
 
-        $this->belongsTo("profil_proprietaire_id", "IgoProfil", "id");
+        $this->belongsTo("profil_proprietaire_id", "IgoProfil", "id",  array(
+            'reusable' => true
+        ));
 
          $this->addBehavior(new Timestampable(array(
             'beforeCreate' => array(
@@ -226,7 +228,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
             $this->validate(new Regex(array(
                 'field' => 'code',
                 'pattern' => '/^[A-Z0-9]{1,}$/i',
-                'message' => 'Le code peux seulement contenir les caractères suivants : a-z, 0-9.'
+                'message' => 'Le code peut seulement contenir les caractères suivants : a-z, 0-9.'
             )));
         }
         
@@ -288,21 +290,39 @@ class IgoContexte extends \Phalcon\Mvc\Model {
              'min' => 0
          )));
 
-        $info_u  = $this->getDi()->getSession()->get("info_utilisateur");
-        $profils = $this->getDi()->getSession()->get("profils");
-        if(!$info_u->estAdmin) {
-            if(count($profils) == 0) {
-                $this->appendMessage(new \Phalcon\Mvc\Model\Message("Vous n'avez pas de profils.", ''));
-                return false;
-            }
- 
-            if(is_null($this->profil_proprietaire_id)) {
-                $this->appendMessage(new \Phalcon\Mvc\Model\Message("Veuillez indiquer le profil propriétaire.", ''));
-                return false;
-            }
+        return !$this->validationHasFailed();
+    }
+
+    
+    public static function remplacerCodeDansOnlineResource($onlineResource, $ancien, $nouveau){
+        //Trouver où est la dernière occurence
+        $position = strpos($onlineResource, $ancien);
+        
+        //On n'a pas trouvé
+        if(false === $position){
+            return $onlineResource;
+        }
+        
+        return substr_replace($onlineResource, $nouveau, $position, strlen($ancien));
+        
+    }
+    /**
+     * Créé une copie d'un contexte et de ses dépendances (igo_couche_contexte)
+     * @param int $idContexteCible Id du contexte où va la copie
+     */
+    public function dupliquer($idContexteCible){
+
+        //Créer les associations couche/contexte
+        $igoCoucheContextes = $this->IgoCoucheContexte;
+        $nbCoucheContexte = 0;
+        foreach($igoCoucheContextes as $igoCoucheContexte){
+            
+            $nbCoucheContexte++;
+
+            $igoCoucheContexte->dupliquer($idContexteCible);
 
         }
 
-        return !$this->validationHasFailed();
     }
+
 }

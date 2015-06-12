@@ -84,7 +84,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_chargementError
     */
     AnalyseurConfig.prototype._chargementConfigError = function(XMLHttpRequest, textStatus, errorThrown) {
-        $("#golocLoading").remove();
+        $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
         Aide.afficherMessage("Erreur chargement configuration", message, null, 'ERROR');
     };
@@ -120,24 +120,42 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         var couchesApp = config.couches || [];
         var groupeCouches = [];
         if (couchesApp) {
+            var cAttributs = couchesApp["@attributes"] || couchesApp["attributs"];
+            if(couchesApp.couche){
+                groupeCouches.push({"@attributes": cAttributs, couche: couchesApp.couche});
+            }
             var c1 = couchesApp["groupe-couches"];
             if(c1){
-                groupeCouches = $.isArray(c1) ? c1 : [c1];
-            }
-            if(couchesApp.couche){
-                groupeCouches.push({couche: couchesApp.couche});
+                var c2 = $.isArray(c1) ? c1 : [c1];
+                $.each(c2, function(key, value){
+                    if(value["attributs"]){
+                        value["attributs"] = $.extend({}, cAttributs, value["attributs"]);
+                    } else {
+                        value["@attributes"] = $.extend({}, cAttributs, value["@attributes"]);
+                    }
+                });
+                groupeCouches = groupeCouches.concat(c2);
             }
         }
         this.contexteAttributs = {};
         if(contexte){
             var couchesContexte = contexte.couches || contexte || [];
             if (couchesContexte) {
+                var cAttributs = couchesContexte["@attributes"] || couchesContexte["attributs"];
+                if(couchesContexte.couche){
+                    groupeCouches.push({"@attributes": cAttributs, couche: couchesContexte.couche});
+                }
                 var c1 = couchesContexte["groupe-couches"];
                 if(c1){
-                    $.merge(groupeCouches, $.isArray(c1) ? c1 : [c1]);
-                }
-                if(couchesContexte.couche){
-                    groupeCouches.push({couche: couchesContexte.couche});
+                    var c2 = $.isArray(c1) ? c1 : [c1];
+                    $.each(c2, function(key, value){
+                        if(value["attributs"]){
+                            value["attributs"] = $.extend({}, cAttributs, value["attributs"]);
+                        } else {
+                            value["@attributes"] = $.extend({}, cAttributs, value["@attributes"]);
+                        }
+                    });
+                    groupeCouches = groupeCouches.concat(c2);
                 }
             }
             this.contexteAttributs = contexte["@attributes"] || contexte["attributs"] || {};
@@ -150,6 +168,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
             this._analyserCouches(groupeCouches);
         } else {
             Aide.afficherMessageChargement({titre: "Chargement des couches"});
+
             require(['point'], function(Point){
                 if (that.contexteAttributs.centre){
                     var x,y;
@@ -330,7 +349,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 that.igo.nav.init(function() {
                     that.fin.panneaux = true;
                     that._analyserContexte();
-                    $("#golocLoading").remove();
+                    $("#igoLoading").remove();
                 });
             }
             ;
@@ -344,7 +363,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_analyserContexte
     */
     AnalyseurConfig.prototype._analyserContexte = function() {
-        if (this.fin.panneaux && this.fin.couches) {
+        if (this.fin.panneaux && this.fin.couches && this.fin.actions) {
             var contexte = new Contexte();
             contexte.charger();
             this._fin();
@@ -358,7 +377,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         }
         this.fin.analyse = true;
         this._analyserDeclencheurs(Aide.obtenirConfigXML('declencheurs'));
-        $("#golocLoading").remove();
+        $("#igoLoading").remove();
         if(this.options.callback){
             this.options.callback.call(this.igo.nav);
         }
@@ -420,12 +439,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                             return;
                         }
                         if(options.action){
-                            if(options.action[0] === '#'){
-                                options.action = "Igo.Aide.obtenirNavigateur().actions." + options.action.substr(1);
-                            } else if(options.action[0] === '/'){
-                                options.action = "Igo.Aide.obtenirNavigateur()." + options.action.substr(1);
-                            }
+                            options.action = that._pathShortToLong(options.action);
                         }
+                        if(options.actionScope){
+                            options.actionScope = that._pathShortToLong(options.actionScope);
+                        }                   
                         var outilOccurence = new Igo.Outils[classe](options);
                         listOutils.push(outilOccurence);
 
@@ -480,6 +498,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 var propriete = $.isArray(couches.couche) ? couches.couche : [couches.couche];
                 $.each(propriete, function(key, couche) {
                     var options = couche["@attributes"] || couche["attributs"];
+                    if(options.infoAction){
+                        options.infoAction = that._pathShortToLong(options.infoAction);
+                    }   
+                    options.droit = options.droit || couche.droit;
                     options = $.extend({}, couchesOptions, options);
                     var classe = options.protocole;
                     options.typeContexte = 'contexte';
@@ -534,15 +556,37 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_analyserContexteBD
     */
     AnalyseurConfig.prototype._analyserContexteBD = function() {
-        var contexteId = this.options.contexteId;
-        var contexteCode = this.options.contexteCode;
-        if(!contexteId && !contexteCode){
-            contexteId = this.contexteAttributs.id;
-            contexteCode = this.contexteAttributs.code;
+        var that=this;
+        var contexteId = this.contexteAttributs.id;
+        var contexteCode = this.contexteAttributs.code;
+
+        if($.isArray(this.options.contexteCode)){
+            if(this.contexteAttributs.code && this.contexteAttributs.code !== 'null'){
+                $.each(this.options.contexteCode, function(key, value){
+                    if(that.contexteAttributs.code === value.split("?v=")[0]){
+                        contexteCode = value;
+                        return false;
+                    }
+                });
+            }
+        } else if(this.options.contexteCode) {
+            contexteCode = this.options.contexteCode;
         }
-        
+
+        if($.isArray(this.options.contexteId)){
+            if(this.contexteAttributs.id && this.contexteAttributs.id !== 'null'){
+                $.each(this.options.contexteId, function(key, value){
+                    if(that.contexteAttributs.id === value.split("?v=")[0]){
+                        contexteId = value;
+                        return false;
+                    }
+                });
+            }
+        } else if(this.options.contexteId) {
+            contexteId = this.options.contexteId;
+        }
+   
         var contexteUrl;
-        
         if (contexteId && contexteId !== "null") {
             contexteUrl = Aide.obtenirConfig('uri.api')+"contexte/" + contexteId;
         } else if (contexteCode && contexteCode !== "null"){
@@ -570,7 +614,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @name AnalyseurConfig#_analyserContexteBDError
     */
     AnalyseurConfig.prototype._analyserContexteBDError = function(XMLHttpRequest, textStatus, errorThrown) {
-        $("#golocLoading").remove();
+        $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
         Aide.afficherMessage("Erreur chargement contexte", message, null, 'ERROR');
     };
@@ -621,6 +665,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 options.url = Aide.obtenirConfig("uri.api") + "wms/" + data.id;
             }
             var classe = couche.protocole;
+            options = $.extend({}, that.contexteAttributs, options);
             var coucheOccurence = new Igo.Couches[classe](options);
 
             listCouches.push(coucheOccurence);
@@ -634,6 +679,46 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         that._analyserContexte();
     };
 
+
+    AnalyseurConfig.prototype._pathShortToLong = function(objet){
+        if(objet[0] === '/' || objet[0] === '#' || objet[0] === '@'){
+            var prefix = 'Igo.Aide.obtenirNavigateur()';
+            var objetR = objet.substr(1);
+            if(objet[0] === '@'){
+                prefix += ".actions";
+            } else if(objet[0] === '#'){
+                var nav = Aide.obtenirNavigateur();
+                var index = objet.indexOf('.');
+                index = index !== -1 ? index-1 : undefined;
+                var id = objet.substr(1, index);
+                var panneau = nav.obtenirPanneauParId(id, -1);
+                if(panneau){
+                    prefix += ".obtenirPanneauParId('"+id+"', -1)";
+                    if(index){
+                        objetR = objet.substr(index+2);
+                    } else {
+                        objetR = "";
+                    }
+                } else {
+                    var outil = nav.barreOutils.obtenirOutilParId(id, -1);
+                    if(outil){
+                        prefix += ".barreOutils.obtenirOutilParId('"+id+"', -1)";
+                        if(index){
+                            objetR = objet.substr(index+2);
+                        } else {
+                            objetR = "";
+                        }
+                    }
+                }
+            }
+            if(objetR.length !== 0){
+                prefix += '.';
+            }
+            objet = prefix + objetR;
+        }
+        return objet;
+    }
+
     /** 
      * Analyser la section "declencheurs" de la config
      * @param {object} json Partie de la configuration concernant les déclencheurs
@@ -645,53 +730,18 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         if (!declencheurs) {
             return true;
         }
+        var that=this;
         var arrayDeclencheurs = $.isArray(declencheurs.declencheur) ? declencheurs.declencheur : [declencheurs.declencheur];
         $.each(arrayDeclencheurs, function(key, declencheur) {
             if(!declencheur){return false;};
             var options = declencheur["@attributes"] || declencheur["attributs"] || {};
             if(!options.evenement || !options.action){return true;}
             var objet = options.objet || '/evenements';
-            if(objet[0] === '/' || objet[0] === '#'){
-                var prefix = 'Igo.Aide.obtenirNavigateur()';
-                var objetR = objet.substr(1);
-                if(objet[0] === '#'){
-                    var nav = Aide.obtenirNavigateur();
-                    var index = objet.indexOf('.');
-                    index = index !== -1 ? index-1 : undefined;
-                    var id = objet.substr(1, index);
-                    var panneau = nav.obtenirPanneauParId(id, -1);
-                    if(panneau){
-                        prefix += ".obtenirPanneauParId('"+id+"', -1)";
-                        if(index){
-                            objetR = objet.substr(index+2);
-                        } else {
-                            objetR = "";
-                        }
-                    } else {
-                        var outil = nav.barreOutils.obtenirOutilParId(id, -1);
-                        if(outil){
-                            prefix += ".barreOutils.obtenirOutilParId('"+id+"', -1)";
-                            if(index){
-                                objetR = objet.substr(index+2);
-                            } else {
-                                objetR = "";
-                            }
-                        }
-                    }
-                }
-                if(objetR.length !== 0){
-                    prefix += '.';
-                }
-                objet = prefix + objetR;
-            }
-            var action = options.action[0];
-            if(action[0] === '#'){
-                action = "Igo.Aide.obtenirNavigateur().actions." + options.action.substr(1);
-            } else if(action[0] === '/'){
-                action = "Igo.Aide.obtenirNavigateur()." + options.action.substr(1);
-            }
+            objet = that._pathShortToLong(objet);
+            var action = that._pathShortToLong(options.action);
+            var scope = that._pathShortToLong(options.scope);
             var code = objet + ".ajouterDeclencheur('" + options.evenement + "', " + action +
-                    ", {avant:" + options.avant + ", id:" + options.id + "})";
+                    ", {scope:" + scope + ", avant:" + options.avant + ", id:" + options.id + "})";
             new Function(code)();
         });
     };
@@ -703,9 +753,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
      * @private
      * @name AnalyseurConfig#_analyserActions
     */
-    AnalyseurConfig.prototype._analyserActions = function(actions, callback) {
+    AnalyseurConfig.prototype._analyserActions = function(actions) {
         var that=this;
         if (!actions) {
+            this.fin.actions = true;
             return true;
         }
         var arrayActions = $.isArray(actions.action) ? actions.action : [actions.action];
@@ -720,7 +771,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 if (aJSExt !== -1) {
                     source = source.substr(0, aJSExt);
                 }
-                ;
+                
                 var paths = {};
                 paths[id] = source;
                 require.ajouterConfig({
@@ -730,6 +781,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         });
         require(listActionsReq, function() {
             that.igo.nav.actions = Aide.getRequisObjet(listActionsReq, arguments, false);
+            that.fin.actions = true;
+            that._analyserContexte();
         });
     };
 

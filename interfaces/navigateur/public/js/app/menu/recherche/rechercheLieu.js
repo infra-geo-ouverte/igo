@@ -22,7 +22,6 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             typeRecherche:"lieu",
-            recherchePrefixe:"LIEU",
             titre:"Lieu"
         });
     };
@@ -62,7 +61,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             iconeOffsetY: -34,
             filtres: [ {
                     filtre: "[geocodeMatchCode]>0",
-                    style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-gold.png')}
+                    style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-yellow.png')}
                 }, {
                     filtre: "[geocodeMatchCode]==100",
                     style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-green.png')}
@@ -169,7 +168,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         });
         Recherche.prototype.initEventResultat.call(this);
     };
-    
+
     return RechercheLieu;
     
 });

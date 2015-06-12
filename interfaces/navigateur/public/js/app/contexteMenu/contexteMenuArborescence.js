@@ -4,7 +4,7 @@ require.ajouterConfig({
     }
 });
 
-define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable) {
+define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable, DateTimeIntervalPicker) {
   
     function ContexteMenuArborescence(options){
         this.options = options || {};   
@@ -32,6 +32,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
         this.ajouterFonctionsConstruction(this.initOrdreAffichageSubmenu);
         this.ajouterFonctionsConstruction(this.initOuvrirTableVecteur);
         this.ajouterFonctionsConstruction(this.initZoomEmprise);
+        this.ajouterFonctionsConstruction(this.initSelectionnerTout);
         this.ajouterFonctionsConstruction(this.initActiverImportationSubmenu);
         this.ajouterFonctionsConstruction(this.initWMStime);
         this.ajouterFonctionsConstruction(this.initMetadonneeSubmenu);
@@ -133,23 +134,25 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
     };
 
     ContexteMenuArborescence.prototype.initOpaciteSubmenu = function(args){ 
-        var that=args.scope;
-        var sliderOptions = {
-            layer : args.couche._layer,
-            width : 200
-        };
-            
-        sliderOptions.plugins = new GeoExt.SliderTip();
+        if (args.couche.options.opaciteSlider !== false) {      
+            var that=args.scope;
+            var sliderOptions = {
+                layer : args.couche._layer,
+                width : 200
+            };
 
-        return {
-            id: 'arborescenceOpacite',
-            text : that.locale.changeOpacityText,
-            menu : {
-                id: 'arborescenceOpacitySlider',
-                plain : true,
-                items : [ new GeoExt.LayerOpacitySlider(sliderOptions) ]
-            }
-        };
+            sliderOptions.plugins = new GeoExt.SliderTip();
+
+            return {
+                id: 'arborescenceOpacite',
+                text : that.locale.changeOpacityText,
+                menu : {
+                    id: 'arborescenceOpacitySlider',
+                    plain : true,
+                    items : [ new GeoExt.LayerOpacitySlider(sliderOptions) ]
+                }
+            };
+        }
     };
      ContexteMenuArborescence.prototype.initWMStime = function(args){ 
         if (args.couche.options.wms_timeitem) {        
@@ -260,7 +263,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                 id: 'arborescenceMetadonnee',
                 text : that.locale.mspMetadataText,
                 handler : function() {
-                    Metadonnee.getLayerCapabilities(args.couche._layer);
+                    Metadonnee.getLayerCapabilities(args.couche);
                 }
              };
         }
@@ -309,6 +312,20 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
     	//TODO else if WMS
     	
     };
+
+    ContexteMenuArborescence.prototype.initSelectionnerTout = function(args){
+      
+        if( args.couche.obtenirTypeClasse() === 'Vecteur' ) {
+    	    return {
+                id: 'arborescenceSelectionnerToutVecteur',
+                text : 'Sélectionner tout',
+                handler : function() {
+                    args.couche.selectionnerTout();
+                }
+            };
+    	}  
+    };
+    
     
     
     ContexteMenuArborescence.prototype.initOuvrirTableVecteur = function(args){      

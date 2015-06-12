@@ -62,23 +62,34 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             this.defautOptions.groupe = 'Fond de carte';
         };
         
-        this.options = $.extend({}, this.defautOptions, Aide.obtenirConfig(this.obtenirTypeClasse()), this.options);
+        this.options = $.extend({}, this.defautOptions, Aide.obtenirConfig("Couche"), Aide.obtenirConfig(this.obtenirTypeClasse()), this.options);
                 
         var opt = this.options;
+
+        var printOptions = {'fromLayer': true};
+        if(opt.impressionUrl){
+            var format = opt.format || "png";
+            printOptions = {
+                "url": opt.impressionUrl,
+                "layers": opt.impressionNom || opt.nom,
+                "format": "image/" + format,
+                "mapformat": format
+            };
+        }
+
         this._optionsOL = $.extend({ 
             isBaseLayer: Aide.toBoolean(opt.fond),
             minScale: opt.echelleMin, //todo: defaultMapOptions.resolutions[11] || this.carte.getResolutionForZoom(opt.niveauZoomMin), //echelleMin: grand nombre
             maxScale: opt.echelleMax, //|| this.carte.getResolutionForZoom(opt.niveauZoomMax), //echelleMax: petit nombre
             group: opt.groupe,
             attribution: opt.droit,
-            mspClassMeta: opt.metadonnee,
             typeContexte: opt.typeContexte,
             displayInLayerSwitcher: Aide.toBoolean(opt.visible),
             legende: Aide.toBoolean(opt.legende),
             visibility: Aide.toBoolean(opt.active),
             opacity: opt.opacite ? opt.opacite/100 : 1,
             zTree: opt.ordreArborescence,
-            printOptions: {'fromLayer': true}
+            printOptions: printOptions
         }, this._optionsOL, this.options._optionsOL);
        
     };
@@ -141,6 +152,16 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         if (this._getLayer()) {
             return this._getLayer().name;
         }
+    };
+    
+    /** 
+    * Obtenir le groupe de la couche
+    * @method 
+    * @name Couche#obtenirGroupe
+    * @returns {String} Groupe de la couche
+    */
+    Couche.prototype.obtenirGroupe = function() { 
+        return this.options.groupe;
     };
 
     /** 

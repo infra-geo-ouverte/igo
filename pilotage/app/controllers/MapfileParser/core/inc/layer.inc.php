@@ -238,9 +238,9 @@ class Layer{
     function getLayerDef($exclusions){
         $layerString = $this->oLayer->convertToString();
         $contentPattern = '/(?<=LAYER).*(?=END)/is';
-        $classesPattern = '/CLASS[^(GROUP|ITEM|")].*END\s#\sCLASS/is';
-        $metaDataPattern = '/METADATA.*END\s#\sMETADATA/Uis';
-        $projectionPattern = '/PROJECTION.*END\s#\sPROJECTION/is';
+        $classesPattern = '/\n\s*CLASS\s*(\n|#).*END\s#\sCLASS/is';
+        $metaDataPattern = '/\n\s*METADATA\s*(\n|#).*END\s#\sMETADATA/Uis';
+        $projectionPattern = '/\n\s*PROJECTION\s*(\n|#).*END\s#\sPROJECTION/is';
         $closeDeferPattern = '/PROCESSING\s+(\"|\')CLOSE_CONNECTION=DEFER[(\"|\')$]/Uis';
 
         if(preg_match($contentPattern, $layerString, $matches)){
@@ -253,12 +253,6 @@ class Layer{
             $layerContent = preg_replace($projectionPattern, '', $layerContent);
             //Remove close connection defer
             $layerContent = preg_replace($closeDeferPattern, '', $layerContent);
-        }
-        // Pour une raison incompréhensible, les fichiers de mapfile de MCC terrains protégés et MCC terrains non protégés contiennent toujours un tag metadata dans le layer_def...
-        
-        if (strpos($layerContent, 'METADATA') !== FALSE){
-            $pos = strpos($layerContent, 'METADATA');
-            $layerContent = substr($layerContent, 0, $pos);         
         }
 
         //preg_split string into a line-by-line array

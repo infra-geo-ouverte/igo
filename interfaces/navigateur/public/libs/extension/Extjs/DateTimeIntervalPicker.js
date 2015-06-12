@@ -1,12 +1,11 @@
 require.ajouterConfig({
     paths: {
-      MSPDatePicker: "libs/extension/Extjs/MSPDatePicker"
+      IGODatePicker: "libs/extension/Extjs/IGODatePicker"
     }
 });
 
-define(['fonctions', 'MSPDatePicker'], function(Fonctions) {
-    
-    DateTimeIntervalPicker = Ext.extend(Ext.Component, {
+define(['fonctions', 'IGODatePicker'], function(Fonctions, IGODatePicker) {
+    var DateTimeIntervalPicker = Ext.extend(Ext.Component, {
         // Prototype Defaults, can be overridden by user's config object
         startDate: new Date(),
         endDate: new Date(),
@@ -220,7 +219,7 @@ define(['fonctions', 'MSPDatePicker'], function(Fonctions) {
             el.innerHTML = html;
             container.dom.insertBefore(el, position);
             // Creation des composantes ExtJS.  
-            var dtg1 = new MSPDatePicker({
+            var dtg1 = new IGODatePicker({
                 renderTo: 'dtgDiv1' 
             });
 
@@ -262,7 +261,7 @@ define(['fonctions', 'MSPDatePicker'], function(Fonctions) {
 
             if(this.allowIntervals){
 
-                var dtg2 = new MSPDatePicker({
+                var dtg2 = new IGODatePicker({
                     renderTo: 'dtgDiv2' 
                 });
 
@@ -423,4 +422,6 @@ define(['fonctions', 'MSPDatePicker'], function(Fonctions) {
 
     // register xtype to allow for lazy initialization
     Ext.reg('datetimeinvervalpicker', DateTimeIntervalPicker);
+    
+    return DateTimeIntervalPicker;
 });

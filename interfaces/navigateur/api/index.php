@@ -37,7 +37,7 @@ try {
         }
         if($encoding === "json"){
             $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();  
-            $element = simplexml_load_file($xmlPath);
+            $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
             if ($element->getName() === "navigateur" ){
                 
                 //Gerer le cas des couches seulement avec un Id
@@ -554,6 +554,23 @@ try {
     }
 
   $app->map('/service',"proxyNavigateur")->via(array('GET','POST'));
+  
+    function ObtenirAdresseIP($serveur){
+      if (!empty($serveur['HTTP_CLIENT_IP'])){   //check ip from share internet
+          $ip=$serveur['HTTP_CLIENT_IP'];
+      }
+      elseif (!empty($serveur['HTTP_X_FORWARDED_FOR'])){   //to check ip is pass from proxy
+          $ip=$serveur['HTTP_X_FORWARDED_FOR'];
+      }
+      else{
+          $ip=$serveur['REMOTE_ADDR'];
+      }
+
+      $tabIPs = explode(",", $ip);
+      $ip = $tabIPs[0];
+      return $ip;
+    }
+
     function verifieDomaineRegexFunc($service, $arrayRegex) {
         $trustedDom = array();
         foreach ($arrayRegex as $regex){
@@ -590,22 +607,10 @@ try {
     
     function proxyNavigateur() {
         //todo: http://php.net/manual/en/function.curl-setopt.php
+            
         global $app;
         $config = $app->getDI()->get("config");
-        
-        $appelant = "";
-        if(isset($_SERVER["HTTP_REFERER"])){
-            $parsedUrl = parse_url($_SERVER["HTTP_REFERER"]);
-            $appelant = $parsedUrl['host'];
-        } else {
-            //pour ie
-            $appelant = $_SERVER["HTTP_HOST"];
-        }
-        if($appelant !== $_SERVER["HTTP_HOST"]){
-            http_response_code(403);
-            die("Origine inconnue.");
-        }
-        
+
         $method = $_SERVER['REQUEST_METHOD'];
         if($method !== "GET" && $method !== "POST"){
             http_response_code(405);
@@ -633,6 +638,7 @@ try {
             "test" => false
         );
         $session = $app->getDI()->getSession();
+        //var_dump($session->info_utilisateur);
         if($session->has("info_utilisateur") && isset($config['profilsDroit'])) {
             //utilisateur
             if(($session->info_utilisateur->identifiant) && isset($config->profilsDroit[$session->info_utilisateur->identifiant])){
@@ -683,16 +689,17 @@ try {
         }
         
         if ($serviceRep["test"] === true && $serviceRep["url"] === ""){
-                    $url = $service;
+            $url = $service;
         } else {
             $url = $serviceRep["url"];
-                }
+        }
           
         $protocole = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://';
         if(isset($url) && is_string($url) && $url !== ""){
-            $url = str_replace("//localhost/","//".$appelant."/", $url);
+            //$url = str_replace("//localhost/","//".$appelant."/", $url);
             if(substr($url, 0, 1) === "/"){
-                $url = $protocole.$appelant.$url;
+                //$url = $protocole.$appelant.$url;
+                $url = $protocole."localhost".$url;
             }
         } else {
             http_response_code(403);
@@ -713,21 +720,64 @@ try {
         }
         
         //ajouter la clé
-        $clePost = isset($paramsPost['_cle']) ? $paramsPost['_cle'] : NULL;
-        $cleGet = isset($paramsGet['_cle']) ? $paramsGet['_cle'] : NULL;
-	
-        if(isset($cleGet) || isset($clePost)){ 
-            if(isset($cleGet) && isset($config['cles'][$cleGet])){
-                $paramsGet['cle'] = $config['cles'][$cleGet];
-            } else if(isset($clePost) && isset($config['cles'][$clePost])){
-                $paramsPost['cle'] = $config['cles'][$clePost];
-            } else if(isset($cleGet)) {
-                $paramsGet['cle'] = $cleGet;
-            } else {
-                $paramsPost['cle'] = $clePost;
+	if(isset($paramsPost['_cle'])){
+            $_cle = $paramsPost['_cle'];
+            $cleM = "POST";
+        } else if (isset($paramsGet['_cle'])){
+            $_cle = $paramsGet['_cle'];
+            $cleM = "GET";
+        }
+        if(isset($_cle)){             
+            if($session->has("info_utilisateur") && isset($config['profilsDroit'])) {
+                //utilisateur
+                if(($session->info_utilisateur->identifiant) && isset($config->profilsDroit[$session->info_utilisateur->identifiant]["cles"])){
+                    $clesUser = $config->profilsDroit[$session->info_utilisateur->identifiant]["cles"];
+                    if(isset($clesUser[$_cle])){ 
+                        $cle = $clesUser[$_cle];
+                    }
+                }
+                
+                //profils
+                if(!isset($cle) && isset($session->info_utilisateur->profils)){
+                    $profilActif = $session->info_utilisateur->profilActif;
+                    $nbProfils = count($session->info_utilisateur->profils);
+                    foreach ($session->info_utilisateur->profils as $key => $value) {
+                        if(is_array($value)){
+                            $idValue = $value["id"];
+                            $profil = $value["libelle"];
+                        } else {
+                            $idValue = $value->id;
+                            $profil = $value->libelle;
+                        }
+                        if($nbProfils === 1 || $idValue == $profilActif){
+                            if(isset($profil) && isset($config->profilsDroit[$profil]["cles"])){
+                                $clesProfil = $config->profilsDroit[$profil]["cles"];
+                                if(isset($clesProfil[$_cle])){ 
+                                    $cle = $clesProfil[$_cle];
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if(!isset($cle)){
+                if(isset($config['cles'][$_cle])){
+                    $cle = $config['cles'][$_cle];
+                } else {
+                    $cle = $_cle;
+                }
             }
             unset($paramsPost['_cle']);
             unset($paramsGet['_cle']);
+            if($cleM == "POST"){
+                $paramsPost['_client_IP'] = ObtenirAdresseIP($_SERVER);
+                $paramsPost['cle'] = $cle;
+            } else {
+                $paramsGet['_client_IP'] = ObtenirAdresseIP($_SERVER);
+                $paramsGet['cle'] = $cle;
+            }
         }
         
         if(count($paramsGet)!=0){
@@ -782,7 +832,7 @@ try {
             }
 
         }
-
+        
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -803,6 +853,7 @@ try {
             $contentType = $contentType."; charset=".$options['encodage']; 
         }
         header('Content-type: '.$contentType);
+
         http_response_code($http_status_code);
         echo ($result);
     }

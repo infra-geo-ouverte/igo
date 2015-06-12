@@ -8,8 +8,8 @@ define(['outil', 'aide'], function(Outil, Aide) {
     
     OutilItineraire.prototype._init = function() {
         this.defautOptions = $.extend({}, this.defautOptions, {
-            //controle: this.carte.gestionCouches.controles.initSelection(),
-           icone: Aide.obtenirCheminRacine()+'images/toolbar/gui-pointer.gif',
+            titre: "Itinéraire",
+            //icone: Aide.obtenirCheminRacine()+'images/toolbar/gui-pointer.gif',
             id: 'idItineraire',
             groupe: 'carte',
             _allowDepress: true,

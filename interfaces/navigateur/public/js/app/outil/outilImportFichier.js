@@ -33,7 +33,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: Aide.obtenirCheminRacine()+'images/toolbar/gps_down.png',
-            infobulle: "Importer un fichier"
+            infobulle: "Importer un fichier géométrique"
         });
     };
 
@@ -48,7 +48,8 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         } 
         
         var that = this;     
-        this.nomCouche = "coucheImportFichier";         
+        this.nomCouche = "coucheFichier";
+        this.listeFichierLatLon = ["gpx"];
         this.projection = this.carte.obtenirProjection();
        
         var myuploadform= new Ext.FormPanel({
@@ -73,6 +74,15 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     listeners: {
                         fileselected: function(inputNode,fileInput){
                             inputNode.setValue(fileInput.replace("C:\\fakepath\\", ""));
+                            
+                            var extension = fileInput.split(".")[fileInput.split(".").length-1].toLowerCase();
+                            
+                            if(that.listeFichierLatLon.indexOf(extension) === -1){
+                                this.ownerCt.form.findField("sourceSrs").show();
+                            }
+                            else{
+                                this.ownerCt.form.findField("sourceSrs").hide();
+                            }
                         }
                     }
                 },
@@ -83,7 +93,8 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     allowBlank: true,
                     value: '',
                     labelStyle: 'width:195px',
-                    style: {width:'75px'}  
+                    style: {width:'75px'},
+                    hidden: true
                 }],
                 buttons: [{
                     text: 'Importer',
@@ -94,7 +105,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             //Obtenir le fichier d'upload
                             var file = jQuery('input[id^="upload"]')[1].files[0];
                             var extension = file.name.split(".")[file.name.split(".").length-1];
-                            
+                            var filename = file.name.split(".")[0];
                             //Exception pour le format GPX, le service ogre ne fonctionne pas bien, on utilise donc togeojson
                             if(extension.toLowerCase() === "gpx") {
                                 
@@ -105,7 +116,15 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                   
                                     //Transformer le contenu du fichier GPX en JSON
                                     var geoJson = toGeoJSON["gpx"]((new DOMParser()).parseFromString(text, 'text/xml'));
-                                    that.importerJson(geoJson); //Importer les données
+                                    
+                                    //Éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
+                                    $.each(geoJson.features, function(index, feat) {
+                                       if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
+                                           feat.geometry.coordinates.pop();
+                                       } 
+                                    });
+                                    
+                                    that.importerJson(geoJson, filename); //Importer les données
                                 };
 
                                 //Lire le contenu du fichier GPX
@@ -180,7 +199,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
      * @name OutilImportFichier#importerJson
      * @param {json} geoJson données des géométries du fichier converti
      */
-    OutilImportFichier.prototype.importerJson = function(geoJson){
+    OutilImportFichier.prototype.importerJson = function(geoJson, filename){
        
         //Si le service retourne le crs, l'écraser car le format CRS84 n'est pas celui de nos projections du fichier proj4.js
         //Par défaut on paramètre le service avec "targetSrs": "EPSG:4326" pour la projection de sortie. compatible avec l'analyseurGeoJson
@@ -193,10 +212,10 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         var analyseur = new AnalyseurGeoJSON({
         projectionCarte: this.carte.obtenirProjection()}); 
   
-        var coucheImportFichier = gestionCouche.obtenirCoucheParId(this.nomCouche);
+        var coucheImportFichier = gestionCouche.obtenirCoucheParId(this.nomCouche + filename);
         
         if(coucheImportFichier === undefined){
-            coucheImportFichier = new Vecteur({titre: this.nomCouche, id:this.nomCouche, active:true, visible:true});
+            coucheImportFichier = new Vecteur({titre: this.nomCouche + filename, id:this.nomCouche + filename, active:true, visible:true, suppressionPermise:true});
             gestionCouche.ajouterCouche(coucheImportFichier);
         }
         
