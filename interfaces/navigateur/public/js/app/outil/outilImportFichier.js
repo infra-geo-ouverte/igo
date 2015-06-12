@@ -33,7 +33,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: Aide.obtenirCheminRacine()+'images/toolbar/gps_down.png',
-            infobulle: "Importer un fichier"
+            infobulle: "Importer un fichier géométrique"
         });
     };
 
@@ -215,7 +215,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         var coucheImportFichier = gestionCouche.obtenirCoucheParId(this.nomCouche + filename);
         
         if(coucheImportFichier === undefined){
-            coucheImportFichier = new Vecteur({titre: this.nomCouche + filename, id:this.nomCouche + filename, active:true, visible:true});
+            coucheImportFichier = new Vecteur({titre: this.nomCouche + filename, id:this.nomCouche + filename, active:true, visible:true, suppressionPermise:true});
             gestionCouche.ajouterCouche(coucheImportFichier);
         }
         

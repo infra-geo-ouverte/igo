@@ -70,9 +70,15 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         if (!this.options.layerOL){
             Couche.prototype._init.call(this);
             
+            var transparence = this.options.transparence || true;
+            
+            if(this.options.format === "jpeg" || this.options.format === "jpg"){
+                transparence = false;
+            }
+            
             var parametreWMS = {
                 layers: this.options.nom,
-                transparent: true, 
+                transparent: transparence, 
                 version: this.options.version
             };
             if (this.options.mapdir){

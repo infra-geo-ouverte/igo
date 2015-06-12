@@ -366,7 +366,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
     * @returns {Geometrie.Limites} Limites maximuns de la carte
     */
     Carte.prototype.obtenirLimitesMax = function() {
-        var limitesOL = this._carteOL.restrictedExtent; //getMaxExtent();
+        var limitesOL = this._carteOL.restrictedExtent || this._carteOL.getMaxExtent();
         return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
     };
    
