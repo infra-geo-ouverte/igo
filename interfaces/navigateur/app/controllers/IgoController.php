@@ -13,18 +13,31 @@ class IgoController extends ControllerBase
     }
     
     public function configurationAction($configuration) {
-        
         $this->definirVariablesCommunes();
 
-        $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
-        $element = simplexml_load_file($xmlPath);        
+        $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];
+        if(file_exists($xmlPath)){
+            $element = simplexml_load_file($xmlPath);            
+        } else {
+            $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
+        }
         if(isset($element->attributes()->titre)){
             $titre = $element->attributes()->titre;
         }else{
             $titre = "Navigateur";
         }
         $this->view->setVar("titre", $titre);
-        $filemtime = filemtime($xmlPath);
+        if(file_exists($xmlPath)){
+            $filemtime = filemtime($xmlPath);
+        } else {
+            $curl = curl_init($xmlPath);
+            curl_setopt($curl, CURLOPT_NOBODY, true);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_FILETIME, true);
+            curl_exec($curl);     
+            $timestamp = curl_getinfo($curl, CURLINFO_FILETIME);
+            $filemtime = $timestamp;
+        }
         $this->view->setVar("configuration", $configuration . "?v={$filemtime}");
         
         $contexteArrayId = array();
@@ -248,7 +261,7 @@ class IgoController extends ControllerBase
                             nom:'{$layers}',
                             fond:false,
                             active:{$active},
-                            _useGetCapabilities:true
+                            mode: 'getCapabilities'
                         }
                     );
                     Igo.nav.carte.gestionCouches.ajouterCouche(coucheWMS);

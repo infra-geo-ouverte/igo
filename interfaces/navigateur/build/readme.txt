@@ -21,6 +21,6 @@ python build_WMSBrowser.py
 
 
 Pour OpenLayers:
-cd ../public/libs/OpenLayers-2.13.1/build/
+cd ../../../librairie/OpenLayers/OpenLayers-2.13.1/build/
 python buildUncompressed.py full ../OpenLayers.debug.js
 python build.py full ../OpenLayers.js
