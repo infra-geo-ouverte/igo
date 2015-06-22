@@ -114,7 +114,6 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             cls: 'x-form-file',
             tag: 'input',
             type: 'file',
-            accept: 'image/gif, image/jpeg, image/png',
             size: 1
         });
     },
