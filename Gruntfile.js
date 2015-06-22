@@ -203,11 +203,23 @@ module.exports = function (grunt) {
             },
             qUnit: {
             	command: function(){
-            		return "phantomjs interfaces/navigateur/public/testUnit/run-qunit.js http://geodev10.sso.msp.gouv.qc.ca/igo_navigateur/testUnit/ | \
+            		return "phantomjs interfaces/navigateur/public/testUnit/run-qunit.js <%= pkg.urlTestUnit %> | \
             				grep 'failures=\"0\"'";
             	},
             	options: {
+            		execOptions:{
+            			timeout: 30000
+            		},
                 	callback: function log(err, stdout, stderr, cb) {
+                		if(!stdout){
+							grunt.log.subhead('Tests échecs');
+							if(err && err.signal === "SIGTERM"){
+								grunt.log.error("timeout");	
+							} else {
+								grunt.log.error("Dans package.json, veillez définir 'urlTestUnit'");	
+							}
+							return cb(new Error('Tests échecs'));
+                		}
                 		var patternT = /tests=\"[0-9]*\"/;
 						var matchT = patternT.exec(stdout);
 						var tests = matchT[0].substring(7, matchT[0].length-1);
