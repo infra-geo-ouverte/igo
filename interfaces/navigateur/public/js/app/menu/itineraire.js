@@ -12,7 +12,7 @@ require.ajouterConfig({
         autocomplete: 'libs/jquery/extensions/autocomplete/jquery.autocomplete.min'
     }
 });
-
+  
 
 define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 'style', 'outilItineraire', "hbars!template/itineraire", "css!css/itineraire", "css!css/autocomplete", 'autocomplete', 'encodedPolyline'], function(Aide, Panneau, Vecteur, Point, Ligne, Limites, Occurence, Style, OutilItineraire, Template) {
     /** 

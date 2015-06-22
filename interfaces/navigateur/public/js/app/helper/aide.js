@@ -12,9 +12,7 @@ define([], function() {
      * @alias aide:helper.Aide
      * @requires aide
     */
-    function Aide(){
-
-    };
+    function Aide(){};
     
     /** 
      * Convertir la région IGO en région ExtJS
