@@ -2,7 +2,7 @@
 
 import sys
 import os
-sys.path.append("tools")
+sys.path.append("../../../librairie/openlayers/tools/")
 import mergejs
 import optparse
 

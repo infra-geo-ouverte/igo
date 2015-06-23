@@ -384,10 +384,12 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
     Style.prototype.obtenirStyleFiltreParOccurence = function(occurence){
         var that=this;
         if(!this.filtres.length){ return this;}
-        var styleFiltre = {};
+        var styleFiltre = $.extend({}, this.propriete);
+        var estDansUnFiltre = false;
         $.each(this.filtres, function(key, value){
             if(that._filtresOL[key] && that._filtresOL[key].evaluate && occurence){
                 if(that._filtresOL[key].evaluate(occurence._feature)){
+                    estDansUnFiltre = true;
                     var styleFiltreT = value.style;
                     if(styleFiltreT && styleFiltreT.propriete){
                         styleFiltreT = styleFiltreT.propriete;
@@ -395,11 +397,10 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
                     $.extend(styleFiltre, styleFiltreT);
                 }
             }
-            
         });
         
-        if($.isEmptyObject(styleFiltre)){return false};
-        var style = new Style($.extend({}, this.propriete, styleFiltre));
+        if(!estDansUnFiltre){return false};
+        var style = new Style(styleFiltre);
         style.defautPropriete = this.defautPropriete;
         return style;
     };  

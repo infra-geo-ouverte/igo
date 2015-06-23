@@ -3,6 +3,8 @@
 */nbproject/
 librairie/
 config/config.php
-
+node_modules/
+npm-debug.log
+doc/interfaces/navigateur/
 .vagrant
 puppet/externalmodules
