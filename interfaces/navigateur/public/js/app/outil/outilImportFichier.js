@@ -39,14 +39,39 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
 
     OutilImportFichier.prototype = new Outil();
     OutilImportFichier.prototype.constructor = OutilImportFichier;
-        
+    
+    /** Action de l'outil
+     * @method
+     * @name OutilImportFichier#executer
+     */
     OutilImportFichier.prototype.executer = function() {
+        var that = this;
         
+        //Valider que le service est défini dans le fichier de configuration
         if(this.options.urlService === undefined) {
              Aide.afficherMessage("Erreur", "Vous devez ajouter un service de conversion pour cet outil dans votre fichier de configuration.");
              return false;
-        } 
+        }
         
+        //Valider que le service défini est fonctionnel
+        this.verifierServiceDisponible(this.options.urlService, function(status){
+            if(status === 200){
+               that.importer();
+            }
+            else{
+               Aide.afficherMessage("Erreur", "Le service de conversion n'est pas disponible.");
+            }
+        });
+        
+    };
+    
+    /**
+     * Afficher le menu d'import
+     * @method
+     * @name OutilImportFichier#importer
+     */
+    OutilImportFichier.prototype.importer = function(){
+                
         var that = this;     
         this.nomCouche = "coucheFichier";
         this.listeFichierLatLon = ["gpx"];
@@ -71,6 +96,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     emptyText: 'Sélectionner un fichier...',
                     fieldLabel: 'Fichier',
                     buttonText: 'Parcourir',
+                    blankText: "Vous devez sélectionner un fichier géométrique avant de pouvoir importer.",
                     listeners: {
                         fileselected: function(inputNode,fileInput){
                             inputNode.setValue(fileInput.replace("C:\\fakepath\\", ""));
@@ -156,13 +182,9 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                     processData: false,
                                     type: 'POST',
                                     success: function(data){
-
                                         if(data.errors!== undefined){
-                                            var erreurs = "";
-                                            $.each(data.errors, function(index, error){
-                                                erreurs += error + "<br>";
-                                            });
-                                            Aide.afficherMessage("Erreur", erreurs);
+                                            console.log(data.errors);
+                                            Aide.afficherMessage("Erreur", "Fichier invalide, les formats permis sont: BNA, CSV, DGN, DXF, ESRI Shapefile, GeoConcept, GeoJSON, GeoRSS, GML, GMT, GPX, Interlis 1, KML, KMZ, MapInfo, S-57, TIGER, VRT");
                                         }
                                         else{                                    
                                             that.importerJson(data);
@@ -222,7 +244,26 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
          var occurences = analyseur.lire(geoJson);        
          coucheImportFichier.ajouterOccurences(occurences);
          coucheImportFichier.zoomerOccurences();        
-    }; 
+    };
+    
+    /**
+     * Vérifier que l'url du service est disponible
+     * @method
+     * @name OutilImportFichier#verifierServiceDisponible
+     * @param {type} url url du service à valider
+     * @param {type} fct Fonction à exécuter suite aux résultats
+     */
+    OutilImportFichier.prototype.verifierServiceDisponible = function(url, fct){
+        jQuery.ajax({
+            url:      url,
+            dataType: 'text',
+            type:     'POST',
+            complete:  function(xhr){
+                if(typeof fct === 'function')
+                   fct.apply(this, [xhr.status]);
+            }
+        });
+    };
   
     return OutilImportFichier;
     
