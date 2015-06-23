@@ -3,6 +3,10 @@
 */nbproject/
 librairie/
 config/config.php
-
+.svn
+*.old
+*.old.*
+*.bak
+/nbproject/
 .vagrant
 puppet/externalmodules
