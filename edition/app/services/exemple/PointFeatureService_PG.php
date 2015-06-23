@@ -24,32 +24,40 @@ class PointFeatureService extends SimpleFeatureService{
     }
 
     public function getGeometryName() {
-        return "GEOM_P";
+        return "geom_p";
     }
 
     public function getGeometryType() {
         return "point";
     }
-
+    
+    public function getStatutName() {
+        return "statut";
+    }
+    
+    public function getIdentifiantName() {
+        return "identifiant";
+    }
+  
+    public function getJustificationName() {
+        return "justification";
+    }
+    
     public function getIdentifier() {
-        return "NO_SEQ_POINT_FEATURE_SERVICE";
+        return "no_seq_point_feature_service";
     }
     
     
     public function getReferenceIdentifier() {
-        return "NO_SEQ_POINT_FEAT_SERVICE_REF";
+        return "no_seq_point_feature_service_ref";
     }
 
     public function getTableName() {
-        return "POINT_FEATURE_SERVICE";
+        return "point_feature_service";
     }
     
     public function getViewName() {
-        return "POINT_FEATURE_SERVICE_V";
-    }
-    
-    public function getStatutName() {
-       return "STATUT"; 
+        return "point_feature_service_v";
     }
 
     public function getMaximumScale() {
@@ -65,23 +73,23 @@ class PointFeatureService extends SimpleFeatureService{
     }
 
     public function getSRID() {
-        return "4326";
+        return "32198";
     }
     
-    public function getFields($geometry, $fk) {
+    public function getFields($geometry) {
         $fields = array();
 
-        $commentaire = new TextField("COMMENTAIRE", "Commentaire", true, true);
+        $commentaire = new TextField("commentaire", "Commentaire", true, true);
         $fields[] = $commentaire;
 
-        $valeur_bool = new BooleanField("VALEUR_BOOL", "Valeur bool", true, true);
+        $valeur_bool = new BooleanField("valeur_bool", "Valeur bool", true, true);
         $fields[] = $valeur_bool;
-        $valeur_integer = new IntegerField("VALEUR_INTEGER", "Valeur integer", true, true);
+        $valeur_integer = new IntegerField("valeur_integer", "Valeur integer", true, true);
         $fields[] = $valeur_integer;
-        $valeur_string = new StringField("VALEUR_STRING", "Valeur string", true, true);
+        $valeur_string = new StringField("valeur_string", "Valeur string", true, true);
         $fields[] = $valeur_string;
         
-        $justification = new TextField("JUSTIFICATION", "Justification", false, true);
+        $justification = new TextField("justification", "Justification", false, true);
         $fields[] = $justification;
 
         return $fields;

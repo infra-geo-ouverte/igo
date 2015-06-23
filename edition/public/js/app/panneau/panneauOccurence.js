@@ -6,8 +6,8 @@ require.ajouterConfig({
 });
 
 /** 
- * Module pour l'objet {@link Panneau.PanneauEdition}.
- * @module PanneauEdition
+ * Module pour l'objet {@link Panneau.PanneauOccurence}.
+ * @module PanneauOccurence
  * @requires panneau
  * @author Frédéric Morin
  * @version 1.0
@@ -16,7 +16,7 @@ require.ajouterConfig({
 define(['panneau', 'occurence', 'aide'], function(Panneau, Occurence, Aide) {
 
     /** 
-     * Création de l'object Panneau.PanneauEdition.
+     * Création de l'object Panneau.PanneauOccurence.
      * Pour la liste complète des paramètres, voir {@link Panneau}
      * @constructor
      * @name Panneau.PanneauOccurence
@@ -25,7 +25,7 @@ define(['panneau', 'occurence', 'aide'], function(Panneau, Occurence, Aide) {
      * @extends Panneau
      * @requires panneau
      * @param {object} [options] Objet contenant les propriétés du panneau
-     * @returns {Panneau.PanneauOccurence} Instance de {@link Panneau.PanneauEdition}
+     * @returns {Panneau.PanneauOccurence} Instance de {@link Panneau.PanneauOccurence}
      */
     function PanneauOccurence(options) {
         
