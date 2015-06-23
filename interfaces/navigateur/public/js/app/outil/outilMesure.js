@@ -29,19 +29,29 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
     OutilMesure.prototype.outilMesureLineaire =  function () {
         var that = this;
         var oMeasrLinearCtrlOptions = {
-          title: "Effectuer une mesure linéaire.",
-          geodesic: true,
-          eventListeners: {
-              activate: function(e){
-                  that.displayMeasr('');
-                  that.mesureSelection(undefined, 'Ligne');
-              },
-              measure: function(e){that.executerMeasr(e);},
-              measurepartial: function(e){that.executerMeasr(e);}
-          },
-          handlerOptions: {
-              persist: true
-          }
+            title: "Effectuer une mesure linéaire.",
+            geodesic: true,
+            eventListeners: {
+                activate: function(e){
+                    that.displayMeasr('');
+                    that.mesureSelection(undefined, 'Ligne');
+                },
+                deactivate: function(e){
+                    if(that.$mesureComboPeriUnite){
+                        that.$mesureComboPeriUnite.off('change');
+                        that.$mesureComboPeriUnite = undefined;
+                    }
+                    if(that.$mesureComboAireUnite){
+                        that.$mesureComboAireUnite.off('change');
+                        that.$mesureComboAireUnite = undefined;
+                    }
+                },
+                measure: function(e){that.executerMeasr(e);},
+                measurepartial: function(e){that.executerMeasr(e);}
+            },
+            handlerOptions: {
+                persist: true
+            }
         };
 
         this.controle = new OpenLayers.Control.Measure(OpenLayers.Handler.Path, oMeasrLinearCtrlOptions);
@@ -57,6 +67,16 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                 activate: function(e){
                     that.displayMeasr('', '');
                     that.mesureSelection(undefined, 'Polygone');        
+                },
+                deactivate: function(e){
+                    if(that.$mesureComboPeriUnite){
+                        that.$mesureComboPeriUnite.off('change');
+                        that.$mesureComboPeriUnite = undefined;
+                    }
+                    if(that.$mesureComboAireUnite){
+                        that.$mesureComboAireUnite.off('change');
+                        that.$mesureComboAireUnite = undefined;
+                    }
                 },
                 measure: function(e){that.executerMeasr(e);},
                 measurepartial: function(e){that.executerMeasr(e);} 
@@ -88,7 +108,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.$mesureComboAireUnite.on('focus', function () {
                 //previous = this.value;
             }).change(function(e) {
-                that.changeUniteEvent("aire");
+                that.changeUniteEvent("surface");
                 //previous = this.value;
             });
         }
@@ -135,6 +155,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         if(mesure){
             mesure = this.traiterMeasr(mesure, oldUnite, type, false);
         }
+
         if(type === "lineaire"){
             length = mesure;
         } else if(area !== undefined){
@@ -149,12 +170,13 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         if(event.order===1){ // LINEAR
             this.lengthOL = event.measure;
             this.lengthUnitOL = event.units;
+            this.areaOL = undefined;
             var length = this.traiterMeasr(event.measure, event.units, "lineaire");
             this.displayMeasr(length);
         }
         else // POLYGON
         {        
-            var area = this.traiterMeasr(event.measure, event.units + "²", "aire");
+            var area = this.traiterMeasr(event.measure, event.units + "²", "surface");
             var lengthObj = this.controle.getBestLength(event.geometry);
             var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
             this.lengthOL = lengthObj[0];
@@ -189,6 +211,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
             this.lengthOL = lengthObj[0];
             this.lengthUnitOL = lengthObj[1];
+            this.areaOL = undefined;
             this.displayMeasr(length);
         } else if(occurence.type === 'Polygone' || occurence.type === 'MultiPolygone'){
             var geometry = occurence._obtenirGeomOL();
@@ -196,7 +219,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             var length = this.traiterMeasr(lengthObj[0], lengthObj[1], "lineaire");
 
             var areaObj = this.controle.getBestArea(geometry);
-            var area = this.traiterMeasr(areaObj[0], areaObj[1] + "²", "aire");
+            var area = this.traiterMeasr(areaObj[0], areaObj[1] + "²", "surface");
             
             this.lengthOL = lengthObj[0];
             this.lengthUnitOL = lengthObj[1];

@@ -448,8 +448,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                         listOutils.push(outilOccurence);
 
                         if (outil.outil || outil["groupe-outils"]) {
-                            //delete outil["@attributes"];
-                            //delete outil.attributes;
+                            delete outil["@attributes"];
+                            delete outil.attributes;
                             that._analyserOutils(outil, outilOccurence);
                         }
                     });
