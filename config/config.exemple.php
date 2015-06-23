@@ -55,6 +55,7 @@ return array(
             'exemplesServicesDir' => $baseEditionDir . 'app/services/exemple/'
         ),        
         'services'  => array(
+            'dir'            => $baseServicesDir,
             'controllersDir' => $baseServicesDir . 'igo_commun/app/controllers/',
             'viewsDir'       => $baseServicesDir . 'igo_commun/app/views/'     
         ),

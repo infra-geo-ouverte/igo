@@ -7,13 +7,25 @@
  * @requires wms2pdf
  */
 
-
 require.ajouterConfig({
     paths: {
-      fileUploadField: "libs/GeoExt.ux/FileUploadField/fileUploadFieldRequire",
-      kmlMsp: "libs/extension/OpenLayers/kmlMsp"
-    }
+        kmlMsp: "libs/extension/OpenLayers/kmlMsp"
+    },
 });
+
+if(!require.estDansConfig("fileUploadField")){   
+    require.ajouterConfig({
+        paths: {
+            fileUploadField: 'libs/Ext.ux/FileUploadField/FileUploadField',
+            fileUploadFieldCss: 'libs/Ext.ux/FileUploadField/FileUploadField'
+        },
+        shim: {
+            fileUploadField: {
+                deps: ['css!fileUploadFieldCss']
+            }
+        }
+    });
+}
 
 define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide) {
     /** 

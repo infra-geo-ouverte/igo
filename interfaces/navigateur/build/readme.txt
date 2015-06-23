@@ -1,11 +1,11 @@
 2 méthodes pour faire le build de IGO:
 
 Avec nodejs et uglify:
-nodejs r/r.js -o build.js
+nodejs ../../../librairie/r.js/dist/r.js -o build.js
 
 Avec java et closure compiler:
 Si on utilise cette méthode, il faut décommenter la ligne - optimize: "closure", -
-java -classpath r/lib/rhino/js.jar:r/lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main r/r.js -o build.js
+java -classpath ../../../librairie/r.js/lib/rhino/js.jar:../../../librairie/r.js/lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main ../../../librairie/r.js/dist/r.js -o build.js
 
 
 
@@ -21,6 +21,6 @@ python build_WMSBrowser.py
 
 
 Pour OpenLayers:
-cd ../public/libs/OpenLayers-2.13.1/build/
+cd ../../../librairie/openlayers/build/
 python buildUncompressed.py full ../OpenLayers.debug.js
 python build.py full ../OpenLayers.js

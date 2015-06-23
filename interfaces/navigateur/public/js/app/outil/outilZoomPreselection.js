@@ -226,7 +226,11 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
     };
     
     OutilZoomPreselection.prototype.gestionErreurStore = function(http_proxy, type, action, options, response){
-        Aide.afficherMessage("Outil indisponible", "L'utilisation de l'outil 'zoom présélection' n'est pas permise.<br>" + response.responseText);
+        var reponse = response.responseText;
+        if(response.status === 404){
+            reponse = "Service introuvable.";
+        }
+        Aide.afficherMessage("Outil indisponible", "L'utilisation de l'outil 'zoom présélection' n'est pas permise.<br>" + reponse);
         this.cacherFormRecherche();
         this.window_recherche = undefined;
         this.desactiver();

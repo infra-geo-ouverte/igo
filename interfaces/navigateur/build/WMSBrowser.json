@@ -1,0 +1,12 @@
+[
+	"<%= dirs.WMSBrowser %>/data/Store.js",
+	"<%= dirs.WMSBrowser %>/data/WMSBrowserWMSCapabilitiesStore.js",
+        "<%= dirs.WMSBrowser %>/plugins/WMSBrowserAlerts.js",
+        "<%= dirs.WMSBrowser %>/widgets/WMSBrowser.js",
+        "<%= dirs.WMSBrowser %>/widgets/WMSBrowserStatusBar.js",
+        "<%= dirs.WMSBrowser %>/widgets/grid/WMSBrowserGridPanel.js",
+        "<%= dirs.WMSBrowser %>/widgets/tree/WMSBrowserRootNode.js",
+        "<%= dirs.WMSBrowser %>/widgets/tree/WMSBrowserTreePanel.js",
+        "<%= dirs.WMSBrowser %>/widgets/tree/patchProcessResponse.js",
+        "<%= dirs.WMSBrowser %>/locale/WMSBrowser-fr.js"
+]

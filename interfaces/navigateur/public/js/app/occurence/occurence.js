@@ -490,12 +490,17 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {String} [regle='courant'] règle du style (defaut, select, courant)
      * @returns {*} Valeur de la propriété du style entrée en paramètre
      */
-    Occurence.prototype.obtenirProprieteStyle = function(nom, regle) {
+    Occurence.prototype.obtenirProprieteStyle = function(nom, regle, evaluer) {
         regle = regle || 'courant';
         regle = regle === 'courant' ? this.regleCourant : regle;
         var style= this.obtenirStyle(regle, true, true);
         if (style) {
-            return style.obtenirPropriete(nom);
+            var propriete = style.obtenirPropriete(nom);
+            var regex = /^\${.+}$/;
+            if(evaluer && propriete !== undefined && regex.test(propriete)){
+                return this.obtenirPropriete(propriete.substring(2, propriete.length-1));
+            }
+            return propriete;
         }
         return undefined;
     };
