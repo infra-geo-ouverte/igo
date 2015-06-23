@@ -1,12 +1,18 @@
+if(!require.estDansConfig("fileUploadField")){    
+    require.ajouterConfig({
+        paths: {
+                fileUploadField: 'libs/Ext.ux/FileUploadField/FileUploadField',
+                fileUploadFieldCss: 'libs/Ext.ux/FileUploadField/FileUploadField'
+        },
+        shim: {
+            fileUploadField: {
+                deps: ['css!fileUploadFieldCss']
+            }
+        }
+    });
+}
 
-require.ajouterConfig({
-    paths: {
-            fileUploadField: '[librairies]ext/extension/FileUploadField/FileUploadField',
-            fileUploadFieldCss: '[librairies]ext/extension/FileUploadField/FileUploadField'
-    }
-});
-
-define(['aide', 'outil', 'fileUploadField', 'css!fileUploadFieldCss'], function(Aide, Outil) {
+define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
 
     function OutilAssocierFichier(options) {
         this.options = options || {};

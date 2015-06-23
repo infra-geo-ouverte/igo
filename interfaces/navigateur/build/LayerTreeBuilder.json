@@ -1,0 +1,4 @@
+[
+	"<%= dirs.LayerTreeBuilder %>/lib/widgets/tree/LayerTreeBuilder.js",
+        "<%= dirs.LayerTreeBuilder %>/lib/plugins/LayerTreeBuilderNodeAgent.js"
+]

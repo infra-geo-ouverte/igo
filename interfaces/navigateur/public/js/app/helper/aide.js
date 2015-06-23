@@ -12,9 +12,7 @@ define([], function() {
      * @alias aide:helper.Aide
      * @requires aide
     */
-    function Aide(){
-
-    };
+    function Aide(){};
     
     /** 
      * Convertir la région IGO en région ExtJS
@@ -151,7 +149,20 @@ define([], function() {
         url = url || "";
         var r = new RegExp('^(http|https)', 'i');
         
+        var urlExclusProxy= this.obtenirConfig("urlExclusProxy") || [];
+        var exclu = false;
+        $.each(urlExclusProxy, function(key, value){
+            if(url.search(value) === 0){
+                exclu = true;
+                return false;
+            }
+        });
+        if(exclu){
+            return url;
+        }
+        
         var iAdresse = url.search(/\?|&/);
+        
         var adresse, params, urlC;
         if(iAdresse === -1){
             adresse = url;
@@ -165,18 +176,18 @@ define([], function() {
         if(adresse[0] === '[' && adresse[adresse.length-1] === ']'){
             adresse = adresse.substr(1, adresse.length-2);
             urlC = params ? adresse + '&' + params : adresse;
-            return this.obtenirProxy()+"?_service=" + encodeURI(urlC);
+            return this.obtenirProxy(true) + encodeURI(urlC);
         }
         if(toujoursUtiliser){
             if(!r.test(adresse)) {
                 urlC = this.utiliserBaseUri(urlC);
-                return this.obtenirProxy()+"?_service=" + encodeURI(this.obtenirHote(true) + urlC);
+                return this.obtenirProxy(true) + encodeURI(this.obtenirHote(true) + urlC);
             }
         }
         if (!toujoursUtiliser && (adresse.search(this.obtenirHote()) === 0 || (!r.test(adresse)))){
             return params ? adresse + '?' + params : adresse;
         }
-        return this.obtenirProxy()+"?_service=" + encodeURI(urlC);
+        return this.obtenirProxy(true) + encodeURI(urlC);
     };
     
     

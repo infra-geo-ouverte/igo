@@ -3,7 +3,7 @@
  */
 require.ajouterConfig({
     paths: {
-            togpx: '[librairies]ext/extension/togpx/togpx'
+            togpx: '[librairies]/togpx/togpx'
     }
 });
 define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, AnalyseurGeoJSON, togpx) {

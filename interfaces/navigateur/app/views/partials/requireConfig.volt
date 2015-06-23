@@ -41,8 +41,8 @@ require.config({
         css : "libs/require/src/css",
         text : "libs/require/src/text",
         hbars : "libs/require/src/hbars",
-        handlebars: 'libs/handlebars/handlebars-v3.0.0',
-        jquery: debug ? "libs/jquery/jquery-1.10.2" : "libs/jquery/jquery-1.10.2.min",
+        handlebars: '<?php echo $this->config->uri->librairies?>/handlebars/handlebars',
+        jquery: debug ? "<?php echo $this->config->uri->librairies?>/jquery/jquery" : "<?php echo $this->config->uri->librairies?>/jquery/jquery.min",
         proj4js: 'libs/proj/Proj4js',
         epsgDef: 'libs/proj/epsgDef',
         build: "js/main-build"
