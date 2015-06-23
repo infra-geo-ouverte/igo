@@ -6,7 +6,7 @@
  * @requires recherche, limites, point, vecteur, style
  */
 
-define(['limites', 'point', 'marqueurs', 'style', 'recherche'], function(Limites, Point, Marqueurs, Style, Recherche) {
+define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(Limites, Point, Marqueurs, Style, Recherche, Aide) {
 
    /** 
    * Création de l'object Panneau.RechercheCadastreReno.
@@ -29,6 +29,7 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche'], function(Limites
             titre: "Cadastre rénové"
             
         });
+        this.defautOptions = $.extend({}, Aide.obtenirConfig('RechercheCadastreReno'), this.defautOptions);
     };
 
     RechercheCadastreReno.prototype = new Recherche();
@@ -47,8 +48,14 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche'], function(Limites
         
         var that = this;
         var numCadastre = tabValeursRecherche["RechercheTitle" + this.options.id];
+        
+        if(!numCadastre){
+            Aide.afficherMessage({titre: "Recherche", message:'Vous devez saisir un cadastre rénové'});
+            return false;
+        }
+        
         var codeEPSG = this.carte.obtenirProjection();
-        page = "http://www.cptaq.gouv.qc.ca/mapserver/find_lot_v2.php";
+        page = this.options.url;
 
         //Ajouter les paramètres
         var url = page;
@@ -102,19 +109,19 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche'], function(Limites
             return false;
         }
         
-        if(this.coucheVecteur === undefined){
+        if(this.vecteur === undefined){
             this.creerCoucheVecteur();
         }
         else{
-            this.coucheVecteur.enleverMarqueurs();
+            this.vecteur.enleverMarqueurs();
         }
         
         point = new Point(pointx, pointy);
 
-        this.coucheVecteur.ajouterMarqueur(point);
-        //this.coucheVecteur.ajouterMarqueur(point, null, numCadastre);
+        this.vecteur.ajouterMarqueur(point);
+        //this.vecteur.ajouterMarqueur(point, null, numCadastre);
          
-        this.coucheVecteur.zoomerMarqueurs();
+        this.vecteur.zoomerMarqueurs();
          
         var couche = this.carte.gestionCouches.obtenirCouchesParTitre("Cadastre rénové - bas niveau")[0];
 
@@ -145,7 +152,7 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche'], function(Limites
      
     RechercheCadastreReno.prototype.afficherMessageErreur = function()
     {
-        Ext.Msg.alert('Message', 'Erreur lors de la recherche cadastre rénové');
+        Aide.afficherMessage({titre: "Message", message:'Aucune donnée trouvée'});
     };
     
         /** 
@@ -154,10 +161,10 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche'], function(Limites
      * @name Recherche#_creerCoucheVecteur
     */
     RechercheCadastreReno.prototype.creerCoucheVecteur = function(){
-        this.coucheVecteur = new Marqueurs({nom:'couche'+this.typeRecherche, displayInLayerSwitcher:false});
-        this.carte.gestionCouches.ajouterCouche(this.coucheVecteur);
+        this.vecteur = new Marqueurs({nom:'couche'+this.typeRecherche, displayInLayerSwitcher:false, visible:false});
+        this.carte.gestionCouches.ajouterCouche(this.vecteur);
         if (!this.pineCheckbox || this.pineCheckbox.checked){
-            this.coucheVecteur.activer();
+            this.vecteur.activer();
         }
     };
      
