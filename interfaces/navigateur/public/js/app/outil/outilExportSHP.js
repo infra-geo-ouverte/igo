@@ -6,19 +6,45 @@ define(['outil', 'aide', 'analyseurGeoJSON'], function(Outil, Aide, AnalyseurGeo
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: Aide.obtenirCheminRacine()+'images/toolbar/export_shape.png',
-            infobulle: "Exporter en shapeFile"
+            infobulle: "Exporter en fichier(s) de formes (shp)"
         });
     };
 
     OutilExportSHP.prototype = new Outil();
     OutilExportSHP.prototype.constructor = OutilExportSHP;
+    
+    /** Action de l'outil
+     * @method
+     * @name OutilExportSHP#executer
+     */
+    OutilExportSHP.prototype.executer = function() {
         
-    OutilExportSHP.prototype.executer = function() {      
+        var that = this;
+        
+        //Valider que le service est défini dans le fichier de configuration
         if(this.options.urlService === undefined) {
-             Aide.afficherMessage("Erreur", "Vous devez ajouter un service de conversion pour cet outil dans votre fichier de configuration.");
+             Aide.afficherMessage("Erreur", "Vous devez définit un service de conversion dans votre fichier de configuration.");
              return false;
-        }  
+        }
         
+        //Valider que le service défini est fonctionnel
+        this.verifierServiceDisponible(this.options.urlService, function(status){
+            if(status === 200){
+               that.exporter();
+            }
+            else{
+               Aide.afficherMessage("Erreur", "Le service de conversion n'est pas disponible.");
+            }
+        });
+    };
+    
+    /**
+     * Obtenir et exporter la sélection
+     * @method
+     * @name OutilExportSHP#exporter
+     * @returns {Boolean}
+     */
+    OutilExportSHP.prototype.exporter = function(){    
         var that = this;     
         var geojson;
         this.tabOccu = new Array();       
@@ -59,6 +85,8 @@ define(['outil', 'aide', 'analyseurGeoJSON'], function(Outil, Aide, AnalyseurGeo
     
     /**
      * Appeler le service qui retournera le fichier zip de shapeFile selon les géométries sélectionnés de la couche
+     * @method
+     * @name OutilExportSHP#appelerService
      * @param {string} url URL du service à de conversion shapeFile
      * @param {json} json contenant les géométries à convertir en shapeFile
      * @param {string} outputName le nom du fichier de sortie
@@ -102,7 +130,26 @@ define(['outil', 'aide', 'analyseurGeoJSON'], function(Outil, Aide, AnalyseurGeo
                 };
             })(iframe), 4000);*/
         };
-    };    
+    };
+    
+    /**
+     * Vérifier que l'url du service est disponible
+     * @method
+     * @name OutilExportSHP#verifierServiceDisponible
+     * @param {type} url url du service à valider
+     * @param {type} fct Fonction à exécuter suite aux résultats
+     */
+    OutilExportSHP.prototype.verifierServiceDisponible = function(url, fct){
+        jQuery.ajax({
+            url:      url,
+            dataType: 'text',
+            type:     'POST',
+            complete:  function(xhr){
+                if(typeof fct === 'function')
+                   fct.apply(this, [xhr.status]);
+            }
+        });
+    };
     
     return OutilExportSHP;
     
