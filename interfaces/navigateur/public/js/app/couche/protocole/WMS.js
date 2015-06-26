@@ -135,6 +135,9 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             async:false,
             context:this,
             dataType:'xml',
+            dataFilter: function(response, type){
+              return jQuery.trim(response);
+            },
             success:function(response) {
                 this._getCapabilitiesSuccess(response, target, callback, optCalback);
             },
