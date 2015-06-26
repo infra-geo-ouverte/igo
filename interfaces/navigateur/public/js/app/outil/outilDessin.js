@@ -40,7 +40,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
             if(typeof this.options.couche === "string"){
                 this.options.couche = this.carte.gestionCouches.obtenirCoucheParId(this.options.couche);
             }
-            if(this.options.couche.obtenirTypeClasse && (this.options.couche.obtenirTypeClasse() === "Vecteur" || this.options.couche.obtenirTypeClasse() === "VecteurCluster")){
+            if(this.options.couche.obtenirTypeClasse && (this.options.couche.obtenirTypeClasse() === "Vecteur" || this.options.couche.obtenirTypeClasse() === "VecteurCluster" || this.options.couche.obtenirTypeClasse() === "WFS")){
                 this.couche = this.options.couche;
             } else {
                 this.options.couche = undefined;
@@ -98,7 +98,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 that.carte.declencher({type: 'changerCoucheEdition', couche: args.couche});
             }, 
             condition: function(args){
-                return (args.couche.obtenirTypeClasse()==='Vecteur' || args.couche.obtenirTypeClasse()==='VecteurCluster') && that.carte.gestionCouches.coucheVecteurActive !== args.couche && args.couche.options.editable;
+                return (args.couche.obtenirTypeClasse()==='Vecteur' || args.couche.obtenirTypeClasse()==='VecteurCluster' || args.couche.obtenirTypeClasse()==='WFS') && that.carte.gestionCouches.coucheVecteurActive !== args.couche && args.couche.options.editable;
             }, 
             position: 4
         });
@@ -112,7 +112,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 that.carte.declencher({type: 'changerCoucheEdition', couche: undefined});
             }, 
             condition: function(args){
-                return (args.couche.obtenirTypeClasse()==='Vecteur' || args.couche.obtenirTypeClasse()==='VecteurCluster') && that.carte.gestionCouches.coucheVecteurActive === args.couche;
+                return (args.couche.obtenirTypeClasse()==='Vecteur' || args.couche.obtenirTypeClasse()==='VecteurCluster' || args.couche.obtenirTypeClasse()==='WFS') && that.carte.gestionCouches.coucheVecteurActive === args.couche;
             }, 
             position: 5
         });

@@ -95,8 +95,13 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
 
         if (this.couchesInterroger.length === 0) {
             // TODO : this is HARDCODED
-            var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
-            Aide.afficherMessage("Outil Information", szErrMsg, "OK", "Info");
+            var occurencesSurvolees = this.carte.gestionCouches.obtenirListeOccurencesSurvols().slice();
+            if(occurencesSurvolees.length){
+                Fonctions.afficherProprietes(occurencesSurvolees);
+            } else {
+                var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
+                Aide.afficherMessage("Outil Information", szErrMsg, "OK", "Info");
+            }
             return;
         }
 
@@ -518,7 +523,11 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     };
 
     OutilInfo.prototype.afficherResultats = function () {
-
+        var occurencesSurvolees = this.carte.gestionCouches.obtenirListeOccurencesSurvols().slice();
+        if(occurencesSurvolees.length){
+            this.afficherProprietes.push(occurencesSurvolees);
+        }
+        
         if (this.afficherProprietes.length === 0 && this.executerAction.length === 0) {
             Aide.cacherMessageChargement();
             // TODO : this is HARDCODED
@@ -542,10 +551,11 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             this.reinitialiser();
             return;
         }
-       
+ 
         if (this.afficherProprietes.length > 0) {
             Fonctions.afficherProprietes(this.afficherProprietes);
         }
+
 
         if (this.executerAction.length > 0) {
 

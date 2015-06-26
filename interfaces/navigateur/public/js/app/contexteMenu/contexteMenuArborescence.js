@@ -300,7 +300,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
     
     ContexteMenuArborescence.prototype.initZoomEmprise = function(args){
     	
-    	if( args.couche.obtenirTypeClasse() === 'Vecteur' ) {
+    	if(args.couche.obtenirTypeClasse() === 'Vecteur' || args.couche.obtenirTypeClasse() === 'VecteurCluster' || args.couche.obtenirTypeClasse() === 'WFS') {
     	    return {
                 id: 'arborescenceZoomEmpriseVecteur',
                 text : 'Zoom sur l\'emprise',
@@ -333,7 +333,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
         var arbo = that.options.arborescence;
         var aPanneauTable = false;
         var panneauTable;
-        if(arbo.options.idResultatTable && (args.couche.obtenirTypeClasse() === 'Vecteur' || args.couche.obtenirTypeClasse() === 'VecteurCluster')){
+        if(arbo.options.idResultatTable && (args.couche.obtenirTypeClasse() === 'Vecteur' || args.couche.obtenirTypeClasse() === 'WFS' || args.couche.obtenirTypeClasse() === 'VecteurCluster')){
             var nav = Aide.obtenirNavigateur();
             panneauTable = nav.obtenirPanneauParId(arbo.options.idResultatTable, -1);
             if(panneauTable && panneauTable.obtenirTypeClasse){aPanneauTable = true;}

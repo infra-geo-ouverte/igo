@@ -375,7 +375,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     
     PanneauTable.prototype.reconfigurerBarreOutils = function(){
         var that=this;
-        if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster')){
+        if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster' || this.donnees.obtenirTypeClasse() === 'WFS')){
             this.barreOutils.eteindreOutils();
             this.barreOutils.enleverTousOutils();
             var outils = [];
@@ -469,7 +469,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
       
     PanneauTable.prototype.activerDeclencheursVecteur = function(vecteur){
-        if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster')){
+        if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster' || this.donnees.obtenirTypeClasse() === 'WFS')){
             vecteur.ajouterDeclencheur('vecteurOccurenceSelectionnee', this._selectionEvent, {scope:this});
             vecteur.ajouterDeclencheur('vecteurOccurenceDeselectionnee', this._deselectionEvent, {scope:this});
             vecteur.ajouterDeclencheur('vecteurOccurenceModifiee', this._modificationEvent, {scope:this});
@@ -480,7 +480,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
     
     PanneauTable.prototype.desactiverDeclencheursVecteur = function(vecteur){
-        if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster')){
+        if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster' || this.donnees.obtenirTypeClasse() === 'WFS')){
             vecteur.enleverDeclencheur('vecteurOccurenceSelectionnee', undefined, this._selectionEvent);
             vecteur.enleverDeclencheur('vecteurOccurenceDeselectionnee', undefined, this._deselectionEvent);
             vecteur.enleverDeclencheur('vecteurOccurenceModifiee', undefined, this._modificationEvent);
@@ -566,10 +566,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         });
     };
     
-    PanneauTable.prototype.selectionnerParIndex = function(index, garderSelection){
+    PanneauTable.prototype.selectionnerParIndex = function(index, garderSelection, scroll){
         if(this._panel.selModel.grid && !this._panel.selModel.isSelected(index)){
             this._panel.selModel.selectRow(String(index), garderSelection);
-            if(this._panel.getView().getRow(index)){
+            if(this._panel.getView().getRow(index) && scroll !== false){
                 this._panel.getView().getRow(index).scrollIntoView(this._panel.getView());
             }
         }
@@ -757,7 +757,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             selectionIGO.push(value.json);
         });
         var vecteur;
-        if(this._.donnees.obtenirTypeClasse && (this._.donnees.obtenirTypeClasse() === 'Vecteur' || this._.donnees.obtenirTypeClasse() === 'VecteurCluster')){
+        if(this._.donnees.obtenirTypeClasse && (this._.donnees.obtenirTypeClasse() === 'Vecteur' || this._.donnees.obtenirTypeClasse() === 'VecteurCluster' || this._.donnees.obtenirTypeClasse() === 'WFS')){
             vecteur = this._.donnees;
             vecteur.deselectionnerTout({exceptions: selectionIGO});
             $.each(selectionIGO, function(key, value){

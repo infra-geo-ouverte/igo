@@ -146,7 +146,7 @@ define([], function() {
     };
     
     Aide.utiliserProxy = function(url, toujoursUtiliser){
-        url = url || "";
+        url = this.utiliserBaseUri(url) || "";
         var r = new RegExp('^(http|https)', 'i');
         
         var urlExclusProxy= this.obtenirConfig("urlExclusProxy") || [];
@@ -168,7 +168,7 @@ define([], function() {
             adresse = url;
             urlC = adresse;
         } else {
-            adresse = url.substr(0,iAdresse);
+            adresse = url.substr(0, iAdresse);
             params = url.substr(iAdresse+1);
             urlC = params ? adresse + '&' + params : adresse;
         }
@@ -180,7 +180,6 @@ define([], function() {
         }
         if(toujoursUtiliser){
             if(!r.test(adresse)) {
-                urlC = this.utiliserBaseUri(urlC);
                 return this.obtenirProxy(true) + encodeURI(this.obtenirHote(true) + urlC);
             }
         }
@@ -197,6 +196,7 @@ define([], function() {
         if(rBracket !== -1){
             var uriConfig = url.substring(lBracket+1, rBracket);
             var uri = this.obtenirConfig('uri')[uriConfig];
+            if(!uri){return url}
             url = url.substring(0, lBracket) + uri + url.substring(rBracket+1);
         };
         
