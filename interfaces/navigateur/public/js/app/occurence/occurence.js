@@ -41,6 +41,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
 
     Occurence.prototype._init = function(geometrie, proprietes, style, opt) {
         opt = opt || {};
+
         if (geometrie && geometrie.CLASS_NAME === "OpenLayers.Feature.Vector") {
             var vectorOL = geometrie;
             proprietes = proprietes || vectorOL.attributes;

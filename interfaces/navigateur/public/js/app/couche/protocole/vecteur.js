@@ -54,6 +54,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         if (!this.options.layerOL){
             Couche.prototype._init.call(this);
             var titre = this.options.titre || "vecteur";
+            
             this._layer = new OpenLayers.Layer.Vector(
                 titre,
                 this._optionsOL
@@ -70,8 +71,33 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     Vecteur.prototype._ajoutCallback = function(target, callback, optCallback){
+        var that=this;
         Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
         this.controles = new Vecteur.Controles(this);
+        if(that.options.source && that.options.sourceType){
+            require(['analyseur'+that.options.sourceType], function(Analyseur){
+                if(!Analyseur){
+                    var message = "Erreur: Couche vecteur \"" + that.obtenirTitre() + "\" (id: " + that.obtenirId() + ")<br>";
+                    message += "Échec lors du chargement \"" + that.options.donnees + "\"<br>";
+                    message += "Message: Type de donnees inconnu.";
+                    Aide.afficherMessageConsole(message);
+                }
+                var analyseur = new Analyseur();
+                analyseur.lireUrl({
+                    url: Aide.utiliserProxy(that.options.source), 
+                    callback: function(reponse, status){
+                        if(status === 'success') {
+                            that.ajouterOccurences(reponse);
+                        } else {
+                            var message = "Erreur: Couche vecteur \"" + that.obtenirTitre() + "\" (id: " + that.obtenirId() + ")<br>";
+                            message += "Échec lors du chargement \"" + that.options.donnees + "\"<br>";
+                            message += "Message: " + reponse;
+                            Aide.afficherMessageConsole(message);
+                        }
+                    }
+                })
+            });
+        }
     };
     
     /** 
@@ -237,11 +263,16 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.prototype.creerOccurence = function(geometrie, info, opt) {   
         //todo: throw error si pas geometrie...
         //todo: vérifier la projection de la géométrie
+        opt = opt || {};
         if (geometrie instanceof Occurence){
             this.ajouterOccurence(geometrie, opt);
             return;
         }
-        var occurence = new Occurence(geometrie, info);
+        var creationOccurence = {};
+        if(opt.existe){
+            creationOccurence._keepFeature = true;
+        }
+        var occurence = new Occurence(geometrie, info, undefined, creationOccurence);
         
         this.ajouterOccurence(occurence, opt);
     };
@@ -287,6 +318,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
         this.listeOccurences.push(occurence);
         if(!opt.existe){
+            occurence._feature.utilisateur=true;
             this._layer.addFeatures(occurence._feature);
         };
         

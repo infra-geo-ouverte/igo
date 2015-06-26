@@ -49,7 +49,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 minXY.lon, minXY.lat, maxXY.lon, maxXY.lat
             );
             
-            var layers = this.carte.gestionCouches.obtenirCouchesParType(['Vecteur', 'VecteurCluster'], true);
+            var layers = this.carte.gestionCouches.obtenirCouchesParType(['Vecteur', 'VecteurCluster', 'WFS'], true);
             var ctrlPressed = Aide.obtenirNavigateur().obtenirCtrl();
             
             for(var l=0; l<layers.length; ++l) {

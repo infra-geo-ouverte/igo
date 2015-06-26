@@ -1,16 +1,16 @@
-/** 
+/**
  * Module pour l'objet {@link Navigateur}.
  * @module navigateur
- * @requires barreOutils 
- * @requires panneau 
- * @requires carte 
- * @requires panneauCarte 
+ * @requires barreOutils
+ * @requires panneau
+ * @requires carte
+ * @requires panneauCarte
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
 
 define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'], function(BarreOutils, Panneau, Carte, PanneauCarte, Aide, Evenement) {
-    /** 
+    /**
      * Création de l'object Navigateur.
      * @constructor
      * @name Navigateur
@@ -19,7 +19,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @requires navigateur
      * @param {Carte} [carte] Carte du navigateur. Si absent, une carte par défaut est définie.
      * @param {dictionnaire} [options] Liste des options de la carte
-     * @param {string} [options.div] Le navigateur sera construit dans cette div et prendra la taille de celle-ci. 
+     * @param {string} [options.div] Le navigateur sera construit dans cette div et prendra la taille de celle-ci.
      * Si l'option n'est pas définie, alors le navigateur prendra le plein écran.
      * @param {boolean} [options.aBordure=false] Présence d'une bordure autour du navigateur. Seulement possible lorsque l'option 'div' est définie.
      * @returns {Navigateur} Instance de {@link Navigateur}
@@ -31,7 +31,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
     */
     function Navigateur(carte, options) {
         this.options = options || {};
-        Aide.definirNavigateur(this); 
+        Aide.definirNavigateur(this);
         if(!carte){
             carte = new Carte();
         }
@@ -45,20 +45,20 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         this.carte = carte;
         this.listePanneaux = [];
     };
-    
+
     Navigateur.prototype = new Evenement();
     Navigateur.prototype.constructor = Navigateur;
-    
+
     /**
     * Callback après l'initiation du navigateur.
     * @callback Navigateur~initCallback
     * @param {dictionnaire} opt Options
     */
-    /** 
+    /**
     * Initialisation de l'object Navigateur. Les panneaux principaux doivent être ajoutés avant.
     * Si panneauCarte est absent, alors le panneau par défaut sera créé.
     * Retourne un callback après l'initialisation du Navigateur
-    * @method 
+    * @method
     * @name Navigateur#init
     * @param {Navigateur~initCallback} [callback] Callback
     * @param {*} [cible] 'This' dans la fonction callback
@@ -69,9 +69,9 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         var that=this;
         Ext.QuickTips.init();
         Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
-        
+
         var listePanelExt=[];
-        
+
         //Ajouter les panneaux dans le panel du navigateur
         var aPanneauCarte = false;
         $.each(this.listePanneaux, function(key, value){
@@ -82,7 +82,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                 listePanelExt.push(value._getPanel());
             };
         });
-        
+
         //Si pas de panneauCarte, alors le creer
         if(aPanneauCarte === false){
             var panneauCarte = new PanneauCarte();
@@ -106,8 +106,8 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                         afterrender: function(e) {
                             e.scope.isReady = true;
                             if (typeof callback === "function") callback.call(cible, optCallback);
-                            e.scope.carte.declencher({ type: "carteInit"}); 
-                            e.scope.declencher({ type: "navigateurInit"}); 
+                            e.scope.carte.declencher({ type: "carteInit"});
+                            e.scope.declencher({ type: "navigateurInit"});
                         }
                     }
                 });
@@ -122,27 +122,27 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                     afterrender: function(e) {
                         e.scope.isReady = true;
                         if (typeof callback === "function") callback.call(cible, optCallback);
-                        e.scope.carte.declencher({ type: "carteInit"}); 
-                        e.scope.declencher({ type: "navigateurInit"}); 
+                        e.scope.carte.declencher({ type: "carteInit"});
+                        e.scope.declencher({ type: "navigateurInit"});
                     }
                 }
             });
         }
-        
+
         $(document).on('keyup keydown', function(e){that.ctrlPressed = e.ctrlKey} );
     };
 
    /* Navigateur.prototype.ready = function(){
 
     };*/
-    
+
     Navigateur.prototype.obtenirCtrl = function(){
         return this.ctrlPressed;
     };
-    
-    /** 
+
+    /**
      * Création de l'object {@link BarreOutils}.
-     * @method 
+     * @method
      * @name Navigateur#creerBarreOutils
      * @returns {BarreOutils} Instance de {@link BarreOutils}
     */
@@ -158,9 +158,9 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         return this.barreOutils;
     };
 
-    /** 
+    /**
      * Obtenir la barreOutils liée au navigateur
-     * @method 
+     * @method
      * @name Navigateur#obtenirBarreOutils
      * @returns {BarreOutils} Instance de {@link BarreOutils}
     */
@@ -168,10 +168,10 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         return this.barreOutils;
     };
 
-    /** 
+    /**
      * Ajouter un panneau au navigateur.
      * Doit être fait avant {navigateur.init).
-     * @method 
+     * @method
      * @name Navigateur#ajouterPanneau
      * @param {Panneau} panneau Panneau à ajouter.
      * @exception L'intrant panneau est du bon type
@@ -180,8 +180,8 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         if (panneau instanceof Panneau === false){
             throw new Error("Igo.Navigateur.ajouterPanneau(panneau) a besoin d'un objet de type Igo.Panneaux");
             return false;
-        } 
-        
+        }
+
         panneau.definirCarte(this.carte);
         if (panneau.obtenirTypeClasse()=== 'PanneauCarte') {
             panneau.barreOutils = this.barreOutils;
@@ -189,17 +189,17 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         panneau._init();
         this.listePanneaux.push(panneau);
     };
-    
-    /** 
+
+    /**
      * Obtenir la liste des panneaux
-     * @method 
+     * @method
      * @name Navigateur#obtenirPanneaux
      * @returns {Tableau} Liste de {@link Panneau}
     */
     Navigateur.prototype.obtenirPanneaux = function(){
         return this.listePanneaux;
     };
-   
+
     Navigateur.prototype.obtenirPanneauxParChemin = function(chemin){
         var that=this;
         var panneaux =[];
@@ -218,7 +218,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                 indexFin = sChemin.substr(indexDeb+1).search(/#|\.|>| /);
                 var nbCaractere = undefined;
                 if(indexFin !== -1){
-                    nbCaractere = indexFin - indexDeb; 
+                    nbCaractere = indexFin - indexDeb;
                 }
                 var identifiant = sChemin.substr(indexDeb+1, nbCaractere);
                 sChemin = sChemin.substr(indexFin+1);
@@ -227,8 +227,8 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                     var niveau = -1;
                     if(separator === '>'){
                        niveau = 1;
-                    } 
-                    
+                    }
+
                     if(!separator && panneauxTemp[0].obtenirTypeClasse() !== that.obtenirTypeClasse()){
                         var panneauxLoop = [];
                         $.each(panneauxTemp, function(keyTemp, panneauTemp){
@@ -253,8 +253,8 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                     var niveau = -1;
                     if(separator === '>'){
                        niveau = 1;
-                    } 
-                    
+                    }
+
                     if(!separator && panneauxTemp[0].obtenirTypeClasse() !== that.obtenirTypeClasse()){
                         var panneauxLoop = [];
                         $.each(panneauxTemp, function(keyTemp, panneauTemp){
@@ -281,21 +281,21 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
             } while (indexFin !== -1);
             panneaux = panneaux.concat(panneauxTemp);
         });
-        
+
         var panneauxUniques = panneaux.filter(function(itm,i,a){return i==a.indexOf(itm);})
         return panneauxUniques;
     };
-    
-    /** 
+
+    /**
      * Obtenir le panneau ayant l'identifiant fourni en intrant
-     * @method 
+     * @method
      * @name Navigateur#obtenirPanneauParId
      * @param {String} id Identifiant du panneau recherché
      * @returns {Panneau} Instance de {@link Panneau}
     */
     Navigateur.prototype.obtenirPanneauParId = function(id, niveau){
         niveau = niveau || 1;
-        var panneau; 
+        var panneau;
         $.each(this.listePanneaux, function(key, value){
             if(value.obtenirId() === id){
                 panneau=value;
@@ -310,17 +310,17 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         });
         return panneau;
     };
-    
-    /** 
+
+    /**
      * Obtenir les panneaux d'un certain type
-     * @method 
+     * @method
      * @name Navigateur#obtenirPanneauxParType
      * @param {String} type Type du panneau recherché
      * @returns {Tableau} Tableau de {@link Panneau}
     */
     Navigateur.prototype.obtenirPanneauxParType = function(type, niveau){
         niveau = niveau || 1;
-        var panneau=[]; 
+        var panneau=[];
         $.each(this.listePanneaux, function(key, value){
             if(value.obtenirTypeClasse() === type){
                 panneau.push(value);
@@ -331,8 +331,7 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         });
         return panneau;
     };
-    
+
     return Navigateur;
 
 });
-
