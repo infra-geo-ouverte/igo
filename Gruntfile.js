@@ -13,10 +13,34 @@ module.exports = function (grunt) {
             all: ['interfaces/navigateur/public/js/app/*.js', 'interfaces/navigateur/public/js/app/**/*.js'],
             beforeconcat: ['interfaces/navigateur/public/js/app/*.js', 'interfaces/navigateur/public/js/app/**/*.js'],
             afterconcat: ['interfaces/navigateur/public/js/main-build.js'],
-            options: {
+            basic: ['interfaces/navigateur/public/js/app/*.js'],
+	           options: {
+                undef: true,
+                curly: true,
+                freeze: true,
+                futurehostile: true,
+                //eqeqeq: true,
+                //maxcomplexity: 10,
+                //maxdepth: 3,
+                //maxstatements: 30,
+                unused: true,
+                loopfunc: true, //à retirer: enleve avertissement sur function dans une boucle
                 globals: {
-                    "jQuery": true
+                    "jQuery": false,
+                    "$": false,
+                    "Ext": false,
+                    "define": false,
+                    "require": false,
+                    "OpenLayers": false,
+                    "document": false,
+                    "clearInterval": false,
+                    "setInterval": false
                 }
+            }
+        },
+        "jsbeautifier" : {
+            files : ["interfaces/navigateur/public/js/app/*.js"],
+            options : {
             }
         },
         // concat: {
@@ -48,20 +72,20 @@ module.exports = function (grunt) {
             },
             LayerTreeBuilder: {
                 files: {
-                    '<%= dirs.LayerTreeBuilder %>/LayerTreeBuilder-build.js': 
+                    '<%= dirs.LayerTreeBuilder %>/LayerTreeBuilder-build.js':
                         grunt.file.readJSON('interfaces/navigateur/build/LayerTreeBuilder.json')
                 }
             },
             WMSBrowser: {
                 files: {
-                    '<%= dirs.WMSBrowser %>/WMSBrowser-build.js': 
-                        grunt.file.readJSON('interfaces/navigateur/build/WMSBrowser.json')               
+                    '<%= dirs.WMSBrowser %>/WMSBrowser-build.js':
+                        grunt.file.readJSON('interfaces/navigateur/build/WMSBrowser.json')
                 }
             },
             GeoExt: {
                 files: {
-                    '<%= dirs.GeoExt %>/GeoExt-build.js': 
-                        grunt.file.readJSON('interfaces/navigateur/build/GeoExt.json')               
+                    '<%= dirs.GeoExt %>/GeoExt-build.js':
+                        grunt.file.readJSON('interfaces/navigateur/build/GeoExt.json')
                 }
             },
             GeoExtDebug: {
@@ -72,19 +96,19 @@ module.exports = function (grunt) {
                     compress: {}
                 },
                 files: {
-                    '<%= dirs.GeoExt %>/GeoExt-build-debug.js': 
-                        grunt.file.readJSON('interfaces/navigateur/build/GeoExt.json')               
+                    '<%= dirs.GeoExt %>/GeoExt-build-debug.js':
+                        grunt.file.readJSON('interfaces/navigateur/build/GeoExt.json')
                 }
             }
             // OpenLayers: {
             //     files: [{
             //         src: [
-            //             "<%= dirs.librairies %>/openlayers/lib/OpenLayers/SingleFile.js",    
+            //             "<%= dirs.librairies %>/openlayers/lib/OpenLayers/SingleFile.js",
             //             "<%= dirs.librairies %>/openlayers/lib/OpenLayers/**/*.js",
             //             "!<%= dirs.librairies %>/openlayers/lib/OpenLayers/Lang/*"
-                        
+
             //         ],
-            //         dest: '<%= dirs.librairies %>/openlayers/OpenLayers.js' 
+            //         dest: '<%= dirs.librairies %>/openlayers/OpenLayers.js'
             //     }]
             // },
             // OpenLayersDebug: {
@@ -95,13 +119,13 @@ module.exports = function (grunt) {
             //         compress: {}
             //     },
             //     files: [{
-            //         src: [    
+            //         src: [
             //             "<%= dirs.librairies %>/openlayers/lib/OpenLayers/SingleFile.js",
             //             "<%= dirs.librairies %>/openlayers/lib/OpenLayers/**/*.js",
             //             "!<%= dirs.librairies %>/openlayers/lib/OpenLayers/Lang/*"
-                        
+
             //         ],
-            //         dest: '<%= dirs.librairies %>/openlayers/OpenLayers.debug.js' 
+            //         dest: '<%= dirs.librairies %>/openlayers/OpenLayers.debug.js'
             //     }]
             // }
         },
@@ -120,7 +144,7 @@ module.exports = function (grunt) {
                     },
                     done: function (done, output) {
                         var duplicates = require('rjs-build-analysis').duplicates(output);
-                        
+
                         if (Object.keys(duplicates).length > 0) {
                             grunt.log.subhead('Duplicates found in requirejs build:');
                             for (var key in duplicates) {
@@ -214,9 +238,9 @@ module.exports = function (grunt) {
                 		if(!stdout){
 							grunt.log.subhead('Tests échecs');
 							if(err && err.signal === "SIGTERM"){
-								grunt.log.error("timeout");	
+								grunt.log.error("timeout");
 							} else {
-								grunt.log.error("Dans package.json, veillez définir 'urlTestUnit'");	
+								grunt.log.error("Dans package.json, veillez définir 'urlTestUnit'");
 							}
 							return cb(new Error('Tests échecs'));
                 		}
@@ -239,7 +263,7 @@ module.exports = function (grunt) {
 		},
         clean: {
             cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*']
-        }, 
+        },
         watch: {
             scripts: {
                 files: ['interfaces/navigateur/public/js/app/*.js', 'interfaces/navigateur/public/js/app/**/*.js'],
@@ -286,6 +310,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks("grunt-jsbeautifier");
 
 //grunt.loadNpmTasks('grunt-contrib-watch');
 //grunt.notify
@@ -304,9 +329,8 @@ module.exports = function (grunt) {
     grunt.registerTask('cache', ['clean:cache', 'chmod:cacheDossier', 'chmod:cacheFichier']);
     grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
-    grunt.registerTask('qUnit', ['shell:qUnit'])
-
+    grunt.registerTask('qUnit', ['shell:qUnit']);
+    //jsbeautifier et //jshint
 
     grunt.task.run('notify_hooks');
 };
-
