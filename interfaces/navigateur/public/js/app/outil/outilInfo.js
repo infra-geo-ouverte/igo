@@ -200,7 +200,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     break;
                 case "xml":
                     coucheInfoFormat = "application/vnd.ogc.wms_xml";
-                    coucheDataType = "xml";
+                    coucheDataType = "text";
                     break;
                 default:
                     coucheInfoFormat = "application/vnd.ogc.gml";
@@ -339,9 +339,9 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             }
 
             // nomCouche et son retour ajax xml et applique Hbars si defini
-            if (coucheDataType === "xml" && coucheInfoFormat === "application/vnd.ogc.wms_xml") {
+            if (coucheDataType === "text" && coucheInfoFormat === "application/vnd.ogc.wms_xml") {
                 var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
-                var oFeatures = oFormat.read_FeatureInfoResponse(data);
+                var oFeatures = oFormat.read(data);
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
@@ -356,7 +356,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                            this.executerAction = this.executerAction.concat({
                             scope: couche,
                             action: coucheAction,
-                            params:oGeoJSON.write(oFeatures)
+                            params: oGeoJSON.write(oFeatures)
                         });
      
                     }
