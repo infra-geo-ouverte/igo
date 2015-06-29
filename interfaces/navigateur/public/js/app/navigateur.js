@@ -28,74 +28,72 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @property {tableau} listePanneaux Liste des {@link Panneau}
      * @property {dictionnaire} options Dictionnaire des options du navigateur
      * @exception L'intrant carte est du bon type
-    */
+     */
     function Navigateur(carte, options) {
         this.options = options || {};
         Aide.definirNavigateur(this);
-        if(!carte){
+        if (!carte) {
             carte = new Carte();
         }
-        if (carte.constructor.name !== 'Carte'){
+        if (carte.constructor.name !== 'Carte') {
             //pour ie
             if (carte.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1] !== 'Carte') {
                 throw new Error("new Igo.Navigateur(carte) a besoin d'un objet de type Igo.Carte()");
-                return;
             }
         }
         this.carte = carte;
         this.listePanneaux = [];
-    };
+    }
 
     Navigateur.prototype = new Evenement();
     Navigateur.prototype.constructor = Navigateur;
 
     /**
-    * Callback après l'initiation du navigateur.
-    * @callback Navigateur~initCallback
-    * @param {dictionnaire} opt Options
-    */
+     * Callback après l'initiation du navigateur.
+     * @callback Navigateur~initCallback
+     * @param {dictionnaire} opt Options
+     */
     /**
-    * Initialisation de l'object Navigateur. Les panneaux principaux doivent être ajoutés avant.
-    * Si panneauCarte est absent, alors le panneau par défaut sera créé.
-    * Retourne un callback après l'initialisation du Navigateur
-    * @method
-    * @name Navigateur#init
-    * @param {Navigateur~initCallback} [callback] Callback
-    * @param {*} [cible] 'This' dans la fonction callback
-    * @param {dictionnaire} [optCallback] Options du callback
-    */
-    Navigateur.prototype.init= function(callback, cible, optCallback){
+     * Initialisation de l'object Navigateur. Les panneaux principaux doivent être ajoutés avant.
+     * Si panneauCarte est absent, alors le panneau par défaut sera créé.
+     * Retourne un callback après l'initialisation du Navigateur
+     * @method
+     * @name Navigateur#init
+     * @param {Navigateur~initCallback} [callback] Callback
+     * @param {*} [cible] 'This' dans la fonction callback
+     * @param {dictionnaire} [optCallback] Options du callback
+     */
+    Navigateur.prototype.init = function(callback, cible, optCallback) {
         //Fenêtre de la carte et des outils
-        var that=this;
+        var that = this;
         Ext.QuickTips.init();
         Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
-        var listePanelExt=[];
+        var listePanelExt = [];
 
         //Ajouter les panneaux dans le panel du navigateur
         var aPanneauCarte = false;
-        $.each(this.listePanneaux, function(key, value){
+        $.each(this.listePanneaux, function(key, value) {
             if (value.obtenirTypeClasse() === 'PanneauCarte') {
                 aPanneauCarte = true;
             }
-            if (value._getPanel()){
+            if (value._getPanel()) {
                 listePanelExt.push(value._getPanel());
-            };
+            }
         });
 
         //Si pas de panneauCarte, alors le creer
-        if(aPanneauCarte === false){
+        if (aPanneauCarte === false) {
             var panneauCarte = new PanneauCarte();
             this.ajouterPanneau(panneauCarte);
             listePanelExt.push(panneauCarte._getPanel());
         }
 
         //Initialisation du viewport.
-        if (this.options.div){
-            var that=this;
-            require(['libs/Ext.ux/FitToParent'], function(){
+        if (this.options.div) {
+            require(['libs/Ext.ux/FitToParent'], function() {
                 this._viewport = new Ext.Panel({
-                    layout:'border',
+                    layout: 'border',
                     id: 'monNavigateurIGO',
                     items: listePanelExt,
                     renderTo: that.options.div,
@@ -105,38 +103,52 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                     listeners: {
                         afterrender: function(e) {
                             e.scope.isReady = true;
-                            if (typeof callback === "function") callback.call(cible, optCallback);
-                            e.scope.carte.declencher({ type: "carteInit"});
-                            e.scope.declencher({ type: "navigateurInit"});
+                            if (typeof callback === "function") {
+                                callback.call(cible, optCallback);
+                            }
+                            e.scope.carte.declencher({
+                                type: "carteInit"
+                            });
+                            e.scope.declencher({
+                                type: "navigateurInit"
+                            });
                         }
                     }
                 });
             });
         } else {
             this._viewport = new Ext.Viewport({
-                layout:'border',
+                layout: 'border',
                 id: 'monNavigateurIGO',
                 items: listePanelExt,
                 scope: this,
                 listeners: {
                     afterrender: function(e) {
                         e.scope.isReady = true;
-                        if (typeof callback === "function") callback.call(cible, optCallback);
-                        e.scope.carte.declencher({ type: "carteInit"});
-                        e.scope.declencher({ type: "navigateurInit"});
+                        if (typeof callback === "function") {
+                            callback.call(cible, optCallback);
+                        }
+                        e.scope.carte.declencher({
+                            type: "carteInit"
+                        });
+                        e.scope.declencher({
+                            type: "navigateurInit"
+                        });
                     }
                 }
             });
         }
 
-        $(document).on('keyup keydown', function(e){that.ctrlPressed = e.ctrlKey} );
+        $(document).on('keyup keydown', function(e) {
+            that.ctrlPressed = e.ctrlKey;
+        });
     };
 
-   /* Navigateur.prototype.ready = function(){
+    /* Navigateur.prototype.ready = function(){
 
-    };*/
+     };*/
 
-    Navigateur.prototype.obtenirCtrl = function(){
+    Navigateur.prototype.obtenirCtrl = function() {
         return this.ctrlPressed;
     };
 
@@ -145,15 +157,15 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @method
      * @name Navigateur#creerBarreOutils
      * @returns {BarreOutils} Instance de {@link BarreOutils}
-    */
-    Navigateur.prototype.creerBarreOutils = function(){
-        var that=this;
+     */
+    Navigateur.prototype.creerBarreOutils = function() {
+        var that = this;
         this.barreOutils = new BarreOutils(this.carte);
         //Si présence du PanneauCarte, alors établir le lien avec la barre d'outil.
-        $.each(this.obtenirPanneaux(), function(key, panneau){
+        $.each(this.obtenirPanneaux(), function(key, panneau) {
             if (panneau.obtenirTypeClasse() === 'PanneauCarte') {
                 that.barreOutils._setPanelContainer(panneau._getMapComponent());
-            };
+            }
         });
         return this.barreOutils;
     };
@@ -163,8 +175,8 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @method
      * @name Navigateur#obtenirBarreOutils
      * @returns {BarreOutils} Instance de {@link BarreOutils}
-    */
-    Navigateur.prototype.obtenirBarreOutils = function(){
+     */
+    Navigateur.prototype.obtenirBarreOutils = function() {
         return this.barreOutils;
     };
 
@@ -175,15 +187,14 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @name Navigateur#ajouterPanneau
      * @param {Panneau} panneau Panneau à ajouter.
      * @exception L'intrant panneau est du bon type
-    */
-    Navigateur.prototype.ajouterPanneau = function(panneau){
-        if (panneau instanceof Panneau === false){
+     */
+    Navigateur.prototype.ajouterPanneau = function(panneau) {
+        if (panneau instanceof Panneau === false) {
             throw new Error("Igo.Navigateur.ajouterPanneau(panneau) a besoin d'un objet de type Igo.Panneaux");
-            return false;
         }
 
         panneau.definirCarte(this.carte);
-        if (panneau.obtenirTypeClasse()=== 'PanneauCarte') {
+        if (panneau.obtenirTypeClasse() === 'PanneauCarte') {
             panneau.barreOutils = this.barreOutils;
         }
         panneau._init();
@@ -195,16 +206,16 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @method
      * @name Navigateur#obtenirPanneaux
      * @returns {Tableau} Liste de {@link Panneau}
-    */
-    Navigateur.prototype.obtenirPanneaux = function(){
+     */
+    Navigateur.prototype.obtenirPanneaux = function() {
         return this.listePanneaux;
     };
 
-    Navigateur.prototype.obtenirPanneauxParChemin = function(chemin){
-        var that=this;
-        var panneaux =[];
+    Navigateur.prototype.obtenirPanneauxParChemin = function(chemin) {
+        var that = this;
+        var panneaux = [];
         var cheminSplit = chemin.split(',');
-        $.each(cheminSplit, function(key, sChemin){
+        $.each(cheminSplit, function(key, sChemin) {
             var indexFin;
             var panneauxTemp = [that];
             do {
@@ -215,58 +226,58 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                 }
                 var indexDeb = sChemin.search(/#|\.|>| /);
                 var directive = sChemin[indexDeb];
-                indexFin = sChemin.substr(indexDeb+1).search(/#|\.|>| /);
-                var nbCaractere = undefined;
-                if(indexFin !== -1){
+                indexFin = sChemin.substr(indexDeb + 1).search(/#|\.|>| /);
+                var nbCaractere;
+                if (indexFin !== -1) {
                     nbCaractere = indexFin - indexDeb;
                 }
-                var identifiant = sChemin.substr(indexDeb+1, nbCaractere);
-                sChemin = sChemin.substr(indexFin+1);
+                var identifiant = sChemin.substr(indexDeb + 1, nbCaractere);
+                sChemin = sChemin.substr(indexFin + 1);
 
-                if(directive === '#'){
-                    var niveau = -1;
-                    if(separator === '>'){
-                       niveau = 1;
+                var panneauxLoop, niveau;
+                if (directive === '#') {
+                    niveau = -1;
+                    if (separator === '>') {
+                        niveau = 1;
                     }
-
-                    if(!separator && panneauxTemp[0].obtenirTypeClasse() !== that.obtenirTypeClasse()){
-                        var panneauxLoop = [];
-                        $.each(panneauxTemp, function(keyTemp, panneauTemp){
-                            if(panneauTemp.obtenirId() === identifiant){
+                    if (!separator && panneauxTemp[0].obtenirTypeClasse() !== that.obtenirTypeClasse()) {
+                        panneauxLoop = [];
+                        $.each(panneauxTemp, function(keyTemp, panneauTemp) {
+                            if (panneauTemp.obtenirId() === identifiant) {
                                 panneauxLoop = panneauxLoop.concat([panneauTemp]);
                             }
                         });
                         panneauxTemp = panneauxLoop;
                     } else {
-                        var panneauxLoop = [];
-                        $.each(panneauxTemp, function(keyTemp, panneauTemp){
-                            if(panneauTemp.obtenirPanneauParId){
+                        panneauxLoop = [];
+                        $.each(panneauxTemp, function(keyTemp, panneauTemp) {
+                            if (panneauTemp.obtenirPanneauParId) {
                                 var p = panneauTemp.obtenirPanneauParId(identifiant, niveau);
-                                if(p){
+                                if (p) {
                                     panneauxLoop = panneauxLoop.concat([p]);
                                 }
                             }
                         });
                         panneauxTemp = panneauxLoop;
                     }
-                } else if (directive === "."){
-                    var niveau = -1;
-                    if(separator === '>'){
-                       niveau = 1;
+                } else if (directive === ".") {
+                    niveau = -1;
+                    if (separator === '>') {
+                        niveau = 1;
                     }
 
-                    if(!separator && panneauxTemp[0].obtenirTypeClasse() !== that.obtenirTypeClasse()){
-                        var panneauxLoop = [];
-                        $.each(panneauxTemp, function(keyTemp, panneauTemp){
-                            if(panneauTemp.obtenirTypeClasse() === identifiant){
+                    if (!separator && panneauxTemp[0].obtenirTypeClasse() !== that.obtenirTypeClasse()) {
+                        panneauxLoop = [];
+                        $.each(panneauxTemp, function(keyTemp, panneauTemp) {
+                            if (panneauTemp.obtenirTypeClasse() === identifiant) {
                                 panneauxLoop = panneauxLoop.concat([panneauTemp]);
                             }
                         });
                         panneauxTemp = panneauxLoop;
                     } else {
-                        var panneauxLoop = [];
-                        $.each(panneauxTemp, function(keyTemp, panneauTemp){
-                            if(panneauTemp.obtenirPanneauxParType){
+                        panneauxLoop = [];
+                        $.each(panneauxTemp, function(keyTemp, panneauTemp) {
+                            if (panneauTemp.obtenirPanneauxParType) {
                                 panneauxLoop = panneauxLoop.concat(panneauTemp.obtenirPanneauxParType(identifiant, niveau));
                             }
                         });
@@ -275,14 +286,16 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
                 } else {
                     panneauxTemp = [];
                 }
-                if(!panneauxTemp.length){
+                if (!panneauxTemp.length) {
                     indexFin = -1;
                 }
             } while (indexFin !== -1);
             panneaux = panneaux.concat(panneauxTemp);
         });
 
-        var panneauxUniques = panneaux.filter(function(itm,i,a){return i==a.indexOf(itm);})
+        var panneauxUniques = panneaux.filter(function(itm, i, a) {
+            return i == a.indexOf(itm);
+        });
         return panneauxUniques;
     };
 
@@ -292,18 +305,18 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @name Navigateur#obtenirPanneauParId
      * @param {String} id Identifiant du panneau recherché
      * @returns {Panneau} Instance de {@link Panneau}
-    */
-    Navigateur.prototype.obtenirPanneauParId = function(id, niveau){
+     */
+    Navigateur.prototype.obtenirPanneauParId = function(id, niveau) {
         niveau = niveau || 1;
         var panneau;
-        $.each(this.listePanneaux, function(key, value){
-            if(value.obtenirId() === id){
-                panneau=value;
+        $.each(this.listePanneaux, function(key, value) {
+            if (value.obtenirId() === id) {
+                panneau = value;
                 return false;
-            };
-            if((niveau > 1 || niveau < 0) && value.obtenirPanneauParId){
-                panneau = value.obtenirPanneauParId(id, niveau-1);
-                if(panneau){
+            }
+            if ((niveau > 1 || niveau < 0) && value.obtenirPanneauParId) {
+                panneau = value.obtenirPanneauParId(id, niveau - 1);
+                if (panneau) {
                     return false;
                 }
             }
@@ -317,16 +330,16 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
      * @name Navigateur#obtenirPanneauxParType
      * @param {String} type Type du panneau recherché
      * @returns {Tableau} Tableau de {@link Panneau}
-    */
-    Navigateur.prototype.obtenirPanneauxParType = function(type, niveau){
+     */
+    Navigateur.prototype.obtenirPanneauxParType = function(type, niveau) {
         niveau = niveau || 1;
-        var panneau=[];
-        $.each(this.listePanneaux, function(key, value){
-            if(value.obtenirTypeClasse() === type){
+        var panneau = [];
+        $.each(this.listePanneaux, function(key, value) {
+            if (value.obtenirTypeClasse() === type) {
                 panneau.push(value);
-            };
-            if((niveau > 1 || niveau < 0) && value.obtenirPanneauxParType){
-                panneau = panneau.concat(value.obtenirPanneauxParType(type, niveau-1));
+            }
+            if ((niveau > 1 || niveau < 0) && value.obtenirPanneauxParType) {
+                panneau = panneau.concat(value.obtenirPanneauxParType(type, niveau - 1));
             }
         });
         return panneau;
