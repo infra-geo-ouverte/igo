@@ -210,15 +210,16 @@ class IgoController extends ControllerBase
         $application->getDI()->getSession()->set('page','../'.$application->getDi()['router']->getRewriteUri());
 
         if($application->getDI()->getSession()->has("info_utilisateur")){
-            if(!$application->getDI()->getSession()->get("info_utilisateur")->estAnonyme &&
-                isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
+            if($application->getDI()->getSession()->get("info_utilisateur")->identifiant){
                 $user = $application->getDI()->getSession()->get("info_utilisateur")->identifiant;
                 $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
-                $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
-                foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
-                    if($value['id']== $idProfil){
-                         $libelleProfil = $value['libelle']; 
-                         break;
+                if(isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
+                    $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
+                    foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
+                        if($value['id']== $idProfil){
+                             $libelleProfil = $value['libelle']; 
+                             break;
+                        }
                     }
                 }
                 if($libelleProfil === ''){
