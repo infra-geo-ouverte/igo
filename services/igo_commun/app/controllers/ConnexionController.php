@@ -7,18 +7,40 @@ class ConnexionController extends Controller{
         
         $authentificationModule = $this->getDI()->get("authentificationModule");        
 
-        //L'utilisateur est déjà authentifié
-        if($authentificationModule->estAuthentifie()){
-            //Passer à la page de choix du profil
-            return $this->roleAction();
+        $configuration = $this->getDI()->get("config");
+        if(isset($configuration->application->authentification->authentificationExterne) && $configuration->application->authentification->authentificationExterne){
+            $succes = $authentificationModule->authentification(null, null);
+            if (!$succes) {
+                $this->session->set("erreur", $authentificationModule->obtenirMessageErreur());
+                if(isset($configuration->application->authentification->authentificationUri)){
+                    return $this->response->redirect($configuration->application->authentification->authentificationUri, TRUE);
+                }
+            } else {
+                if (!$this->session->has("info_utilisateur")) {
+                    $utilisateur = new SessionController();
+                    $this->session->set("info_utilisateur", $utilisateur);
+                }
+                $this->session->get("info_utilisateur")->identifiant = $authentificationModule->obtenirIdentifiantUtilisateur();
+                $this->session->get("info_utilisateur")->estAuthentifie = $authentificationModule->estAuthentifie();
+                $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
+                $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();                       
+                $this->session->get("info_utilisateur")->profils = $authentificationModule->obtenirProfils();
+                $this->session->get("info_utilisateur")->estAnonyme  = false; 
+            }              
         }
-        
-        //Vérifier si on doit se rappeler où on voulait aller
+            
+         //Vérifier si on doit se rappeler où on voulait aller
         $request = new Phalcon\Http\Request();
         $uri = $request->getURI();
         if(substr($uri, -strlen("/connexion/")) !== "/connexion/"){    
             //Stocker l'url de redirection dans la session
             $this->definirPageRedirection($uri);
+        }
+        
+        //L'utilisateur est déjà authentifié
+        if($authentificationModule->estAuthentifie()){
+            //Passer à la page de choix du profil
+            return $this->roleAction();
         }
         
         //Paramètres pour l'affichage de la page de connexion
@@ -28,7 +50,7 @@ class ConnexionController extends Controller{
         }else{
             $this->view->setVar("erreur", "");
         }
-        $configuration = $this->getDI()->get("config");
+        
         $this->view->setVar("permettreAccesAnonyme", $configuration->application->authentification->permettreAccesAnonyme);
         $this->view->setVar("roleUri", $configuration->application->baseUri. "connexion/role");
         $this->view->setVar("anonymeUri", $configuration->application->baseUri. "connexion/anonyme");       
@@ -76,16 +98,21 @@ class ConnexionController extends Controller{
 
             $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
 
-            //L'utilisateur n'a aucun profil et on permet la connexion anonyme
-            if (!$configuration->application->authentification->activerSelectionRole && (count($profils)>0 || $configuration->application->authentification->permettreAccesAnonyme)) {
+            if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
                 array_merge($profils, IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->toArray());
             }
             
-            if(!count($profils) && $configuration->application->authentification->permettreAccesAnonyme){
-                return $this->anonymeAction();
-                
+            $this->session->get("info_utilisateur")->profils = $profils;
+            
+            if($configuration->application->authentification->activerSelectionRole){
+                if(count($profils) === 1){
+                    $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
+                    return $this->redirigeVersPage();
+                }
+                if(!count($profils)){
+                    return $this->anonymeAction(TRUE);
+                }
             }
-             $this->session->get("info_utilisateur")->profils = $profils;
         }
         //L'utilisateur doit sélectionner son rôle
         if($this->session->get("info_utilisateur")->estAuthentifie && 
@@ -120,14 +147,16 @@ class ConnexionController extends Controller{
         $this->getDI()->get("authentificationModule")->deconnexion();
     }    
     
-    public function anonymeAction(){
+    public function anonymeAction($estAuthentifier = FALSE){
         $configuration = $this->getDI()->get("config");
         if($configuration->application->authentification->permettreAccesAnonyme){
             if(!$this->session->has("info_utilisateur")) {
                 $this->session->set("info_utilisateur", new SessionController());
             }
-            $this->session->get("info_utilisateur")->estAuthentifie = false;
-            $this->session->get("info_utilisateur")->estAnonyme = true;
+            if(estAuthentifier !== TRUE){
+                $this->session->get("info_utilisateur")->estAuthentifie = false;
+                $this->session->get("info_utilisateur")->estAnonyme = true;
+            }
             if($configuration->offsetExists("database")) {
                 if($configuration->application->authentification->activerSelectionRole){
                     $this->session->get("info_utilisateur")->profilActif = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
@@ -136,11 +165,11 @@ class ConnexionController extends Controller{
                 }
             }
             return $this->redirigeVersPage();        
-        }else{
+        } else {
             $this->dispatcher->forward(array(
-                                             "controller" => "error",
-                                             "action" => "error403"
-                                             ));
+                "controller" => "error",
+                "action" => "error403"
+            ));
         }
     }
     
@@ -180,4 +209,5 @@ class ConnexionController extends Controller{
             $this->session->remove('page');
         }
     }
+    
 }

@@ -86,6 +86,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
     AnalyseurConfig.prototype._chargementConfigError = function(XMLHttpRequest, textStatus, errorThrown) {
         $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
+        if(!message){message = "Erreur lors du chargement de la configuration. (" + textStatus +")";}
         Aide.afficherMessage("Erreur chargement configuration", message, null, 'ERROR');
     };
 
@@ -616,6 +617,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
     AnalyseurConfig.prototype._analyserContexteBDError = function(XMLHttpRequest, textStatus, errorThrown) {
         $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
+        if(!message){message = "Erreur lors du chargement du contexte. (" + textStatus +")";}
         Aide.afficherMessage("Erreur chargement contexte", message, null, 'ERROR');
     };
 

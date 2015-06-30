@@ -204,6 +204,9 @@ try {
 
         if (estAnonyme($app->getDI()->getSession())) {
             $configuration = $app->getDI()->get("config");
+            if(!isset($configuration->application->authentification->nomProfilAnonyme)){
+                return (string) '0';
+            }
             return (string) '0,'.IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
         }
             

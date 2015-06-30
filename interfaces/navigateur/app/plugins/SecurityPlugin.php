@@ -44,9 +44,9 @@ class SecurityPlugin extends Plugin
                     // Si la BD n'existe pas dans la config on n'ajoute pas de profil et on se base sur le xml
                     if($this->estRoleSelectionneRequis()){
                         $this->session->get("info_utilisateur")->profilActif = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
-                    } else {
+                    } else if(isset($configuration->application->authentification->nomProfilAnonyme)){
                         $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
-                    }
+                    } 
                 }
                 $this->session->get("info_utilisateur")->estAnonyme = true;
             } else if($this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
