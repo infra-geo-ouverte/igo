@@ -1,6 +1,5 @@
 <?php
 use Phalcon\Mvc\User\Plugin;
-
 $config = include __DIR__ . "/../config/config.php";
 include $config->application->services->dir."fonctions.php";
 /*
@@ -8,7 +7,6 @@ include $config->application->services->dir."fonctions.php";
  * Il faut nettoyer les fonctions non utilisées de cette classe.
  * Définir comment reconnaitre un utilisateur anonyme.
  */
-
 class SecurityPlugin extends Plugin
 {
     public function beforeExecuteRoute(Phalcon\Events\Event $event, Phalcon\Mvc\Dispatcher $dispatcher){
@@ -16,11 +14,9 @@ class SecurityPlugin extends Plugin
         if($authentificationModule == null){
             return;
         }
-
         $controller = $dispatcher->getControllerName();
         $action = $dispatcher->getActionName();              
         $config = $this->getDI()->get("config");
-
         if($controller === "connexion" || $controller === "error"){
             $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
@@ -40,24 +36,7 @@ class SecurityPlugin extends Plugin
                     $this->session->set("info_utilisateur", new SessionController());
                 }
                 $configuration = $this->getDI()->get("config");
-                
-                if($config->application->authentification->kerberos){
-                    $succes = $this->getDI()->get("authentificationModule")->authentification(null, null);
-                    if (!$succes) {
-                        $this->session->set("erreur", $this->getDI()->get("authentificationModule")->obtenirMessageErreur());
-                        return $this->forwardToLoginPage();
-                    }
-                    else {
-                        $this->session->get("info_utilisateur")->identifiant = $authentificationModule->obtenirIdentifiantUtilisateur();
-                        $this->session->get("info_utilisateur")->estAuthentifie = $authentificationModule->estAuthentifie();
-                        $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
-                        $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();                       
-                        $this->session->get("info_utilisateur")->profils = $authentificationModule->obtenirProfils();
-                        $this->session->get("info_utilisateur")->estAnonyme  = false;            
-                    }
-
-                }
-                else if($configuration->offsetExists("database")) {
+                if($configuration->offsetExists("database")) {
                     // Si la BD n'existe pas dans la config on n'ajoute pas de profil et on se base sur le xml
                     if($this->estRoleSelectionneRequis()){
                         $this->session->get("info_utilisateur")->profilActif = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
@@ -73,7 +52,6 @@ class SecurityPlugin extends Plugin
             if($this->estAnonyme() && isset($config->application->authentification->permettreAccesAnonyme) && !$config->application->authentification->permettreAccesAnonyme){
                 return $this->forwardToUnauthorizedPage();
             }
-
         }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){                        
             if(!$this->estAnonyme() && !$this->estAuthentifie()){                
                 return $this->forwardToLoginPage();
@@ -122,8 +100,8 @@ class SecurityPlugin extends Plugin
             return false;
         }
         $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
-        $element = simplexml_load_file($xmlPath);   
-        
+        $element = simplexml_load_file($xmlPath);            
+             
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
         }else{
