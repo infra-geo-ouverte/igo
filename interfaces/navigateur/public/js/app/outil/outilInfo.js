@@ -73,7 +73,6 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     OutilInfo.prototype.eteindre = function () {
         this.desactiverEvent();
         this.carte.controles.desactiverClique();
-        this.desactiverToggleItem();
         this.reinitialiser();
     };
 
@@ -96,8 +95,13 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
 
         if (this.couchesInterroger.length === 0) {
             // TODO : this is HARDCODED
-            var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
-            Aide.afficherMessage("Outil Information", szErrMsg, "OK", "Info");
+            var occurencesSurvolees = this.carte.gestionCouches.obtenirListeOccurencesSurvols().slice();
+            if(occurencesSurvolees.length){
+                Fonctions.afficherProprietes(occurencesSurvolees);
+            } else {
+                var szErrMsg = "Veuillez sélectionner au moins une couche avant d'effectuer une requête.";
+                Aide.afficherMessage("Outil Information", szErrMsg, "OK", "Info");
+            }
             return;
         }
 
@@ -150,7 +154,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
         return couchesInterrogable;
     };
 
-    OutilInfo.prototype.formatUrl = function (url, args) {
+ OutilInfo.prototype.formatUrl = function (url, args) {
 
         var s = url,
                 i = args.length + 1;
@@ -163,7 +167,6 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     };
 
 
-
     OutilInfo.prototype.appelerGetInfo = function (couchesInterroger) {
         var that = this;
         var jqXHRs = [];
@@ -171,8 +174,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
         for (var j = 0; j < couchesInterroger.length; j++) {
             var oCoucheObtnInfo = couchesInterroger[j];
             var nomCoucheLegende = oCoucheObtnInfo.titre;
-            //var Template = oCoucheObtnInfo._template;
-            //var Declencheur = oCoucheObtnInfo._action;
+
             var Template = oCoucheObtnInfo.infoGabarit;
             var Declencheur = oCoucheObtnInfo.infoAction;
 
@@ -198,7 +200,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     break;
                 case "xml":
                     coucheInfoFormat = "application/vnd.ogc.wms_xml";
-                    coucheDataType = "xml";
+                    coucheDataType = "text";
                     break;
                 default:
                     coucheInfoFormat = "application/vnd.ogc.gml";
@@ -212,7 +214,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             } else if (BrowserDetect.browser === "Explorer") {
                 encodage = (oCoucheObtnInfo.infoEncodage === undefined) ? 'UTF-8' : oCoucheObtnInfo.infoEncodage;
             }
-            
+
             //Appliquer un xsl ESRI
             if (oCoucheObtnInfo.infoGabarit !== undefined && oCoucheObtnInfo.infoGabarit.substring(oCoucheObtnInfo.infoGabarit.lastIndexOf(".")) === ".xsl") {
                 xslTemplate = oCoucheObtnInfo.infoGabarit;
@@ -234,26 +236,37 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
 
 //                var prmt = [];
 //                var lonlat = this.carte._carteOL.getLonLatFromPixel(this.px);
-//                var point = new Point(lonlat.lon, lonlat.lat).projeter('EPSG:3798');
+//                var point = new Point(lonlat.lon, lonlat.lat).projeter('EPSG:4326');
 //
 //                prmt.push({
 //                    'name': oCoucheObtnInfo.nom,
-//                    'projection': 'EPSG:3798',
-//                    'x': Math.floor(point.x),
-//                    'y': Math.floor(point.y)
+//                    'projection': 'EPSG:4326',
+//                    'x': point.x,
+//                    'y': point.y
 //                });
 
-                //Formatter l'url
+
                 var infoUrlFormat = this.formatUrl(oCoucheObtnInfo.infoUrl, [prmt[0].name, prmt[0].projection, prmt[0].x, prmt[0].y]);
 
-                jqXHRs.push($.ajax({
-                    url: Aide.utiliserProxy(decodeURIComponent(infoUrlFormat)),
-                    context: this,
-                    dataType: coucheDataType,
-                    success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Template),
-                    error: this.gestionRetourErreur(nomCoucheLegende)
-                }));
+                if (oCoucheObtnInfo.infoAction !== undefined) {
+                    this.executerAction = this.executerAction.concat({
+                        scope: oCoucheObtnInfo,
+                        action: Declencheur,
+                        params: infoUrlFormat
+                    });
+                    
+                } else {
 
+                    jqXHRs.push($.ajax({
+                        url: Aide.utiliserProxy(decodeURIComponent(infoUrlFormat)),
+                        context: this,
+                        dataType: coucheDataType,
+                        success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Template, oCoucheObtnInfo.id),
+                        error: this.gestionRetourErreur(nomCoucheLegende)
+                    }));
+
+                }
+                
             } else {
                 //Appliquer Url WMS GetFeatureInfo
                 jqXHRs.push($.ajax({
@@ -285,7 +298,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                             }
                         }
                     },
-                    success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Declencheur, Template),
+                    success: this.traiterRetourInfo(nomCoucheLegende, coucheInfoFormat, coucheDataType, Declencheur, Template, oCoucheObtnInfo.id),
                     error: this.gestionRetourErreur(nomCoucheLegende)
                 }));
             }
@@ -305,10 +318,11 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
 
 
 
-    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, coucheAction, nomGabarit) {
+    OutilInfo.prototype.traiterRetourInfo = function (nomCoucheLegende, coucheInfoFormat, coucheDataType, coucheAction, nomGabarit, idCouche) {
 
         // On traduit le format de sortie en GeoJson peu import l'appel xml,gml ou gml311
         var oGeoJSON = new OpenLayers.Format.GeoJSON();
+        var couche = this.carte._carteOL.getLayer(idCouche);
       
         return function gestionRetour(data, textStatus, jqXHR) {
 
@@ -316,7 +330,6 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             if (coucheInfoFormat === "text/html") {
                 //Si html est vide ne pas ajouter onglet
                 if (this.gestionRetourHtml(data)) {
-                    //this.features = this.features.concat([nomCoucheLegende, data, coucheDataType]);
                     this.afficherProprietes = this.afficherProprietes.concat({
                             titre: nomCoucheLegende,
                             html: data
@@ -326,14 +339,13 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             }
 
             // nomCouche et son retour ajax xml et applique Hbars si defini
-            if (coucheDataType === "xml" && coucheInfoFormat === "application/vnd.ogc.wms_xml") {
+            if (coucheDataType === "text" && coucheInfoFormat === "application/vnd.ogc.wms_xml") {
                 var oFormat = new OpenLayers.Format.WMSGetFeatureInfo();
-                var oFeatures = oFormat.read_FeatureInfoResponse(data);
+                var oFeatures = oFormat.read(data);
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
-                       // this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
-                      this.afficherProprietes =  this.afficherProprietes.concat({
+                      this.afficherProprietes = this.afficherProprietes.concat({
                             titre: nomCoucheLegende,
                             gabarit: nomGabarit,
                             occurences: oGeoJSON.write(oFeatures)
@@ -341,10 +353,10 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                       // this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
-                           this.executerAction =    this.executerAction.concat({
-                            scope: oGeoJSON.write(oFeatures),
-                            action: coucheAction
+                           this.executerAction = this.executerAction.concat({
+                            scope: couche,
+                            action: coucheAction,
+                            params: oGeoJSON.write(oFeatures)
                         });
      
                     }
@@ -357,8 +369,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
-                       // this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
-                       this.afficherProprietes =  this.afficherProprietes.concat({
+                       this.afficherProprietes = this.afficherProprietes.concat({
                             titre: nomCoucheLegende,
                             gabarit: nomGabarit,
                             occurences: oGeoJSON.write(oFeatures)
@@ -366,10 +377,10 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        //this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
-                           this.executerAction =    this.executerAction.concat({
-                            scope: oGeoJSON.write(oFeatures),
-                            action: coucheAction
+                          this.executerAction = this.executerAction.concat({
+                            scope: couche,
+                            action: coucheAction,
+                            params:oGeoJSON.write(oFeatures)
                         });
                     }
                 }
@@ -382,8 +393,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
 
                 if (coucheAction === undefined) {
                     if (this.gestionRetourXml(oFeatures)) {
-                        //this.featuresHbars = this.featuresHbars.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), nomGabarit]);
-                    this.afficherProprietes =      this.afficherProprietes.concat({
+                    this.afficherProprietes = this.afficherProprietes.concat({
                             titre: nomCoucheLegende,
                             gabarit: nomGabarit,
                             occurences: oGeoJSON.write(oFeatures)
@@ -391,10 +401,10 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     }
                 } else {
                     if (this.gestionRetourXml(oFeatures)) {
-                        //this.features = this.features.concat([nomCoucheLegende, oGeoJSON.write(oFeatures), coucheAction]);
-                            this.executerAction =    this.executerAction.concat({
-                            scope: oGeoJSON.write(oFeatures),
-                            action: coucheAction
+                          this.executerAction = this.executerAction.concat({
+                            scope: couche,
+                            action: coucheAction,
+                            params:oGeoJSON.write(oFeatures)
                         });
                     }
                 }
@@ -513,8 +523,11 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     };
 
     OutilInfo.prototype.afficherResultats = function () {
-
-
+        var occurencesSurvolees = this.carte.gestionCouches.obtenirListeOccurencesSurvols().slice();
+        if(occurencesSurvolees.length){
+            this.afficherProprietes.push(occurencesSurvolees);
+        }
+        
         if (this.afficherProprietes.length === 0 && this.executerAction.length === 0) {
             Aide.cacherMessageChargement();
             // TODO : this is HARDCODED
@@ -538,15 +551,23 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
             this.reinitialiser();
             return;
         }
-
+ 
         if (this.afficherProprietes.length > 0) {
             Fonctions.afficherProprietes(this.afficherProprietes);
         }
 
-        if (this.executerAction.length > 0) {
-            Fonctions.executerAction(this.executerAction);
-        }
 
+        if (this.executerAction.length > 0) {
+
+            $.each(this.executerAction, function (key, value) {
+                Fonctions.executerAction({
+                    scope: value.scope,
+                    action: value.action,
+                    params: value.params
+                });
+
+            });
+        }
 
         Aide.cacherMessageChargement();
 

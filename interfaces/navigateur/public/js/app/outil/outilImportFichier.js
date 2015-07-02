@@ -20,15 +20,22 @@
  * TIGER	-	at least an .rt1	
  * VRT
  */
-require.ajouterConfig({
-    paths: {
-            togeojson: '[librairies]ext/extension/togeojson/togeojson',
-            fileUploadField: '[librairies]ext/extension/FileUploadField/FileUploadField',
-            fileUploadFieldCss: '[librairies]ext/extension/FileUploadField/FileUploadField'
-    }
-});
+if(!require.estDansConfig("fileUploadField")){   
+    require.ajouterConfig({
+        paths: {
+                togeojson: '[librairies]/togeojson/togeojson',
+                fileUploadField: 'libs/Ext.ux/FileUploadField/FileUploadField',
+                fileUploadFieldCss: 'libs/Ext.ux/FileUploadField/FileUploadField'
+        },
+        shim: {
+            fileUploadField: {
+                deps: ['css!fileUploadFieldCss']
+            }
+        }
+    });
+}
 
-define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUploadField', 'css!fileUploadFieldCss'], function(Outil, Aide, AnalyseurGeoJSON, Vecteur) {
+define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUploadField'], function(Outil, Aide, AnalyseurGeoJSON, Vecteur) {
     function OutilImportFichier(options){
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {

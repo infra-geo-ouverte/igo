@@ -1,16 +1,16 @@
-/** 
+/**
  * Module pour l'objet {@link Carte}.
  * @module carte
- * @requires point 
+ * @requires point
  * @requires limites
- * @requires gestionCouches 
- * @requires evenement 
+ * @requires gestionCouches
+ * @requires evenement
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
 
-define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc', 'aide', 'contexteMenuCarte', 'libs/extension/OpenLayers/DrawFeatureEx', 'libs/extension/OpenLayers/CircleToMeasure', 'libs/extension/OpenLayers/MeasureCircle', 'libs/extension/OpenLayers/resetLayersZIndex'], function(Point, Occurence, Limites, GestionCouches, Evenement, Blanc, Aide, ContexteMenuCarte) {
-    /** 
+define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'libs/extension/OpenLayers/DrawFeatureEx', 'libs/extension/OpenLayers/CircleToMeasure', 'libs/extension/OpenLayers/MeasureCircle', 'libs/extension/OpenLayers/resetLayersZIndex'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte) {
+    /**
      * Création de l'object Carte.
      * @constructor
      * @name Carte
@@ -22,29 +22,29 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
      * @returns {Carte} Instance de {@link Carte}
      * @property {GestionCouches} gestionCouches Gestionnaire des couches
      * @property {Dictionnaire} options Options de la carte.
-    */
-    function Carte(options){
+     */
+    function Carte(options) {
         this.gestionCouches = new GestionCouches(this);
-        this.options = options || {};   
+        this.options = options || {};
         this._init();
         this.controles = new Carte.Controles(this);
-    };
-     
+    }
+
     Carte.prototype = new Evenement();
     Carte.prototype.constructor = Carte;
-    
-    /** 
+
+    /**
      * Initialisation de l'object Carte.
      * Appelé lors de la création.
-     * @method 
+     * @method
      * @private
      * @name Carte#_init
-    */
+     */
     Carte.prototype._init = function() {
         /**
-        * Forcer le dictionnaire francais pour les label
-        * entre autres pour le label  Échelle = 1: dans la zone d'info en bas...
-        */       
+         * Forcer le dictionnaire francais pour les label
+         * entre autres pour le label  Échelle = 1: dans la zone d'info en bas...
+         */
         OpenLayers.Lang.setCode('fr');
         OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
         OpenLayers.Util.onImageLoadErrorColor = "transparent";
@@ -53,66 +53,75 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
         this.projection = this.options.projection || "EPSG:3857";
         this.projectionAffichage = this.options.displayProjection || "EPSG:4326";
 
-        var etendueMax,resolutions,limiteEtendue, resolutionMax = undefined;
-        
-        if(this.options.etendueMax) {
-            
-            if(this.options.etendueMax === "aucune"){
+        var etendueMax, resolutions, limiteEtendue, resolutionMax;
+
+        if (this.options.etendueMax) {
+
+            if (this.options.etendueMax === "aucune") {
                 etendueMax = undefined;
-            }
-            else{
+            } else {
                 etendueMax = new OpenLayers.Bounds(this.options.etendueMax.split(","));
             }
-        }
-        else {
+        } else {
             etendueMax = new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34).transform(new OpenLayers.Projection("EPSG:3857"), this.projection);
         }
-        
-        if(this.options.resolutions) {
+
+        if (this.options.resolutions) {
             resolutions = this.options.resolutions.split(/,/).map(parseFloat); //Met les valeurs dans un array de float au lieu d'un string
         }
-        
-        if(this.options.limiteEtendue) {
-            if(this.options.limiteEtendue === "aucune") {
+
+        if (this.options.limiteEtendue) {
+            if (this.options.limiteEtendue === "aucune") {
                 limiteEtendue = undefined;
-            }
-            else{
+            } else {
                 limiteEtendue = new OpenLayers.Bounds(this.options.limiteEtendue);
             }
+        } else {
+            limiteEtendue = new OpenLayers.Bounds(-11000000, 3397938, -4806248, 9512143).transform(new OpenLayers.Projection("EPSG:3857"), this.projection);
         }
-        else{
-            limiteEtendue = new OpenLayers.Bounds(-11000000,3397938,-4806248,9512143).transform(new OpenLayers.Projection("EPSG:3857"), this.projection)
-        }
-        
-        if(this.options.resolutionMax) {
+
+        if (this.options.resolutionMax) {
             resolutionMax = parseFloat(this.options.resolutionMax);
         }
-        
-        var mapOptions={
+
+        var mapOptions = {
             numZoomLevels: this.options.niveauZoom || 20,
             projection: new OpenLayers.Projection(this.projection),
-            displayProjection: new OpenLayers.Projection(this.projectionAffichage), 
+            displayProjection: new OpenLayers.Projection(this.projectionAffichage),
             units: 'm',
-            zoomMethod: null,			               
-            restrictedExtent : limiteEtendue,
+            zoomMethod: null,
+            //restrictedExtent : limiteEtendue,
             maxExtent: etendueMax,
             resolutions: resolutions,
-            maxResolutions: resolutionMax,  
+            maxResolutions: resolutionMax,
             controls: [],
-            Z_INDEX_BASE: {BaseLayer:100 , Overlay:11000, Vecteur:20000, Feature:30000, Popup:40000, Control:50000},  
+            Z_INDEX_BASE: {
+                BaseLayer: 100,
+                Overlay: 11000,
+                Vecteur: 20000,
+                Feature: 30000,
+                Popup: 40000,
+                Control: 50000
+            },
             eventListeners: this._initEvents()
-        };  
+        };
         //todo: pouvoir donner un div, un centre et un niveau de zoom a la carte
         this._carteOL = new OpenLayers.Map('igoInstance', mapOptions);
         //this.gestionCouches.ajouterCouche(new Blanc({visible:true, active:true}));
 
         //Controles
         this._carteOL.addControl(new OpenLayers.Control.Attribution());
-        this._carteOL.addControl(new OpenLayers.Control.PanPanel()); 
-        this._carteOL.addControl(new OpenLayers.Control.ZoomPanel()); 
-        this._carteOL.addControl(new OpenLayers.Control.Navigation({ type: OpenLayers.Control.TYPE_TOGGLE, zoomWheelEnabled: true})); 
-        var scaleLine = new OpenLayers.Control.ScaleLine({'bottomOutUnits':"", geodesic: true});
-	this._carteOL.addControl(scaleLine); 
+        this._carteOL.addControl(new OpenLayers.Control.PanPanel());
+        this._carteOL.addControl(new OpenLayers.Control.ZoomPanel());
+        this._carteOL.addControl(new OpenLayers.Control.Navigation({
+            type: OpenLayers.Control.TYPE_TOGGLE,
+            zoomWheelEnabled: true
+        }));
+        var scaleLine = new OpenLayers.Control.ScaleLine({
+            'bottomOutUnits': "",
+            geodesic: true
+        });
+        this._carteOL.addControl(scaleLine);
         //var lPanel = new OpenLayers.Control.LoadingPanel();
         // Enlever le panneau avec la barre de chargement, car gèle l'application en https.
         //this.carteOL.addControl(lPanel);
@@ -120,215 +129,249 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
 
 
     Carte.prototype._initEvents = function() {
-        var that=this;              
+        var that = this;
         return {
-            featureover: function(e) {  
+            featureover: function(e) {
                 var couche = that.gestionCouches.obtenirCoucheParId(e.feature.layer.id);
-                if(!couche){
+                if (!couche) {
                     return false;
                 }
-                if(!that.controles.occurenceEvenement.actif &&
-                        that.controles.occurenceEvenement.exception !== couche){
+                if (!that.controles.occurenceEvenement.actif &&
+                    that.controles.occurenceEvenement.exception !== couche) {
                     return true;
-                };
-                var occurence = couche.obtenirOccurenceParId(e.feature.id);
-                if(!occurence && couche.obtenirTypeClasse() === "VecteurCluster"){
-                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
-                if(!occurence){return false;};
-                
+                var occurence = couche.obtenirOccurenceParId(e.feature.id);
+                if (!occurence && couche.obtenirTypeClasse() === "VecteurCluster") {
+                    occurence = couche.obtenirClusterParId(e.feature.id);
+                }
+                if (!occurence) {
+                    return false;
+                }
+
                 that.gestionCouches.ajouterOccurenceSurvol(occurence);
             },
-            featureout: function(e) {     
+            featureout: function(e) {
                 var couche = that.gestionCouches.obtenirCoucheParId(e.feature.layer.id);
-                if(!couche){
+                if (!couche) {
                     return false;
                 }
-                if(!that.controles.occurenceEvenement.actif &&
-                        that.controles.occurenceEvenement.exception !== couche){
+                if (!that.controles.occurenceEvenement.actif &&
+                    that.controles.occurenceEvenement.exception !== couche) {
                     return true;
-                };
-                var occurence = couche.obtenirOccurenceParId(e.feature.id);
-                if(!occurence && couche.obtenirTypeClasse() === "VecteurCluster"){
-                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
-                if(!occurence){return false;};
-                
+                var occurence = couche.obtenirOccurenceParId(e.feature.id);
+                if (!occurence && couche.obtenirTypeClasse() === "VecteurCluster") {
+                    occurence = couche.obtenirClusterParId(e.feature.id);
+                }
+                if (!occurence) {
+                    return false;
+                }
+
                 that.gestionCouches.enleverOccurenceSurvol(occurence);
-            },                    
+            },
             featureclick: function(e) {
                 var couche = that.gestionCouches.obtenirCoucheParId(e.feature.layer.id);
-                if(!couche){
+                if (!couche) {
                     return false;
                 }
-                if(!that.controles.occurenceEvenement.actif &&
-                        that.controles.occurenceEvenement.exception !== couche){
+                if (!that.controles.occurenceEvenement.actif &&
+                    that.controles.occurenceEvenement.exception !== couche) {
                     return true;
-                };
-                var occurence = couche.obtenirOccurenceParId(e.feature.id);
-                if(!occurence && couche.obtenirTypeClasse() === "VecteurCluster"){
-                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
-                couche.declencher({ type: "occurenceClique", occurence: occurence }); 
+                var occurence = couche.obtenirOccurenceParId(e.feature.id);
+                if (!occurence && couche.obtenirTypeClasse() === "VecteurCluster") {
+                    occurence = couche.obtenirClusterParId(e.feature.id);
+                }
+                couche.declencher({
+                    type: "occurenceClique",
+                    occurence: occurence
+                });
             },
-            moveend: function(e){
-                that.declencher({ type: "limitesModifiees"}); 
+            moveend: function() {
+                that.declencher({
+                    type: "limitesModifiees"
+                });
             },
-            mouseout: function(e){
-                that.declencher({ type: "quitterSurvolCarte"});
-                clearInterval(that._timerEvenementPauseSurvol);   
+            mouseout: function() {
+                that.declencher({
+                    type: "quitterSurvolCarte"
+                });
+                clearInterval(that._timerEvenementPauseSurvol);
             },
-            mousemove: function(e){ 
+            mousemove: function(e) {
                 that.coordSouris = e.xy;
                 var lonlat = that._carteOL.getLonLatFromViewPortPx(that.coordSouris);
-                if(!lonlat){return false;}
-                that.declencher({ type: "survolerCarte", x: lonlat.lon, y: lonlat.lat });
-                clearInterval(that._timerEvenementPauseSurvol);   
-                that._timerEvenementPauseSurvol = setInterval(function () {
+                if (!lonlat) {
+                    return false;
+                }
+                that.declencher({
+                    type: "survolerCarte",
+                    x: lonlat.lon,
+                    y: lonlat.lat
+                });
+                clearInterval(that._timerEvenementPauseSurvol);
+                that._timerEvenementPauseSurvol = setInterval(function() {
                     clearInterval(that._timerEvenementPauseSurvol);
-                    that.declencher({ type: "pauseSurvolCarte", x: that._carteOL.getLonLatFromViewPortPx(that.coordSouris).lon, y: that._carteOL.getLonLatFromViewPortPx(that.coordSouris).lat });
+                    that.declencher({
+                        type: "pauseSurvolCarte",
+                        x: that._carteOL.getLonLatFromViewPortPx(that.coordSouris).lon,
+                        y: that._carteOL.getLonLatFromViewPortPx(that.coordSouris).lat
+                    });
                 }, 500);
             },
-            changelayer: function(e){
-                if(e.property === "visibility") {
+            changelayer: function(e) {
+                if (e.property === "visibility") {
                     var couche = that.gestionCouches.obtenirCoucheParId(e.layer.id);
-                    if(!couche){
+                    if (!couche) {
                         return false;
                     }
-                    that.gestionCouches.declencher({type: "coucheVisibilitéChangée", couche: couche});
+                    that.gestionCouches.declencher({
+                        type: "coucheVisibilitéChangée",
+                        couche: couche
+                    });
                 }
             }
         };
     };
 
-    /** 
-    * Obtenir la projection de la carte. (Format EPSG)
-    * @method 
-    * @name Carte#obtenirProjection
-    * @returns {String} Projection
-    */
+    /**
+     * Obtenir la projection de la carte. (Format EPSG)
+     * @method
+     * @name Carte#obtenirProjection
+     * @returns {String} Projection
+     */
     Carte.prototype.obtenirProjection = function() {
         return this.projection;
     };
-    
-     /** 
-    * Obtenir la projection d'afficahge de la carte. (Format EPSG)
-    * @method 
-    * @name Carte#obtenirProjectionAffichage
-    * @returns {String} Projection
-    */
+
+    /**
+     * Obtenir la projection d'afficahge de la carte. (Format EPSG)
+     * @method
+     * @name Carte#obtenirProjectionAffichage
+     * @returns {String} Projection
+     */
     Carte.prototype.obtenirProjectionAffichage = function() {
         return this.projectionAffichage;
     };
 
-    /** 
-    * Obtenir le centre de la carte.
-    * @method 
-    * @name Carte#obtenirCentre
-    * @returns {Geometrie.Point} Centre de la carte
-    */
-    Carte.prototype.obtenirCentre = function(){
-        if (this._carteOL.getCenter()===null){
+    /**
+     * Obtenir le centre de la carte.
+     * @method
+     * @name Carte#obtenirCentre
+     * @returns {Geometrie.Point} Centre de la carte
+     */
+    Carte.prototype.obtenirCentre = function() {
+        if (this._carteOL.getCenter() === null) {
             return null;
         }
         return new Point(this._carteOL.getCenter().lon, this._carteOL.getCenter().lat);
     };
 
-    /** 
-    * Définir le centre de la carte.
-    * @method 
-    * @name Carte#definirCentre
-    * @param {Geometrie.Point} centre Centre de la carte désiré
-    */
+    /**
+     * Définir le centre de la carte.
+     * @method
+     * @name Carte#definirCentre
+     * @param {Geometrie.Point} centre Centre de la carte désiré
+     */
     Carte.prototype.definirCentre = function(centre) {
-        if(!centre){return;};
+        if (!centre) {
+            return;
+        }
         var centreArray = centre;
-        if (centre instanceof Point){
-            centreArray = [centre.x, centre.y]
+        if (centre instanceof Point) {
+            centreArray = [centre.x, centre.y];
         }
         this._carteOL.setCenter(centreArray);
     };
-    
-    /** 
-    * Définir la couche de base.
-    * @method 
-    * @name Carte#definirCoucheDeBase
-    * @param {couche} couche Couche désiré comme couche de base
-    */
+
+    /**
+     * Définir la couche de base.
+     * @method
+     * @name Carte#definirCoucheDeBase
+     * @param {couche} couche Couche désiré comme couche de base
+     */
     Carte.prototype.definirCoucheDeBase = function(couche) {
-        if(!couche){return;}; 
+        if (!couche) {
+            return;
+        }
         this._carteOL.setBaseLayer(couche._layer);
     };
-        
-    /** 
-    * Définir la projection d'affichage de la carte.
-    * @method 
-    * @name Carte#definirProjectionAffichage
-    * @param {String} projDemande 
-    */
+
+    /**
+     * Définir la projection d'affichage de la carte.
+     * @method
+     * @name Carte#definirProjectionAffichage
+     * @param {String} projDemande
+     */
     Carte.prototype.definirProjectionAffichage = function(projDemande) {
-               
-        if(!projDemande){return;};
+
+        if (!projDemande) {
+            return;
+        }
 
         var projActuel = this.obtenirProjectionAffichage();
-        
-        if(projActuel !== projDemande)
-        {
+
+        if (projActuel !== projDemande) {
             this.projectionAffichage = projDemande;
             this._carteOL.displayProjection = new OpenLayers.Projection(projDemande);
             this._carteOL.options.displayProjection = new OpenLayers.Projection(projDemande);
             var controlsMousePosition = this._carteOL.getControlsByClass("OpenLayers.Control.MousePosition");
-        
-            for(var i=0;i<controlsMousePosition.length;i++){
+
+            for (var i = 0; i < controlsMousePosition.length; i++) {
                 controlsMousePosition[i].displayProjection = new OpenLayers.Projection(projDemande);
-                if(controlsMousePosition[i].displayProjection.getUnits()==='m'){
+                if (controlsMousePosition[i].displayProjection.getUnits() === 'm') {
                     controlsMousePosition[i].numDigits = 2;
-                }
-                else{
+                } else {
                     controlsMousePosition[i].numDigits = 6;
                 }
-                if(!controlsMousePosition[i].lastXy){continue;}
+                if (!controlsMousePosition[i].lastXy) {
+                    continue;
+                }
                 //reconstruction du HTML contenant les coordonnées
                 controlsMousePosition[i].redraw({
-                    xy:{
-                        x:controlsMousePosition[i].lastXy.x, 
-                        y:controlsMousePosition[i].lastXy.y
+                    xy: {
+                        x: controlsMousePosition[i].lastXy.x,
+                        y: controlsMousePosition[i].lastXy.y
                     }
                 });
             }
         }
     };
-    
-    /** 
-    * Déplacer, avec effet, le centre de la carte vers un point.
-    * @method 
-    * @name Carte#centrer
-    * @param {Geometrie.Point} centre Centre de la carte désiré
-    */
+
+    /**
+     * Déplacer, avec effet, le centre de la carte vers un point.
+     * @method
+     * @name Carte#centrer
+     * @param {Geometrie.Point} centre Centre de la carte désiré
+     */
     Carte.prototype.centrer = function(centre) {
-        if(!centre){return;};
-        if(this.obtenirCentre()===null){return;};
+        if (!centre) {
+            return;
+        }
+        if (this.obtenirCentre() === null) {
+            return;
+        }
         this._carteOL.panTo([centre.x, centre.y]);
     };
 
-    /** 
-    * Obtenir le niveau de zoom de la carte.
-    * @method 
-    * @name Carte#obtenirZoom
-    * @returns {Entier} Niveau de zoom de la carte
-    */
+    /**
+     * Obtenir le niveau de zoom de la carte.
+     * @method
+     * @name Carte#obtenirZoom
+     * @returns {Entier} Niveau de zoom de la carte
+     */
     Carte.prototype.obtenirZoom = function() {
         return this._carteOL.getZoom();
     };
-    
-    /** 
-    * Définir le niveau de zoom de la carte.
-    * @method 
-    * @name Carte#definirZoom
-    * @param {Entier} zoom Niveau de zoom désiré
-    * @example
-    * Carte.definirZoom(8);
-    */
+
+    /**
+     * Définir le niveau de zoom de la carte.
+     * @method
+     * @name Carte#definirZoom
+     * @param {Entier} zoom Niveau de zoom désiré
+     * @example
+     * Carte.definirZoom(8);
+     */
     Carte.prototype.definirZoom = function(zoom) {
         this._carteOL.zoomTo(zoom);
     };
@@ -337,116 +380,127 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
     Carte.prototype.obtenirResolution = function() {
         return this._carteOL.resolution;
     };
-    
+
     Carte.prototype.obtenirEchelle = function() {
         return this._carteOL.getScale();
     };
-    
-    /** 
-    * Obtenir les limites visibles de la carte;
-    * @method 
-    * @name Carte#obtenirLimites
-    * @returns {Geometrie.Limites} Limites visibles de la carte
-    */
+
+    /**
+     * Obtenir les limites visibles de la carte;
+     * @method
+     * @name Carte#obtenirLimites
+     * @returns {Geometrie.Limites} Limites visibles de la carte
+     */
     Carte.prototype.obtenirLimites = function() {
         var limitesOL = this._carteOL.getExtent();
         return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
     };
- 
+
 
     /*Carte.prototype.obtenirLimitesRestreintes = function() {
         var limitesOL = this._carteOL.restrictedExtent;
         return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
     };*/
-    
-    /** 
-    * Obtenir les limites maximuns de la carte;
-    * @method 
-    * @name Carte#obtenirLimitesMax
-    * @returns {Geometrie.Limites} Limites maximuns de la carte
-    */
+
+    /**
+     * Obtenir les limites maximuns de la carte;
+     * @method
+     * @name Carte#obtenirLimitesMax
+     * @returns {Geometrie.Limites} Limites maximuns de la carte
+     */
     Carte.prototype.obtenirLimitesMax = function() {
-        var limitesOL = this._carteOL.restrictedExtent; //getMaxExtent();
+        var limitesOL = this._carteOL.restrictedExtent ||  this._carteOL.getMaxExtent();
         return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
     };
-   
-    /** 
-    * Zoomer sur les limites maximuns de la carte;
-    * @method 
-    * @name Carte#zoomerLimitesMax
-    */
+
+    /**
+     * Zoomer sur les limites maximuns de la carte;
+     * @method
+     * @name Carte#zoomerLimitesMax
+     */
     Carte.prototype.zoomerLimitesMax = function() {
         this._getCarte().zoomToMaxExtent();
     };
-    
-    /** 
-    * Zoomer la carte. Peut prendre en paramètre le niveau de zoom désiré ou
-    * une {Geometrie.Limites}.
-    * @method 
-    * @name Carte#zoomer
-    * @param {Geometrie.Limites | Entier} param Nouvelles limites
-    */
-   //TODO: Permettre de rentrer d'autres géométries qu'une limite?
+
+    /**
+     * Zoomer la carte. Peut prendre en paramètre le niveau de zoom désiré ou
+     * une {Geometrie.Limites}.
+     * @method
+     * @name Carte#zoomer
+     * @param {Geometrie.Limites | Entier} param Nouvelles limites
+     */
+    //TODO: Permettre de rentrer d'autres géométries qu'une limite?
     Carte.prototype.zoomer = function(param, maxZoom) {
-        if (param instanceof Limites){
-            var limitesOL = new OpenLayers.Bounds(param.gauche,param.bas,param.droite,param.haut);
+        if (param instanceof Limites) {
+            var limitesOL = new OpenLayers.Bounds(param.gauche, param.bas, param.droite, param.haut);
             this._getCarte().zoomToExtent(limitesOL);
-            if(this.obtenirZoom() > maxZoom){
+            if (this.obtenirZoom() > maxZoom) {
                 this.definirZoom(maxZoom);
             }
             return;
-        } 
+        }
         this.definirZoom(param);
     };
 
 
-    /** 
-    * Obtenir la carte de Openlayers;
-    * @method
-    * @private 
-    * @name Carte#_getCarte
-    * @returns {objet} Carte de Openlayers
-    */
+    /**
+     * Obtenir la carte de Openlayers;
+     * @method
+     * @private
+     * @name Carte#_getCarte
+     * @returns {objet} Carte de Openlayers
+     */
     Carte.prototype._getCarte = function() {
         return this._carteOL;
     };
 
- 
-    Carte.Controles = function(_){
+
+    Carte.Controles = function(_) {
         this._ = _;
         this.activerOccurenceEvenement();
-        if(Aide.toBoolean(this._.options.aContexteMenu) !== false){
+        if (Aide.toBoolean(this._.options.aContexteMenu) !== false) {
             var nav = Aide.obtenirNavigateur();
-            var initContexteMenuCarte = function(e){
+            var initContexteMenuCarte = function(e) {
                 var scope = e.options.scope;
-                scope.contexteMenu = new ContexteMenuCarte({carte: scope._, cible: '#mapComponent .olMapViewport'});
-            }
-            if(nav && nav.isReady){
-                initContexteMenuCarte({options:{scope: this}});      
+                scope.contexteMenu = new ContexteMenuCarte({
+                    carte: scope._,
+                    cible: '#mapComponent .olMapViewport'
+                });
+            };
+            if (nav && nav.isReady) {
+                initContexteMenuCarte({
+                    options: {
+                        scope: this
+                    }
+                });
             } else {
-                this._.ajouterDeclencheur('carteInit', initContexteMenuCarte, {scope: this})
+                this._.ajouterDeclencheur('carteInit', initContexteMenuCarte, {
+                    scope: this
+                });
             }
         }
     };
-    
+
     Carte.Controles.prototype.initDeplacement = function() {
         if (!this._deplacementControle) {
-            this._deplacementControle = new OpenLayers.Control.DragPan({isDefault: true});
-        };
+            this._deplacementControle = new OpenLayers.Control.DragPan({
+                isDefault: true
+            });
+        }
     };
-    
+
     Carte.Controles.prototype.activerDeplacement = function() {
         this.initDeplacement();
         this._deplacementControle.activate();
     };
-    
+
     Carte.Controles.prototype.desactiverDeplacement = function() {
         if (this._deplacementControle) {
             this._deplacementControle.deactivate();
-        };
+        }
     };
-    
-   Carte.Controles.prototype.initClique = function() {
+
+    Carte.Controles.prototype.initClique = function() {
         var that = this;
         if (!this._cliqueControle) {
             OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
@@ -458,139 +512,153 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
                     'stopDouble': false
                 },
                 handleRightClicks: true,
-                initialize: function(options) {
-                    this.handlerOptions = OpenLayers.Util.extend(
-                        {}, this.defaultHandlerOptions
-                    );
-                    OpenLayers.Control.prototype.initialize.apply(
-                        this, arguments
-                    );
-                    this.handler = new OpenLayers.Handler.Click(
-                        this, this.eventMethods, this.handlerOptions
-                    );
-                 }/*,
-                 trigger: function(e) {
-                     that.clique(e);
-                 }*/
-             });  
-             
-  
+                initialize: function() {
+                        this.handlerOptions = OpenLayers.Util.extend({}, this.defaultHandlerOptions);
+                        OpenLayers.Control.prototype.initialize.apply(
+                            this, arguments
+                        );
+                        this.handler = new OpenLayers.Handler.Click(
+                            this, this.eventMethods, this.handlerOptions
+                        );
+                    }
+                    /*,
+                                     trigger: function(e) {
+                                         that.clique(e);
+                                     }*/
+            });
+
+
             this._cliqueControle = new OpenLayers.Control.Click({
                 eventMethods: {
-                    'click': function(e) {that.clique(e);}
-//                    'rightclick': function (e) {
-//                        if(that._$viewport.data('contextMenu')){
-//                            that._$viewport.contextMenu("hide");
-//                            that._$viewport.contextMenu({x:e.clientX, y:e.clientY});
-//                        }
-//                    }
+                    'click': function(e) {
+                            that.clique(e);
+                        }
+                        //                    'rightclick': function (e) {
+                        //                        if(that._$viewport.data('contextMenu')){
+                        //                            that._$viewport.contextMenu("hide");
+                        //                            that._$viewport.contextMenu({x:e.clientX, y:e.clientY});
+                        //                        }
+                        //                    }
                 }
             });
             this._._carteOL.addControl(this._cliqueControle);
-             
-         };
+        }
     };
- 
+
     Carte.Controles.prototype.activerClique = function() {
         this.initClique();
         this._cliqueControle.activate();
-        this._.declencher({ type: "activerClique"}); 
+        this._.declencher({
+            type: "activerClique"
+        });
     };
-    
+
     Carte.Controles.prototype.desactiverClique = function() {
         if (this._cliqueControle) {
             this._cliqueControle.deactivate();
-            this._.declencher({ type: "desactiverClique"}); 
-        };
+            this._.declencher({
+                type: "desactiverClique"
+            });
+        }
     };
-         
-     
+
+
     Carte.Controles.prototype.clique = function(e) {
         var lonlat = this._._carteOL.getLonLatFromPixel(e.xy);
         var point = new Point(lonlat.lon, lonlat.lat);
-        this._.declencher({ type: "clique", point: point }); 
-    };       
-         
-         
+        this._.declencher({
+            type: "clique",
+            point: point
+        });
+    };
+
+
     Carte.Controles.prototype.activerOccurenceEvenement = function() {
         this.occurenceEvenement = {
             actif: true
         };
     };
- 
+
     Carte.Controles.prototype.desactiverOccurenceEvenement = function(couche) {
         this.occurenceEvenement = {
             actif: false,
             exception: couche
         };
     };
-    
+
     Carte.Controles.prototype.activerEdition = function(couche, options) {
-        options = options || {};
+        options = options  || {};
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
 
-        if(this.controleEdition 
-                && (this.controleEdition.layer !== couche._layer)){
+        if (this.controleEdition && (this.controleEdition.layer !== couche._layer)) {
             this._desactiverEventsEdition();
-           /* this._._carteOL.removeControl(this.controleEdition);
-            this.controleEdition.destroy();
-            this.controleEdition=undefined;*/
+            /* this._._carteOL.removeControl(this.controleEdition);
+             this.controleEdition.destroy();
+             this.controleEdition=undefined;*/
         }
-        
-        if(!this.controleEdition){
-            this.controleEdition = new OpenLayers.Control.ModifyFeature(couche._layer/*, {clickout: false}*/);
+
+        if (!this.controleEdition) {
+            this.controleEdition = new OpenLayers.Control.ModifyFeature(couche._layer /*, {clickout: false}*/ );
             this._._carteOL.addControl(this.controleEdition);
-        }      
+        }
 
         this.controleEdition.activate();
-        
+
         this.desactiverOccurenceEvenement(couche);
         var occurenceSelectionnee = couche.obtenirOccurencesSelectionnees()[0];
-        if(occurenceSelectionnee){
+        if (occurenceSelectionnee) {
             couche.deselectionnerTout();
             occurenceSelectionnee.selectionner();
             this.controleEdition.selectFeature(occurenceSelectionnee._feature);
         }
         this._initEventsEdition(couche);
         this._activerEventsEdition();
-        couche.declencher({type: 'controleEditionActiver'});
-        if(this.snap){
+        couche.declencher({
+            type: 'controleEditionActiver'
+        });
+        if (this.snap) {
             this.activerSnap(couche);
         }
     };
-    
+
     Carte.Controles.prototype.desactiverEdition = function(couche) {
-        if(this.controleEdition){
+        if (this.controleEdition) {
             //couche = couche || this._.gestionCouches.coucheVecteurActive;
-           // this._editionEvents.fnAfterFeatureModified({feature: this.controleEdition.feature});
+            // this._editionEvents.fnAfterFeatureModified({feature: this.controleEdition.feature});
             this._desactiverEventsEdition();
             this.controleEdition.deactivate();
             this._._carteOL.removeControl(this.controleEdition);
             this.controleEdition.destroy();
-            this.controleEdition=undefined;
+            this.controleEdition = undefined;
             this._editionEvents.oModifification = undefined;
             this._editionEvents.oModifificationTerminee = undefined;
-            if(couche){
+            if (couche) {
                 var oSelected = couche.obtenirOccurencesSelectionnees();
-                if(oSelected[0]){
-                   oSelected[0].selectionner(); 
+                if (oSelected[0]) {
+                    oSelected[0].selectionner();
                 }
-                couche.declencher({type: 'controleEditionDesactiver'});
+                couche.declencher({
+                    type: 'controleEditionDesactiver'
+                });
             }
             this.activerOccurenceEvenement();
         }
     };
-    
+
     Carte.Controles.prototype._activerEventsEdition = function() {
         this.controleEdition.layer.events.register('featuremodified', this._editionEvents.couche, this._editionEvents.fnFeatureModified);
         this.controleEdition.layer.events.register('beforefeaturemodified', this._editionEvents.couche, this._editionEvents.fnBeforeFeatureModified);
         this.controleEdition.layer.events.register('afterfeaturemodified', this._editionEvents.couche, this._editionEvents.fnAfterFeatureModified);
-        this._editionEvents.couche.ajouterDeclencheur('vecteurOccurenceSelectionnee', this._editionEvents.fnVecteurOccurenceSelectionnee, {scope: this});       
-        this._editionEvents.couche.ajouterDeclencheur('vecteurOccurenceDeselectionnee', this._editionEvents.fnVecteurOccurenceDeselectionnee, {scope: this});
+        this._editionEvents.couche.ajouterDeclencheur('vecteurOccurenceSelectionnee', this._editionEvents.fnVecteurOccurenceSelectionnee, {
+            scope: this
+        });
+        this._editionEvents.couche.ajouterDeclencheur('vecteurOccurenceDeselectionnee', this._editionEvents.fnVecteurOccurenceDeselectionnee, {
+            scope: this
+        });
     };
-    
+
     Carte.Controles.prototype._desactiverEventsEdition = function() {
-        if(this.controleEdition){
+        if (this.controleEdition) {
             this.controleEdition.layer.events.remove('featuremodified');
             this.controleEdition.layer.events.remove('beforefeaturemodified');
             this.controleEdition.layer.events.remove('afterfeaturemodified');
@@ -598,37 +666,45 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
             this._editionEvents.couche.enleverDeclencheur('vecteurOccurenceDeselectionnee', undefined, this._editionEvents.fnVecteurOccurenceDeselectionnee);
         }
     };
-    
+
     Carte.Controles.prototype._initEventsEdition = function(couche) {
         this._editionEvents = {};
         this._editionEvents.couche = couche;
         this._editionEvents.oModifification = undefined;
         this._editionEvents.oModifificationTerminee = this._editionEvents.occurenceModifification;
-        var that=this;
-        this._editionEvents.fnFeatureModified =  function(e){
-            if(!e.feature){return true};
+        var that = this;
+        this._editionEvents.fnFeatureModified = function(e) {
+            if (!e.feature) {
+                return true;
+            }
             var occurence = couche.obtenirOccurenceParId(e.feature.id);
-            if(!occurence){return true};
+            if (!occurence) {
+                return true;
+            }
             occurence.majGeometrie(e.feature.geometry);
         };
-        
-        this._editionEvents.fnBeforeFeatureModified = function(e){
-            if(!e.feature){return true};
+
+        this._editionEvents.fnBeforeFeatureModified = function(e) {
+            if (!e.feature) {
+                return true;
+            }
             var occurence = couche.obtenirOccurenceParId(e.feature.id);
-            if(!occurence){return true};
+            if (!occurence) {
+                return true;
+            }
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
             that._desactiverEventsEdition();
             occurence.selectionner();
             that._activerEventsEdition();
         };
-        
-        this._editionEvents.fnAfterFeatureModified = function(e){
+
+        this._editionEvents.fnAfterFeatureModified = function() {
             var occurence;
-            if(that._editionEvents.oModifificationTerminee){
+            if (that._editionEvents.oModifificationTerminee) {
                 occurence = that._editionEvents.oModifificationTerminee;
                 that._editionEvents.oModifificationTerminee = undefined;
-                if(that._editionEvents.oModifification.id === occurence.id){
+                if (that._editionEvents.oModifification.id === occurence.id) {
                     //garder sélectionner l'occurence si on l'édit 2x de suite
                     occurence = undefined;
                 }
@@ -636,190 +712,215 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'blanc',
                 occurence = that._editionEvents.oModifification;
                 that._editionEvents.oModifification = undefined;
             }
-            
-            if(!occurence){return true};
-            if(!occurence.vecteur){
+
+            if (!occurence) {
+                return true;
+            }
+            if (!occurence.vecteur) {
                 //dans le cas que l'occurence a été supprimer entre-temps
                 couche._layer.removeFeatures(occurence._feature);
             }
-            
+
             that._desactiverEventsEdition();
             occurence.deselectionner();
             that._activerEventsEdition();
         };
-        
-        
-        this._editionEvents.fnVecteurOccurenceSelectionnee = function(e){
+
+
+        this._editionEvents.fnVecteurOccurenceSelectionnee = function(e) {
             e.options.scope._desactiverEventsEdition();
-            if(couche.obtenirOccurencesSelectionnees().length > 1){
+            if (couche.obtenirOccurencesSelectionnees().length > 1) {
                 couche.deselectionnerTout();
                 e.occurence.selectionner();
             }
             e.options.scope.controleEdition.selectFeature(e.occurence._feature);
             e.options.scope._activerEventsEdition();
         };
-        
-        this._editionEvents.fnVecteurOccurenceDeselectionnee = function(e){
-            if(e.occurence._feature === e.options.scope.controleEdition.feature){
+
+        this._editionEvents.fnVecteurOccurenceDeselectionnee = function(e) {
+            if (e.occurence._feature === e.options.scope.controleEdition.feature) {
                 e.options.scope._desactiverEventsEdition();
                 e.options.scope.controleEdition.unselectFeature(e.occurence._feature);
                 e.options.scope._activerEventsEdition();
-            };    
+            }
         };
     };
-    
-    
+
+
     Carte.Controles.prototype.activerDessin = function(couche, type, options) {
-        options = options || {};
+        options = options  || {};
         //todo: créer si pas de couche? avertissement?
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
 
-        if(options.releverBoutonOutil !== false){
+        if (options.releverBoutonOutil !== false) {
             var boutonActif = Ext.ButtonToggleMgr.getPressed('carte');
-            if(boutonActif){
+            if (boutonActif) {
                 Ext.ButtonToggleMgr.getPressed('carte').toggle();
             }
-        };
-        this._.declencher({type: 'controleCarteActiver'});
-        
+        }
+        this._.declencher({
+            type: 'controleCarteActiver'
+        });
+
         var typeHandler = OpenLayers.Handler.Point;
-        if(type === "polygone"){
+        if (type === "polygone") {
             typeHandler = OpenLayers.Handler.Polygon;
-        } else if (type === "ligne"){
+        } else if (type === "ligne") {
             typeHandler = OpenLayers.Handler.Path;
-        } else if (type === "regulier"){
+        } else if (type === "regulier") {
             typeHandler = OpenLayers.Handler.RegularPolygon;
-        } else if (type === "cercle"){
+        } else if (type === "cercle") {
             typeHandler = OpenLayers.Handler.CircleToMeasure;
-            options.cotes = options.cotes || 50;
+            options.cotes = options.cotes ||  50;
         }
 
         var typeControl = OpenLayers.Control.DrawFeatureEx;
-        if(options.mesure){
-            if(type === "cercle"){
+        if (options.mesure) {
+            if (type === "cercle") {
                 typeControl = OpenLayers.Control.MeasureCircle;
-            } else if(typeHandler !== OpenLayers.Handler.Point){
+            } else if (typeHandler !== OpenLayers.Handler.Point) {
                 typeControl = OpenLayers.Control.Measure;
             } else {
                 options.mesure = false;
             }
         }
-        if(!options.mesure && !couche){
+        if (!options.mesure && !couche) {
             throw new Error("Carte.Controles.activerDessin : La couche est obligatoire");
         }
-        
-        if(this.controleDessin 
-                && (options.detruireControle ||
-                    !couche ||
-                    this.controleDessin.layer !== couche._layer || 
-                    this.controleDessin.handler.CLASS_NAME !== typeHandler.prototype.CLASS_NAME ||
-                    this.controleDessin.CLASS_NAME !== typeControl.prototype.CLASS_NAME)){
+
+        if (this.controleDessin &&
+            (options.detruireControle ||
+                !couche ||
+                this.controleDessin.layer !== couche._layer ||
+                this.controleDessin.handler.CLASS_NAME !== typeHandler.prototype.CLASS_NAME ||
+                this.controleDessin.CLASS_NAME !== typeControl.prototype.CLASS_NAME)) {
             this._._carteOL.removeControl(this.controleDessin);
             this.controleDessin.destroy();
-            this.controleDessin=undefined;
+            this.controleDessin = undefined;
         }
-        if(!this.controleDessin){
+        if (!this.controleDessin) {
             this.controleDessin = new typeControl(typeHandler, {
                 persist: couche ? false : true,
                 immediate: true,
                 geodesic: true,
                 handlerOptions: {
-                    holeModifier: "ctrlKey", 
-                    sides: Number(options.cotes)>2 && Number(options.cotes)<=100 ? Number(options.cotes) : undefined, 
+                    holeModifier: "ctrlKey",
+                    sides: Number(options.cotes) > 2 && Number(options.cotes) <= 100 ? Number(options.cotes) : undefined,
                     irregular: Aide.toBoolean(options.irregulier),
                     layer: couche ? couche._layer : undefined,
-                    layerOptions: {styleMap: couche ? couche._layer.styleMap : undefined}
+                    layerOptions: {
+                        styleMap: couche ? couche._layer.styleMap : undefined
+                    }
                 },
-                featureAdded: function (feature){
-                    var occurence = new Occurence(feature); 
+                featureAdded: function(feature) {
+                    var occurence = new Occurence(feature);
                     couche._layer.removeFeatures(feature);
-                    couche.ajouterOccurence(occurence, {existe: false});
+                    couche.ajouterOccurence(occurence, {
+                        existe: false
+                    });
                     occurence.rafraichir();
                 }
             });
-            if(options.mesure){
+            if (options.mesure) {
                 this.controleDessin.events.on({
-                    "measure": function(e){
+                    "measure": function(e) {
                         var occ = new Occurence(e.geometry);
-                        if(couche){
-                            couche.declencher({type: 'mesure', occurence: occ});
+                        if (couche) {
+                            couche.declencher({
+                                type: 'mesure',
+                                occurence: occ
+                            });
                             couche.ajouterOccurence(occ);
                         } else {
-                            this._.declencher({type: 'mesure', occurence: occ});
+                            this._.declencher({
+                                type: 'mesure',
+                                occurence: occ
+                            });
                         }
                     },
-                    "measurepartial": function(e){
+                    "measurepartial": function(e) {
                         var occ = new Occurence(e.geometry);
-                        if(couche){
-                            couche.declencher({type: 'mesurePartielle', occurence: occ});
+                        if (couche) {
+                            couche.declencher({
+                                type: 'mesurePartielle',
+                                occurence: occ
+                            });
                         }
                     },
                     scope: this
                 });
             }
-             
-            this._._carteOL.addControl(this.controleDessin);
-        };
 
-        Aide.obtenirNavigateur().evenements.ajouterDeclencheur('controleCarteActiver', function(e){e.options.scope.desactiverDessin()}, {scope: this, id:'activerDessin-OutilExecuter'});
+            this._._carteOL.addControl(this.controleDessin);
+        }
+
+        Aide.obtenirNavigateur().evenements.ajouterDeclencheur('controleCarteActiver', function(e) {
+            e.options.scope.desactiverDessin();
+        }, {
+            scope: this,
+            id: 'activerDessin-OutilExecuter'
+        });
         this.controleDessin.activate();
-        if(this.snap){
+        if (this.snap) {
             this.activerSnap(couche);
         }
     };
-    
+
     Carte.Controles.prototype.desactiverDessin = function() {
-        if(this.controleDessin){
+        if (this.controleDessin) {
             Aide.obtenirNavigateur().evenements.enleverDeclencheur('controleCarteActiver', 'activerDessin-OutilExecuter');
             this.controleDessin.deactivate();
         }
     };
-    
+
     Carte.Controles.prototype.activerSnap = function(couche) {
         this.desactiverSnap();
         this.snap = true;
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
-        if(!couche){
+        if (!couche) {
             return true;
         }
-        if(!this.controleSnap){
+        if (!this.controleSnap) {
             this.controleSnap = new OpenLayers.Control.Snapping({
                 layer: undefined,
                 targets: [],
                 greedy: false
             });
-            
+
         }
         this.controleSnap.setLayer(couche._layer);
-        var listeVecteurs = this._.gestionCouches.obtenirCouchesParType("Vecteur");
-        var listLayerOL=[];
-        $.each(listeVecteurs, function(key, value){
-            if(value.estActive()){
+        var listeVecteurs = this._.gestionCouches.obtenirCouchesParType(["Vecteur", "VecteurCluster", "WFS"]);
+        var listLayerOL = [];
+        $.each(listeVecteurs, function(key, value) {
+            if (value.estActive()) {
                 listLayerOL.push(value._layer);
             }
         });
         this.controleSnap.setTargets(listLayerOL);
         this.controleSnap.activate();
-        
-        this._.gestionCouches.ajouterDeclencheur("coucheVisibilitéChangée", function(e){
-            if(e.couche.obtenirTypeClasse() === "Vecteur"){
-                if(e.couche.estActive()){
+
+        this._.gestionCouches.ajouterDeclencheur("coucheVisibilitéChangée", function(e) {
+            if (e.couche.obtenirTypeClasse() === "Vecteur" ||  e.couche.obtenirTypeClasse() === "VecteurCluster" ||  e.couche.obtenirTypeClasse() === "WFS") {
+                if (e.couche.estActive()) {
                     this.controleSnap.addTargetLayer(e.couche._layer);
                 } else {
                     this.controleSnap.removeTargetLayer(e.couche._layer);
                 }
             }
-        }, {scope: this, id:'carteActiverSnap'});
+        }, {
+            scope: this,
+            id: 'carteActiverSnap'
+        });
 
-    }; 
-    
+    };
+
     Carte.Controles.prototype.desactiverSnap = function() {
-        if(this.controleSnap){
+        if (this.controleSnap) {
             this.snap = false;
             this._.gestionCouches.enleverDeclencheur('coucheVisibilitéChangée', 'carteActiverSnap');
             this.controleSnap.deactivate();
         }
-    }; 
-    
+    };
+
     return Carte;
 });

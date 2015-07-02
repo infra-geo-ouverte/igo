@@ -139,7 +139,13 @@ define(['outil', 'aide', 'browserDetect', 'WMS'], function(Outil, Aide, BrowserD
                         szContexteURL += '?';
                     }
 
-                    var oJSON = Ext.util.JSON.decode(response.responseText);
+                    var oJSON;
+                    try {
+                        oJSON= Ext.util.JSON.decode(response.responseText);
+                    } catch(e){
+                        this.erreurContexteRequete('La sauvegarde n\'a pas fonctionner. Veuillez réessayer plus tard.');
+                    }
+                    
                     if(oJSON && oJSON.length > 0 && oJSON[0] && oJSON[0].id) {
                         szContexteURL += 'id='+oJSON[0].id;
                     }
@@ -156,15 +162,19 @@ define(['outil', 'aide', 'browserDetect', 'WMS'], function(Outil, Aide, BrowserD
                 this.showBusy('frmWizardContexte-statusbar', 'notbusy', 'Utilisez l\'adresse suivante pour réouvrir le présent contexte de la carte.');
             },
             failure: function(e){
-                Aide.afficherMessage("Outil indisponible", "L'utilisation de l'outil 'partager carte' n'est pas permise.<br>" + e.responseText);
-                this.windowWizardContexte.hide();
-                this.windowWizardContexte = undefined;
-                this.desactiver();
+                this.erreurContexteRequete("L'utilisation de l'outil 'partager carte' n'est pas permise.<br>" + e.responseText);
             },
             scope: this
         });
     };
 
+    OutilPartagerCarte.prototype.erreurContexteRequete = function(erreur) {
+        Aide.afficherMessage("Outil indisponible", erreur);
+        this.windowWizardContexte.hide();
+        this.windowWizardContexte = undefined;
+        this.desactiver();
+    }
+    
     // Fonction de sauvegarde contexte de base
     OutilPartagerCarte.prototype.sauvegardeContexte = function() {
         var options = {
