@@ -149,14 +149,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                   
                                     //Transformer le contenu du fichier GPX en JSON
                                     var geoJson = toGeoJSON["gpx"]((new DOMParser()).parseFromString(text, 'text/xml'));
-                                    
-                                    //Éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
-                                    $.each(geoJson.features, function(index, feat) {
-                                       if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
-                                           feat.geometry.coordinates.pop();
-                                       } 
-                                    });
-                                    
+                                                                        
                                     that.importerJson(geoJson, filename); //Importer les données
                                 };
 
@@ -228,8 +221,35 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
      * @name OutilImportFichier#importerJson
      * @param {json} geoJson données des géométries du fichier converti
      */
-    OutilImportFichier.prototype.importerJson = function(geoJson, filename){
-       
+    OutilImportFichier.prototype.importerJson = function(geoJson, filename){       
+        //Boucle de nettoyage des anomalies des géométries
+        //TODO si d'autres ajouts, mettre dans une fonction
+        $.each(geoJson.features, function(index, feat) {
+            //Si un point, éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
+            if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
+                feat.geometry.coordinates.pop();
+            }
+            
+            //Illiminé les doublons de coordonnées pour chaque géométrie de type ligne
+            if(feat.geometry.type === "Line" || feat.geometry.type === "LineString"){
+                var coordPrec = "";
+                var coordIndexToPop = new Array();
+                $.each(feat.geometry.coordinates, function(ind, coord){                   
+                    if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
+                        coordIndexToPop.push(ind);
+                    }                 
+                    coordPrec = coord;    
+                });
+                if (coordIndexToPop.length > 0) {
+                    $.each(coordIndexToPop, function(ind, indToPop){
+                        //Car la position diminue de 1 à chaque fois qu'on retire un élément
+                        var posToPop = indToPop-(ind*1);
+                        feat.geometry.coordinates.splice(posToPop, 1);
+                    });         
+                }
+            }
+        });
+            
         //Si le service retourne le crs, l'écraser car le format CRS84 n'est pas celui de nos projections du fichier proj4.js
         //Par défaut on paramètre le service avec "targetSrs": "EPSG:4326" pour la projection de sortie. compatible avec l'analyseurGeoJson
         if(geoJson.crs){
@@ -248,9 +268,9 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
             gestionCouche.ajouterCouche(coucheImportFichier);
         }
         
-         var occurences = analyseur.lire(geoJson);        
-         coucheImportFichier.ajouterOccurences(occurences);
-         coucheImportFichier.zoomerOccurences();        
+        var occurences = analyseur.lire(geoJson);        
+        coucheImportFichier.ajouterOccurences(occurences);
+        coucheImportFichier.zoomerOccurences();        
     };
     
     /**
