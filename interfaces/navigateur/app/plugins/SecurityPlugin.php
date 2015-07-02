@@ -122,11 +122,8 @@ class SecurityPlugin extends Plugin
             return false;
         }
         $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
-        if(file_exists($xmlPath)){
-            $element = simplexml_load_file($xmlPath);            
-        } else {
-            $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
-        }              
+        $element = simplexml_load_file($xmlPath);   
+        
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
         }else{
