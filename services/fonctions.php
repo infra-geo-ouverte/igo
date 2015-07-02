@@ -3,8 +3,8 @@
 if(!function_exists('curl_file_get_contents')){
 
 	/**
-	* Utilisé pour remplacer file_get_contents
-	* @param string $url Url à lire
+	* Utilisï¿½ pour remplacer file_get_contents
+	* @param string $url Url ï¿½ lire
 	*/
 	function curl_file_get_contents($url){
 		$curl = curl_init();
@@ -19,12 +19,12 @@ if(!function_exists('curl_file_get_contents')){
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, TRUE); //To follow any "Location: " header that the server sends as part of the HTTP header.
 		curl_setopt($curl, CURLOPT_AUTOREFERER, TRUE); //To automatically set the Referer: field in requests where it follows a Location: redirect.
 		curl_setopt($curl, CURLOPT_TIMEOUT, 10); //The maximum number of seconds to allow cURL functions to execute.
-
+                
 		$contenu = curl_exec($curl);
 
 		if($contenu === false)
 		{
-			return 'Erreur Curl : ' . curl_error($curl);
+                    return 'Erreur Curl : ' . curl_error($curl);
 		}
 
 		curl_close($curl);
@@ -36,8 +36,8 @@ if(!function_exists('curl_file_get_contents')){
 if(!function_exists('fopen_file_get_contents')){
 
 	/**
-	* Utilisé pour remplacer file_get_contents
-	* @param string $cheminFichier Chemin vers le fichier à lire
+	* Utilisï¿½ pour remplacer file_get_contents
+	* @param string $cheminFichier Chemin vers le fichier ï¿½ lire
 	*/
 	function fopen_file_get_contents($cheminFichier){
 
@@ -56,12 +56,26 @@ if(!function_exists('fopen_file_get_contents')){
 if(!function_exists('fopen_readfile')){
 
 	/**
-	* Utilisé pour remplacer readfile
-	* @param string $cheminFichier Chemin vers le fichier à lire
+	* Utilisï¿½ pour remplacer readfile
+	* @param string $cheminFichier Chemin vers le fichier ï¿½ lire
 	*/
 	function fopen_readfile($cheminFichier){
 		echo fopen_file_get_contents($cheminFichier);
 	}
 }
+
+if(!function_exists('curl_url_exists')){
+
+	function curl_url_exists($url){
+	    $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_NOBODY, true);
+            $result = curl_exec($curl);
+            if ($result === false) { return false; }
+            $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);  
+            if ($statusCode == 404) {return false;}
+            return true;
+	}
+}
+
 
 ?>

@@ -1,10 +1,3 @@
-
-require.ajouterConfig({
-    relativePath: 'public/',
-    paths: {
-    }
-});
-
 /** 
  * Module pour l'objet {@link Panneau.PanneauEdition}.
  * @module PanneauEdition

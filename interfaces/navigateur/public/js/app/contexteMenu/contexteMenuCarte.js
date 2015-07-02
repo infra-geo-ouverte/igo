@@ -201,7 +201,7 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
 //                });
 
 
-                if(occurence.vecteur.options.selectionnable && occurence.obtenirTypeClasse() !== 'Cluster' && occurence.vecteur.options.protege !== true){
+                if(occurence.vecteur.options.selectionnable && occurence.vecteur.options.supprimable !== false && occurence.obtenirTypeClasse() !== 'Cluster' && occurence.vecteur.options.protege !== true){
                     occurenceMenu.push({
                         id: 'occurenceSupprimer' + key,
                         text: "Supprimer",

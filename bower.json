@@ -1,0 +1,24 @@
+{
+  "name": "Igo",
+  "version": "1.1.0",
+  "authors": [
+    "Marc-André Barbeau <marc-andre.barbeau@msp.gouv.qc.ca>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~1.10.2",
+    "jquery-ui": "~1.11.2",
+    "togeojson": "~0.11.1",
+    "togpx": "git@github.com:tyrasd/togpx.git#0.3.1",
+    "openlayers": "git@github.com:openlayers/openlayers.git#release-2.13",
+    "extjs": "http://cdn.sencha.com/ext/gpl/ext-3.4.1.1-gpl.zip",
+    "handlebars": "~3.0.0",
+    "r.js": "git@github.com:jrburke/r.js.git#2.1.18"
+  }
+}
