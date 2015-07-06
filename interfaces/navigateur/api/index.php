@@ -8,6 +8,8 @@ try {
     include __DIR__ . "/../app/config/loader.php";
     include __DIR__ . "/../app/config/services.php";
 
+    include $config->application->services->dir."fonctions.php";
+    
     $app = new \Phalcon\Mvc\Micro();
     $app->setDI($di);
     
@@ -18,17 +20,10 @@ try {
         if(count($configArray) === 2){
             $encoding = $configArray[1];
         }
-        // Gerer le cas ou on appelle une configuration inexistante.
-        if(!isset($di->getConfig()->configurations[$configKey])){
-            $app->response->setStatusCode(404, "Not Found");
-            $error = new stdClass();
-            $error->error = "La configuration « {$configuration} » n'existe pas!";
-            $app->response->send();
-            die(json_encode($error));            
-        }        
-        // Gerer le cas ou il y aurait une erreur dans la configuration.
+     
+        // Gerer le cas où on appelle une configuration inexistante et où il y aurait une erreur dans la configuration.
         $xmlPath = $di->getConfig()->configurations[$configKey];
-        if(!file_exists ($xmlPath)){
+        if(!isset($xmlPath) || (!file_exists ($xmlPath) && !curl_url_exists($xmlPath))){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
             $error->error = "La configuration « {$configuration} » n'existe pas!";
@@ -37,7 +32,13 @@ try {
         }
         if($encoding === "json"){
             $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();  
-            $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+            if(file_exists($xmlPath)){
+                $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);           
+            } else {
+                $element = simplexml_load_string(curl_file_get_contents($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);   
+            }
+
             if ($element->getName() === "navigateur" ){
                 
                 //Gerer le cas des couches seulement avec un Id
@@ -203,6 +204,9 @@ try {
 
         if (estAnonyme($app->getDI()->getSession())) {
             $configuration = $app->getDI()->get("config");
+            if(!isset($configuration->application->authentification->nomProfilAnonyme)){
+                return (string) '0';
+            }
             return (string) '0,'.IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
         }
             

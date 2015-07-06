@@ -37,12 +37,12 @@ Fichier XML de configuration
 			* [1.2.3 Outil](#outil)
 			* [1.2.3.1 outilAide](#outilaide)
 			* [1.2.3.2 outilAjoutWMS](#outilajoutwms)
-			* [1.2.3.3 outilAssocierFichier](#outilassocierFichier) 
+			* [1.2.3.3 outilAssocierFichier](#outilassocierFichier)
 			* [1.2.3.4 outilAnalyseSpatiale](#outilanalysespatiale)
 			* [1.2.3.5 outilDeplacement](#outildeplacement)
 			* [1.2.3.6 outilDessin](#outildessin)
 			* [1.2.3.7 outilExportGPX](#outilexportgpx)
-			* [1.2.3.8 outilExportShp](#outilexportshp) 
+			* [1.2.3.8 outilExportShp](#outilexportshp)
 			* [1.2.3.9 outilHistoriqueNavigation](#outilhistoriquenavigation)
 			* [1.2.3.10 outilnfo](#outilinfo)
 			* [1.2.3.11 outilMesure](#outilmesure)
@@ -97,7 +97,7 @@ Représente le navigateur cartographique.
 | baseUri | chemin vers le host du site | Non         | Chaîne alphanumérique |               |
 | serviceUri | chemin vers les services | Non         | Chaîne alphanumérique |               |
 | apiUri | chemin vers l'API de Igo | Non         | Chaîne alphanumérique |               |
-| libUri | chemin vers les librairies utilisées par Igo | Non         | Chaîne alphanumérique |               |
+| libUri | chemin vers les librairies utilisées par Igo | Non         | Chaîne alphanumérique |               |   |
 
 Presentation
 ============
@@ -763,7 +763,7 @@ Groupe outils
 
 Permet la définition d'un groupe d'outils. Chaque groupe d’outils est
 entouré d’éléments « séparateur » afin qu’il soit possible de les
-distinguer. Possibilité de mettre un attribut de la balise 'Outil' 
+distinguer. Possibilité de mettre un attribut de la balise 'Outil'
 qu'on veut appliquer à tous les enfants du 'groupe-outils'.
 
 *Attributs ou valeurs spécifiques*
@@ -1650,20 +1650,20 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 ```
 
 ```xml
-  <couche titre="Région Administrative" protocole="WMS" 
-   url="http://sigeom.mrn.gouv.qc.ca/SIGEOM_WMS/Request.aspx?" nom="Region_Administrative" 
+  <couche titre="Région Administrative" protocole="WMS"
+   url="http://sigeom.mrn.gouv.qc.ca/SIGEOM_WMS/Request.aspx?" nom="Region_Administrative"
    active="vrai" infoFormat="html"  />
 ```
 
 ```xml
-    <couche titre="Stations hydrométriques - Seuil de conséquence (public)" protocole="WMS" 
-    url="http://geoegl.msp.gouv.qc.ca/cgi-wms/adnInternetV2.fcgi?" nom="adn_station_max_public_v" 
+    <couche titre="Stations hydrométriques - Seuil de conséquence (public)" protocole="WMS"
+    url="http://geoegl.msp.gouv.qc.ca/cgi-wms/adnInternetV2.fcgi?" nom="adn_station_max_public_v"
     echelleMin="4000000" />
 ```
 
 ```xml
-  <couche titre="Structures MTQ" url="http://www.dds.mtq.gouv.qc.ca/dds.aspx" 
-   nom="strct" protocole="WMS"  fond="false" echelleMin="6000000" echelleMax="1" 
+  <couche titre="Structures MTQ" url="http://www.dds.mtq.gouv.qc.ca/dds.aspx"
+   nom="strct" protocole="WMS"  fond="false" echelleMin="6000000" echelleMax="1"
    visible="true" active="faux" opacite="100" ordreAffichage="1"/>
 ```
 
@@ -1695,7 +1695,7 @@ source  | Url du fichier Javascript contenant la/les fonctions à exposer |  Oui
 
 *Exemples*
 ```xml
- <actions 
+ <actions
  	<action id="acTest"
     		source="/igo\_navigateur/public/libs/testActionOutilsjs.js" />
 </actions>

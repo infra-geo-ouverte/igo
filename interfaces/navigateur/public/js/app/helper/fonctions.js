@@ -24,7 +24,7 @@ define([], function() {
                 return false;
             }
 
-            if (input.obtenirTypeClasse && input.obtenirTypeClasse() === "Vecteur"){
+            if (input.obtenirTypeClasse && (input.obtenirTypeClasse() === "Vecteur" || input.obtenirTypeClasse() === "VecteurCluster" || input.obtenirTypeClasse() === "WFS")){
                 var occGroupe = {};
                 occGroupe[input.id] = input.obtenirOccurences();
                 input = occGroupe;
@@ -85,7 +85,7 @@ define([], function() {
                     var occ = value.occurences;
                     if(typeof value.occurences === "string"){
                         occ = JSON.parse(value.occurences);
-                    } else if(value.occurences.obtenirTypeClasse && value.occurences.obtenirTypeClasse() === "Vecteur"){
+                    } else if(value.occurences.obtenirTypeClasse && (value.occurences.obtenirTypeClasse() === "Vecteur" || value.occurences.obtenirTypeClasse() === "VecteurCluster" || value.occurences.obtenirTypeClasse() === "WFS")){
                         value.occurences = value.occurences.obtenirOccurences();
                     } 
 
@@ -129,14 +129,17 @@ define([], function() {
                 oResultWindow = new Ext.Window({
                     id: 'occurencesResultatsWindow',
                     title    : 'Résultats de la requête',
-                    width    : 600,
+                    width    : 700,
+                    minWidth: 450,
+                    minHeight: 300,
+                    maxHeight: 700,
                     height   : 575,
                     border : false,
                     modal: true,
                     plain    : true,
                     closable : true,
-                    resizable : false,
-                    autoScroll: true,
+                    resizable : true,
+                    autoScroll: false,
                     constrain: true,
                     layout:'fit',
                     items: [tabs]

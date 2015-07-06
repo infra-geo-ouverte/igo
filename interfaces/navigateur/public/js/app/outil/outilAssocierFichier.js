@@ -1,12 +1,18 @@
+if(!require.estDansConfig("fileUploadField")){    
+    require.ajouterConfig({
+        paths: {
+                fileUploadField: 'libs/Ext.ux/FileUploadField/FileUploadField',
+                fileUploadFieldCss: 'libs/Ext.ux/FileUploadField/FileUploadField'
+        },
+        shim: {
+            fileUploadField: {
+                deps: ['css!fileUploadFieldCss']
+            }
+        }
+    });
+}
 
-require.ajouterConfig({
-    paths: {
-            fileUploadField: '[librairies]ext/extension/FileUploadField/FileUploadField',
-            fileUploadFieldCss: '[librairies]ext/extension/FileUploadField/FileUploadField'
-    }
-});
-
-define(['aide', 'outil', 'fileUploadField', 'css!fileUploadFieldCss'], function(Aide, Outil) {
+define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
 
     function OutilAssocierFichier(options) {
         this.options = options || {};
@@ -89,8 +95,12 @@ define(['aide', 'outil', 'fileUploadField', 'css!fileUploadFieldCss'], function(
                             message: "Désirez-vous supprimer le document?",
                             boutons: "OUINON",
                             icone:"QUESTION",
-                            action: that.supprimerFichier.bind(that, fichier)}
-                        );
+                            action :function(btn) {
+                            if (btn == 'yes') {
+                                that.supprimerFichier.bind(that, fichier).call();
+                            }
+                        }
+                    });
                     } catch(e){}
                 }
             }

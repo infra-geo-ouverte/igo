@@ -240,7 +240,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     GestionCouches.prototype.obtenirCouchesParTypePermis = function(type, trier){
         var couches=[]; 
         $.each(this.listeCouches, function(key, value){
-            if(value.obtenirTypeClasse() === 'Vecteur' && value.options.protege !== true && (value.options.typeGeometriePermise === undefined || value.options.typeGeometriePermise === type)){
+            if((value.obtenirTypeClasse() === 'Vecteur' || value.obtenirTypeClasse() === 'VecteurCluster' || value.obtenirTypeClasse() === 'WFS') && value.options.protege !== true && (value.options.typeGeometriePermise === undefined || value.options.typeGeometriePermise === type)){
                 couches.push(value);
             };
         });
@@ -261,13 +261,13 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     GestionCouches.prototype.obtenirOccurencesSelectionnees = function(groupe) { //groupe = true pour grouper par couche sinon un seul tableau
         if(groupe == false){
             var occurences=[];
-            $.each(this.obtenirCouchesParType('Vecteur'), function(key, value){
+            $.each(this.obtenirCouchesParType(['Vecteur', 'VecteurCluster', 'WFS']), function(key, value){
                 occurences = occurences.concat(value.obtenirOccurencesSelectionnees());
             });
             return occurences;
         }
         var occurences={};
-        $.each(this.obtenirCouchesParType('Vecteur'), function(key, value){
+        $.each(this.obtenirCouchesParType(['Vecteur', 'VecteurCluster', 'WFS']), function(key, value){
             occurences[value.obtenirId()] = value.obtenirOccurencesSelectionnees();
         });
         return occurences;
@@ -282,7 +282,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     */
     GestionCouches.prototype.obtenirOccurenceParId = function(id) { 
         var occurence;
-        $.each(this.obtenirCouchesParType('Vecteur'), function(key, value){
+        $.each(this.obtenirCouchesParType(['Vecteur', 'VecteurCluster', 'WFS']), function(key, value){
             occurence = value.obtenirOccurenceParId(id);
             if (occurence){
                 return false;
@@ -292,7 +292,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     };
  
     GestionCouches.prototype.deselectionnerToutesOccurences = function() { 
-        $.each(this.obtenirCouchesParType('Vecteur'), function(key, value){
+        $.each(this.obtenirCouchesParType(['Vecteur', 'VecteurCluster', 'WFS']), function(key, value){
             value.deselectionnerTout();
         });
         /*var selectControle = this.controles._selectControle;

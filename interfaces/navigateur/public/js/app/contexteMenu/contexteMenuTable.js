@@ -33,7 +33,8 @@ define(['contexteMenu', 'aide', 'fonctions'], function(ContexteMenu, Aide, Fonct
         if(!Aide.obtenirNavigateur().obtenirCtrl()) {
             occurence.vecteur.deselectionnerTout();
         }
-        occurence.selectionner();
+        this.options.panneauTable.selectionnerParIndex(index, undefined, false);
+        
         return {
             occurence: occurence
         };
@@ -62,7 +63,7 @@ define(['contexteMenu', 'aide', 'fonctions'], function(ContexteMenu, Aide, Fonct
             }
         });
         
-        if(args.occurence.vecteur.options.selectionnable){
+        if(args.occurence.vecteur.options.selectionnable && args.occurence.vecteur.options.supprimable !== false && args.occurence.obtenirTypeClasse() !== 'Cluster' && args.occurence.vecteur.options.protege !== true){
             menu.push({
                // id: 'occurenceSupprimer',
                 text: "Supprimer",

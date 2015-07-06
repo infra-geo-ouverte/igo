@@ -1,7 +1,7 @@
 require.ajouterConfig({
     paths: {
-            rowEditor: '../igo/librairie/ext/extension/RowEditor/RowEditor',
-            rowEditorCSS: '../igo/librairie/ext/extension/RowEditor/RowEditorCss'
+            rowEditor: 'libs/Ext.ux/RowEditor/RowEditor',
+            rowEditorCSS: 'libs/Ext.ux/RowEditor/RowEditorCss'
     }
 });
 

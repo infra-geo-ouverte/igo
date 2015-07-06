@@ -1,6 +1,8 @@
 <?php
 use Phalcon\Mvc\User\Plugin;
 
+$config = include __DIR__ . "/../config/config.php";
+include $config->application->services->dir."fonctions.php";
 /*
  * TODO !!!
  * Il faut nettoyer les fonctions non utilisées de cette classe.
@@ -24,7 +26,8 @@ class SecurityPlugin extends Plugin
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
-            if(!isset($this->getDi()->getConfig()->configurations[$configuration]) || !file_exists($this->getDi()->getConfig()->configurations[$configuration])){
+            $file = $this->getDi()->getConfig()->configurations[$configuration];
+            if(!isset($file) || (!file_exists($file) && !curl_url_exists($file))){
                 return $this->forwardToErrorPage();
             }
             if($this->estAuthentificationRequise($configuration) && !$this->estAnonyme() && !$this->estAuthentifie()){
@@ -41,9 +44,9 @@ class SecurityPlugin extends Plugin
                     // Si la BD n'existe pas dans la config on n'ajoute pas de profil et on se base sur le xml
                     if($this->estRoleSelectionneRequis()){
                         $this->session->get("info_utilisateur")->profilActif = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
-                    } else {
+                    } else if(isset($configuration->application->authentification->nomProfilAnonyme)){
                         $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
-                    }
+                    } 
                 }
                 $this->session->get("info_utilisateur")->estAnonyme = true;
             } else if($this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
@@ -102,7 +105,11 @@ class SecurityPlugin extends Plugin
             return false;
         }
         $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
-        $element = simplexml_load_file($xmlPath);                
+        if(file_exists($xmlPath)){
+            $element = simplexml_load_file($xmlPath);            
+        } else {
+            $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
+        }              
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
         }else{
