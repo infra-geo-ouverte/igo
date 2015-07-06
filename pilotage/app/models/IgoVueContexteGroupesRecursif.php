@@ -1,5 +1,6 @@
 <?php
 
+use Phalcon\Mvc\Model\Query;
 class IgoVueContexteGroupesRecursif extends \Phalcon\Mvc\Model {
 
 
@@ -20,6 +21,12 @@ class IgoVueContexteGroupesRecursif extends \Phalcon\Mvc\Model {
      */
     public function initialize() {
         $this->setSchema($this->getDI()->getConfig()->database->schema);
+    }
+    
+    public function refresh(){
+        
+        $this->getDI()->get('db')->execute('REFRESH MATERIALIZED VIEW igo_vue_contexte_groupes_recursif');
+
     }
 
 }
