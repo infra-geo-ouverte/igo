@@ -91,7 +91,6 @@ class IgoGroupe extends \Phalcon\Mvc\Model {
 
     public function specifie_parent($groupID) {
 
-       // echo " " . $this->id . "->" . $groupID;
         if (is_null($groupID)) {
             return;
         }

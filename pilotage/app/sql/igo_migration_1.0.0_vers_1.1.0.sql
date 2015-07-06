@@ -1,4 +1,53 @@
-DROP VIEW IF EXISTS igo_vue_contexte_couche_navigateur;
+-- Pour les vues matérialisées
+DROP VIEW igo_vue_contexte_couche_navigateur;
+DROP VIEW igo_vue_contexte_groupes_recursif;
+DROP VIEW igo_vue_groupes_recursif;
+
+CREATE MATERIALIZED VIEW igo_vue_contexte_groupes_recursif AS 
+ WITH RECURSIVE s(id, nom, contexte_id, groupe_id, grp) AS (
+         SELECT g.id,
+            g.nom,
+            cc.contexte_id,
+            gg_1.parent_groupe_id AS groupe_id,
+            g.id::text AS grp,
+                CASE
+                    WHEN COALESCE(cc.est_visible, false) AND NOT g.est_exclu_arbre THEN COALESCE(cc.mf_layer_meta_group_title, g.nom)::character varying(500)
+                    ELSE ''::character varying(500)
+                END AS nom_complet,
+            g.est_exclu_arbre
+           FROM igo_groupe g
+             LEFT JOIN igo_groupe_groupe gg_1 ON gg_1.groupe_id = g.id
+             LEFT JOIN igo_couche_contexte cc ON cc.arbre_id::text = g.id::text AND cc.couche_id IS NULL
+        UNION
+         SELECT igo_groupe.id,
+            igo_groupe.nom,
+            cc.contexte_id,
+            s_1.id AS groupe_id,
+            (s_1.grp || '_'::text) || igo_groupe.id::character varying(10)::text AS grp,
+                CASE
+                    WHEN COALESCE(cc.est_visible, false) AND NOT s_1.est_exclu_arbre THEN (((s_1.nom_complet::text || '/'::text) || COALESCE(cc.mf_layer_meta_group_title, igo_groupe.nom)::character varying(500)::text))::character varying(500)
+                    ELSE ''::character varying(500)
+                END AS nom_complet,
+            igo_groupe.est_exclu_arbre
+           FROM igo_groupe,
+            igo_groupe_groupe gg_1
+             JOIN s s_1 ON s_1.id = gg_1.parent_groupe_id
+             LEFT JOIN igo_couche_contexte cc ON s_1.contexte_id = cc.contexte_id AND cc.arbre_id::text = concat(s_1.grp, '_', gg_1.groupe_id) AND cc.couche_id IS NULL
+          WHERE gg_1.groupe_id = igo_groupe.id
+        )
+ SELECT s.id AS groupe_id,
+    s.nom,
+    s.contexte_id,
+    s.groupe_id AS parent_groupe_id,
+    btrim(s.nom_complet::text, '/'::text) AS nom_complet,
+    s.est_exclu_arbre,
+    s.grp
+   FROM s
+  WHERE NOT (concat(s.contexte_id, s.grp) IN ( SELECT concat(s_1.contexte_id, substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1)) AS substr
+           FROM s s_1)) AND s.contexte_id IS NOT NULL AND NULLIF(s.nom_complet::text, ''::text) IS NOT NULL
+  ORDER BY s.grp
+WITH DATA;
+
 CREATE OR REPLACE VIEW igo_vue_contexte_couche_navigateur AS 
  WITH a AS (
          SELECT cc.contexte_id,
@@ -85,3 +134,40 @@ CREATE OR REPLACE VIEW igo_vue_contexte_couche_navigateur AS
   WHERE a.est_visible OR a.est_active
   GROUP BY a.couche_id, a.groupe_id, a.contexte_id, a.arbre_id, a.mf_layer_name_igo
   ORDER BY last(a.layer_a_order);
+
+CREATE MATERIALIZED VIEW igo_vue_groupes_recursif AS 
+ WITH RECURSIVE s(id, nom, groupe_id, grp) AS (
+         SELECT g.id,
+            g.nom,
+            gg_1.parent_groupe_id AS groupe_id,
+            g.id::text AS grp,
+            g.nom::character varying(500) AS nom_complet,
+            g.est_exclu_arbre
+           FROM igo_groupe g
+             LEFT JOIN igo_groupe_groupe gg_1 ON gg_1.groupe_id = g.id
+        UNION
+         SELECT igo_groupe.id,
+            igo_groupe.nom,
+            s_1.id AS groupe_id,
+            (s_1.grp || '_'::text) || igo_groupe.id::character varying(10)::text AS grp,
+                CASE igo_groupe.est_exclu_arbre
+                    WHEN false THEN (((s_1.nom_complet::text || '/'::text) || igo_groupe.nom::character varying(500)::text))::character varying(500)
+                    ELSE s_1.nom_complet
+                END AS nom_complet,
+            igo_groupe.est_exclu_arbre
+           FROM igo_groupe,
+            igo_groupe_groupe gg_1
+             JOIN s s_1 ON s_1.id = gg_1.parent_groupe_id
+          WHERE gg_1.groupe_id = igo_groupe.id
+        )
+ SELECT s.id AS groupe_id,
+    s.nom,
+    s.groupe_id AS parent_groupe_id,
+    s.nom_complet,
+    s.est_exclu_arbre,
+    s.grp
+   FROM s
+  WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
+           FROM s s_1))
+  ORDER BY s.grp
+WITH DATA;
