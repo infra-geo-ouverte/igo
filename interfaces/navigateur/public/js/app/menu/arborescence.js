@@ -12,7 +12,6 @@
 require.ajouterConfig({
     paths: {
         layerTreeBuilderBuild: 'libs/GeoExt.ux/LayerTreeBuilder/LayerTreeBuilder%-build%',
-        //layerTreeBuilderBuild: 'libs/GeoExt.ux/LayerTreeBuilder/lib/LayerTreeBuilder',
         layerTreeBuilderCSS: 'libs/GeoExt.ux/LayerTreeBuilder/resources/css/LayerTreeBuilder'
     },
     shim: {

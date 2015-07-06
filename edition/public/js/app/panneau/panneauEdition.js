@@ -1,6 +1,6 @@
 require.ajouterConfig({
     paths: {
-        'service': '../igo/edition/public/js/app/service/service',
+        'service': '[edition]/public/js/app/service/service',
     }
 });
 
@@ -12,7 +12,7 @@ require.ajouterConfig({
  * @version 1.0
  */
 
-define(['panneauTable', 'vecteur', 'evenement', 'service'], function(PanneauTable, Vecteur, Evenement, Service) {
+define(['panneauTable', 'vecteur', 'evenement', 'service', 'aide'], function(PanneauTable, Vecteur, Evenement, Service, Aide) {
     
     /** 
     * Création de l'object Panneau.PanneauEdition.
@@ -37,7 +37,7 @@ define(['panneauTable', 'vecteur', 'evenement', 'service'], function(PanneauTabl
         var navigateur = Igo.Aide.obtenirNavigateur();
         var projection = navigateur.carte.obtenirProjection();
         //this.serviceEdition = new Service({projectionCarte:projection, url:Igo.Aide.obtenirCheminRacine() + "edition/app/"}); 
-        this.serviceEdition = new Service({projectionCarte:projection, url:"/igo/edition/app/"}); 
+        this.serviceEdition = new Service({projectionCarte:projection, url: Aide.utiliserBaseUri("[edition]/app/")}); 
         
         if(options.typeGeom === "point")
             this.typeGeometriePermise = "Point";

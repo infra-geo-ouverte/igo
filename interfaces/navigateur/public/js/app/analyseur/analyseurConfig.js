@@ -86,6 +86,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
     AnalyseurConfig.prototype._chargementConfigError = function(XMLHttpRequest, textStatus, errorThrown) {
         $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
+        if(!message){message = "Erreur lors du chargement de la configuration. (" + textStatus +")";}
         Aide.afficherMessage("Erreur chargement configuration", message, null, 'ERROR');
     };
 
@@ -447,7 +448,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                         var outilOccurence = new Igo.Outils[classe](options);
                         listOutils.push(outilOccurence);
 
-                        if (outil.outil) {
+                        if (outil.outil || outil["groupe-outils"]) {
                             delete outil["@attributes"];
                             delete outil.attributes;
                             that._analyserOutils(outil, outilOccurence);
@@ -616,6 +617,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
     AnalyseurConfig.prototype._analyserContexteBDError = function(XMLHttpRequest, textStatus, errorThrown) {
         $("#igoLoading").remove();
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
+        if(!message){message = "Erreur lors du chargement du contexte. (" + textStatus +")";}
         Aide.afficherMessage("Erreur chargement contexte", message, null, 'ERROR');
     };
 
@@ -681,7 +683,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
 
 
     AnalyseurConfig.prototype._pathShortToLong = function(objet){
-        if(objet[0] === '/' || objet[0] === '#' || objet[0] === '@'){
+        if(objet && (objet[0] === '/' || objet[0] === '#' || objet[0] === '@')){
             var prefix = 'Igo.Aide.obtenirNavigateur()';
             var objetR = objet.substr(1);
             if(objet[0] === '@'){

@@ -115,10 +115,33 @@ define(['occurence'], function(Occurence) {
         return this._parser.read(geoJson);
     };
     
-
+    AnalyseurGeoJSON.prototype.lireUrl = function(opt){
+        opt = opt || {};
+        var url = opt.url;
+        var callback = opt.callback;
+        if(!callback || !url){
+            return false;
+        }
+        var that = this;
+        $.ajax({
+            url: url, 
+            success: function(result, status, xhr){
+                var rep = that.lire(result);
+                if(callback){
+                    callback.call(that, rep, status, xhr);
+                }       
+            }, 
+            error: function(xhr, status, error){
+                if(callback){
+                    callback.call(that, error, status, xhr);
+                }       
+            }
+        });
+    };
+    
     AnalyseurGeoJSON.prototype.ecrire = function(occurences){
         if(!occurences){return true;}
-        if(occurences.obtenirTypeClasse && occurences.obtenirTypeClasse() === "Vecteur"){
+        if(occurences.obtenirTypeClasse && (occurences.obtenirTypeClasse() === "Vecteur" || occurences.obtenirTypeClasse() === "VecteurCluster" || occurences.obtenirTypeClasse() === "WFS")){
             occurences = occurences.obtenirOccurences();
         }
         

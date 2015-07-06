@@ -187,7 +187,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
         if (this.parent){
             var nomOL = this._lookupOptionsOL[nom];
             var vTemp = this._traiterValeurIGO(nom, valeur);
-            if(this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster'){
+            if(this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS'){
                 if(this.regle==='defaut'){
                     this.parent._layer.styleMap.styles['default'].defaultStyle[nomOL] = vTemp;
                 };
@@ -331,7 +331,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
         this._filtresOL.push(filtreCombinaison);
         this.filtres.push({filtre:filtre, style:style});
         
-        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster')){
+        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
             if(this.regle==='defaut'){
                 this.parent._layer.styleMap.styles['default'].rules=this._filtresOL;
             };
@@ -358,7 +358,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
     Style.prototype.reinitialiserFiltres = function(){
         this._filtresOL=[];
         this.filtres=[];
-        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster')){
+        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
             if(this.regle==='defaut'){
                 this.parent._layer.styleMap.styles['default'].rules=this._filtresOL;
             };
@@ -384,10 +384,12 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
     Style.prototype.obtenirStyleFiltreParOccurence = function(occurence){
         var that=this;
         if(!this.filtres.length){ return this;}
-        var styleFiltre = {};
+        var styleFiltre = $.extend({}, this.propriete);
+        var estDansUnFiltre = false;
         $.each(this.filtres, function(key, value){
             if(that._filtresOL[key] && that._filtresOL[key].evaluate && occurence){
                 if(that._filtresOL[key].evaluate(occurence._feature)){
+                    estDansUnFiltre = true;
                     var styleFiltreT = value.style;
                     if(styleFiltreT && styleFiltreT.propriete){
                         styleFiltreT = styleFiltreT.propriete;
@@ -395,11 +397,10 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
                     $.extend(styleFiltre, styleFiltreT);
                 }
             }
-            
         });
         
-        if($.isEmptyObject(styleFiltre)){return false};
-        var style = new Style($.extend({}, this.propriete, styleFiltre));
+        if(!estDansUnFiltre){return false};
+        var style = new Style(styleFiltre);
         style.defautPropriete = this.defautPropriete;
         return style;
     };  

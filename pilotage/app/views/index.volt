@@ -3,7 +3,7 @@
     <head>
 
         {{ javascript_include("js/jquery-1.11.0.js") }}
-        {{ javascript_include("/igo/librairie/jquery/jquery-ui-1.11.2/jquery-ui.min.js", false) }}
+        {{ javascript_include("/igo/librairie/jquery-ui/jquery-ui.min.js", false) }}
         {{ javascript_include("js/bootstrap.js") }}
         {{ javascript_include("js/moment.js") }}
         {{ javascript_include("js/bootstrap-datetimepicker.js") }}

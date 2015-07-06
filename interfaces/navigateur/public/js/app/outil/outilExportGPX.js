@@ -3,7 +3,7 @@
  */
 require.ajouterConfig({
     paths: {
-            togpx: '[librairies]ext/extension/togpx/togpx'
+            togpx: '[librairies]/togpx/togpx'
     }
 });
 define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, AnalyseurGeoJSON, togpx) {
@@ -35,7 +35,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
         });
                         
         if(this.tabOccu.length == 0){
-            Aide.afficherMessage("Aucune sélection", "S.V.P. faites une sélection");
+            Aide.afficherMessage("Aucune sélection", "Vous devez sélectionner au moins un élément avant de pouvoir l’exporter.");
             return false;
         }
         
