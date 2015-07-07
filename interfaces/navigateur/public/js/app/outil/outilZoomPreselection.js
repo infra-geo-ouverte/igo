@@ -263,12 +263,30 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                 opacite:0.05
             });
             
+            var styleSelectionne = new Style({               
+                etiquette:etiquette,
+                couleur:'#2e8cd6', 
+                limiteCouleur: '#2e8cd6',
+                limiteEpaisseur: 2,
+                opacite:0.3
+            });
+            
             var regle= new Style({
                 etiquette:etiquette,
                 filtres: [{
                         titre:etiquette,
                         filtre:"[regle]=='true'",
                         style: style
+                    }
+                ]
+            });
+            
+            var regleSelectionnee= new Style({
+                etiquette:etiquette,
+                filtres: [{
+                        titre:etiquette,
+                        filtre:"[regle]=='true'",
+                        style: styleSelectionne
                     }
                 ]
             });
@@ -284,10 +302,11 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                 couche = couche[0];
                 couche.enleverTout();
                 couche.definirStyle(regle);
+                couche.definirStyle(regleSelectionnee, 'select');
             }
             else{
                 var couche = new Vecteur({active: true, suppressionPermise: true, titre:'Géométrie - Outil Zoom',
-                                                        styles:{defaut:regle}});   
+                                                        styles:{defaut:regle, select: regleSelectionnee}});   
                 this.carte.gestionCouches.ajouterCouche(couche);
             }
             
