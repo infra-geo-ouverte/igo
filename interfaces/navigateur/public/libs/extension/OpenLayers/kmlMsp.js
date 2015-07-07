@@ -17,7 +17,7 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
         
         for (var i = 0; i < layers.length; ++i) {
 
-            for(var j=0, len=layers[i].listeOccurences.length; j<len; ++j) {
+            for(var j=0; j<layers[i].listeOccurences.length; ++j) {
                 
                 var feature = layers[i].listeOccurences[j].cloner(true);
                 var layer = layers[i];
@@ -28,30 +28,74 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                 var g="00";
                 var b="00";
                 var alpha="FF";
-                var styleIGO =  feature.obtenirStyle(feature.regleCourant, true, true);
-                  
-                fillColor = this.convertColorKml(styleIGO.obtenirPropriete('couleur'), styleIGO.obtenirPropriete('opacite'));  
-                strokeColor = this.convertColorKml(styleIGO.obtenirPropriete('limiteCouleur'), styleIGO.obtenirPropriete('limiteOpacite'));  
+                                   
+                if(typeof(feature.obtenirStyle("courant", true, true, true)) === 'undefined' || !layers[i].listeOccurences[j].estAffichee()){
+                    continue;
+                }
+                
+                fillColor = this.convertColorKml(feature.obtenirProprieteStyle('couleur', "courant", true), feature.obtenirProprieteStyle('opacite',"courant", true));  
+                strokeColor = this.convertColorKml(feature.obtenirProprieteStyle('limiteCouleur', "courant", true), feature.obtenirProprieteStyle('limiteOpacite', "courant", true));  
               
                 var style = this.createElementNS(this.kmlns, "Style");
                 style.setAttribute("id",feature.id+"style");
                 var styleLineType = this.createElementNS(this.kmlns, "LineStyle");
                 var width = this.createElementNS(this.kmlns,"width");
-                width.appendChild(this.createTextNode(styleIGO.obtenirPropriete('limiteEpaisseur')));
+                width.appendChild(this.createTextNode(feature.obtenirProprieteStyle('limiteEpaisseur', "courant", true)));
                 var color = this.createElementNS(this.kmlns,"color");
                 color.appendChild(this.createTextNode(strokeColor));  
                 styleLineType.appendChild(color);
                 styleLineType.appendChild(width);
                 style.appendChild(styleLineType);
+                
+                //couleur étiquette
+                if(feature.obtenirProprieteStyle('etiquetteCouleur', "courant", true)){
+                    color = this.convertColorKml(feature.obtenirProprieteStyle('etiquetteCouleur', "courant", true));
+                    var labelStyle = this.createElementNS(this.kmlns, "LabelStyle");
+                    var colorLabel = this.createElementNS(this.kmlns, "color");
+                    colorLabel.appendChild(this.createTextNode(color));
+                    labelStyle.appendChild(colorLabel);
+                    //le mapfile plante lors de l'ajout
+                    //style.appendChild(labelStyle);
+                }
 
                 switch(feature.obtenirTypeGeometrie()){
                     case "Point":
                     case "MultiPoint":
 
-                        if(styleIGO.obtenirPropriete('icone')){
+                        if(feature.obtenirProprieteStyle('icone', "courant", true)){
                             
                             var styleIconType = this.createElementNS(this.kmlns, "IconStyle");
+                                
+                            //grosseur icone TODO: HARDCODE À 10
+                            var scale = this.createElementNS(this.kmlns,"scale");
+                            scale.appendChild(this.createTextNode(10));
+                            var urlImage = feature.obtenirProprieteStyle('icone', "courant", true);
+                            if(urlImage.substring(0,1) == '/'){
+                                urlImage = Igo.Aide.obtenirHote() + urlImage;
+                            }
                             
+                             //extension de l'icone
+                            var match = urlImage.match(/\.([0-9a-z]+)(?:[\?#]|$)/);
+                            var doitEtreDeplacer = false;
+                            if(match.indexOf('png') > -1 || match.indexOf('jpeg') > -1 
+                                    || match.indexOf('jpg') > -1 || match.indexOf('gif') > -1){
+                                doitEtreDeplacer = true;
+                            }
+                            
+                            //icone
+                            var icon = this.createElementNS(this.kmlns,"Icon");
+                            var href = this.createElementNS(this.kmlns,"href");
+                            href.appendChild(this.createTextNode(urlImage));
+                            icon.appendChild(href);
+                                                             
+                             //direction icone
+                            var heading = this.createElementNS(this.kmlns,"heading");
+                            var rotation = 0;
+                            if(feature.obtenirProprieteStyle('rotation', "courant", true)){
+                                rotation = parseFloat(feature.obtenirProprieteStyle('rotation', "courant", true));
+                                heading.appendChild(this.createTextNode(360-rotation));
+                            }
+
                             //offset icone
                             var hotSpot = this.createElementNS(this.kmlns,"hotSpot");
                             hotSpot.setAttribute('x', 0);
@@ -61,45 +105,72 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                             /*PATCH : le tag hotSpot n'est pas pris en compte 
                              * soit par mapserver ou ogr 
                              * en attendant une solution, nous devons recalculer 
-                             * les coordonnées du placemark, ce qui amène un petit
-                             * écart dans le résultat, car l'échelle/résolution 
-                             * de l'image résultante de mapserver n'est pratiquement 
-                             * jamais exactement la même que celle de l'écran.
+                             * les coordonnées du placemark pour les JPEG et PNG
                              * Pour le KML le 0,0 d'une icone est son centre
-                             */
-                            var deltaX = styleIGO.obtenirPropriete('iconeOffsetX') * Igo.nav.carte.obtenirResolution();
-                            var deltaY = styleIGO.obtenirPropriete('iconeOffsetY') * Igo.nav.carte.obtenirResolution();
-                            deltaX += styleIGO.obtenirPropriete('iconeLargeur')/2 * Igo.nav.carte.obtenirResolution();
-                            deltaY += styleIGO.obtenirPropriete('iconeHauteur')/2 * Igo.nav.carte.obtenirResolution();
-                            deltaX = feature.x<0?deltaX:-deltaX;
-                            deltaY = feature.y<0?deltaY:-deltaY;
-                            feature.deplacerDe(deltaX, deltaY);        
-                            
-                            //direction icone
-                            var heading = this.createElementNS(this.kmlns,"heading");
-                            heading.appendChild(this.createTextNode(styleIGO.obtenirPropriete('rotation')));
-                            
-                            //grosseur icone TODO: HARDCODE À 10
-                            var scale = this.createElementNS(this.kmlns,"scale");
-                            scale.appendChild(this.createTextNode(10));
-                            var urlImage = styleIGO.obtenirPropriete('icone');
-                            if(urlImage.substring(0,1) == '/'){
-                                urlImage = Igo.Aide.obtenirHote() + urlImage;
+                            */ 
+                            if(doitEtreDeplacer){
+                                var deltaX = 0;
+                                var deltaY = 0;
+                                var iconeLargeur = 0;
+                                var iconeHauteur = 0;
+                                
+                                if(feature.obtenirProprieteStyle('iconeLargeur', "courant", true)){
+                                    iconeLargeur = (feature.obtenirProprieteStyle('iconeLargeur', "courant", true)) * Igo.nav.carte.obtenirResolution();
+                                }
+                                if(feature.obtenirProprieteStyle('iconeHauteur', "courant", true)){
+                                    iconeHauteur = (feature.obtenirProprieteStyle('iconeHauteur', "courant", true)) * Igo.nav.carte.obtenirResolution();                        
+                                }
+                                
+                                 //recalculer un angle entre 0 et 360 si
+                                if(rotation > 360 || rotation < -360){
+                                    rotation = rotation-(360*Math.floor(rotation/360));
+                                }
+                                                                
+                                if(feature.obtenirProprieteStyle('iconeOffsetY', "courant", true)){
+                                    deltaY = -feature.obtenirProprieteStyle('iconeOffsetY', "courant", true) * 
+                                                Igo.nav.carte.obtenirResolution() 
+                                                ;//+ iconeHauteur/2;
+                                }
+                                if(feature.obtenirProprieteStyle('iconeOffsetX', "courant", true)){
+                                    deltaX = -(feature.obtenirProprieteStyle('iconeOffsetX', "courant", true) * 
+                                                Igo.nav.carte.obtenirResolution()) 
+                                                ;//+iconeLargeur/2
+                                } 
+                                
+                                var hypo = Math.sqrt((deltaX*deltaX)+(deltaY*deltaY));
+                                
+                                
+                                deltaX =  hypo * Math.sin(rotation*Math.PI/180);
+                                deltaY =  hypo * Math.cos(rotation*Math.PI/180);
+                                
+
+                                if(!isNaN(deltaX) && !isNaN(deltaY)){
+                                   feature.deplacerDe(deltaX, deltaY);     
+                                }
+                                
+                                
+                                deltaX = iconeLargeur/2;
+                                deltaY = iconeHauteur/2;
+                                
+                                var hypo = Math.sqrt((deltaX*deltaX)+(deltaY*deltaY));
+                                
+                                
+                               deltaX =  hypo * Math.sin(rotation*Math.PI/180);
+                               deltaY =  hypo * Math.cos(rotation*Math.PI/180);
+                                
+
+                                if(!isNaN(deltaX) && !isNaN(deltaY)){
+                                     feature.deplacerDe(-deltaX, -deltaY);     
+                                }                                
                             }
-                            
-                            //icone
-                            var icon = this.createElementNS(this.kmlns,"Icon");
-                            var href = this.createElementNS(this.kmlns,"href");
-                            href.appendChild(this.createTextNode(urlImage));
-                            icon.appendChild(href);
 
                             styleIconType.appendChild(scale);
-                            styleIconType.appendChild(hotSpot);
+                           // styleIconType.appendChild(hotSpot);
                             styleIconType.appendChild(icon);
                             styleIconType.appendChild(heading);
                             style.appendChild(styleIconType);
                             document.appendChild(style);
-                            folder.appendChild(this.createPlacemarkXML(feature,styleIGO));
+                            folder.appendChild(this.createPlacemarkXML(feature));
                         }
                         else{
                             var stylePolyType = this.createElementNS(this.kmlns, "PolyStyle");
@@ -113,7 +184,7 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                             var featureTransform = clone._obtenirGeomOL().transform(layer.obtenirProjection(), this.externalProjection);
                             var x = featureTransform.x;
                             var y = featureTransform.y;
-                            var radius = styleIGO.obtenirPropriete('rayon');
+                            var radius = feature.obtenirProprieteStyle('rayon', "courant", true);
                             var name = feature.id;
                             var description = "";
 
@@ -124,14 +195,14 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
                             //ajouter le point en polygone
                             folder.appendChild(kmlCircleDOM.firstChild);
                             //ajouter le point en point pour annotation
-                            folder.appendChild(this.createPlacemarkXML(feature,styleIGO));
+                            folder.appendChild(this.createPlacemarkXML(feature));
                         }
 
                         break;
 
                     case "Ligne":
                         document.appendChild(style);
-                        folder.appendChild(this.createPlacemarkXML(feature,styleIGO));
+                        folder.appendChild(this.createPlacemarkXML(feature));
                         break;
                     case "Polygone":
                     case "MultiPolygone":
@@ -144,7 +215,7 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
 
                         document.appendChild(style);
 
-                        folder.appendChild(this.createPlacemarkXML(feature, styleIGO));
+                        folder.appendChild(this.createPlacemarkXML(feature));
                         break;
                 }
             }
@@ -166,10 +237,12 @@ OpenLayers.Format.KML_MSP = OpenLayers.Class(OpenLayers.Format.KML, {
      * Returns:
      * {DOMElement}
      */
-    createPlacemarkXML: function(feature, style) {        
+    createPlacemarkXML: function(feature) {        
         // Placemark name
         var placemarkName = this.createElementNS(this.kmlns, "name");
-        var label = (style && style.obtenirPropriete('etiquette')) ? style.obtenirPropriete('etiquette') : feature.id;
+        var label = (feature.obtenirProprieteStyle('etiquette', "courant", true)) ? 
+                            feature.obtenirProprieteStyle('etiquette', "courant", true) : 
+                            feature.id;
         
          //petit patch pour les icones de recherche d'adresse (feature.proprietes.adresse_libre)
         var desc = feature.proprietes.adresseLibre || label || feature.proprietes.description;
