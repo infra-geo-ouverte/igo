@@ -167,7 +167,7 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                 listeners: {
                     specialkey: function(field, e){
                         if (e.getKey() == e.ENTER) {
-                            this.submitForm(comboBox);
+                            this.scope.submitForm(comboBox);
                         }
                     }
                 }
@@ -181,7 +181,9 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
             width:50,
             text:'Zoomer',
             scope:this,
-            handler: function(){this.submitForm(comboBox);}
+            handler: function(){
+                this.submitForm(comboBox);
+            }
         });
 	
         var panneau = new Ext.form.FormPanel({
@@ -192,7 +194,12 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
             width:'auto',
             labelAlign:'top',
             items:[comboBox],
-            buttons:[button_ok]
+            buttons:[button_ok],
+            listeners: {    
+                afterrender: function(field) {
+                    comboBox.focus(false, 250);
+                }
+            }
         });
 		
         this.window_recherche = new Ext.Window({

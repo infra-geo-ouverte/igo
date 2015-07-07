@@ -222,6 +222,27 @@ define(['aide'], function(Aide) {
         return this;
     };
     
+     /** 
+     * Déplacer de dX et dY le point
+     * @method
+     * @name Geometrie.Point#deplacerDe
+     * @param {float} dx delta en X
+     * @param {float} dy delta en Y
+     * @returns {Geometrie.Point} Retourne lui-même
+     */
+    Point.prototype.deplacerDe = function(dx , dy) {
+            
+        this.x = parseFloat(this.x+dx);
+        this.y = parseFloat(this.y+dy);
+        this.definirNombreDecimales();
+        
+        var point = new Point(this.x,this.y, this.projection);
+        if (this._feature) {
+            this._feature.move(point._obtenirLonLatOL());
+        }
+        return this;
+    };
+    
     /**
      * Définir le nombre de décimales pour les coordonnées selon la valeur défini dans le fichier de config xml
      * @param {float} nombre Nombre où la précision doit être défini
@@ -239,6 +260,6 @@ define(['aide'], function(Aide) {
         this.x = Math.round((this.x * multi).toFixed(this.precision + 1) ) / multi;
         this.y = Math.round((this.y * multi).toFixed(this.precision + 1) ) / multi;
     };
-
+    
     return Point;
 });

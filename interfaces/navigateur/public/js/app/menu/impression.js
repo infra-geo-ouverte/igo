@@ -730,18 +730,13 @@ Impression.prototype.exportVecteur = function(){
 
     var dataConvertie;
     
-    vecteurCouches = Igo.nav.carte._carteOL.getLayersByName('Cosmetic');
+    var vecteurCouches = Array();
+
     
-    if(vecteurCouches.length > 0){
-        if(!vecteurCouches[0].inRange || !vecteurCouches[0].getVisibility()){
-            vecteurCouches = Array();
-        }
-    }
-    
-    vecteurCouchesIgo = Igo.nav.carte.gestionCouches.obtenirCouchesParType('Vecteur');
+    var vecteurCouchesIgo = Igo.nav.carte.gestionCouches.obtenirCouchesParType('Vecteur');
     $.each(vecteurCouchesIgo, function(key, layer){
-        if(layer._layer.inRange && layer._layer.getVisibility()){
-            vecteurCouches.push(layer._layer);
+        if(layer.estActive()){
+            vecteurCouches.push(layer);
         }
     });
     
