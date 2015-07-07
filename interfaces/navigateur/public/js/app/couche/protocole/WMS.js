@@ -94,7 +94,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
             if(this.options.extraParams){
                 if($.type(this.options.extraParams) === "string"){
-                    var stringExtraParams = this.options.extraParams.replace("'","\"", 'g');
+                    var stringExtraParams = this.options.extraParams.replace(/'/g,"\"");
                     var arrayExtraParams = stringExtraParams.split(',');
                     for (var i = 0; i < arrayExtraParams.length; i++){
                         var splitExtraParams = arrayExtraParams[i].split('=');
