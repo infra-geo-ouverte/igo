@@ -1,6 +1,5 @@
 <?php
 use Phalcon\Mvc\User\Plugin;
-
 $config = include __DIR__ . "/../config/config.php";
 include $config->application->services->dir."fonctions.php";
 /*
@@ -8,7 +7,6 @@ include $config->application->services->dir."fonctions.php";
  * Il faut nettoyer les fonctions non utilisées de cette classe.
  * Définir comment reconnaitre un utilisateur anonyme.
  */
-
 class SecurityPlugin extends Plugin
 {
     public function beforeExecuteRoute(Phalcon\Events\Event $event, Phalcon\Mvc\Dispatcher $dispatcher){
@@ -16,11 +14,9 @@ class SecurityPlugin extends Plugin
         if($authentificationModule == null){
             return;
         }
-
         $controller = $dispatcher->getControllerName();
         $action = $dispatcher->getActionName();              
         $config = $this->getDI()->get("config");
-
         if($controller === "connexion" || $controller === "error"){
             $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
@@ -56,7 +52,6 @@ class SecurityPlugin extends Plugin
             if($this->estAnonyme() && isset($config->application->authentification->permettreAccesAnonyme) && !$config->application->authentification->permettreAccesAnonyme){
                 return $this->forwardToUnauthorizedPage();
             }
-
         }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){                        
             if(!$this->estAnonyme() && !$this->estAuthentifie()){                
                 return $this->forwardToLoginPage();
@@ -105,11 +100,8 @@ class SecurityPlugin extends Plugin
             return false;
         }
         $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
-        if(file_exists($xmlPath)){
-            $element = simplexml_load_file($xmlPath);            
-        } else {
-            $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
-        }              
+        $element = simplexml_load_file($xmlPath);            
+             
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
         }else{
