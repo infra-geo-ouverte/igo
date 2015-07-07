@@ -22,8 +22,12 @@ try {
         }
      
         // Gerer le cas où on appelle une configuration inexistante et où il y aurait une erreur dans la configuration.
-        $xmlPath = $di->getConfig()->configurations[$configKey];
-        if(!isset($xmlPath) || (!file_exists ($xmlPath) && !curl_url_exists($xmlPath))){
+        if(isset($di->getConfig()->configurations[$configKey])){
+            $xmlPath = $di->getConfig()->configurations[$configKey];
+        } else {
+            $xmlPath = $di->getConfig()->configurationsDir . $configKey . '.xml';
+        }
+        if(!file_exists ($xmlPath) && !curl_url_exists($xmlPath)){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
             $error->error = "La configuration « {$configuration} » n'existe pas!";

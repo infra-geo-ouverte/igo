@@ -250,22 +250,6 @@ class SecurityPlugin extends Plugin
         return;
     }    
     
-    private function estAuthentificationRequise($configuration){
-        $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
-        $element = simplexml_load_file($xmlPath);                
-        if(isset($element->attributes()->authentification)){
-            $authentification = $element->attributes()->authentification;
-        }else{
-            $authentification = "true"; // Est-ce qu'on devrait forcer l'authentification par defaut? En attendant de décider, on le force par défaut.
-        }        
-        // Si la configuration demande que l'utilisateur soit authentifié et qu'il ne l'est pas encore, le rediriger vers la fenetre de connexion        
-        if($authentification == "true"){ 
-            return true;
-        }else{
-            return false;
-        }
-    }
-    
     private function estAuthentifie(){
         return $this->session->has("info_utilisateur") 
                     ? $this->session->get("info_utilisateur")->estAuthentifie 

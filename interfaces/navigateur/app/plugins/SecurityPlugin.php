@@ -26,8 +26,12 @@ class SecurityPlugin extends Plugin
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
-            $file = $this->getDi()->getConfig()->configurations[$configuration];
-            if(!isset($file) || (!file_exists($file) && !curl_url_exists($file))){
+            if(isset($this->getDi()->getConfig()->configurations[$configuration])){
+                $file = $this->getDi()->getConfig()->configurations[$configuration];
+            } else {
+                $file = $this->getDi()->getConfig()->configurationsDir . $configuration . '.xml';
+            }
+            if((!file_exists($file) && !curl_url_exists($file))){
                 return $this->forwardToErrorPage();
             }
             if($this->estAuthentificationRequise($configuration) && !$this->estAnonyme() && !$this->estAuthentifie()){
@@ -104,10 +108,14 @@ class SecurityPlugin extends Plugin
            $this->getDi()->getConfig()->application->authentification == false){
             return false;
         }
-        $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];    
+        if(isset($this->getDi()->getConfig()->configurations[$configuration])){
+            $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . $configuration . '.xml';
+        }
         if(file_exists($xmlPath)){
             $element = simplexml_load_file($xmlPath);            
-        } else {
+        } else { //url externe
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }              
         if(isset($element->attributes()->authentification)){

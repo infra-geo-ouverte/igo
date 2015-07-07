@@ -4,7 +4,11 @@ class IgoController extends ControllerBase
     public function indexAction() {
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
-        $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];    
+        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
+            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
+        }
         $filemtime = filemtime ($xmlPath);        
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
         $this->view->setVar("contexteId", "null");
@@ -15,10 +19,15 @@ class IgoController extends ControllerBase
     public function configurationAction($configuration) {
         $this->definirVariablesCommunes();
 
-        $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];
+        if(isset($this->getDi()->getConfig()->configurations[$configuration])){
+            $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . $configuration . '.xml';
+        }
+
         if(file_exists($xmlPath)){
             $element = simplexml_load_file($xmlPath);            
-        } else {
+        } else { //url externe
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }
         if(isset($element->attributes()->titre)){
@@ -92,7 +101,11 @@ class IgoController extends ControllerBase
     public function contexteAction($code) {
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
-        $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
+        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
+            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
+        }
         $filemtime = filemtime ($xmlPath);
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
         $this->view->setVar("couche", "null");
@@ -124,7 +137,11 @@ class IgoController extends ControllerBase
                 
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
-        $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];    
+        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
+            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
+        }
         $filemtime = filemtime ($xmlPath);        
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
         $arrayCoucheId = array_filter(explode(",",$id), $filterArray);    
@@ -158,7 +175,11 @@ class IgoController extends ControllerBase
                   
         $this->definirVariablesCommunes();
         $this->view->setVar("titre", "Navigateur");
-        $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];    
+        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
+            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
+        }
         $filemtime = filemtime ($xmlPath);        
         $this->view->setVar("configuration", "defaut?v={$filemtime}");
         $arrayGroupeCoucheId = array_filter(explode(",",$id), $filterArray);    
