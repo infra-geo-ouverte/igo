@@ -54,7 +54,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         if (!this.options.layerOL){
             Couche.prototype._init.call(this);
             var titre = this.options.titre || "vecteur";
-            
+            this._optionsOL.rendererOptions= {zIndexing: true};
             this._layer = new OpenLayers.Layer.Vector(
                 titre,
                 this._optionsOL
@@ -538,6 +538,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
                     styleMap['select'].defaultStyle.fillColor = "#0000FF";
                     styleMap['select'].defaultStyle.strokeColor = "#0000FF";
                     styleMap['select'].defaultStyle.strokeWidth = 2;
+                    styleMap['select'].defaultStyle.graphicZIndex = 100;
                     //problème avec le style des labels dynamiques,
                     //le style du label n'est pas mis à jour!
 //                    styleMap['select'].defaultStyle.labelOutlineColor = "#FF99FF";
