@@ -353,7 +353,6 @@ $oMap->outputformat->set('mimetype','image/png');
 $oMap->outputformat->set('imagemode',MS_IMAGEMODE_RGBA);
 $oMap->outputformat->setOption("INTERLACE", "OFF");
 
-
 /******************************/
 /*   LAYER OBJECTS CREATION   */
 /******************************/
@@ -575,20 +574,56 @@ if(isset($_POST['vecteurs']) && $_POST['vecteurs'] != null){
 	$randomFileName = uniqid();
 	$vecteurFilePath = $GLOBALS['apps_config']['impression']['imagepath'] . $randomFileName. ".kml";
 	$vecteurMapFilePath = $GLOBALS['apps_config']['impression']['imagepath'] . $randomFileName. ".map";
-
-	// Write the KML File to disk.
-	$vecteurFileHandler = fopen($vecteurFilePath, 'w') or die("can't open file");
-	fwrite($vecteurFileHandler, $_POST['vecteurs']);
-	fclose($vecteurFileHandler);
-
-	// Read the template map file and replace the filename tag with the path of the kml file.
-	$vecteurTemplateMapFilePath = $GLOBALS['apps_config']['impression']['map_template'];
+        
+        $vecteurTemplateMapFilePath = $GLOBALS['apps_config']['impression']['map_template'];
 	$mapTemplateFileHandler = fopen($vecteurTemplateMapFilePath, 'r') or die("can't open file");
 	$mapTemplateFileContent = fread($mapTemplateFileHandler, filesize($vecteurTemplateMapFilePath));
+        
+	$kml = $_POST['vecteurs'];
+                    
+        //Check SVG
+        if(preg_match_all('/<Icon><href>([^<]+\.svg)<\/href><\/Icon>/', $kml, $matches)){              
+            foreach($matches[1] as $key => $value){                
+                
+                $dir = $GLOBALS['apps_config']['impression']['imagepath'];
+    
+                //Trouver le nom et l'extension
+                $name = substr($value, strrpos($value, '/')+1);
+
+                //aller chercher le symbol
+                $svg = curl_file_get_contents($value);
+                $handle = fopen($dir.$randomFileName.$name, "w");
+                fwrite($handle, $svg);
+                fclose($handle);
+
+                //Ajout du symbol dans le Mapfile
+                $symbolTemplate = "#SYMBOL_TAG \n"
+                        . "SYMBOL \n"
+                        . " NAME \"" . $randomFileName.$name . "\" \n"
+                        . " TYPE svg \n"
+                        . " IMAGE \"" . $randomFileName.$name . "\" \n"
+                        . " END \n";
+
+                $mapTemplateFileContent = str_ireplace('#SYMBOL_TAG', $symbolTemplate, $mapTemplateFileContent);
+
+                //modification du kml pour faire référence au nom du symbol
+                $kml = str_ireplace($value,$randomFileName.$name,$kml);
+            }
+        };
+        
+        
+
+	// Read the template map file and replace the filename tag with the path of the kml file
 	$vecteurMapFileContent = str_replace ( "mapfilename" , $vecteurMapFilePath , $mapTemplateFileContent);
 	$vecteurMapFileContent = str_replace ( "kmlfilename" , $vecteurFilePath , $vecteurMapFileContent);
 	fclose($mapTemplateFileHandler);
-
+        
+       
+        // Write the KML File to disk.
+	$vecteurFileHandler = fopen($vecteurFilePath, 'w') or die("can't open file");
+	fwrite($vecteurFileHandler, $kml);
+	fclose($vecteurFileHandler);
+        
 	// Create the mapfile.
 	$mapFileHandler = fopen($vecteurMapFilePath, 'w') or die("can't open file");
 	fwrite($mapFileHandler, $vecteurMapFileContent);
@@ -1064,5 +1099,4 @@ function validateParams(){
         }
     }
 }
-
 ?>

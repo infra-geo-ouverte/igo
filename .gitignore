@@ -8,6 +8,7 @@
 */nbproject/
 librairie/
 config/config.php
+services/config.php
 
 node_modules/
 npm-debug.log
