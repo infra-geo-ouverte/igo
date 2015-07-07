@@ -260,6 +260,25 @@ define(['aide'], function(Aide) {
         this.x = Math.round((this.x * multi).toFixed(this.precision + 1) ) / multi;
         this.y = Math.round((this.y * multi).toFixed(this.precision + 1) ) / multi;
     };
+    
+    /** 
+     * Déplacer de dX et dY le point
+     * @method
+     * @name Geometrie.Point#deplacerDe
+     * @param {float} dx delta en X
+     * @param {float} dy delta en Y
+     * @returns {Geometrie.Point} Retourne lui-même
+     */
+    Point.prototype.deplacerDe = function(dx , dy) {
+       
+        this.x = parseFloat(this.x+dx);
+        this.y = parseFloat(this.y+dy);
+        this.definirNombreDecimales();
+        if (this._feature) {
+            this._feature.move(dx, dy);
+        }
+        return this;
+    };
 
     return Point;
 });
