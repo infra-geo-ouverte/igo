@@ -101,6 +101,12 @@ interface IFeatureService{
     public function getDescription();
 
     /**
+     * Return the title of the Service
+     * 
+     * @return string title of the Service
+     */
+    public function getTitle();
+    /**
      * Returns an array of string describing the associated layers.
      *
      * @return Array of string describing the associated layers.
@@ -170,7 +176,7 @@ interface IFeatureService{
      *
      * @return array containing the fields @see Field. 
      */
-    public function getFields($geometry);
+    public function getFields($geometry, $fkId);
 
     /**
      * Gets all the feature within the $polygon.
@@ -199,6 +205,24 @@ interface IFeatureService{
      * @return the result of pg_execute.
      */
     public function updateFeature($feature);
+    
+    /**
+     * Return the Foreign Key to get the geometries
+     * @return the foreign key
+     */
+    public function getFk();
+    
+    /**
+     * Return the sequence name for the primary key
+     * @return the sequence name
+     */
+    public function getSequenceName();
+       
+    /**
+     * Return the the attribute to be display on the feature
+     * @return the label name
+     */
+    public function getLabelName();
 }
 
 

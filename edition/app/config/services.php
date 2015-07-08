@@ -125,12 +125,10 @@ if($config->database->modelsMetadata == 'Apc'){
 /**
  * Start the session the first time some component request the session service
  */
-$di->set('session', function () {
-   
+$di->setShared('session', function () use ($config) {
     $session = new SessionAdapter();
     session_name('sessionIGO');
     $session->start();
-
     return $session;
 });
 
