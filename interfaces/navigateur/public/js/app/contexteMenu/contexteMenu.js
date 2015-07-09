@@ -74,6 +74,8 @@ define(['point', 'aide'], function(Point, Aide) {
         var action = args.action;
         var condition = args.condition;
         var position = args.position;
+        var evenement = args.evenement;
+        var rendu = args.rendu;
         
         var fnConstruction = function(args) {
             if(!$.isFunction(condition) || condition(args)){
@@ -88,7 +90,21 @@ define(['point', 'aide'], function(Point, Aide) {
                         text: titre,
                         handler: function(){action(args);}
                     };
-                } else {
+                }  else if (rendu && evenement) {
+                    submenu  = {
+                        id: lastId,
+                        text: titre,
+                        menu: {
+                            items: {
+                                html: rendu,
+                                listeners: {
+                                    afterrender:  function(){evenement(args);}
+                                 },
+                                handler: function () { return false;}  
+                            }
+                        }
+                    };
+                  }  else  {
                     submenu  = {
                         id: lastId,
                         text: titre,
@@ -96,7 +112,7 @@ define(['point', 'aide'], function(Point, Aide) {
                             items: []
                         }
                     };
-                }
+                }              
                 return {submenu: submenu, keysMenu: splitId};
             }
         };
