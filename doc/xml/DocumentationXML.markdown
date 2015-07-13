@@ -1729,7 +1729,7 @@ respectant certaines conditions en utilisant un filtre.
 |evenement  | Évènement à surveiller|  Oui |  Chaîne alphanumérique ||
 |avant    |   Indique si l’action doit être déclenchée avant l’événement | Non   | Booléen    | *false* |
 |objet   |    Référence à l’objet sur lequel l’événement doit être surveillé.|Non   |       Chaîne alphanumérique  |*Igo.nav.evenements*
-|#action | Référence à l’id de l’action à exécuter. Au besoin la sous fonction utilisée peut être ajouté à la suite de l'id. |   Oui |Chaîne alphanumérique Exemple: acTestAction acTestAction.fonctionfiltre||
+|@action | Référence à l’id de l’action à exécuter. Au besoin la sous fonction utilisée peut être ajouté à la suite de l'id. |   Oui |Chaîne alphanumérique Exemple: acTestAction acTestAction.fonctionfiltre||
 |Filtre| à appliquer pour que le déclencheur fonctionne sur un élément spécifique.|Non |Objet selon {attribut1:'valeur1', attribut2:'valeur2'}  ||
 
 
@@ -1738,10 +1738,10 @@ respectant certaines conditions en utilisant un filtre.
 <declencheurs
     <declencheur id="testAjouterCouche" evenement="ajouterCouche"
         objet="Igo.nav.carte.gestionCouches"
-        action="#actionTestAjouterCouche" />
+        action="@actionTestAjouterCouche" />
     <declencheur id="testAjouterOcc" evenement="ajouterOccurence"
             filtre="{id:'couchePoint'}" objet="Igo.nav.evenements"
-            action="#actionTestAjouterOcc" />
+            action="@actionTestAjouterOcc" />
 </declencheurs>
 ```
 
