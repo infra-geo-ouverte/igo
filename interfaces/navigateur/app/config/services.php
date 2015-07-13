@@ -126,8 +126,10 @@ $di->set('db', function () use ($config) {
         'password' => $config->database->password,
         'dbname' => $config->database->dbname
     ));
+	
 /*
- * //Décommenter pour activer le profilage de PGSQL
+ *  //Décommenter pour activer le profilage de PGSQL
+	//TODO Activer le profilage PGSQL quand on est en mode debug. On ne devrait pas avoir à décommenter des lignes 
     $eventsManager = new \Phalcon\Events\Manager();
 
     $eventsManager->attach('db', function($event, $connection) {
@@ -168,12 +170,6 @@ if($config->offsetExists("database")) {
     }
 }
 
-
-/*
-$di->set('profiler', function(){
-    return new \Phalcon\Db\Profiler();
-}, true);
-*/
 /**
  * Start the session the first time some component request the session service
  */
@@ -188,7 +184,6 @@ $di->setShared('session', function () {
 
 /**
 * Ajout du routing pour le navigateur construit, en utilisant les paramètres REST plutot que KVP.
-* Permet à Christophe d'exposer des navigateurs grand public.
 */
 
 $di->set('router', function(){
