@@ -1016,6 +1016,13 @@ class MapfileController extends ControllerBase {
 
             // $transaction->commit();
             $this->db->commit();
+            
+            $igoVueGroupesRecursif = new IgoVueContexteGroupesRecursif();
+            $igoVueGroupesRecursif->refresh();
+
+            $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
+            $igoVueContexteGroupesRecursif->refresh();
+            
             if ($igoContexte !== null) {
                 $igoContexte->saveMapFile();
             }

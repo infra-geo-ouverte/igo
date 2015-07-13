@@ -934,7 +934,7 @@ ALTER TABLE igo_couche_contexte ALTER COLUMN layer_a_order TYPE integer USING 0;
 ALTER TABLE igo_couche ALTER COLUMN layer_a_order TYPE integer USING 0;
 
 
-CREATE OR REPLACE VIEW igo_vue_groupes_recursif AS 
+CREATE MATERIALIZED VIEW igo_vue_groupes_recursif AS 
  WITH RECURSIVE s(id, nom, groupe_id, grp) AS (
          SELECT g.id,
             g.nom,
@@ -944,7 +944,7 @@ CREATE OR REPLACE VIEW igo_vue_groupes_recursif AS
             g.est_exclu_arbre
            FROM igo_groupe g
              LEFT JOIN igo_groupe_groupe gg_1 ON gg_1.groupe_id = g.id
-                UNION            
+        UNION
          SELECT igo_groupe.id,
             igo_groupe.nom,
             s_1.id AS groupe_id,
@@ -968,7 +968,8 @@ CREATE OR REPLACE VIEW igo_vue_groupes_recursif AS
    FROM s
   WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
            FROM s s_1))
-  ORDER BY s.grp;
+  ORDER BY s.grp
+WITH DATA
 
 
 
@@ -1077,8 +1078,8 @@ ALTER TABLE igo_couche ADD COLUMN mf_layer_meta_attribution_title CHARACTER VARY
 
 DROP VIEW IF EXISTS igo_vue_contexte_groupes_recursif;
 
-CREATE OR REPLACE VIEW igo_vue_contexte_groupes_recursif AS 
-  WITH RECURSIVE s(id, nom, contexte_id, groupe_id, grp) AS (
+CREATE MATERIALIZED VIEW igo_vue_contexte_groupes_recursif AS 
+ WITH RECURSIVE s(id, nom, contexte_id, groupe_id, grp) AS (
          SELECT g.id,
             g.nom,
             cc.contexte_id,
@@ -1119,7 +1120,8 @@ CREATE OR REPLACE VIEW igo_vue_contexte_groupes_recursif AS
    FROM s
   WHERE NOT (concat(s.contexte_id, s.grp) IN ( SELECT concat(s_1.contexte_id, substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1)) AS substr
            FROM s s_1)) AND s.contexte_id IS NOT NULL AND NULLIF(s.nom_complet::text, ''::text) IS NOT NULL
-  ORDER BY s.grp;
+  ORDER BY s.grp
+WITH DATA;
 
 
 --
