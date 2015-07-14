@@ -1017,7 +1017,7 @@ class MapfileController extends ControllerBase {
             // $transaction->commit();
             $this->db->commit();
             
-            $igoVueGroupesRecursif = new IgoVueContexteGroupesRecursif();
+            $igoVueGroupesRecursif = new IgoVueGroupesRecursif();
             $igoVueGroupesRecursif->refresh();
 
             $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
