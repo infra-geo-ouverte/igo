@@ -9,7 +9,7 @@
         $url = $_REQUEST['url_metadata'];
         $parts = parse_url($url);
         parse_str($parts['query'], $query);
-        $uuid=$query['ID'];
+        $uuid = urlencode($url);
     } else if(isset($_REQUEST['id'])) {
         $uuid = $_REQUEST['id'];
         // Requete CSW pour voir si le id de la fiche si existante (donc publier à tous dans GN) dans le CSW public.
