@@ -258,7 +258,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
 
     ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
         var that=args.scope;
-        if (args.couche.options.metadonnee || args.couche.options.metadonneeExterne) {
+        if (args.couche.options.metadonnee) {
              return {
                 id: 'arborescenceMetadonnee',
                 text : that.locale.mspMetadataText,

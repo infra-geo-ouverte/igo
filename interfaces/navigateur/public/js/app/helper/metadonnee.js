@@ -2,25 +2,29 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
     function Metadonnee() {};
  
     Metadonnee.getLayerCapabilities = function(couche){   
-        
+        this.couche=couche;
         var nomClasse = couche.options.metadonnee;
         if(Aide.toBoolean(nomClasse) === true){
             nomClasse = couche.options.nom;
         }
 
-        if(couche.options.metadonneeExterne) {
-            var lienExt;
-            if(Aide.toBoolean(couche.options.metadonneeExterne) === true){
-                lienExt = couche.options.metadonneeLien || Aide.obtenirConfig("Metadonnee.lien");
-            } else {
+        var lienExt = couche.options.metadonneeLien || Aide.obtenirConfig("Metadonnee.lien");
+        if(couche.options.metadonneeExterne && couche.options.metadonneeExterne.toLowerCase() !== "false") {
+            if(!lienExt){
                 lienExt = couche.options.metadonneeExterne;
             }
-            
-            lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
-            window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
-            return true;
+            if(lienExt && Aide.toBoolean(lienExt) !== true){
+                lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
+                window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
+                return true;
+            }
         }
         
+        if(lienExt && Aide.toBoolean(lienExt) !== true){
+            lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
+            this.parse({responseText: "<iframe style='width:800px; height:800px;' src='"+lienExt+"'></iframe>"});
+            return true; 
+        }  
         
         var szURL = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/meta_requete_gn.php?id="+ encodeURIComponent(nomClasse));
         var catalogue = Aide.obtenirConfig("Metadonnee.catalogueUrl") || couche.options.metadonneeCatalogueUrl;
@@ -62,6 +66,11 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
                 metaURL = Aide.obtenirUrlServices()+"metaGN/meta_gn-details.php?url_metadata="+ encodeURIComponent(decodeURIComponent(id_nomClasse));
             }
 
+            if(this.couche.options.metadonneeExterne){
+                window.open(metaURL, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
+                return true;
+            }
+            
             OpenLayers.Request.GET({
                 url: szURL_GN2,
                 params: {url_iframe: Aide.utiliserProxy(metaURL)},
