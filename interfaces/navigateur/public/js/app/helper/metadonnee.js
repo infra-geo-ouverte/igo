@@ -8,12 +8,6 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
             nomClasse = couche.options.nom;
         }
 
-        // Patch pour gérer les métadonnées des cartes de glace Radarsat-2.	
-//        if (nomClasse.match(/R2_.*/)) // Quand une couche a R2_ dans son nom, on lui impose un nom de métadonnées dans GeoNetwork de MSP_RADARSAT.
-//        {
-//            nomClasse = "MSP_RADARSAT";
-//        }
-
         if(couche.options.metadonneeExterne) {
             var lienExt;
             if(Aide.toBoolean(couche.options.metadonneeExterne) === true){
@@ -22,7 +16,7 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
                 lienExt = couche.options.metadonneeExterne;
             }
             
-            lienExt = decodeURIComponent(lienExt).replace("{nomClasse}", nomClasse);
+            lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
             window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
             return true;
         }
@@ -31,7 +25,7 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
         var szURL = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/meta_requete_gn.php?id="+ encodeURIComponent(nomClasse));
         var catalogue = Aide.obtenirConfig("Metadonnee.catalogueUrl") || couche.options.metadonneeCatalogueUrl;
         if(catalogue){
-            nomClasse = decodeURIComponent(catalogue).replace("{nomClasse}", nomClasse);
+            nomClasse = decodeURIComponent(catalogue).replace("{id}", nomClasse);
         }
         if(decodeURIComponent(nomClasse).search("://") !== -1){
             szURL = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/meta_requete_gn.php?url_metadata="+ encodeURIComponent(decodeURIComponent(nomClasse)));
@@ -63,9 +57,11 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
             var szURL_GN2 = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/iframewrapper.php");
             
             var metaURL = Aide.obtenirUrlServices()+"metaGN/meta_gn-details.php?id="+ encodeURIComponent(id_nomClasse);
-//            if(decodeURIComponent(id_nomClasse).search("://") !== -1){
-//                metaURL = Aide.obtenirUrlServices()+"metaGN/meta_gn-details.php?url_metadata="+ encodeURIComponent(decodeURIComponent(id_nomClasse));
-//            }
+
+            if(decodeURIComponent(id_nomClasse).search("://") !== -1){
+                metaURL = Aide.obtenirUrlServices()+"metaGN/meta_gn-details.php?url_metadata="+ encodeURIComponent(decodeURIComponent(id_nomClasse));
+            }
+
             OpenLayers.Request.GET({
                 url: szURL_GN2,
                 params: {url_iframe: Aide.utiliserProxy(metaURL)},
