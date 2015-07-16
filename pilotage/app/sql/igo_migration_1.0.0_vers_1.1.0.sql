@@ -171,3 +171,7 @@ CREATE MATERIALIZED VIEW igo_vue_groupes_recursif AS
            FROM s s_1))
   ORDER BY s.grp
 WITH DATA;
+
+ALTER SEQUENCE igo.igo_groupe_groupe_id_seq OWNED BY igo.igo_groupe_groupe.id;
+ALTER SEQUENCE igo.igo_groupe_id_seq OWNED BY igo.igo_groupe.id;
+ALTER TABLE ONLY igo.igo_groupe ALTER COLUMN id SET DEFAULT nextval('igo.igo_groupe_id_seq'::regclass);
