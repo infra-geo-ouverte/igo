@@ -428,7 +428,7 @@ CREATE SEQUENCE igo_groupe_couche_id_seq
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE igo_groupe_id_seq OWNED BY igo_groupe_couche.id;
+ALTER SEQUENCE igo_groupe_couche_id_seq OWNED BY igo_groupe_couche.id;
 
 
 CREATE TABLE igo_groupe_groupe
