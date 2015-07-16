@@ -428,7 +428,7 @@ CREATE SEQUENCE igo_groupe_couche_id_seq
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE igo_groupe_id_seq OWNED BY igo_groupe_couche.id;
+ALTER SEQUENCE igo_groupe_couche_id_seq OWNED BY igo_groupe_couche.id;
 
 
 CREATE TABLE igo_groupe_groupe
@@ -969,8 +969,7 @@ CREATE MATERIALIZED VIEW igo_vue_groupes_recursif AS
   WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
            FROM s s_1))
   ORDER BY s.grp
-WITH DATA
-
+WITH DATA;
 
 
 CREATE OR REPLACE VIEW igo_vue_couche AS 
