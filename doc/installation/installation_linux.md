@@ -143,7 +143,6 @@ service apache2 restart
 ## Création des tables de pilotage
 sudo su postgres   <br />  
 psql -f /srv/www/http/igo/pilotage/app/sql/creation_de_tables.sql  <br />  
-Appliquer le script /srv/www/http/igo/pilotage/app/sql/donnees.sql  <br />  
 
 ## Appliquer les modifications suivantes pour utiliser le navigateur en mode anonyme (sans pilotage)
 https://gitlab.forge.gouv.qc.ca/geomatique/igo/wikis/liste-erreurs#class-39-igoprofil-39-not-found
