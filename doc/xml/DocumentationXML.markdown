@@ -1611,6 +1611,10 @@ Permet la définition d'une couche de données vectorielles.
 | Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
 |-------|---------------------------------------------|-------------|-----------------------|---------------|
 |titre	|Titre de la couche 			|Non		|Chaîne alphanumérique 	|*vecteur*|
+|editable|Indique si la couche est éditable	|Non		|Booléen    	| *false* |
+|supprimable|Indique si les occurences de la couche peuvent être supprimé|Non |Booléen |*false*|
+|typeGeometriePermise|Indique les types de géométrie permise lors de l'édition|Non|Point, Ligne, Polygone, MultiLigne, MultiPoint, MultiPolygone||
+
 
 *Exemples*
 ```xml
