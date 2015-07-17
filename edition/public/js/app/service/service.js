@@ -5,7 +5,7 @@
  * @require ccurence
  * @require AnalyseurGeoJSON
   */
-define(['aide', 'limites', 'occurence', 'analyseurGeoJSON'], function(Aide, Limites, Occurence, AnalyseurGeoJSON){
+define(['aide', 'analyseurGeoJSON'], function(Aide, AnalyseurGeoJSON){
     /**
      * Initialise une nouvelle instance de service d'édition.
      * @constructor

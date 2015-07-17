@@ -2,7 +2,7 @@
 
 require.ajouterConfig({
     paths: {
-        'service': '../igo/edition/public/js/app/service/service'
+        'service': '[edition]/public/js/app/service/service'
     }
 });
 
@@ -43,8 +43,7 @@ define(['aide', 'panneauTable', 'vecteur', 'evenement', 'service'], function(Aid
        
         var navigateur = Aide.obtenirNavigateur();
         var projection = navigateur.carte.obtenirProjection();
-        //this.serviceEdition = new Service({projectionCarte:projection, url:Aide.obtenirCheminRacine() + "edition/app/"}); 
-        this.serviceEdition = new Service({projectionCarte:projection, url:"/igo/edition/app/"}); 
+        this.serviceEdition = new Service({projectionCarte:projection, url: Aide.utiliserBaseUri("[edition]/app/")}); 
         
         if(options.typeGeom === "point")
             this.typeGeometriePermise = "Point";

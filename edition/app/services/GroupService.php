@@ -61,15 +61,8 @@ abstract class GroupService implements IGroupService, \Phalcon\DI\InjectionAware
         if(!$this->getDI()->getSession()->has("info_utilisateur")){
             throw new Exception("Problème avec l'identifiant de l'utilisateur.");
         }
-        
-        //TODO repair the PHP_INCOMPLETE_CLASS_NAME to get the identifiant directly
-        function casttoclass($class, $object) {
-          return unserialize(preg_replace('/^O:\d+:"[^"]++"/', 'O:' . strlen($class) . ':"' . $class . '"', serialize($object)));
-        }
                 
-        $myObject = casttoclass('stdClass', $this->getDI()->getSession()->get("info_utilisateur"));
-        
-        return $myObject->identifiant;
+        return $this->getDI()->getSession()->get("info_utilisateur")->identifiant;
     }
 
     /** 

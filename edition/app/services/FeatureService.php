@@ -65,11 +65,6 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
     public function getAuthenticationErrorMessage(){	
         return array("result" => "error", "error" => "Vous n'êtes pas identifié par le système.");
     }
-    
-    //TODO remove this function by repairing the PHP_INCOMPLETE_CLASS_NAME to get the identifiant directly
-    function casttoclass($class, $object) {
-      return unserialize(preg_replace('/^O:\d+:"[^"]++"/', 'O:' . strlen($class) . ':"' . $class . '"', serialize($object)));
-    }
 
     /** 
     * Provides default implementation for GetUserId()
@@ -79,9 +74,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
             throw new Exception("Problème avec l'identifiant de l'utilisateur.");
         }
                 
-        $myObject = $this->casttoclass('stdClass', $this->getDI()->getSession()->get("info_utilisateur"));
-        
-        return $myObject->identifiant;
+        return $this->getDI()->getSession()->get("info_utilisateur")->identifiant;
     }
 
     /** 

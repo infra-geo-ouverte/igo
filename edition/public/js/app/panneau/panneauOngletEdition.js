@@ -4,8 +4,8 @@
 
 require.ajouterConfig({
     paths: {
-        'panneauEdition': '../igo/edition/public/js/app/panneau/panneauEdition',
-        'service': '../igo/edition/public/js/app/service/service'
+        'panneauEdition': '[edition]/public/js/app/panneau/panneauEdition',
+        'service': '[edition]/public/js/app/service/service'
     }
 });
 

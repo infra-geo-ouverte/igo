@@ -1,24 +1,23 @@
 /* global Ext, this */
-
 require.ajouterConfig({
     paths: {
-            'service': '../igo/edition/public/js/app/service/service',
-            'panneauEdition': '../igo/edition/public/js/app/panneau/panneauEdition',
-            rowEditor: '../igo/librairie/ext/extension/RowEditor/RowEditor',
-            rowEditorCSS: '../igo/librairie/ext/extension/RowEditor/RowEditorCss',           
-            gridFiltersCSS: '../igo/librairie/ext/extension/GridFilters/css/GridFilters',
-            rangeMenuCSS: '../igo/librairie/ext/extension/GridFilters/css/RangeMenu',         
-            rangeMenu: '../igo/librairie/ext/extension/GridFilters/menu/RangeMenu',
-            listMenu: '../igo/librairie/ext/extension/GridFilters/menu/ListMenu',           
-            gridFilters: '../igo/librairie/ext/extension/GridFilters/GridFilters',
-            filter: '../igo/librairie/ext/extension/GridFilters/filter/Filter',    
-            stringFilter: '../igo/librairie/ext/extension/GridFilters/filter/StringFilter',    
-            dateFilter: '../igo/librairie/ext/extension/GridFilters/filter/DateFilter',    
-            listFilter: '../igo/librairie/ext/extension/GridFilters/filter/ListFilter',    
-            numericFilter: '../igo/librairie/ext/extension/GridFilters/filter/NumericFilter',    
-            booleanFilter: '../igo/librairie/ext/extension/GridFilters/filter/BooleanFilter',
-            fileUploadField: '../igo/librairie/ext/extension/FileUploadField/FileUploadField',
-            fileUploadFieldCSS: '../igo/librairie/ext/extension/FileUploadField/FileUploadField'
+            service: '[edition]/public/js/app/service/service',
+            panneauEdition: '[edition]/public/js/app/panneau/panneauEdition',
+            rowEditor: 'libs/Ext.ux/RowEditor/RowEditor',
+            rowEditorCSS: 'libs/Ext.ux//RowEditor/RowEditorCss',           
+            gridFiltersCSS: 'libs/GeoExt.ux/GridFilters/css/GridFilters',
+            rangeMenuCSS: 'libs/GeoExt.ux/GridFilters/css/RangeMenu',         
+            rangeMenu: 'libs/GeoExt.ux/GridFilters/menu/RangeMenu',
+            listMenu: 'libs/GeoExt.ux/GridFilters/menu/ListMenu',           
+            gridFilters: 'libs/GeoExt.ux/GridFilters/GridFilters',
+            filter: 'libs/GeoExt.ux/GridFilters/filter/Filter',    
+            stringFilter: 'libs/GeoExt.ux/GridFilters/filter/StringFilter',    
+            dateFilter: 'libs/GeoExt.ux/GridFilters/filter/DateFilter',    
+            listFilter: 'libs/GeoExt.uxGridFilters/filter/ListFilter',    
+            numericFilter: 'libs/GeoExt.ux/GridFilters/filter/NumericFilter',    
+            booleanFilter: 'libs/GeoExt.ux/GridFilters/filter/BooleanFilter',
+            fileUploadField: 'libs/Ext.ux/FileUploadField/FileUploadField',
+            fileUploadFieldCss: 'libs/Ext.ux/FileUploadField/FileUploadField'
     },
     shim: {
         stringFilter: {
@@ -92,7 +91,7 @@ function(Aide, AnalyseurGeoJSON, Panneau, Service, PanneauEdition, OutilAssocier
     
         this.navigateur = Aide.obtenirNavigateur();
         this.projection = this.navigateur.carte.obtenirProjection();
-        this.serviceEdition = new Service({projectionCarte:this.projection, url:"/igo/edition/app/"});    
+        this.serviceEdition = new Service({projectionCarte:this.projection, url: Aide.utiliserBaseUri("[edition]/app/")});    
      
         this.serviceEdition.decrireRegroupement(this.succesDecrireRegroupement.bind(this), this.erreurDecrireRegroupement.bind(this));       
         
