@@ -81,12 +81,14 @@ return array(
         'mapfileInclude' => array() //tableau de chemin de mapfile devant être incluent dans tous les mapfiles IGO
         //'url' => "/cgi-wms/mapserv.fcgi?"
     ),
+    'modules' => $baseDir . '/modules',
     'uri' => array(
         'navigateur'    => "/igo_navigateur/",
         'librairies'    => "/igo/librairie/",
         'services'      => "/igo/services/",
         'api'           => "/api/",
-        'pilotage'      => "/pilotage/"
+        'pilotage'      => "/pilotage/",
+        'modules'       => '/igo/modules'
     ),
     'navigateur' => array(
         'OutilRapporterBogue'    => array('lien' => 'http://geoegl.msp.gouv.qc.ca/mantis/login_page.php'),
