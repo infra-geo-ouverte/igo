@@ -34,7 +34,7 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
         this.defautOptions.id = 'edition-panneau';
         var navigateur = Aide.obtenirNavigateur();
         this.carte = navigateur.carte;
-        this.serviceEdition = new Service({projectionCarte: this.carte.obtenirProjection(), url: Aide.obtenirCheminRacine() + "igo/edition/app/"});
+        this.serviceEdition = new Service({projectionCarte: this.carte.obtenirProjection(), url: Aide.utiliserBaseUri("[edition]/app/")});
         this.coucheEdition = new Vecteur({titre: this.titre, id:"couche", active:true, visible:false, fnSauvegarder: this.sauvegarder, garderHistorique:true });
         this.carte.gestionCouches.ajouterCouche(this.coucheEdition);
         this.serviceEdition.obtenirCouches(this.obtenirCoucheSuccess.bind(this), this.obtenirCoucheErreur.bind(this));
