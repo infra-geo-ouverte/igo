@@ -21,7 +21,7 @@ require.ajouterConfig({
     }
 });
 
-define(['panneau', 'aide', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], function(Panneau, Aide, ContexteMenuArborescence) {
+define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], function(Panneau, ContexteMenuArborescence) {
     /** 
      * Création de l'object Panneau.Arborescence.
      * Objet à ajouter à un panneauMenu.

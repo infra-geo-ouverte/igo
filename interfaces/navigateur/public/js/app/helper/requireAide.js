@@ -39,7 +39,7 @@ define(['aide'], function(Aide) {
         
         var paths = {};
         $.each(conf.paths, function(key, value) {
-            if(require.s.contexts._.config.paths[key] && debug){
+            if(debug && ((!conf.scope && require.s.contexts._.config.paths[key]) || (require.s.contexts._.config.map && require.s.contexts._.config.map[conf.scope] && require.s.contexts._.config.map[conf.scope][key]))){
                 console.warn(key+" existe déjà dans la config");
             } else {
                 var path = Aide.utiliserBaseUri(value, base);
@@ -86,10 +86,22 @@ define(['aide'], function(Aide) {
             }
         });
 
-        var config = {paths: paths};
+        var config = {};
+        if(conf.scope){
+            config.map = {};
+            config.map[conf.scope] = paths;
+        } else {
+            config.paths = paths;
+        }
+        
         if(conf.shim){
             config.shim = conf.shim;
         }
+        
+        if(conf.map){
+            config.map = conf.map;
+        }
+        
         require.config(config);
     };
     
