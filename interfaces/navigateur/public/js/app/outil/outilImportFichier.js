@@ -187,7 +187,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                             Aide.afficherMessage("Erreur", "Fichier invalide, les formats permis sont: BNA, CSV, DGN, DXF, ESRI Shapefile, GeoConcept, GeoJSON, GeoRSS, GML, GMT, GPX, Interlis 1, KML, KMZ, MapInfo, S-57, TIGER, VRT");
                                         }
                                         else{                                    
-                                            that.importerJson(data);
+                                            that.importerJson(data,filename);
                                         }
                                     }
                                 });   
@@ -226,17 +226,23 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         //TODO si d'autres ajouts, mettre dans une fonction
         $.each(geoJson.features, function(index, feat) {
             //Si un point, éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
-            if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
+            if(feat.geometry.type == "Point" && feat.geometry.coordinates.length === 3) {
                 feat.geometry.coordinates.pop();
             }
             
-            //Illiminé les doublons de coordonnées pour chaque géométrie de type ligne
+            //Illiminé les doublons de coordonnées pour chaque géométrie de type ligne, éliminer la 3e dimension
             if(feat.geometry.type === "Line" || feat.geometry.type === "LineString"){
                 var coordPrec = "";
                 var coordIndexToPop = new Array();
                 $.each(feat.geometry.coordinates, function(ind, coord){                   
+                    //Si égale à la coordonnée précédente
                     if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
                         coordIndexToPop.push(ind);
+                    }else{
+                        //Sinon si coordonnée à 3dimensions, on retire la dimension "z"
+                        if(coord.length === 3) {
+                            coord.pop();
+                        }
                     }                 
                     coordPrec = coord;    
                 });
