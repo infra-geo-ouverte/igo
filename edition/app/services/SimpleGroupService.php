@@ -35,7 +35,7 @@ abstract class SimpleGroupService extends GroupService{
             $clauseWhere = "WHERE {$foreignKey} = {$fkId}";
         }
         
-        $sql = "SELECT {$fields_sql} FROM {$this->getTableName()} {$clauseWhere}";
+        $sql = "SELECT {$fields_sql} FROM {$this->getDisplayTableName()} {$clauseWhere}";
         
         $config = $this->getDi()->get("config");
         if($config->application->debug == true){
@@ -114,7 +114,7 @@ abstract class SimpleGroupService extends GroupService{
             array_push($columnTypes, Column::TYPE_VARCHAR);
         }
         
-        $sql = "INSERT INTO ". $this->getViewName()." ({$strCol}) VALUES ({$strBind})";
+        $sql = "INSERT INTO ". $this->getTransactionTableName()." ({$strCol}) VALUES ({$strBind})";
        
         $result = $connection->execute($sql, $tabValue, $columnTypes);
         
@@ -122,7 +122,7 @@ abstract class SimpleGroupService extends GroupService{
             
             $grouping = false;
             
-            $sql = "SELECT * FROM {$this->getTableName()} WHERE {$this->getIdentifier()} = {$sequenceId}";
+            $sql = "SELECT * FROM {$this->getDisplayTableName()} WHERE {$this->getIdentifier()} = {$sequenceId}";
 
             $result = $connection->query($sql);
             $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
@@ -160,7 +160,7 @@ abstract class SimpleGroupService extends GroupService{
         
         $columnTypes = Array(PDO::PARAM_INT);
         
-        $sql = "DELETE FROM {$this->getViewName()} WHERE {$this->getIdentifier()} = ?";
+        $sql = "DELETE FROM {$this->getTransactionTableName()} WHERE {$this->getIdentifier()} = ?";
         
         $result = $connection->execute($sql, $tabValue, $columnTypes);
         
@@ -206,13 +206,13 @@ abstract class SimpleGroupService extends GroupService{
             array_push($columnTypes, Column::TYPE_VARCHAR);
         }
         
-        $sql = "UPDATE ". $this->getViewName()." SET {$strCol}  WHERE {$this->getIdentifier()} = {$identifier}";
+        $sql = "UPDATE ". $this->getTransactionTableName()." SET {$strCol}  WHERE {$this->getIdentifier()} = {$identifier}";
         
         $result = $connection->execute($sql, $tabValue, $columnTypes);
         
         if($result){
             
-            $sql = "SELECT * FROM {$this->getTableName()} WHERE {$this->getIdentifier()} = {$identifier}";
+            $sql = "SELECT * FROM {$this->getDisplayTableName()} WHERE {$this->getIdentifier()} = {$identifier}";
 
             $result = $connection->query($sql);
             $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);

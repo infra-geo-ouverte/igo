@@ -17,14 +17,14 @@ interface IGroupService{
     * 
     * @return string Defining the name of the view exposing the data.
     */	
-    public function getViewName();
+    public function getTransactionTableName();
 
     /**
     * Returns the name of the table containing the data.
     * 
     * @return string Defining the name of the table containing the data.
     */	
-    public function getTableName();
+    public function getDisplayTableName();
 
     /**
     * Returns true if the service allows the creation of new group.

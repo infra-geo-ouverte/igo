@@ -13,11 +13,12 @@ require.ajouterConfig({
             filter: 'libs/GeoExt.ux/GridFilters/filter/Filter',    
             stringFilter: 'libs/GeoExt.ux/GridFilters/filter/StringFilter',    
             dateFilter: 'libs/GeoExt.ux/GridFilters/filter/DateFilter',    
-            listFilter: 'libs/GeoExt.uxGridFilters/filter/ListFilter',    
+            listFilter: 'libs/GeoExt.ux/GridFilters/filter/ListFilter',    
             numericFilter: 'libs/GeoExt.ux/GridFilters/filter/NumericFilter',    
             booleanFilter: 'libs/GeoExt.ux/GridFilters/filter/BooleanFilter',
             fileUploadField: 'libs/Ext.ux/FileUploadField/FileUploadField',
-            fileUploadFieldCss: 'libs/Ext.ux/FileUploadField/FileUploadField'
+            fileUploadFieldCSS: 'libs/Ext.ux/FileUploadField/FileUploadField',
+            editionCSS: '[edition]/public/css/edition'
     },
     shim: {
         stringFilter: {
@@ -48,7 +49,7 @@ require.ajouterConfig({
 
 define(['aide', 'analyseurGeoJSON', 'panneau', 'service', 'panneauEdition', 'outilAssocierFichier', 'css!rowEditorCSS', 'rowEditor', 
         'css!gridFiltersCSS', 'css!rangeMenuCSS', 'rangeMenu', 'listMenu', 'gridFilters', 'filter', 'stringFilter', 
-        'dateFilter','listFilter', 'numericFilter', 'booleanFilter', 'fileUploadField', 'css!fileUploadFieldCSS'], 
+        'dateFilter','listFilter', 'numericFilter', 'booleanFilter', 'fileUploadField', 'css!fileUploadFieldCSS', 'css!editionCSS'], 
 function(Aide, AnalyseurGeoJSON, Panneau, Service, PanneauEdition, OutilAssocierFichier) {  
 
     /** 
