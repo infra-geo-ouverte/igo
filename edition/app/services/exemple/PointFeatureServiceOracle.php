@@ -40,11 +40,11 @@ class PointFeatureService extends SimpleFeatureService{
         return "NO_SEQ_POINT_FEAT_SERVICE_REF";
     }
 
-    public function getTableName() {
+    public function getDisplayTableName() {
         return "POINT_FEATURE_SERVICE";
     }
     
-    public function getViewName() {
+    public function getTransactionTableName() {
         return "POINT_FEATURE_SERVICE_V";
     }
     

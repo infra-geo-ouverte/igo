@@ -52,11 +52,11 @@ class PointFeatureService extends SimpleFeatureService{
         return "no_seq_point_feature_service_ref";
     }
 
-    public function getTableName() {
+    public function getDisplayTableName() {
         return "point_feature_service";
     }
     
-    public function getViewName() {
+    public function getTransactionTableName() {
         return "point_feature_service_v";
     }
 

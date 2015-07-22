@@ -42,7 +42,7 @@ abstract class SimpleFeatureService extends FeatureService{
         $bbox = $spatialQueryBuilder->ST_Transform($bbox_srid, $this->getSRID());
         $intersects = $spatialQueryBuilder->ST_Intersects($this->getGeometryName(), $bbox);
         
-        $sql = "SELECT {$fields_sql}, {$geomAsText} as {$this->getGeometryName()} FROM {$this->getTableName()} WHERE {$intersects} AND {$this->getStatutName()} <> 'D' AND {$this->getStatutName()} <> 'I'";
+        $sql = "SELECT {$fields_sql}, {$geomAsText} as {$this->getGeometryName()} FROM {$this->getDisplayTableName()} WHERE {$intersects} AND {$this->getStatutName()} <> 'D' AND {$this->getStatutName()} <> 'I'";
 
         $config = $this->getDi()->get("config");
         if($config->application->debug == true){
@@ -132,7 +132,7 @@ abstract class SimpleFeatureService extends FeatureService{
         
         $connection = $this->getConnection();
 
-        $result = $connection->execute("INSERT INTO ". $this->getViewName()." (".$this->getGeometryName().", $strCol) VALUES($sqlGeometry, $strBinding)", $tabValue, $columnTypes);
+        $result = $connection->execute("INSERT INTO ". $this->getTransactionTableName()." (".$this->getGeometryName().", $strCol) VALUES($sqlGeometry, $strBinding)", $tabValue, $columnTypes);
         
         if($result){
             
@@ -143,7 +143,7 @@ abstract class SimpleFeatureService extends FeatureService{
 
             $fields_sql = $this->CreateSqlSelectFieldsSection();
             
-            $sql = "SELECT {$fields_sql} FROM {$this->getTableName()} WHERE {$this->getIdentifier()} = {$lastId}";
+            $sql = "SELECT {$fields_sql} FROM {$this->getDisplayTableName()} WHERE {$this->getIdentifier()} = {$lastId}";
 
             $result = $connection->query($sql);
             $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
@@ -178,7 +178,7 @@ abstract class SimpleFeatureService extends FeatureService{
         $spatialQueryBuilder = $this->getSpatialQueryBuilder();
         $geomAsText = $spatialQueryBuilder->ST_AsText($this->getGeometryName());
         
-        $sql = "SELECT {$geomAsText} as {$this->getGeometryName()}, {$fields_sql}, {$this->getStatutName()}, {$this->getReferenceIdentifier()} FROM {$this->getTableName()} WHERE {$this->getIdentifier()} = {$feature->properties->{$this->getIdentifier()}}";
+        $sql = "SELECT {$geomAsText} as {$this->getGeometryName()}, {$fields_sql}, {$this->getStatutName()}, {$this->getReferenceIdentifier()} FROM {$this->getDisplayTableName()} WHERE {$this->getIdentifier()} = {$feature->properties->{$this->getIdentifier()}}";
 
         $result = $connection->query($sql);
         $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
@@ -209,7 +209,7 @@ abstract class SimpleFeatureService extends FeatureService{
                     
             try{
                 $connection->begin();
-                $update_request = "UPDATE {$this->getViewName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getIdentifier()} = {$feature->properties->{$this->getIdentifier()}}";
+                $update_request = "UPDATE {$this->getTransactionTableName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getIdentifier()} = {$feature->properties->{$this->getIdentifier()}}";
                 $update_result = $connection->query($update_request);
                              
                 $bindingRes = $this->bindFieldsForDelete($feature);
@@ -236,7 +236,7 @@ abstract class SimpleFeatureService extends FeatureService{
                 //Obtenir la string de binding pour la requête insert
                 $strBinding = $this->getStringBinding($tabValue);
                 
-                $insert_result = $connection->execute("INSERT INTO ". $this->getViewName()." (".$this->getGeometryName().", $strCol) VALUES($geom, $strBinding)", $tabValue, $columnTypes);
+                $insert_result = $connection->execute("INSERT INTO ". $this->getTransactionTableName()." (".$this->getGeometryName().", $strCol) VALUES($geom, $strBinding)", $tabValue, $columnTypes);
                 
                 if($update_result && $insert_result){
                     $connection->commit();
@@ -298,11 +298,11 @@ abstract class SimpleFeatureService extends FeatureService{
         try{
             $connection->begin();
             $identifier = $this->getIdentifier();
-            $update_request = "UPDATE {$this->getViewName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getIdentifier()} = {$feature->properties->$identifier}";
+            $update_request = "UPDATE {$this->getTransactionTableName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getIdentifier()} = {$feature->properties->$identifier}";
             $update_result = $connection->query($update_request);            
             
             //Effectuer le select pour obtenir le ReferenceIdentifier selon le ID
-            $select_request = "SELECT {$this->getReferenceIdentifier()} FROM {$this->getTableName()} WHERE {$this->getIdentifier()} = {$feature->properties->$identifier}";
+            $select_request = "SELECT {$this->getReferenceIdentifier()} FROM {$this->getDisplayTableName()} WHERE {$this->getIdentifier()} = {$feature->properties->$identifier}";
             
             $result = $connection->query($select_request);
             $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
@@ -332,7 +332,7 @@ abstract class SimpleFeatureService extends FeatureService{
             //Obtenir la string de binding pour la requête insert
             $strBinding = $this->getStringBinding($tabValue);
             
-            $sql = "INSERT INTO ". $this->getViewName()." (".$this->getGeometryName().", $strCol) VALUES($sqlGeometry, $strBinding)";
+            $sql = "INSERT INTO ". $this->getTransactionTableName()." (".$this->getGeometryName().", $strCol) VALUES($sqlGeometry, $strBinding)";
             //die($sql);
             $insert_result = $connection->execute($sql, $tabValue, $columnTypes);
             
@@ -345,7 +345,7 @@ abstract class SimpleFeatureService extends FeatureService{
 
                 $fields_sql = $this->CreateSqlSelectFieldsSection();
 
-                $sql = "SELECT {$fields_sql} FROM {$this->getTableName()} WHERE {$this->getIdentifier()} = {$lastId}";
+                $sql = "SELECT {$fields_sql} FROM {$this->getDisplayTableName()} WHERE {$this->getIdentifier()} = {$lastId}";
 
                 $result = $connection->query($sql);
                 $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
@@ -388,7 +388,7 @@ abstract class SimpleFeatureService extends FeatureService{
         $transform = $spatialQueryBuilder->ST_Transform($this->getGeometryName(),4326);
         $geomAsText = $spatialQueryBuilder->ST_AsText($transform);
         
-        $sql = "SELECT {$fields_sql}, {$geomAsText} as {$this->getGeometryName()} FROM {$this->getTableName()} WHERE {$fkAttribute}={$fk} AND {$this->getStatutName()} <> 'D' AND {$this->getStatutName()} <> 'I'";
+        $sql = "SELECT {$fields_sql}, {$geomAsText} as {$this->getGeometryName()} FROM {$this->getDisplayTableName()} WHERE {$fkAttribute}={$fk} AND {$this->getStatutName()} <> 'D' AND {$this->getStatutName()} <> 'I'";
 
         $config = $this->getDi()->get("config");
         if($config->application->debug == true){
