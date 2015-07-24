@@ -378,6 +378,12 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
             buttonText: 'Fichier',
             hidden: true,
             submitValue: false,
+            listeners: {
+                fileselected: function(inputNode,fileInput){
+                    inputNode.setValue(fileInput.replace("C:\\fakepath\\", ""));
+
+                }
+            }
         }
         
         ],
