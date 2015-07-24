@@ -316,6 +316,12 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         }
     };
     
+    WMS.prototype.rafraichir = function() { 
+        if(this._layer){
+            this._layer.redraw(true);  
+        }
+    };
+    
     return WMS;
     
 });
