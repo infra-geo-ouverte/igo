@@ -101,7 +101,7 @@ abstract class SimpleFeatureService extends FeatureService{
         }
         
         $noSeq = null;        
-        if($feature->no_seq){
+        if(isset($feature->no_seq)){
             $noSeq = $feature->no_seq;
         }
 
@@ -110,7 +110,6 @@ abstract class SimpleFeatureService extends FeatureService{
         $tabValue = $bindingRes[0];
         $strCol = $bindingRes[1];
         $columnTypes = $bindingRes[2];
-        
         $sqlGeometry = $this->GetSqlGeometry($feature->geometry);	
         
         //Ajouter les colonnes génériques
@@ -119,7 +118,10 @@ abstract class SimpleFeatureService extends FeatureService{
         
         array_push($tabValue, 'A');
         array_push($columnTypes, Column::TYPE_VARCHAR);
-        $strCol .= ",{$this->getIdentifiantName()} , {$this->getStatutName()}";
+        if($strCol !== ''){
+            $strCol .= ', ';
+        }
+        $strCol .= "{$this->getIdentifiantName()} , {$this->getStatutName()}";
                            
         if($fkId != null && $this->getFk()) {
             $strCol .= "," . $this->getFk();
@@ -133,12 +135,14 @@ abstract class SimpleFeatureService extends FeatureService{
         $connection = $this->getConnection();
 
         $result = $connection->execute("INSERT INTO ". $this->getTransactionTableName()." (".$this->getGeometryName().", $strCol) VALUES($sqlGeometry, $strBinding)", $tabValue, $columnTypes);
-        
+       
         if($result){
             
             //Get The Id of the inserted sequence
             if($this->getSequenceName()) {
                 $lastId = $connection->lastInsertId($this->getSequenceName())[0];
+            } else {
+                return array("result" => "success");
             }
 
             $fields_sql = $this->CreateSqlSelectFieldsSection();
@@ -172,7 +176,7 @@ abstract class SimpleFeatureService extends FeatureService{
 
         $identifier = $feature->properties->{$this->getIdentifier()};	
         $justification = $feature->properties->{$this->getJustificationName()};
-        
+
         $connection = $this->getConnection();
         $fields_sql = $this->CreateSqlFieldsSection();
         $spatialQueryBuilder = $this->getSpatialQueryBuilder();
@@ -198,7 +202,7 @@ abstract class SimpleFeatureService extends FeatureService{
                 $name = $field->propriete;			
                 $feature->properties->$name = $row["{$name}"];
             }
-            $feature->{$this->getIdentifier()} = $identifier;
+            $feature->properties->{$this->getIdentifier()} = $identifier;
             $feature->properties->{$this->getJustificationName()} = $justification;  
 
             $geometryName = $row["{$this->getGeometryName()}"];
@@ -209,7 +213,7 @@ abstract class SimpleFeatureService extends FeatureService{
                     
             try{
                 $connection->begin();
-                $update_request = "UPDATE {$this->getTransactionTableName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getIdentifier()} = {$feature->properties->{$this->getIdentifier()}}";
+                $update_request = "UPDATE {$this->getTransactionTableName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getReferenceIdentifier()} = {$feature->properties->{$this->getIdentifier()}}";
                 $update_result = $connection->query($update_request);
                              
                 $bindingRes = $this->bindFieldsForDelete($feature);
@@ -277,7 +281,7 @@ abstract class SimpleFeatureService extends FeatureService{
         }
         
         $noSeq = null; 
-        if($feature->no_seq){
+        if(isset($feature->no_seq)){
             $noSeq = $feature->no_seq;
         }
 
@@ -298,7 +302,7 @@ abstract class SimpleFeatureService extends FeatureService{
         try{
             $connection->begin();
             $identifier = $this->getIdentifier();
-            $update_request = "UPDATE {$this->getTransactionTableName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getIdentifier()} = {$feature->properties->$identifier}";
+            $update_request = "UPDATE {$this->getTransactionTableName()} SET {$this->getStatutName()} = 'I' WHERE {$this->getReferenceIdentifier()} = {$feature->properties->$identifier}";
             $update_result = $connection->query($update_request);            
             
             //Effectuer le select pour obtenir le ReferenceIdentifier selon le ID
@@ -313,7 +317,11 @@ abstract class SimpleFeatureService extends FeatureService{
             $referenceIdentifier = $r[$this->getReferenceIdentifier()];
                       
             //Ajouter les colonnes génériques
-            array_push($tabValue, $referenceIdentifier);
+            if($referenceIdentifier !== NULL){
+                array_push($tabValue, $referenceIdentifier);
+            } else {
+                array_push($tabValue, $feature->properties->$identifier);
+            }
             array_push($tabValue, $this->getUserId());
             array_push($tabValue, $statut);
             array_push($columnTypes, Column::BIND_PARAM_INT);
@@ -333,7 +341,6 @@ abstract class SimpleFeatureService extends FeatureService{
             $strBinding = $this->getStringBinding($tabValue);
             
             $sql = "INSERT INTO ". $this->getTransactionTableName()." (".$this->getGeometryName().", $strCol) VALUES($sqlGeometry, $strBinding)";
-            //die($sql);
             $insert_result = $connection->execute($sql, $tabValue, $columnTypes);
             
             if($update_result && $insert_result){
@@ -341,6 +348,9 @@ abstract class SimpleFeatureService extends FeatureService{
                 //Get The Id of the inserted sequence
                 if($this->getSequenceName()) {
                     $lastId = $connection->lastInsertId($this->getSequenceName())[0];
+                } else {     
+                    $connection->commit();
+                    return array("result" => "success");
                 }
 
                 $fields_sql = $this->CreateSqlSelectFieldsSection();

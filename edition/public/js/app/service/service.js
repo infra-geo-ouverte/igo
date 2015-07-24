@@ -170,7 +170,8 @@ define(['aide', 'analyseurGeoJSON'], function(Aide, AnalyseurGeoJSON){
         that.error = error;
 
         var openLayersFeature = occurence._feature.clone();
-        if(occurence.projeter){
+
+        if(occurence.obtenirTypeGeometrie()){
             openLayersFeature.geometry = occurence.projeter(
                     this.options.projectionCarte, 
                     'EPSG:4326')._obtenirGeomOL();

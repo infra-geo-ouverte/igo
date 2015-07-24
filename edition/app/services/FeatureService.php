@@ -169,8 +169,11 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $strCol = "";
         $tabValue = array(); 
         $columnTypes = array();
-        
-        $fields = $this->getFields($feature->geometry, null);
+        $geometry = null;
+        if(isset($feature->geometry)){
+            $geometry = $feature->geometry;
+        }
+        $fields = $this->getFields($geometry, null);
         
         foreach($fields as $field){
             $name = $field->propriete;
@@ -278,7 +281,8 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
     protected function GetStatut($feature){
         $connection = $this->getConnection();
         $identifier = $this->getIdentifier();
-        $sql = "SELECT {$this->getStatutName()} FROM {$this->getTransactionTableName()} WHERE {$identifier} = {$feature->properties->$identifier}";
+        $sql = "SELECT {$this->getStatutName()} FROM {$this->getDisplayTableName()} WHERE {$identifier} = {$feature->properties->$identifier}";
+
         $statutResult = $connection->query($sql);
         $statutResult->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
         $statut_temp_assoc = $statutResult->fetch();	
@@ -314,7 +318,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         return $statut;
     }
 
-    protected function AreFieldsValid($feature, $fkId){
+    protected function AreFieldsValid($feature, $fkId = null){
         $fields = $this->getFields($feature->geometry, $fkId);
         foreach($fields as $field){			
             $fieldName = $field->propriete;
@@ -350,7 +354,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $buffer = 2;
         $spatialQueryBuilder = $this->getSpatialQueryBuilder();
         $isEquivalent = $spatialQueryBuilder->isEquivalent($this->getGeometryType(),$this->getGeometryName(), $sqlGeometry, $buffer);
-        $sql = "SELECT {$isEquivalent} as is_equivalent from {$this->getTransactionTableName()} where {$identifier} = '{$feature->properties->$identifier}'";
+        $sql = "SELECT {$isEquivalent} as is_equivalent from {$this->getDisplayTableName()} where {$identifier} = '{$feature->properties->$identifier}'";
 
         $result = $connection->query($sql);
         $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
@@ -388,7 +392,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $query = substr($query, 0, strlen($query) - 5);
         if(strlen($query) > 0){
             $identifier = $this->getIdentifier();
-            $sql_modif_desc = "SELECT CASE WHEN({$query}) THEN 'true' ELSE 'false' END as is_not_modif_descriptive FROM {$this->getTransactionTableName()} WHERE {$identifier} = '{$feature->properties->$identifier}'";	
+            $sql_modif_desc = "SELECT CASE WHEN({$query}) THEN 'true' ELSE 'false' END as is_not_modif_descriptive FROM {$this->getDisplayTableName()} WHERE {$identifier} = '{$feature->properties->$identifier}'";	
 
             $result = $connection->query($sql_modif_desc, $tabBinding, $columnTypes);
             $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);            

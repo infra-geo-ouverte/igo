@@ -212,19 +212,20 @@ define(['panneau', 'occurence', 'aide'], function(Panneau, Occurence, Aide) {
         //this.saveButton.disabled = true;
         //this.saveButton.formBind = true; // Ne fonctionne pas avec les fieldSet.
         this.saveButton.handler = this._onSave.bind(this);
-        this.saveButton.setVisible(false);
+        //this.saveButton.setVisible(false);
         
         this.cancelButton = new Ext.Button();
         //this.cancelButton.id = 'cancelNew';
         this.cancelButton.text = 'Annuler';
         this.cancelButton.tooltip = 'Annuler';
         this.cancelButton.handler = this._onCancel.bind(this);
-        this.cancelButton.setVisible(false);
+        //this.cancelButton.setVisible(false);
         
         this._panel = new Ext.FormPanel({
             frame: false,
             border:false,
             labelAlign: "top",
+            width: 500,
             scope: this,
             items: this.fieldSet,
             bodyStyle: 'background:none',
