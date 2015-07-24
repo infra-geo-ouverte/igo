@@ -2,7 +2,7 @@
 
 require.ajouterConfig({
     paths: {
-        'service': '[edition]/public/js/app/service/service'
+        'editionService': '[edition]/public/js/app/service/service'
     }
 });
 
@@ -14,7 +14,7 @@ require.ajouterConfig({
  * @version 1.0
  */
 
-define(['aide', 'panneauTable', 'vecteur', 'evenement', 'service'], function(Aide, PanneauTable, Vecteur, Evenement, Service) {
+define(['aide', 'panneauTable', 'vecteur', 'evenement', 'editionService'], function(Aide, PanneauTable, Vecteur, Evenement, Service) {
     
     /** 
     * Création de l'object Panneau.PanneauEdition.

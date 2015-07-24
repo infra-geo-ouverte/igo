@@ -1,6 +1,6 @@
 require.ajouterConfig({
     paths: {
-        'service': '[edition]/public/js/app/service/service',
+        'editionService': '[edition]/public/js/app/service/service',
         'panneauEdition': '[edition]/public/js/app/panneau/panneauEdition'
     }
 });
@@ -13,7 +13,7 @@ require.ajouterConfig({
  * @requires panneau
  */
 
-define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, PanneauEdition) {
+define(['panneau', 'editionService', 'panneauEdition'], function(Panneau, Service, PanneauEdition) {
     /** 
      * Création de l'object Panneau.Edition.
      * Objet à ajouter à un panneauMenu.

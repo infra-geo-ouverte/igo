@@ -1,7 +1,7 @@
 require.ajouterConfig({
     paths: {
-        'service': '[edition]/public/js/app/service/service',
-        'panneauOccurence': '[edition]/public/js/app/panneau/panneauOccurence'
+        'editionService': '[edition]/public/js/app/service/service',
+        'editionPanneauOccurence': '[edition]/public/js/app/panneau/panneauOccurence'
     }
 });
 
@@ -13,7 +13,7 @@ require.ajouterConfig({
  * @requires panneau
  */
 
-define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Panneau, PanneauOccurence, Service, Vecteur, Aide) {
+define(['panneau','editionPanneauOccurence' ,'editionService', 'vecteur', 'aide'], function(Panneau, PanneauOccurence, Service, Vecteur, Aide) {
     /** 
      * Création de l'object Panneau.Edition.
      * Objet à ajouter à un panneauMenu.

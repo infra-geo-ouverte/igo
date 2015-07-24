@@ -5,7 +5,7 @@
 require.ajouterConfig({
     paths: {
         'panneauEdition': '[edition]/public/js/app/panneau/panneauEdition',
-        'service': '[edition]/public/js/app/service/service'
+        'editionService': '[edition]/public/js/app/service/service'
     }
 });
 
@@ -17,7 +17,7 @@ require.ajouterConfig({
  * @version 1.0
  */
 
-define(['aide', 'panneauOnglet', 'panneauEdition', 'service'], function(Aide, PanneauOnglet, PanneauEdition, Service) {
+define(['aide', 'panneauOnglet', 'panneauEdition', 'editionService'], function(Aide, PanneauOnglet, PanneauEdition, Service) {
    
  /** 
      * Création de l'object PanneauOnglet.PanneauOngletEdition.

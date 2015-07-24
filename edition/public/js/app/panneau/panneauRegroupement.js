@@ -1,7 +1,7 @@
 /* global Ext, this */
 require.ajouterConfig({
     paths: {
-            service: '[edition]/public/js/app/service/service',
+            editionService: '[edition]/public/js/app/service/service',
             panneauEdition: '[edition]/public/js/app/panneau/panneauEdition',
             rowEditor: 'libs/Ext.ux/RowEditor/RowEditor',
             rowEditorCSS: 'libs/Ext.ux//RowEditor/RowEditorCss',           
@@ -10,7 +10,7 @@ require.ajouterConfig({
             rangeMenu: 'libs/GeoExt.ux/GridFilters/menu/RangeMenu',
             listMenu: 'libs/GeoExt.ux/GridFilters/menu/ListMenu',           
             gridFilters: 'libs/GeoExt.ux/GridFilters/GridFilters',
-            filter: 'libs/GeoExt.ux/GridFilters/filter/Filter',    
+            cFilter: 'libs/GeoExt.ux/GridFilters/filter/Filter',    
             stringFilter: 'libs/GeoExt.ux/GridFilters/filter/StringFilter',    
             dateFilter: 'libs/GeoExt.ux/GridFilters/filter/DateFilter',    
             listFilter: 'libs/GeoExt.ux/GridFilters/filter/ListFilter',    
@@ -47,8 +47,8 @@ require.ajouterConfig({
  * @version 1.0
  */
 
-define(['aide', 'analyseurGeoJSON', 'panneau', 'service', 'panneauEdition', 'outilAssocierFichier', 'css!rowEditorCSS', 'rowEditor', 
-        'css!gridFiltersCSS', 'css!rangeMenuCSS', 'rangeMenu', 'listMenu', 'gridFilters', 'filter', 'stringFilter', 
+define(['aide', 'analyseurGeoJSON', 'panneau', 'editionService', 'panneauEdition', 'outilAssocierFichier', 'css!rowEditorCSS', 'rowEditor', 
+        'css!gridFiltersCSS', 'css!rangeMenuCSS', 'rangeMenu', 'listMenu', 'gridFilters', 'cFilter', 'stringFilter', 
         'dateFilter','listFilter', 'numericFilter', 'booleanFilter', 'fileUploadField', 'css!fileUploadFieldCSS', 'css!editionCSS'], 
 function(Aide, AnalyseurGeoJSON, Panneau, Service, PanneauEdition, OutilAssocierFichier) {  
 
