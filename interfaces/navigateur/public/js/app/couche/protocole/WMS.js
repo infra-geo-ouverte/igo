@@ -48,7 +48,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         
         this._optionsOL = {
             queryable: true,
-            singleTile: true
+            singleTile: !Aide.toBoolean(this.options.multiTuile)
         };
         
         if(!this.options.mode){
@@ -207,6 +207,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                             $.extend(xmlOptions, that.options);
                             xmlOptions.mode=false;
                             xmlOptions.nom=value.name;
+                            if(value.dimensions.time){
+                                xmlOptions.wms_timeextent = value.dimensions.time.values[0];
+                                xmlOptions.wms_timedefault = value.dimensions.time.defaults;
+                            }
                             target.ajouterCouche(new WMS(xmlOptions));
                         } 
                     };
@@ -279,7 +283,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         }
     };
     
-    WMS.prototype._validerChargement = function(e){
+    WMS.prototype._validerChargement = function(e, a){
         if(e.object.div.innerHTML.indexOf("olImageLoadError")>-1){
             $.ajax({
                 url: Aide.utiliserProxy(decodeURIComponent($('<textarea/>').html(/src="(.*)"/.exec(e.object.div.innerHTML)[1]).text())),
@@ -291,25 +295,33 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 async:false,
                 context:this,
                 success:function(response) {
-                    
                     var message = '<b>'+this.options.titre +':</b><br>';
                     
-                    if(typeof response === 'object'){
-                        
+                    if(typeof response === 'object'){        
                         var tagError = response.getElementsByTagName("ServiceException");
                         if(tagError){
                             message += tagError.item(0).textContent;
                             Aide.afficherMessageConsole(message);
                         }
-                    }
-                    else {
-                        message += response
+                    } else {
+                        message += response;
                         Aide.afficherMessageConsole(message);
                     }
-                    
                 },
                 error:function(e){
-                    Aide.afficherMessageConsole(e.statusText);
+                    var message = '<b>'+ e.statusText +':</b><br>';
+                    Aide.afficherMessageConsole(message);
+                    /*var response = e.responseXML;
+                    
+                    if(typeof response === 'object'){     
+                        var tagError = response.getElementsByTagName("ServiceException");
+                        if(tagError){
+                            message += tagError.item(0).textContent;
+                            Aide.afficherMessageConsole(message);
+                        }
+                    } else {
+                        Aide.afficherMessageConsole(message);
+                    }*/
                 }
             
             });
