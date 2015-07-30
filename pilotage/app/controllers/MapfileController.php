@@ -767,13 +767,13 @@ class MapfileController extends ControllerBase {
                             }
 
                             //Save each classes and assign them a z order
-                            $i = 0;
+                            $mf_class_z_order = 0;
                             foreach ($layer['classes'] as $class) {
                                 $igoClass = new IgoClasse();
                              
                                 $igoClass->mf_class_def = $class;
                                 $igoClass->couche_id = $igoLayer->id;
-                                $igoClass->mf_class_z_order = $i;
+                                $igoClass->mf_class_z_order = $mf_class_z_order;
                                 $igoClass->save(false);
 
                                 if ($igoLayer->save(false) == false) {
@@ -784,7 +784,7 @@ class MapfileController extends ControllerBase {
                                
                                 }
 
-                                $i++;
+                                $mf_class_z_order++;
                             }
                             if ($groupID) {
                                 $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
