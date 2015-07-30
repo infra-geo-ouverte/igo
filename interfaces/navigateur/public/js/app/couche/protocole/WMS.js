@@ -180,11 +180,11 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 iCL++;              
                 if(!that.options._merge){                    
 
-                   var parcourirLayerXML = function(value, groupe, groupeBase){
+                   var parcourirLayerXML = function(value, groupe, groupeNiveauBase){
                         var layers=value;
                         if(value.nestedLayers.length !== 0){
-                            if(groupeBase){ //permet de ignorer les premiers niveaux du WMS
-                                groupeBase--;
+                            if(groupeNiveauBase){ //permet de ignorer les premiers niveaux du WMS
+                                groupeNiveauBase--;
                             } else {
                                 groupe = groupe ? groupe+'/' : "";
                                 groupe += value.title;
@@ -192,7 +192,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                             
                             layers = value.nestedLayers;
                             $.each(layers, function(key2, value2){
-                                parcourirLayerXML(value2, groupe, groupeBase);
+                                parcourirLayerXML(value2, groupe, groupeNiveauBase);
                             });
                         } else {
                             xmlOptions = {
@@ -231,7 +231,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         } 
                     };
 
-                    parcourirLayerXML(value, that.options.groupe, that.options.groupeBase);
+                    parcourirLayerXML(value, that.options.groupe, that.options.groupeNiveauBase);
 
                     if (len===1){
                         return false;
