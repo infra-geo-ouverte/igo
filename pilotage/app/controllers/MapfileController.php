@@ -338,15 +338,7 @@ class MapfileController extends ControllerBase {
                     return $response->redirect($previousURL);
                 }
 
-                //Clear session
-                $this->session->set('mapfile', null);
-                $this->session->set('mapfileData', null);
-                $this->session->set('selectData', null);
-                $this->session->set('processData', null);
-                $this->session->set('contexteName', null);
-                $this->session->set('contexteCode', null);
-                $this->session->set('contexteDescription', null);
-                $this->session->set('onlineResource', null);
+                $this->clearSession();
             } else {
                 return $response->redirect($this->cancelURL);
             }
@@ -1001,6 +993,20 @@ class MapfileController extends ControllerBase {
             error_log(json_encode($e));
             throw $e;
         }
+    }
+    
+
+    private function clearSession(){
+        //Clear session
+        $this->session->set('mapfile', null);
+        $this->session->set('mapfileData', null);
+        $this->session->set('selectData', null);
+        $this->session->set('processData', null);
+        $this->session->set('contexteName', null);
+        $this->session->set('contexteCode', null);
+        $this->session->set('contexteDescription', null);
+        $this->session->set('onlineResource', null);
+
     }
 
 }
