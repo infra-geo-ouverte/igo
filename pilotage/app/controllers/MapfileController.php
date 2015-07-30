@@ -407,8 +407,7 @@ class MapfileController extends ControllerBase {
      */
     private function save($data, $igoContexte = null) {
         $this->db->begin();
-
-
+        
         //Create a contexte if IgoContexte is defined
         if ($igoContexte) {
             $this->igoContexteSave($igoContexte);
@@ -449,24 +448,19 @@ class MapfileController extends ControllerBase {
                     $groupID = null;
                     $layer['currentGroup'] = null;
 
-
                     //If geometry type doesn't exist, create it
                     if (!array_key_exists($layer['type'], $geometryTypes)) {
                         $igoGeometryType = new IgoGeometrieType();
                         
                         $igoGeometryType->layer_type = $layer['type'];
                         $igoGeometryType->nom = $layer['type'];
-                        if ($igoGeometryType->save() == false) {
-                            foreach ($igoGeometryType->getMessages() as $message) {
-                                throw new Exception($message);
-                            }
-                 
-                            $this->db->rollback();
-                        } else {
-                            //Store the new geometry type id in an array and refer to it
-                            //for the following layers with the same geometry type
-                            $geometryTypes[$layer['type']] = $igoGeometryType->id;
-                        }
+
+                        $this->igoGeometryTypeSave($igoGeometryType);
+
+                        //Store the new geometry type id in an array and refer to it
+                        //for the following layers with the same geometry type
+                        $geometryTypes[$layer['type']] = $igoGeometryType->id;
+                        
                     }
 
                     $layerQuery = 'mf_layer_name="' . $layer['name'] . '"';
@@ -1014,7 +1008,7 @@ class MapfileController extends ControllerBase {
     }
     
     private function igoContexteSave($igoContexte){
-        if ($igoContexte->save(false) == false) {
+        if (!$igoContexte->save(false)) {
             foreach ($igoContexte->getMessages() as $message) {
                 throw new Exception($message);
             }
@@ -1022,6 +1016,16 @@ class MapfileController extends ControllerBase {
             $this->db->rollback();
 
         }
+    }
+    
+    private function igoGeometryTypeSave($igoGeometryType){
+        if (!$igoGeometryType->save()) {
+            foreach ($igoGeometryType->getMessages() as $message) {
+                throw new Exception($message);
+            }
+
+            $this->db->rollback();
+       }
     }
 
 }
