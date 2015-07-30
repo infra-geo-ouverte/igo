@@ -411,15 +411,8 @@ class MapfileController extends ControllerBase {
 
         //Create a contexte if IgoContexte is defined
         if ($igoContexte) {
-     
-            if ($igoContexte->save(false) == false) {
-                foreach ($igoContexte->getMessages() as $message) {
-                    throw new Exception($message);
-                }
-       
-                $this->db->rollback();
-                $igoContexte = null;
-            }
+            $this->igoContexteSave($igoContexte);
+        
         }
 
         //Create an associative array of all the possible geometry types
@@ -1018,6 +1011,17 @@ class MapfileController extends ControllerBase {
 
         $this->db->rollback();
         }    
+    }
+    
+    private function igoContexteSave($igoContexte){
+        if ($igoContexte->save(false) == false) {
+            foreach ($igoContexte->getMessages() as $message) {
+                throw new Exception($message);
+            }
+
+            $this->db->rollback();
+
+        }
     }
 
 }
