@@ -375,17 +375,12 @@ class MapfileController extends ControllerBase {
    
             $igoConnection->connexion = $connectionString;
             $igoConnection->connexion_type_id = $connexionTypeId;
- 
-            if ($igoConnection->save(false) == false) {
-                foreach ($igoConnection->getMessages() as $message) {
-                    throw new Exception($message);
-                }
-     
-                $this->db->rollback();
-            } else {
-                $igoConnection->nom = $connexionTypeNom . ' ' . $igoConnection->id;
-                $igoConnection->save(false);
-            }
+
+            $this->igoConnectionSave($igoConnection);
+            
+            $igoConnection->nom = $connexionTypeNom . ' ' . $igoConnection->id;
+            $igoConnection->save(false);
+         
         } else {
             if ($igoConnection->nom == "" || $igoConnection->nom == null) {
           
@@ -959,7 +954,7 @@ class MapfileController extends ControllerBase {
                                 if ($layer['currentGroup'] && ($layer['currentGroup'] != $layer['wms_group_title'])) {
                                     $igoCoucheContexte->mf_layer_meta_group_title = $layer['wms_group_title'];
                                 }
-                                igoCoucheContexteSave($igoCoucheContexte);
+                                $this->igoCoucheContexteSave($igoCoucheContexte);
                       
                                
                             }
@@ -1012,6 +1007,17 @@ class MapfileController extends ControllerBase {
 
             $this->db->rollback();
         }
+    }
+    
+    
+    private function igoConnectionSave($igoConnection){
+        if (!$igoConnection->save(false)) {
+            foreach ($igoConnection->getMessages() as $message) {
+                throw new Exception($message);
+            }
+
+        $this->db->rollback();
+        }    
     }
 
 }
