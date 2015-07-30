@@ -959,14 +959,9 @@ class MapfileController extends ControllerBase {
                                 if ($layer['currentGroup'] && ($layer['currentGroup'] != $layer['wms_group_title'])) {
                                     $igoCoucheContexte->mf_layer_meta_group_title = $layer['wms_group_title'];
                                 }
-
-                                if ($igoCoucheContexte->save() == false) {
-                                    foreach ($igoCoucheContexte->getMessages() as $message) {
-                                        throw new Exception($message);
-                                    }
+                                igoCoucheContexteSave($igoCoucheContexte);
                       
-                                    $this->db->rollback();
-                                }
+                               
                             }
                         }
                     }
@@ -1007,6 +1002,16 @@ class MapfileController extends ControllerBase {
         $this->session->set('contexteDescription', null);
         $this->session->set('onlineResource', null);
 
+    }
+    
+    private function igoCoucheContexteSave($igoCoucheContexte){
+        if ($igoCoucheContexte->save() == false) {
+            foreach ($igoCoucheContexte->getMessages() as $message) {
+               throw new Exception($message);
+            }
+
+            $this->db->rollback();
+        }
     }
 
 }
