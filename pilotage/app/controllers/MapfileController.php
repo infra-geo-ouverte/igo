@@ -590,7 +590,7 @@ class MapfileController extends ControllerBase {
                                 $igoClasseEntite->catalogue_csw_id = $igoCatalogueCsw->id;
                             }
 
-                            if ($igoClasseEntite->save() == false) {
+                            if (!$igoClasseEntite->save()) {
                                 foreach ($igoClasseEntite->getMessages() as $message) {
                                     throw new Exception($message);
                                 }
