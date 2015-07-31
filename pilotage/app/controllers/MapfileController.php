@@ -265,33 +265,29 @@ class MapfileController extends ControllerBase {
                     $contexteDescription = trim($request->getPost('description', null));
                     $onlineResource = trim($request->getPost('onlineResource', null));
 
-                    $missingParameter = false;
                     if (!$contexteName) {
                         $this->flashSession->error('Veuillez indiquer un nom de contexte.');
-                        $missingParameter = true;
                     }
 
                     if (!$contexteCode) {
                         $this->flashSession->error('Veuillez indiquer un code de contexte.');
-                        $missingParameter = true;
                     }
 
                     if (!$contexteDescription) {
                         $this->flashSession->error('Veuillez indiquer une description du contexte.');
-                        $missingParameter = true;
                     }
 
                     if (!$onlineResource) {
                         $this->flashSession->error('Veuillez indiquer la resource en ligne.');
-                        $missingParameter = true;
                     }
-
+              
+                    
                     $this->session->set('contexteName', $contexteName);
                     $this->session->set('contexteCode', $contexteCode);
                     $this->session->set('contexteDescription', $contexteDescription);
                     $this->session->set('onlineResource', $onlineResource);
 
-                    if ($missingParameter) {
+                    if ($this->flashSession->has('error')) {
 
                         return $response->redirect($previousURL);
                     }
@@ -300,6 +296,8 @@ class MapfileController extends ControllerBase {
                     $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
                     if (file_exists($fileName)) {
                         $this->flash->error("Le fichier {$fileName} existe déjà!");
+                        
+                     return $response->redirect($previousURL);
                         return $this->dispatcher->forward(array(
                                     "controller" => $this->ctlName,
                                     "action" => "new",
