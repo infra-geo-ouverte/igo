@@ -649,7 +649,7 @@ class MapfileController extends ControllerBase {
                                 $igoAttribute->est_inclu = ($attribute['est_inclu'] ? 'TRUE' : 'FALSE');
                                 $igoAttribute->geometrie_id = $igoGeometrie->id;
 
-                                if ($igoAttribute->save(false) == false) {
+                                if (!$igoAttribute->save(false)) {
                                     foreach ($igoAttribute->getMessages() as $message) {
                                         throw new Exception($message);
                                     }
