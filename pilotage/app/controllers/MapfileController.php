@@ -267,22 +267,22 @@ class MapfileController extends ControllerBase {
 
                     $missingParameter = false;
                     if (!$contexteName) {
-                        $this->flashSession->error('Veuillez entrer un nom de contexte.');
+                        $this->flashSession->error('Veuillez indiquer un nom de contexte.');
                         $missingParameter = true;
                     }
 
                     if (!$contexteCode) {
-                        $this->flashSession->error('Veuillez entrer un code de contexte.');
+                        $this->flashSession->error('Veuillez indiquer un code de contexte.');
                         $missingParameter = true;
                     }
 
                     if (!$contexteDescription) {
-                        $this->flashSession->error('Veuillez entrer une description du contexte.');
+                        $this->flashSession->error('Veuillez indiquer une description du contexte.');
                         $missingParameter = true;
                     }
 
                     if (!$onlineResource) {
-                        $this->flashSession->error('Veuillez entré la resource en ligne.');
+                        $this->flashSession->error('Veuillez indiquer la resource en ligne.');
                         $missingParameter = true;
                     }
 
@@ -299,7 +299,7 @@ class MapfileController extends ControllerBase {
                     $mapServerConfig = $this->getDI()->getConfig()->mapserver;
                     $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
                     if (file_exists($fileName)) {
-                        $this->flash->error("le fichier {$fileName} existe déjà!");
+                        $this->flash->error("Le fichier {$fileName} existe déjà!");
                         return $this->dispatcher->forward(array(
                                     "controller" => $this->ctlName,
                                     "action" => "new",
@@ -311,12 +311,8 @@ class MapfileController extends ControllerBase {
 
                     $mapfileData = $this->session->get('mapfileData');
 
-                    $onlineResource = trim($onlineResource);
                     // contains {Code}.map 
-                    if (strpos($onlineResource, '{Code}') !== FALSE)
-                        if ($onlineResource) {
-                            $onlineResource = str_replace("{Code}", $contexteCode, $onlineResource);
-                        }
+                    $onlineResource = str_replace("{Code}", $contexteCode, $onlineResource);
 
                     $igoContexte->mf_map_meta_onlineresource = $onlineResource;
                     //$igoContexte->mf_map_meta_onlineresource = trim($onlineResource);
