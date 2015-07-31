@@ -22,7 +22,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="control-label col-sm-4" for="name">Nom</label>
+			<label class="control-label col-sm-4" for="name">Nom<span class="glyphicon glyphicon-asterisk oblig"></span></label>
 			<div class="col-sm-4">
 				<input class="form-control" type="text" id="name" name="name" value="{{contexteName}}"/>
 			</div> 
@@ -30,21 +30,21 @@
 		</div>
 
 		<div class="form-group">
-			<label class="control-label col-sm-4" for="code">Code</label>
+			<label class="control-label col-sm-4" for="code">Code<span class="glyphicon glyphicon-asterisk oblig"></span></label>
 			<div class="col-sm-4">
 				<input class="form-control" type="text" id="code" name="code" value="{{contexteCode}}"/>
 			</div> 
 		</div>
 
 		<div class="form-group">
-			<label class="control-label col-sm-4" for="description">Description</label>
+			<label class="control-label col-sm-4" for="description">Description<span class="glyphicon glyphicon-asterisk oblig"></span></label>
 			<div class="col-sm-4">
 				<textarea class="form-control" type="text" id="description" name="description">{{contexteDescription}}</textarea>
 			</div> 
 		</div>
 
 		<div class="form-group">
-			<label class="control-label col-sm-4" for="onlineResource">OnlineResource</label>
+			<label class="control-label col-sm-4" for="onlineResource">OnlineResource<span class="glyphicon glyphicon-asterisk oblig"></span></label>
 			<div class="col-sm-4">
 				<input class="form-control" type="text" id="onlineResource" name="onlineResource" value="{{onlineResource}}"/>
 			</div> 
