@@ -494,12 +494,6 @@ class MapfileController extends ControllerBase {
                                 $igoClasses = null;
                             }
 
-                            //Reassign the currentGroup to the layer in case it changed in the database meanwhile
-                            //if ($igoLayer->groupe_id) {
-                            //    $groupQuery = 'id="' . $igoLayer->groupe_id . '"';
-                            //    $igoGroup = IgoGroupe::findFirst($groupQuery);
-                            //    $layer['currentGroup'] = $igoGroup->getNomComplet(true);
-                            //}
                         } else {
                             //If a layer with the same name doesn't exist
                             //Create a new layer
@@ -545,32 +539,32 @@ class MapfileController extends ControllerBase {
                                     if (!$found) {
                                         //Check if this group exists in the database already
 
-                                        $igoGroup = IgoGroupe::findFirst('nom="' . $groupName . '"');
+                                        $igoGroupe = IgoGroupe::findFirst('nom="' . $groupName . '"');
 
-                                        if ($igoGroup) {
+                                        if ($igoGroupe) {
                                             //If it exists already, retrieve it's id
-                                            $groupID = $igoGroup->id;
+                                            $groupID = $igoGroupe->id;
                                         } else {
                                             //If it doesn't exist, create it and retrieve it's id
-                                            $igoGroup = new IgoGroupe();
+                                            $igoGroupe = new IgoGroupe();
                                        
-                                            $igoGroup->nom = $groupName;
-                                            $igoGroup->est_exclu_arbre = 'FALSE';
+                                            $igoGroupe->nom = $groupName;
+                                            $igoGroupe->est_exclu_arbre = 'FALSE';
 
-                                            if (!$igoGroup->save()) {
+                                            if (!$igoGroupe->save()) {
 
-                                                foreach ($igoGroup->getMessages() as $message) {
+                                                foreach ($igoGroupe->getMessages() as $message) {
                                                     throw new Exception($message);
                                                 }
 
                                                 $this->db->rollback();
                                             }
                                             
-                                            $groupID = $igoGroup->id;
+                                            $groupID = $igoGroupe->id;
                                            
                                         }
 
-                                        $igoGroup->specifie_parent($parent_groupe_id);
+                                        $igoGroupe->specifie_parent($parent_groupe_id);
                                         //Store the id of the newly created group in the groups array
                                         $groups[] = array(
                                             'name' => $fullGroupName,
@@ -728,7 +722,7 @@ class MapfileController extends ControllerBase {
                             $igoCoucheContexte->mf_layer_meta_group_title = $layer['wms_group_title'];
                         }
 
-                        if ($igoLayer->save(false) == false) {
+                        if (!$igoLayer->save(false)) {
                             foreach ($igoLayer->getMessages() as $message) {
                                 throw new Exception($message);
                             }
@@ -771,13 +765,13 @@ class MapfileController extends ControllerBase {
                                 $mf_class_z_order++;
                             }
                             if ($groupID) {
-                                $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
-                                if (!$igoGroupeCouche) {
-                                    $igoGroupeCouche = new IgoGroupeCouche ();
-                                    $igoGroupeCouche->groupe_id = $groupID;
-                                    $igoGroupeCouche->couche_id = $igoLayer->id;
+                                $igoGroupeeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
+                                if (!$igoGroupeeCouche) {
+                                    $igoGroupeeCouche = new IgoGroupeCouche ();
+                                    $igoGroupeeCouche->groupe_id = $groupID;
+                                    $igoGroupeeCouche->couche_id = $igoLayer->id;
                             
-                                    $igoGroupeCouche->save();
+                                    $igoGroupeeCouche->save();
                                 }
                             } else {
                                 echo("La couche {$layer['name']} est dans aucun groupe.<br>");
