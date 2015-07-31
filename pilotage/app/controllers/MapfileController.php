@@ -313,9 +313,9 @@ class MapfileController extends ControllerBase {
 
             $igoContexte->mf_map_meta_onlineresource = $onlineResource;
             $igoContexte->mf_map_projection = $mapfileData['map']['projection'];
-            $igoContexte->nom = trim($contexteName);
-            $igoContexte->code = trim($contexteCode);
-            $igoContexte->description = trim($contexteDescription);
+            $igoContexte->nom = $contexteName;
+            $igoContexte->code = $contexteCode;
+            $igoContexte->description = $contexteDescription;
             $igoContexte->mode = "l"; //mode Liste
             $igoContexte->generer_onlineresource = true;
         }
@@ -370,7 +370,7 @@ class MapfileController extends ControllerBase {
             $igoConnexion->save(false);
          
         } else {
-            if ($igoConnexion->nom == "" || $igoConnexion->nom == null) {
+            if (!$igoConnexion->nom) {
           
                 $igoConnexion->nom = $connexionTypeNom . ' ' . $igoConnexion->id;
                 $igoConnexion->connexion_type_id = $connexionTypeId;
@@ -402,15 +402,15 @@ class MapfileController extends ControllerBase {
         
         }
 
-        //Create an associative array of all the possible geometry types
+        //Create an associative array of all the possible non-multi geometry types
         //This way, we dont need to issue a sql request for each layer
         $geometryTypes = array();
-        $allGeometryTypes = IgoGeometrieType::find();
+        //TODO Déterminer pourquoi on ne veut pas les multi
+        $allGeometryTypes = IgoGeometrieType::find("NOT nom ilike '%multi%'");
         foreach ($allGeometryTypes as $geometryType) {
-            $multi = strpos(strtolower($geometryType->nom), 'multi');
-            if ($multi === false) {
-                $geometryTypes[$geometryType->layer_type] = $geometryType->id;
-            }
+           
+            $geometryTypes[$geometryType->layer_type] = $geometryType->id;
+       
         }
 
         //Create an empty array that will be used to store the group IDs
@@ -590,7 +590,6 @@ class MapfileController extends ControllerBase {
                                 $igoClasseEntite->catalogue_csw_id = $igoCatalogueCsw->id;
                             }
 
-                            // $igoClasseEntite->setTransaction($transaction);
                             if ($igoClasseEntite->save() == false) {
                                 foreach ($igoClasseEntite->getMessages() as $message) {
                                     throw new Exception($message);
