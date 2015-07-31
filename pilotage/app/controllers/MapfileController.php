@@ -280,8 +280,14 @@ class MapfileController extends ControllerBase {
                     if (!$onlineResource) {
                         $this->flashSession->error('Veuillez indiquer la resource en ligne.');
                     }
-              
                     
+                    
+                    $mapServerConfig = $this->getDI()->getConfig()->mapserver;
+                    $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
+                    if (file_exists($fileName)) {
+                        $this->flash->error("Le fichier {$fileName} existe déjà. Choisissez un autre code.");
+                    }
+              
                     $this->session->set('contexteName', $contexteName);
                     $this->session->set('contexteCode', $contexteCode);
                     $this->session->set('contexteDescription', $contexteDescription);
@@ -290,19 +296,6 @@ class MapfileController extends ControllerBase {
                     if ($this->flashSession->has('error')) {
 
                         return $response->redirect($previousURL);
-                    }
-
-                    $mapServerConfig = $this->getDI()->getConfig()->mapserver;
-                    $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
-                    if (file_exists($fileName)) {
-                        $this->flash->error("Le fichier {$fileName} existe déjà!");
-                        
-                     return $response->redirect($previousURL);
-                        return $this->dispatcher->forward(array(
-                                    "controller" => $this->ctlName,
-                                    "action" => "new",
-                                    "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
-                        ));
                     }
 
                     $igoContexte = new IgoContexte();
