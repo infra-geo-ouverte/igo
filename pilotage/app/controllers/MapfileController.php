@@ -357,28 +357,28 @@ class MapfileController extends ControllerBase {
         } 
 
         //If connection doesn't exist, create it
-        $igoConnection = IgoConnexion::findFirst($connectionQuery);
-        if (!$igoConnection) {
-            $igoConnection = new IgoConnexion();
+        $igoConnexion = IgoConnexion::findFirst($connectionQuery);
+        if (!$igoConnexion) {
+            $igoConnexion = new IgoConnexion();
    
-            $igoConnection->connexion = $connectionString;
-            $igoConnection->connexion_type_id = $connexionTypeId;
+            $igoConnexion->connexion = $connectionString;
+            $igoConnexion->connexion_type_id = $connexionTypeId;
 
-            $this->igoConnectionSave($igoConnection);
+            $this->igoConnexionSave($igoConnexion);
             
-            $igoConnection->nom = $connexionTypeNom . ' ' . $igoConnection->id;
-            $igoConnection->save(false);
+            $igoConnexion->nom = $connexionTypeNom . ' ' . $igoConnexion->id;
+            $igoConnexion->save(false);
          
         } else {
-            if ($igoConnection->nom == "" || $igoConnection->nom == null) {
+            if ($igoConnexion->nom == "" || $igoConnexion->nom == null) {
           
-                $igoConnection->nom = $connexionTypeNom . ' ' . $igoConnection->id;
-                $igoConnection->connexion_type_id = $connexionTypeId;
+                $igoConnexion->nom = $connexionTypeNom . ' ' . $igoConnexion->id;
+                $igoConnexion->connexion_type_id = $connexionTypeId;
                
-                $igoConnection->save(false);
+                $igoConnexion->save(false);
             }
         }
-        return $igoConnection;
+        return $igoConnexion;
     }
 
     /**
@@ -417,20 +417,32 @@ class MapfileController extends ControllerBase {
         $groups = array();
         $layerIndex = 1;
         try {
+            
             $igoCouches = array();
             foreach ($data as $d) {
-                $igoConnection = null;
-                if ($d['connection'] and isset($d['connection']['connectionString']) && isset($d['connection']['type'])) {
-                    $igoConnection = $this->getConnection($d['connection']['connectionString'], $d['connection']['type']);
+                
+                $igoConnexion = null;
+                
+                if ($d['connection'] 
+                        && isset($d['connection']['connectionString']) 
+                        && isset($d['connection']['type'])) {
+                error_log("connexion");
                     //Check if connexion exists already in the database
+                    $igoConnexion = $this->getConnection($d['connection']['connectionString'], $d['connection']['type']);
+                    
                 }
 
                 foreach ($d['layers'] as $layer) {
-
-                    if (isset($layer['connection']) && isset($layer['connectiontype']) && !""==trim($layer['connection']) && !""==trim($layer['connectiontype'])) {
-                        $igoConnection = $this->getConnection($layer['connection'], $layer['connectiontype']);
-
+                    
+                    if (isset($layer['connection']) 
+                            && isset($layer['connectiontype']) 
+                            && trim($layer['connection']) 
+                            && trim($layer['connectiontype'])) {
+                        error_log("layer");
                         //Check if connexion exists already in the database
+                        $igoConnexion = $this->getConnection($layer['connection'], $layer['connectiontype']);
+
+                        
                     }
                     $groupeCoucheId = null;
                     $groupID = null;
@@ -438,16 +450,16 @@ class MapfileController extends ControllerBase {
 
                     //If geometry type doesn't exist, create it
                     if (!array_key_exists($layer['type'], $geometryTypes)) {
-                        $igoGeometryType = new IgoGeometrieType();
+                        $igoGeometrieType = new IgoGeometrieType();
                         
-                        $igoGeometryType->layer_type = $layer['type'];
-                        $igoGeometryType->nom = $layer['type'];
+                        $igoGeometrieType->layer_type = $layer['type'];
+                        $igoGeometrieType->nom = $layer['type'];
 
-                        $this->igoGeometryTypeSave($igoGeometryType);
+                        $this->igoGeometrieTypeSave($igoGeometrieType);
 
                         //Store the new geometry type id in an array and refer to it
                         //for the following layers with the same geometry type
-                        $geometryTypes[$layer['type']] = $igoGeometryType->id;
+                        $geometryTypes[$layer['type']] = $igoGeometrieType->id;
                         
                     }
 
@@ -461,14 +473,14 @@ class MapfileController extends ControllerBase {
                             //Find its geometry                        
                             if ($igoLayer->geometrie_id) {
                                 $geometryQuery = 'id="' . $igoLayer->geometrie_id . '"';
-                                $igoGeometry = IgoGeometrie::findFirst($geometryQuery);
+                                $igoGeometrie = IgoGeometrie::findFirst($geometryQuery);
                             } else {
-                                $igoGeometry = new IgoGeometrie();
+                                $igoGeometrie = new IgoGeometrie();
                             }
 
                             //Find it's classe d'entité
-                            if ($igoGeometry && $igoGeometry->classe_entite_id) {
-                                $classeEntiteQuery = 'id="' . $igoGeometry->classe_entite_id . '"';
+                            if ($igoGeometrie && $igoGeometrie->classe_entite_id) {
+                                $classeEntiteQuery = 'id="' . $igoGeometrie->classe_entite_id . '"';
                                 $igoClasseEntite = IgoClasseEntite::findFirst($classeEntiteQuery);
                             } else {
                                 $igoClasseEntite = null;
@@ -494,7 +506,7 @@ class MapfileController extends ControllerBase {
                             $igoLayer = new IgoCouche();
 
                             //Create a new geometry
-                            $igoGeometry = new IgoGeometrie();
+                            $igoGeometrie = new IgoGeometrie();
 
                             //Set some variables to null
                             $igoClasseEntite = null;
@@ -544,16 +556,17 @@ class MapfileController extends ControllerBase {
                                        
                                             $igoGroup->nom = $groupName;
                                             $igoGroup->est_exclu_arbre = 'FALSE';
-                                          
+
                                             if (!$igoGroup->save()) {
+
                                                 foreach ($igoGroup->getMessages() as $message) {
                                                     throw new Exception($message);
                                                 }
-                                                
+
                                                 $this->db->rollback();
-                                            } else {
-                                                $groupID = $igoGroup->id;
                                             }
+                                            
+                                            $groupID = $igoGroup->id;
                                         }
 
                                         $igoGroup->specifie_parent($parent_groupe_id);
@@ -593,13 +606,13 @@ class MapfileController extends ControllerBase {
                         } //if (!$igoClasseEntite) {
                         //
                         //Update or set the geometry attributes
-                        $igoGeometry->mf_layer_projection = $layer['projection'];
-                        $igoGeometry->mf_layer_data = $layer['data'];
-                        $igoGeometry->connexion_id = ($igoConnection ? $igoConnection->id : $igoGeometry->connexion_id);
-                        $igoGeometry->geometrie_type_id = $geometryTypes[$layer['type']];
-                        $igoGeometry->classe_entite_id = $igoClasseEntite->id;
-                        $igoGeometry->vue_defaut = $layer['vue_defaut'];
-                        $igoGeometry->acces = "L";
+                        $igoGeometrie->mf_layer_projection = $layer['projection'];
+                        $igoGeometrie->mf_layer_data = $layer['data'];
+                        $igoGeometrie->connexion_id = ($igoConnexion ? $igoConnexion->id : $igoGeometrie->connexion_id);
+                        $igoGeometrie->geometrie_type_id = $geometryTypes[$layer['type']];
+                        $igoGeometrie->classe_entite_id = $igoClasseEntite->id;
+                        $igoGeometrie->vue_defaut = $layer['vue_defaut'];
+                        $igoGeometrie->acces = "L";
                         // Définir l'indice d'inclusion...
                         $indice_inclusion = "T"; // T=Tous, E=Exclusion I=Inclusion
                         foreach ($layer['attributes'] as $attribute) {
@@ -611,12 +624,12 @@ class MapfileController extends ControllerBase {
                                 break;
                             }
                         }
-                        $igoGeometry->ind_inclusion = $indice_inclusion;
+                        $igoGeometrie->ind_inclusion = $indice_inclusion;
 
 
-                        if ($igoGeometry->save(false) == false) {
+                        if ($igoGeometrie->save(false) == false) {
                             $this->db->rollback();
-                            foreach ($igoGeometry->getMessages() as $message) {
+                            foreach ($igoGeometrie->getMessages() as $message) {
                                 throw new Exception($message);
                             }
                             
@@ -624,7 +637,7 @@ class MapfileController extends ControllerBase {
 
                         //Insert or update attributes                        
                         foreach ($layer['attributes'] as $attribute) {
-                            $attributeQuery = 'geometrie_id="' . $igoGeometry->id . '" AND colonne="' . $attribute['colonne'] . '"';
+                            $attributeQuery = 'geometrie_id="' . $igoGeometrie->id . '" AND colonne="' . $attribute['colonne'] . '"';
                             $igoAttribute = IgoAttribut::findFirst($attributeQuery);
                             $update = false;
 
@@ -640,7 +653,7 @@ class MapfileController extends ControllerBase {
                                 $igoAttribute->colonne = $attribute['colonne'];
                                 $igoAttribute->est_cle = ($attribute['est_cle'] ? 'TRUE' : 'FALSE');
                                 $igoAttribute->est_inclu = ($attribute['est_inclu'] ? 'TRUE' : 'FALSE');
-                                $igoAttribute->geometrie_id = $igoGeometry->id;
+                                $igoAttribute->geometrie_id = $igoGeometrie->id;
 
                                 if ($igoAttribute->save(false) == false) {
                                     foreach ($igoAttribute->getMessages() as $message) {
@@ -660,7 +673,7 @@ class MapfileController extends ControllerBase {
 
                         // Création ou mise à jour de la couche
                         $igoLayer->type = $layer['location'];
-                        $igoLayer->geometrie_id = $igoGeometry->id;
+                        $igoLayer->geometrie_id = $igoGeometrie->id;
                         $igoLayer->mf_layer_name = $layer['name'];
                         $igoLayer->mf_layer_group = $layer['group'];
                         $igoLayer->mf_layer_meta_name = $layer['wms_name'];
@@ -939,7 +952,6 @@ class MapfileController extends ControllerBase {
                 }
             }
 
-    
             $this->db->commit();
             
             $igoVueGroupesRecursif = new IgoVueGroupesRecursif();
@@ -985,9 +997,9 @@ class MapfileController extends ControllerBase {
     }
     
     
-    private function igoConnectionSave($igoConnection){
-        if (!$igoConnection->save(false)) {
-            foreach ($igoConnection->getMessages() as $message) {
+    private function igoConnexionSave($igoConnexion){
+        if (!$igoConnexion->save(false)) {
+            foreach ($igoConnexion->getMessages() as $message) {
                 throw new Exception($message);
             }
 
@@ -1006,9 +1018,9 @@ class MapfileController extends ControllerBase {
         }
     }
     
-    private function igoGeometryTypeSave($igoGeometryType){
-        if (!$igoGeometryType->save()) {
-            foreach ($igoGeometryType->getMessages() as $message) {
+    private function igoGeometrieTypeSave($igoGeometrieType){
+        if (!$igoGeometrieType->save()) {
+            foreach ($igoGeometrieType->getMessages() as $message) {
                 throw new Exception($message);
             }
 
