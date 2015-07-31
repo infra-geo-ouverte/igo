@@ -254,86 +254,85 @@ class MapfileController extends ControllerBase {
         $response = new \Phalcon\Http\Response();
         $previousURL = 'mapfile/process';
 
-        if ($request->isPost()) {
-            
-            if ($layers = $this->session->get('processData')) {
-                
-                //Check if a context shoud be created
-                $creer_contexte = $request->getPost('creer_contexte', null);
-                $igoContexte = null;
-                if ($creer_contexte == 1) {
-                    $contexteName = trim($request->getPost('name', null));
-                    $contexteCode = trim($request->getPost('code', null));
-                    $contexteDescription = trim($request->getPost('description', null));
-                    $onlineResource = trim($request->getPost('onlineResource', null));
-
-                    if (!$contexteName) {
-                        $this->flashSession->error('Veuillez indiquer un nom de contexte.');
-                    }
-
-                    if (!$contexteCode) {
-                        $this->flashSession->error('Veuillez indiquer un code de contexte.');
-                    }
-
-                    if (!$contexteDescription) {
-                        $this->flashSession->error('Veuillez indiquer une description du contexte.');
-                    }
-
-                    if (!$onlineResource) {
-                        $this->flashSession->error('Veuillez indiquer la resource en ligne.');
-                    }
-                    
-                    $mapServerConfig = $this->getDI()->getConfig()->mapserver;
-                    $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
-                    if (file_exists($fileName)) {
-                        $this->flash->error("Le fichier {$fileName} existe déjà. Choisissez un autre code.");
-                    }
-              
-                    $this->session->set('contexteName', $contexteName);
-                    $this->session->set('contexteCode', $contexteCode);
-                    $this->session->set('contexteDescription', $contexteDescription);
-                    $this->session->set('onlineResource', $onlineResource);
-
-                    if ($this->flashSession->has('error')) {
-
-                        return $response->redirect($previousURL);
-                    }
-
-                    $igoContexte = new IgoContexte();
-
-                    $mapfileData = $this->session->get('mapfileData');
-
-                    // contains {Code}.map 
-                    $onlineResource = str_replace("{Code}", $contexteCode, $onlineResource);
-
-                    $igoContexte->mf_map_meta_onlineresource = $onlineResource;
-                    //$igoContexte->mf_map_meta_onlineresource = trim($onlineResource);
-                    $igoContexte->mf_map_projection = $mapfileData['map']['projection'];
-                    $igoContexte->nom = trim($contexteName);
-                    $igoContexte->code = trim($contexteCode);
-                    $igoContexte->description = trim($contexteDescription);
-                    $igoContexte->mode = "l";
-                    $igoContexte->generer_onlineresource = true;
-                }
-
-                //Save the layers (and optionally a context)
-                $mapfileParser = new MapfileParser();
-                $data = $mapfileParser->formatSaveData($layers, $this->view->host, $this->view->host_alias);
-                try {
-                    $this->save($data, $igoContexte);
-                    $this->flashSession->success('Sauvegarde effectuée avec succès!');
-                } catch (Exception $e) {
-                    $this->flashSession->error($e->getMessage());
-                    return $response->redirect($previousURL);
-                }
-
-                $this->clearSession();
-            } else {
-                return $response->redirect($this->cancelURL);
-            }
-        } else {
-            return $response->redirect($this->cancelURL);
+        if (!$request->isPost()) {
+             return $response->redirect($this->cancelURL);
         }
+            
+        $layers = $this->session->get('processData');
+        if(!$layers){
+             return $response->redirect($this->cancelURL);
+        }
+
+        //Check if a context shoud be created
+        $creer_contexte = $request->getPost('creer_contexte', null);
+        $igoContexte = null;
+        if ($creer_contexte) {
+            $contexteName = trim($request->getPost('name', null));
+            $contexteCode = trim($request->getPost('code', null));
+            $contexteDescription = trim($request->getPost('description', null));
+            $onlineResource = trim($request->getPost('onlineResource', null));
+
+            if (!$contexteName) {
+                $this->flashSession->error('Veuillez indiquer un nom de contexte.');
+            }
+
+            if (!$contexteCode) {
+                $this->flashSession->error('Veuillez indiquer un code de contexte.');
+            }
+
+            if (!$contexteDescription) {
+                $this->flashSession->error('Veuillez indiquer une description du contexte.');
+            }
+
+            if (!$onlineResource) {
+                $this->flashSession->error('Veuillez indiquer la resource en ligne.');
+            }
+
+            $mapServerConfig = $this->getDI()->getConfig()->mapserver;
+            $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
+            if (file_exists($fileName)) {
+                $this->flash->error("Le fichier {$fileName} existe déjà. Choisissez un autre code.");
+            }
+
+            $this->session->set('contexteName', $contexteName);
+            $this->session->set('contexteCode', $contexteCode);
+            $this->session->set('contexteDescription', $contexteDescription);
+            $this->session->set('onlineResource', $onlineResource);
+
+            if ($this->flashSession->has('error')) {
+
+                return $response->redirect($previousURL);
+            }
+
+            $igoContexte = new IgoContexte();
+
+            $mapfileData = $this->session->get('mapfileData');
+
+            // Substitude contexteCode if provided
+            $onlineResource = str_replace("{Code}", $contexteCode, $onlineResource);
+
+            $igoContexte->mf_map_meta_onlineresource = $onlineResource;
+            $igoContexte->mf_map_projection = $mapfileData['map']['projection'];
+            $igoContexte->nom = trim($contexteName);
+            $igoContexte->code = trim($contexteCode);
+            $igoContexte->description = trim($contexteDescription);
+            $igoContexte->mode = "l"; //mode Liste
+            $igoContexte->generer_onlineresource = true;
+        }
+
+        //Save the layers (and optionally a context)
+        $mapfileParser = new MapfileParser();
+        $data = $mapfileParser->formatSaveData($layers, $this->view->host, $this->view->host_alias);
+        try {
+            $this->save($data, $igoContexte);
+            $this->flashSession->success('Sauvegarde effectuée avec succès!');
+        } catch (Exception $e) {
+            $this->flashSession->error($e->getMessage());
+            return $response->redirect($previousURL);
+        }
+
+        $this->clearSession();
+          
     }
 
     private function getConnection($connectionString, $connectionType) {
