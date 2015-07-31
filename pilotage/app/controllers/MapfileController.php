@@ -39,6 +39,7 @@ class MapfileController extends ControllerBase {
     }
 
     public function retroAction() {
+        
         if ($this->session->get('mapfile')) {
             $this->view->mapfile = $this->session->get('mapfile');
         } else {
@@ -52,13 +53,13 @@ class MapfileController extends ControllerBase {
         $data = null;
 
         //Load a mapfile content
-        if ($request->isPost() == true) {
-            $mapfile = $request->getPost('mapfile', null);
+        if ($request->isPost()) {
+            $mapfile = trim($request->getPost('mapfile', null));
             if ($mapfile) {
                 $mapfileParser = new MapfileParser();
 
                 try {
-                    $data = $mapfileParser->parseFile(trim($mapfile));
+                    $data = $mapfileParser->parseFile($mapfile);
                 } catch (Exception $e) {
                     $this->flashSession->error($e->getMessage());
                 }
@@ -557,7 +558,7 @@ class MapfileController extends ControllerBase {
                                             $igoGroup->nom = $groupName;
                                             $igoGroup->est_exclu_arbre = 'FALSE';
                                           
-                                            if ($igoGroup->save() == false) {
+                                            if (!$igoGroup->save()) {
                                                 foreach ($igoGroup->getMessages() as $message) {
                                                     throw new Exception($message);
                                                 }
