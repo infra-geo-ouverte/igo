@@ -1,5 +1,5 @@
 <?php
-
+use Phalcon\Mvc\Model\Resultset\Simple as Resultset;
 use Phalcon\Mvc\Model\Criteria;
 use Phalcon\Mvc\View;
 use Phalcon\Paginator\Adapter\Model as Paginator;
@@ -419,6 +419,7 @@ class MapfileController extends ControllerBase {
         try {
             
             $igoCouches = array();
+   
             foreach ($data as $d) {
                 
                 $igoConnexion = null;
@@ -426,7 +427,7 @@ class MapfileController extends ControllerBase {
                 if ($d['connection'] 
                         && isset($d['connection']['connectionString']) 
                         && isset($d['connection']['type'])) {
-                error_log("connexion");
+                
                     //Check if connexion exists already in the database
                     $igoConnexion = $this->getConnection($d['connection']['connectionString'], $d['connection']['type']);
                     
@@ -438,11 +439,10 @@ class MapfileController extends ControllerBase {
                             && isset($layer['connectiontype']) 
                             && trim($layer['connection']) 
                             && trim($layer['connectiontype'])) {
-                        error_log("layer");
+                        
                         //Check if connexion exists already in the database
                         $igoConnexion = $this->getConnection($layer['connection'], $layer['connectiontype']);
 
-                        
                     }
                     $groupeCoucheId = null;
                     $groupID = null;
@@ -567,6 +567,7 @@ class MapfileController extends ControllerBase {
                                             }
                                             
                                             $groupID = $igoGroup->id;
+                                           
                                         }
 
                                         $igoGroup->specifie_parent($parent_groupe_id);
@@ -782,48 +783,11 @@ class MapfileController extends ControllerBase {
                                 echo("La couche {$layer['name']} est dans aucun groupe.<br>");
                             }
 
-                            /*
-                              if (!$igoContexte || !$layer['currentGroup']) {
-                              $igoGroupeCouche = new IgoGroupeCouche ();
-                              $igoGroupeCouche->groupe_id = $groupID;
-                              $igoGroupeCouche->couche_id = $igoLayer->id;
-                              //$igoGroupeCouche->setTransaction($transaction);
-                              if ($igoGroupeCouche->save() == false) {
-                              if (!is_null($groupID)) {
-                              $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
-                              $groupeCoucheId = $igoGroupeCouche->id;
-                              } else {
-                              $groupeCoucheId = null;
-                              }
-                              if (!$igoGroupeCouche) {
-                              echo("La couche $igoLayer->nom est dans aucun groupe.");
-                              }
-                              } else {
-                              $groupeCoucheId = $igoGroupeCouche->id;
-                              }
-                              } else {
-                              $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
-                              if (!$igoGroupeCouche) {
-                              echo("La couche $igoLayer->nom est dans aucun groupe.");
-                              }
-                              $groupeCoucheId = $igoGroupeCouche->id;
-                              } */
                         }
-                    } //if ($layer['action'] == 'insert') {
-                    /*
-                      if ($layer['action'] == 'softinsert') {
-                      //on a besoin du $groupeCoucheId
-                      //Récupére le première groupe où est le layer
-                      $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id);
-                      if (!$igoGroupeCouche) {
-                      echo("La couche $igoLayer->nom  est dans aucun groupe.");
-                      } else {
-                      $groupeCoucheId = $igoGroupeCouche->id;
-                      }
-                      } */
-
+                    } 
+                    
                     //Conserver = softinsert, Insérer/remplacer = insert
-                    if ($layer['action'] == 'softinsert' || ($layer['action'] == 'insert' && $layerSaveSuccessful == true)) {
+                    if ($layer['action'] == 'softinsert' || ($layer['action'] == 'insert' && $layerSaveSuccessful)) {
                         if (!isset($excludedAttributees)) {
                             $excludedAttributes = array();
                         }
@@ -841,21 +805,58 @@ class MapfileController extends ControllerBase {
                                 $igoCoucheContexte->couche_id = $igoLayer->id;
                                 $igoCoucheContexte->layer_a_order = $layerIndex++;
 
-
                                 $nomComplet = str_replace("'", "_", $layer['wms_group_title']);
-
-
+                                
                                 while (!empty($nomComplet)) {
-                                    
 
                                     // Fix pour que le groupe existe la première fois. 
-                                    $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%" . $nomComplet . "'");
+                                   // $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%{$nomComplet}'");
+                                    $sql = "WITH RECURSIVE s(id, nom, groupe_id, grp) AS (
+         SELECT g.id,
+            g.nom,
+            gg_1.parent_groupe_id AS groupe_id,
+            g.id::text AS grp,
+            g.nom::character varying(500) AS nom_complet,
+            g.est_exclu_arbre
+           FROM igo_groupe g
+             LEFT JOIN igo_groupe_groupe gg_1 ON gg_1.groupe_id = g.id
+        UNION
+         SELECT igo_groupe.id,
+            igo_groupe.nom,
+            s_1.id AS groupe_id,
+            (s_1.grp || '_'::text) || igo_groupe.id::character varying(10)::text AS grp,
+                CASE igo_groupe.est_exclu_arbre
+                    WHEN false THEN (((s_1.nom_complet::text || '/'::text) || igo_groupe.nom::character varying(500)::text))::character varying(500)
+                    ELSE s_1.nom_complet
+                END AS nom_complet,
+            igo_groupe.est_exclu_arbre
+           FROM igo_groupe,
+            igo_groupe_groupe gg_1
+             JOIN s s_1 ON s_1.id = gg_1.parent_groupe_id
+          WHERE gg_1.groupe_id = igo_groupe.id
+        )
+ SELECT s.id AS groupe_id,
+    s.nom,
+    s.groupe_id AS parent_groupe_id,
+    s.nom_complet,
+    s.est_exclu_arbre,
+    s.grp
+   FROM s
+  WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
+           FROM s s_1)) AND   nom_complet like '%{$nomComplet}'
+  ORDER BY s.grp";
+                                    $test = new IgoVueGroupesRecursif();
+                                    
+                                    $igoVueGroupesRecursif = new Resultset(null, $test, $test->getReadConnection()->query($sql));
+                                  
+                                    $igoVueGroupesRecursif = $igoVueGroupesRecursif[0];
+                                    
                                     $groupe_id = $igoVueGroupesRecursif ? $igoVueGroupesRecursif->groupe_id : $groupID;
-                             
+                                    
                                     if ($groupe_id && $igoVueGroupesRecursif) {
                          
-                                        $arbre = str_replace(' ', '_', $igoVueGroupesRecursif->grp);
-                                        $igoCoucheContexteGroupe = IgoCoucheContexte::findFirst("contexte_id=$igoContexte->id and couche_id IS NULL and arbre_id='$arbre'");
+                                        $arbre_id = $igoVueGroupesRecursif->grp;
+                                        $igoCoucheContexteGroupe = IgoCoucheContexte::findFirst("contexte_id={$igoContexte->id} and couche_id IS NULL and arbre_id='{$arbre_id}'");
                                         if (!$igoCoucheContexteGroupe) {
                           
                                             $igoCoucheContexteGroupe = new IgoCoucheContexte();
@@ -863,7 +864,7 @@ class MapfileController extends ControllerBase {
                                             $igoCoucheContexteGroupe->contexte_id = $igoContexte->id;
                                             $igoCoucheContexteGroupe->couche_id = null;
                                             $igoCoucheContexteGroupe->groupe_id = $groupe_id;
-                                            $igoCoucheContexteGroupe->arbre_id = $arbre;
+                                            $igoCoucheContexteGroupe->arbre_id = $arbre_id;
                                             $igoCoucheContexteGroupe->mf_layer_meta_name = $igoVueGroupesRecursif->nom;
                                             $igoCoucheContexteGroupe->mf_layer_meta_title = $igoVueGroupesRecursif->nom_complet;
                                             $a = explode("/", $igoVueGroupesRecursif->nom_complet);
@@ -876,15 +877,16 @@ class MapfileController extends ControllerBase {
                                             $igoCoucheContexteGroupe->save();
                                         }
                                     }
-                      
+                                 
                                     $t = explode('/', $nomComplet);
                                     array_pop($t);
                                     $nomComplet = implode('/', $t);
+                           
                                 }
 
                                 $igoCoucheContexte->groupe_id = $groupe_id;
                                 $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%" . str_replace("'", "_", $layer['wms_group_title']) . "'");
-                                $igoCoucheContexte->arbre_id = $igoVueGroupesRecursif ? str_replace(' ', '_', $igoVueGroupesRecursif->grp) : $groupe_id;
+                                $igoCoucheContexte->arbre_id = $igoVueGroupesRecursif ? $igoVueGroupesRecursif->grp : $groupe_id;
                                 $igoCoucheContexte->mf_layer_meta_name = $layer['wms_name'];
 
                                 $igoCoucheContexte->mf_layer_meta_title = $layer['wms_title'];
@@ -897,7 +899,6 @@ class MapfileController extends ControllerBase {
 
                                 $igoCoucheContexte->est_visible = 'TRUE';
                                 $igoCoucheContexte->ind_fond_de_carte = 'D';
-
 
                                 //Check if some attributes should be overwritten in igoCoucheContexte
                                 $coucheContexteName = null;
@@ -970,6 +971,14 @@ class MapfileController extends ControllerBase {
             error_log(json_encode($e));
             throw $e;
         }
+    }
+    
+    private function toto(){
+        $igoVueGroupesRecursif = new IgoVueGroupesRecursif();
+        $igoVueGroupesRecursif->refresh();
+
+   //     $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
+  //      $igoVueContexteGroupesRecursif->refresh();
     }
     
 
