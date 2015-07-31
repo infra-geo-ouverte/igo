@@ -10,14 +10,14 @@
 		<h1>Contexte</h1>
 
 		<div class="form-group">
-			<label class="control-label col-sm-6" for="contexte">Souhaitez-vous ajouter un contexte?</label>
+			<label class="control-label col-sm-6" for="creer_contexte">Souhaitez-vous ajouter un contexte?</label>
 			<div class="col-sm-1 radio">
 				<label for="contexte-1">Oui</label> 
-				<input class="form-control" type="radio" name="contexte" id="contexte-1" value="1" checked/>
+				<input class="form-control" type="radio" name="creer_contexte" id="contexte-1" value="1" checked/>
 			</div>
 			<div class="col-sm-1 radio">
 				<label for="contexte-0">Non</label> 
-				<input class="form-control" type="radio" name="contexte" id="contexte-0" value="0"/>
+				<input class="form-control" type="radio" name="creer_contexte" id="contexte-0" value="0"/>
 			</div> 
 		</div>
 

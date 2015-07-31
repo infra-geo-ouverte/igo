@@ -255,11 +255,13 @@ class MapfileController extends ControllerBase {
         $previousURL = 'mapfile/process';
 
         if ($request->isPost()) {
+            
             if ($layers = $this->session->get('processData')) {
+                
                 //Check if a context shoud be created
-                $contexte = $request->getPost('contexte', null);
+                $creer_contexte = $request->getPost('creer_contexte', null);
                 $igoContexte = null;
-                if ($contexte && $contexte == 1) {
+                if ($creer_contexte == 1) {
                     $contexteName = trim($request->getPost('name', null));
                     $contexteCode = trim($request->getPost('code', null));
                     $contexteDescription = trim($request->getPost('description', null));
@@ -280,7 +282,6 @@ class MapfileController extends ControllerBase {
                     if (!$onlineResource) {
                         $this->flashSession->error('Veuillez indiquer la resource en ligne.');
                     }
-                    
                     
                     $mapServerConfig = $this->getDI()->getConfig()->mapserver;
                     $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
