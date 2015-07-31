@@ -254,34 +254,34 @@ class MapfileController extends ControllerBase {
         $response = new \Phalcon\Http\Response();
         $previousURL = 'mapfile/process';
 
-        if ($request->isPost() == true) {
+        if ($request->isPost()) {
             if ($layers = $this->session->get('processData')) {
                 //Check if a context shoud be created
                 $contexte = $request->getPost('contexte', null);
                 $igoContexte = null;
                 if ($contexte && $contexte == 1) {
-                    $contexteName = $request->getPost('name', null);
-                    $contexteCode = $request->getPost('code', null);
-                    $contexteDescription = $request->getPost('description', null);
-                    $onlineResource = $request->getPost('onlineResource', null);
+                    $contexteName = trim($request->getPost('name', null));
+                    $contexteCode = trim($request->getPost('code', null));
+                    $contexteDescription = trim($request->getPost('description', null));
+                    $onlineResource = trim($request->getPost('onlineResource', null));
 
                     $missingParameter = false;
-                    if (!$contexteName || strlen(trim($contexteName)) == 0) {
+                    if (!$contexteName) {
                         $this->flashSession->error('Veuillez entrer un nom de contexte.');
                         $missingParameter = true;
                     }
 
-                    if (!$contexteCode || strlen(trim($contexteCode)) == 0) {
+                    if (!$contexteCode) {
                         $this->flashSession->error('Veuillez entrer un code de contexte.');
                         $missingParameter = true;
                     }
 
-                    if (!$contexteDescription || strlen(trim($contexteDescription)) == 0) {
+                    if (!$contexteDescription) {
                         $this->flashSession->error('Veuillez entrer une description du contexte.');
                         $missingParameter = true;
                     }
 
-                    if (!$onlineResource || strlen(trim($onlineResource)) == 0) {
+                    if (!$onlineResource) {
                         $this->flashSession->error('Veuillez entré la resource en ligne.');
                         $missingParameter = true;
                     }
@@ -562,7 +562,7 @@ class MapfileController extends ControllerBase {
                                                 foreach ($igoGroup->getMessages() as $message) {
                                                     throw new Exception($message);
                                                 }
-                                                // $transaction->rollback();
+                                                
                                                 $this->db->rollback();
                                             } else {
                                                 $groupID = $igoGroup->id;
