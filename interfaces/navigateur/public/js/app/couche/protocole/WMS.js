@@ -98,7 +98,13 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                     var arrayExtraParams = stringExtraParams.split(',');
                     for (var i = 0; i < arrayExtraParams.length; i++){
                         var splitExtraParams = arrayExtraParams[i].split('=');
-                        this._layer.mergeNewParams(JSON.parse("{\"" + splitExtraParams[0] + "\":" + splitExtraParams[1] + "}"));
+                        try {
+                            this._layer.mergeNewParams(JSON.parse("{\"" + splitExtraParams[0].trim() + "\":" + splitExtraParams[1] + "}"));
+                        } catch(e){
+                            var message = "<b>Erreur extra paramètre: </b>" + this.options.extraParams;
+                            message += "<br>Note: Si la valeur est un string, entourer le de simples guillemets";
+                            Aide.afficherMessageConsole(message);
+                        }
                     }
                 } else {
                     this._layer.mergeNewParams(this.options.extraParams);
