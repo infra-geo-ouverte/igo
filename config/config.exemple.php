@@ -53,7 +53,7 @@ return array(
             'utilDir' => $baseEditionDir . 'app/util/',
             'servicesDir' => $baseEditionDir . 'app/services/',
             'exemplesServicesDir' => $baseEditionDir . 'app/services/exemple/',
-            'controllersDir' => $baseEditionDir . 'app/services/monService/'
+            'customServicesDir' => $baseEditionDir . 'app/services/monService/'
         ),        
         'services'  => array(
             'dir'            => $baseServicesDir,
