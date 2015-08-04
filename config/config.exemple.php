@@ -52,7 +52,8 @@ return array(
             'fieldsDir' => $baseEditionDir . 'app/fields/',
             'utilDir' => $baseEditionDir . 'app/util/',
             'servicesDir' => $baseEditionDir . 'app/services/',
-            'exemplesServicesDir' => $baseEditionDir . 'app/services/exemple/'
+            'exemplesServicesDir' => $baseEditionDir . 'app/services/exemple/',
+            'controllersDir' => $baseEditionDir . 'app/services/monService/'
         ),        
         'services'  => array(
             'dir'            => $baseServicesDir,
@@ -88,7 +89,8 @@ return array(
         'services'      => "/igo/services/",
         'api'           => "/api/",
         'pilotage'      => "/pilotage/",
-        'modules'       => '/igo/modules'
+        'modules'       => '/igo/modules',
+        'edition'      => "/igo/edition/"
     ),
     'navigateur' => array(
         'OutilRapporterBogue'    => array('lien' => 'http://geoegl.msp.gouv.qc.ca/mantis/login_page.php'),
