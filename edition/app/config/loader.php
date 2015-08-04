@@ -12,7 +12,7 @@ $loader->registerDirs(
         $config->application->edition->utilDir,        
         $config->application->edition->servicesDir,        
         $config->application->edition->exemplesServicesDir,
-        $config->application->edition->controllersDir,
+        $config->application->edition->customServicesDir,
         $config->application->services->controllersDir
     )
 )->register();
