@@ -88,16 +88,16 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
         this.fileInput.on({
             scope: this,
             mouseenter: function() {
-                this.button.addClass(['x-btn-over','x-btn-focus'])
+                this.button.addClass(['x-btn-over','x-btn-focus']);
             },
             mouseleave: function(){
-                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click'])
+                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click']);
             },
             mousedown: function(){
-                this.button.addClass('x-btn-click')
+                this.button.addClass('x-btn-click');
             },
             mouseup: function(){
-                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click'])
+                this.button.removeClass(['x-btn-over','x-btn-focus','x-btn-click']);
             },
             change: function(){
                 var v = this.fileInput.dom.value;

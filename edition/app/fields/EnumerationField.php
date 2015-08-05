@@ -18,8 +18,8 @@ class EnumerationField extends Field{
     * @param boolean $editable Determines wether the field is editable or not.
     * @param boolean $mandatory Determines wether the field is mandatory or not.
     */
-    function __construct($name, $title, $editable, $mandatory) {
-        parent::__construct($name, $title, "enumeration", $editable, $mandatory); 
+    function __construct($name, $title, $editable, $mandatory, $visible = true) {
+        parent::__construct($name, $title, "enumeration", $editable, $mandatory, $visible); 
     }
 
     function Escape($connection, $value){
@@ -31,7 +31,7 @@ class EnumerationField extends Field{
         return "{$value}";
     }
 
-    public function IsValid($value){
+    public function IsValid($value, $fkId){
         $valid = false;
         if(count($this->valeurs) === 0 && $value ===""){			
             return true;

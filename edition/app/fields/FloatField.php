@@ -4,7 +4,7 @@ use Phalcon\Db\Column as Column;
 * Represents an integer field.
 * @see Field
 */
-class IntegerField extends Field{
+class FloatField extends Field{
 
     /**
     * Defines the maximum value for the integer field.
@@ -20,7 +20,7 @@ class IntegerField extends Field{
     */
     function __construct($name, $title, $editable, $mandatory, $visible = true) {
         
-        parent::__construct($name, $title, "integer", $editable, $mandatory, $visible); 
+        parent::__construct($name, $title, "float", $editable, $mandatory, $visible); 
     }
 
     function Escape($connection, $value){

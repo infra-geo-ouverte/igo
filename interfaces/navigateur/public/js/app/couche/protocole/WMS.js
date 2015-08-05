@@ -98,7 +98,13 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                     var arrayExtraParams = stringExtraParams.split(',');
                     for (var i = 0; i < arrayExtraParams.length; i++){
                         var splitExtraParams = arrayExtraParams[i].split('=');
-                        this._layer.mergeNewParams(JSON.parse("{\"" + splitExtraParams[0] + "\":" + splitExtraParams[1] + "}"));
+                        try {
+                            this._layer.mergeNewParams(JSON.parse("{\"" + splitExtraParams[0].trim() + "\":" + splitExtraParams[1] + "}"));
+                        } catch(e){
+                            var message = "<b>Erreur extra paramètre: </b>" + this.options.extraParams;
+                            message += "<br>Note: Si la valeur est un string, entourer le de simples guillemets";
+                            Aide.afficherMessageConsole(message);
+                        }
                     }
                 } else {
                     this._layer.mergeNewParams(this.options.extraParams);
@@ -147,12 +153,13 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     
     WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCalback){
         var that=this;
+
         if(!response){
             this._getCapabilitiesError();
             return false;
         }
         var xml=new OpenLayers.Format.WMSCapabilities().read(response);
-        var i=0;
+        var iCL=0;
         var xmlOptions = {};
         var capabilityLayers, arrayLayers, len;
         //InfoFormat absent dans le fichier contexte alors on le prend 
@@ -176,16 +183,22 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         }
         $.each(capabilityLayers, function(key,value){ 
             if((!that.options.nom) || jQuery.inArray(value.name, arrayLayers)>=0){
-                i++;              
+                iCL++;              
                 if(!that.options._merge){                    
 
-                   var parcourirLayerXML = function(value, groupe){
+                   var parcourirLayerXML = function(value, groupe, groupeNiveauBase){
                         var layers=value;
-                        if(value.nestedLayers.length!==0){
+                        if(value.nestedLayers.length !== 0){
+                            if(groupeNiveauBase){ //permet de ignorer les premiers niveaux du WMS
+                                groupeNiveauBase--;
+                            } else {
+                                groupe = groupe ? groupe+'/' : "";
+                                groupe += value.title;
+                            }
+                            
                             layers = value.nestedLayers;
-                            groupe=value.title;
                             $.each(layers, function(key2, value2){
-                                parcourirLayerXML(value2, groupe);
+                                parcourirLayerXML(value2, groupe, groupeNiveauBase);
                             });
                         } else {
                             xmlOptions = {
@@ -194,19 +207,28 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                                 echelleMin: value.minScale,
                                 echelleMax: value.maxScale
                             };
-                            if(groupe){
+
+                            if(value.dataURL && value.dataURL.format === 'igo'){ //"wms_dataurl_format" "igo"
+                                var idMeta = value.dataURL.href;
+                                var igoClassMeta = idMeta;
+                                xmlOptions.metadonnee = igoClassMeta; //"wms_dataurl_href" "/path/to/metdata3.xml" ou numéro de la metadata
+                            }
+
+                            $.extend(xmlOptions, that.options);
+                            xmlOptions.mode = false;
+                            xmlOptions.nom = value.name;
+                            if(!xmlOptions.nom){
+                                if (Aide.estDebug()){
+                                    console.warn("Le url \"" + xmlOptions.url + "\" a un groupe vide.");
+                                    console.warn(xmlOptions);
+                                }
+                                return true;
+                            }
+                            if(groupe && Aide.toBoolean(that.options.garderGroupe) !== false){
+                                //garderGroupe: concatener ou remplacer le groupe
                                 xmlOptions.groupe=groupe;
                             }
 
-                            if(value.dataURL && value.dataURL.format === 'msp'){ //"wms_dataurl_format" "text/xml"
-                                var idMeta = value.dataURL.href;
-                                //todo: utiliser config pour lien vers geonetwork
-                                var mspClassMeta = idMeta;//"http://spssogl20.sso.msp.gouv.qc.ca/geonetwork/srv/eng/csw?SERVICE=CSW&VERSION=2.0.2&REQUEST=GetRecordById&outputSchema=csw:IsoRecord&ID="+idMeta+"&elementSetName=full";
-                                xmlOptions.metadonnee = mspClassMeta; //"wms_dataurl_href" "/path/to/metdata3.xml" ou numéro de mspClassMeta
-                            }
-                            $.extend(xmlOptions, that.options);
-                            xmlOptions.mode=false;
-                            xmlOptions.nom=value.name;
                             if(value.dimensions.time){
                                 xmlOptions.wms_timeextent = value.dimensions.time.values[0];
                                 xmlOptions.wms_timedefault = value.dimensions.time.defaults;
@@ -215,24 +237,25 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         } 
                     };
 
-                    parcourirLayerXML(value, value.title);
+                    parcourirLayerXML(value, that.options.groupe, that.options.groupeNiveauBase);
 
                     if (len===1){
                         return false;
                     };
-                } else if (i===1){
+                } else if (iCL===1){
                     xmlOptions = {
                         titre: value.title,
                         droit: value.attribution ? value.attribution.href : undefined,
                         echelleMin: value.minScale,
                         echelleMax: value.maxScale,
-                        groupe: "Couches WMS ajoutées" //Aide.obtenirParametreURL('layer',value.styles[0].legend.href).replace('_',' ','g')
+                        groupe: "Couches WMS ajoutées" 
                     };
                     if (len===1){
                             return false;
                     };
                 } else {
-                    xmlOptions.titre = xmlOptions.titre + ', ' + value.title;
+                    xmlOptions.titre = xmlOptions.titre ? xmlOptions.titre+', ' : "";
+                    xmlOptions.titre += value.title;
                     if(!xmlOptions.echelleMin || value.minScale > xmlOptions.echelleMin){
                         xmlOptions.echelleMin = value.minScale;
                     }
@@ -242,8 +265,9 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 }
             }
         });
-        if(i===0){
-            throw new Error("Layers introuvables");
+        if(iCL===0){
+            Aide.afficherMessageConsole("Couche(s) introuvable(s): " + this.options.nom);
+            return false;
         }
         if(len===1 && that.options._merge){
             this.options=$.extend(xmlOptions, this.options);
@@ -325,6 +349,12 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 }
             
             });
+        }
+    };
+    
+    WMS.prototype.rafraichir = function() { 
+        if(this._layer){
+            this._layer.redraw(true);  
         }
     };
     

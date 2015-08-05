@@ -1,0 +1,28 @@
+
+
+.gridAssocierFichier {
+  width: auto !important;
+}
+
+.uploadForm {
+    height: 95px !important;
+}
+
+.fileButton {
+    padding-bottom: 4px !important;
+}
+
+.btnSuppFile {
+    padding-top: 4px !important;
+}
+
+#uploadDocument {
+    width:80px;
+}
+
+
+.btn-ajouter { background-image: url(/igo/interfaces/navigateur/public/images/toolbar/add.png) !important; padding-left: 25px !important; }
+.btn-supprimer { background-image: url(/igo/interfaces/navigateur/public/images/toolbar/delete.png) !important; padding-left: 25px !important; }
+.btn-enregistrer { background-image: url(/igo/interfaces/navigateur/public/images/toolbar/save.png) !important; background-size: 18px; padding-left: 25px !important; }
+.btn-dupliquer { background-image: url(/igo/interfaces/navigateur/public/images/toolbar/clone.png) !important; padding-left: 25px !important; }
+.btn-associerFichier { background-image: url(/igo/interfaces/navigateur/public/images/toolbar/new_file.png) !important; background-size: 16px; padding-left: 23px !important; }

@@ -31,7 +31,7 @@ define(['aide'], function(Aide) {
      * @name helper.require#ajouterConfig
     */
     require.ajouterConfig = function(conf){
-        var debug = (typeof(debugIGO) !== "undefined" && debugIGO);
+        var debug = Aide.obtenirDebug();
         var base = '';// require.s.contexts._.config.baseUrl;
         if (conf.baseUrl){
             base = Aide.utiliserBaseUri(conf.baseUrl);
