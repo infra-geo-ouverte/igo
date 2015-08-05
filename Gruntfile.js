@@ -1,5 +1,19 @@
-module.exports = function (grunt) {
-    grunt.initConfig({
+module.exports = function(grunt) {
+    initTasks(grunt);
+    initConfigs(grunt);
+}
+
+function getModulesDir(grunt){
+    var modulesJson = grunt.file.readJSON('modules.json');
+    var modulesDir = [];
+    for (var key in modulesJson) {
+        modulesDir.push(modulesJson[key].options.directory);
+    };
+    return modulesDir;
+}
+
+function initConfigs(grunt){
+grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         dirs: {
             publicNav: 'interfaces/navigateur/public/',
@@ -228,7 +242,7 @@ module.exports = function (grunt) {
             qUnit: {
                 command: function () {
                     return "phantomjs interfaces/navigateur/public/testUnit/run-qunit.js <%= pkg.urlTestUnit %> | \
-            				grep 'failures=\"0\"'";
+                            grep 'failures=\"0\"'";
                 },
                 options: {
                     execOptions: {
@@ -263,7 +277,7 @@ module.exports = function (grunt) {
         },
         clean: {
             cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*'],
-            modules: ['modules/*']
+            modules: [getModulesDir(grunt)]
         },
         watch: {
             scripts: {
@@ -300,7 +314,10 @@ module.exports = function (grunt) {
         gitclone: grunt.file.readJSON('modules.json'),
         gitpull: grunt.file.readJSON('modules.json')
     });
+}
 
+    
+function initTasks(grunt){
     //grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -315,16 +332,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks("grunt-jsbeautifier");
     grunt.loadNpmTasks('grunt-git');
-
-//grunt.loadNpmTasks('grunt-contrib-watch');
-//grunt.notify
 //grunt-uncss
 //grunt-contrib-less
-//grunt-shell
-//grunt-git
-//git pull librairie et igo en meme temps
-//build OL et GEOEXT
-//grunt-contrib-qunit
 
     grunt.registerTask('default', ['telechargerLibs', 'build', 'cache', 'doc', 'qUnit', 'notify:watch']);
     grunt.registerTask('build', ['buildIgo', 'buildLibs']);
@@ -340,4 +349,4 @@ module.exports = function (grunt) {
     //jsbeautifier et //jshint
 
     grunt.task.run('notify_hooks');
-};
+}
