@@ -968,12 +968,11 @@ CREATE VIEW igo_vue_groupes_recursif AS
    FROM s
   WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
            FROM s s_1))
-  ORDER BY s.grp
-WITH DATA;
+  ORDER BY s.grp;
 
 CREATE MATERIALIZED VIEW igo_vue_groupes_recursif_materialized AS 
     SELECT * FROM igo_vue_groupes_recursif
-WITH DATA:
+WITH DATA;
 
 CREATE OR REPLACE VIEW igo_vue_couche AS 
  SELECT c.id,
