@@ -73,7 +73,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         if(!$this->getDI()->getSession()->has("info_utilisateur")){
             throw new Exception("Problème avec l'identifiant de l'utilisateur.");
         }
-        
+                
         return $this->getDI()->getSession()->get("info_utilisateur")->identifiant;
     }
 
@@ -116,7 +116,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
             // Escape les valeurs pour pouvoir utiliser la valeur dans la bd.
             // Petite passe d'accès dynamique aux propriétés de la $feature dynamique provenant du json_decode.
             $connection = $this->getConnection();
-            $fields = $this->getFields(null);
+            $fields = $this->getFields($feature->geometry, null);
             foreach($fields as $field){
                 $name = $field->propriete;		
                 $feature->properties->$name = $field->Escape($connection, $feature->properties->$name);
@@ -136,12 +136,49 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $tabValue = array(); 
         $columnTypes = array();
         
-        $fields = $this->getFields(null);
+        $fields = $this->getFields($feature->geometry, null);
         
         foreach($fields as $field){
             $name = $field->propriete;
             
-            if($field->obligatoire == false &&  $feature->properties->$name == null) {
+            if(($field->editable === false || $field->obligatoire == false &&  $feature->properties->$name == null) || $name == $this->getIdentifier() || $name == $this->getIdentifiantName()) {
+                continue;
+            }
+            
+            if($strCol == "") {
+                $strCol ="$name"; 
+            }
+            else {
+                $strCol .= ", $name"; 
+            }
+
+            array_push($tabValue, $feature->properties->$name); 
+            array_push($columnTypes, $field->getType());
+        }
+        
+        return array($tabValue, $strCol, $columnTypes);
+    }
+    
+    /**
+     * Fonction retournant les valeurs et les colonnes à utiliser pour les bindings lors d'un delete
+     * @param object $feature L'objet feature contenant ses attributs
+     * @return array (array $tabValue: tableau des valeurs pour le binding
+     *                string $strCol: string contenant les champs à mettre à jour
+     */
+    protected function bindFieldsForDelete($feature){
+        $strCol = "";
+        $tabValue = array(); 
+        $columnTypes = array();
+        $geometry = null;
+        if(isset($feature->geometry)){
+            $geometry = $feature->geometry;
+        }
+        $fields = $this->getFields($geometry, null);
+        
+        foreach($fields as $field){
+            $name = $field->propriete;
+            
+            if($field->editable === false || $name == $this->getIdentifier() || $name == $this->getIdentifiantName() || $name == $this->getReferenceIdentifier() || $name == $this->getStatutName()) {
                 continue;
             }
             
@@ -188,7 +225,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
     * @return string containing editable && mandatory names of the fields separated with coma.
     */
     protected function CreateSqlFieldsSection(){
-        $fields = $this->getFields(null);
+        $fields = $this->getFields(null, null);
         $fields_sql = "";
         for($i = 0; $i < count($fields); $i++){
 //            if(!$fields[$i]->editable /*&& !$fields[$i]->obligatoire*/){
@@ -210,7 +247,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
     * @return string containing all the names of the fields separated with coma.
     */
     protected function CreateSqlSelectFieldsSection(){
-        $fields = $this->getFields(null);
+        $fields = $this->getFields(null, null);
         $fields_sql = "";
         for($i = 0; $i < count($fields); $i++){	
             if($i < count($fields) - 1){
@@ -244,11 +281,12 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
     protected function GetStatut($feature){
         $connection = $this->getConnection();
         $identifier = $this->getIdentifier();
-        $sql = "SELECT {$this->getStatutName()} FROM {$this->getViewName()} WHERE {$identifier} = {$feature->properties->$identifier}";
+        $sql = "SELECT {$this->getStatutName()} FROM {$this->getDisplayTableName()} WHERE {$identifier} = {$feature->properties->$identifier}";
+
         $statutResult = $connection->query($sql);
         $statutResult->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
         $statut_temp_assoc = $statutResult->fetch();	
-        $statut_temp = $statut_temp_assoc['statut'];	
+        $statut_temp = $statut_temp_assoc[$this->getStatutName()];	
         
         $isModifGeo = $this->IsModifGeo($feature);		
         $isModifDescriptive = $this->IsModifDescriptive($feature);
@@ -280,11 +318,11 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         return $statut;
     }
 
-    protected function AreFieldsValid($feature){
-        $fields = $this->getFields($feature->geometry);
+    protected function AreFieldsValid($feature, $fkId = null){
+        $fields = $this->getFields($feature->geometry, $fkId);
         foreach($fields as $field){			
             $fieldName = $field->propriete;
-            if((!property_exists($feature->properties, $fieldName) && $field->obligatoire) || !$field->IsValid($feature->properties->$fieldName)){				
+            if((!property_exists($feature->properties, $fieldName) && $field->obligatoire) || !$field->IsValid($feature->properties->$fieldName, $fkId)){				
                 return false;				
             }			
         }		
@@ -293,13 +331,13 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
 
     protected function GetErrorMessage($feature){
         $errors = array();
-        $fields = $this->getFields($feature->geometry);
+        $fields = $this->getFields($feature->geometry, null);
         foreach($fields as $field){
             $fieldName = $field->propriete;
             if(!property_exists($feature->properties, $fieldName)){
-                $errors[$fieldName] = $fieldName . " n'est pas définit";
+                $errors[$fieldName] = $fieldName . " n'est pas défini";
             }
-            if(!$field->IsValid($feature->properties->$fieldName)){			
+            if(!$field->IsValid($feature->properties->$fieldName, null)){			
                 $errorMessage = $field->GetInvalidErrorMessage();
                 $errors[$fieldName] = $errorMessage;
             }			
@@ -316,13 +354,13 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $buffer = 2;
         $spatialQueryBuilder = $this->getSpatialQueryBuilder();
         $isEquivalent = $spatialQueryBuilder->isEquivalent($this->getGeometryType(),$this->getGeometryName(), $sqlGeometry, $buffer);
-        $sql = "SELECT {$isEquivalent} as is_equivalent from {$this->getViewName()} where {$identifier} = '{$feature->properties->$identifier}'";
+        $sql = "SELECT {$isEquivalent} as is_equivalent from {$this->getDisplayTableName()} where {$identifier} = '{$feature->properties->$identifier}'";
 
         $result = $connection->query($sql);
         $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
         $r = $result->fetch();
 
-        if($r['is_equivalent'] === false){
+        if($r['is_equivalent'] === false || $r['is_equivalent'] == "FALSE"){
             $isModifGeo = true;
         }
         return $isModifGeo;
@@ -335,13 +373,14 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $tabBinding= array();
         $columnTypes=array();
         
-        $fields = $this->getFields(null);
+        $fields = $this->getFields($feature->geometry, null);
         for($i = 0; $i < count($fields); $i++){
             $field = $fields[$i];
             if($field->editable === true){
                 $fieldName = $field->propriete;			
                 if(!$field->obligatoire || $feature->properties->$fieldName == 'null'){
-                    $query .= "({$fieldName} = ? OR {$fieldName} is null) AND ";
+                    //$query .= "({$fieldName} = ? OR {$fieldName} is null) AND "; //Si à null dans BD et on set une nouvelle valeur!?!!!
+                    $query .= "({$fieldName} = ?) AND "; 
                 }else{
                     $query .= "({$fieldName} = ? AND {$fieldName} is not null) AND ";
                 }
@@ -353,7 +392,7 @@ abstract class FeatureService implements IFeatureService, \Phalcon\DI\InjectionA
         $query = substr($query, 0, strlen($query) - 5);
         if(strlen($query) > 0){
             $identifier = $this->getIdentifier();
-            $sql_modif_desc = "SELECT CASE WHEN({$query}) THEN 'true' ELSE 'false' END as is_not_modif_descriptive FROM {$this->getViewName()} WHERE {$identifier} = '{$feature->properties->$identifier}'";	
+            $sql_modif_desc = "SELECT CASE WHEN({$query}) THEN 'true' ELSE 'false' END as is_not_modif_descriptive FROM {$this->getDisplayTableName()} WHERE {$identifier} = '{$feature->properties->$identifier}'";	
 
             $result = $connection->query($sql_modif_desc, $tabBinding, $columnTypes);
             $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);            

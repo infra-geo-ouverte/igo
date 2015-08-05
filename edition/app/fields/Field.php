@@ -27,6 +27,8 @@ abstract class Field{
     public $obligatoire;
 
     public $messageErreurInvalide;
+    
+    public $visible;
 
     /**
     * @param string $name the name of the data field.
@@ -35,17 +37,18 @@ abstract class Field{
     * @param boolean $editable Determines wether the field is editable or not.
     * @param boolean $mandatory Determines wether the field is mandatory or not.
     */
-    function __construct($name, $title, $type, $editable, $mandatory) {
+    function __construct($name, $title, $type, $editable, $mandatory, $visible = true) {
         $this->propriete = $name;
         $this->titre = $title;
         $this->type = $type;
         $this->editable = $editable;
         $this->obligatoire = $mandatory;		
+        $this->visible = $visible;
     }
 
     abstract function Escape($connection, $value);
 
-    public function IsValid($value){
+    public function IsValid($value, $fkId){
         return true;
     }
 

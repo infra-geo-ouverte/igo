@@ -22,6 +22,10 @@ class PointFeatureService extends SimpleFeatureService{
     public function getDescription() {
         return "Service exemple d'édition de points";
     }
+    
+    public function getTitle() {
+        return "Exemple Point";
+    }
 
     public function getGeometryName() {
         return "geom_p";
@@ -49,14 +53,14 @@ class PointFeatureService extends SimpleFeatureService{
     
     
     public function getReferenceIdentifier() {
-        return "no_seq_point_feature_service_ref";
+        return "no_seq_point_feat_service_ref";
     }
 
-    public function getTableName() {
+    public function getDisplayTableName() {
         return "point_feature_service";
     }
     
-    public function getViewName() {
+    public function getTransactionTableName() {
         return "point_feature_service_v";
     }
 
@@ -73,23 +77,23 @@ class PointFeatureService extends SimpleFeatureService{
     }
 
     public function getSRID() {
-        return "32198";
+        return "4326";
     }
     
-    public function getFields($geometry) {
+    public function getFields($geometry, $fk) {
         $fields = array();
 
         $commentaire = new TextField("commentaire", "Commentaire", true, true);
         $fields[] = $commentaire;
 
-        $valeur_bool = new BooleanField("valeur_bool", "Valeur bool", true, true);
+        $valeur_bool = new BooleanField("valeur_bool", "Valeur bool", true, false);
         $fields[] = $valeur_bool;
         $valeur_integer = new IntegerField("valeur_integer", "Valeur integer", true, true);
         $fields[] = $valeur_integer;
         $valeur_string = new StringField("valeur_string", "Valeur string", true, true);
         $fields[] = $valeur_string;
         
-        $justification = new TextField("justification", "Justification", false, true);
+        $justification = new TextField("justification", "Justification", true, true);
         $fields[] = $justification;
 
         return $fields;

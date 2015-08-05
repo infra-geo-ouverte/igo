@@ -36,7 +36,7 @@ Modifier le fichier config/config.php
 
 ## Modification de la configuration d'Apache
 ```
-Alias /navigateur/ "/var/www/html/igo/interfaces/navigateur/"
+Alias /igo_navigateur/ "/var/www/html/igo/interfaces/navigateur/"
 <Directory /var/www/html/igo/interfaces/navigateur/>
 	<IfModule mod_rewrite.c>
 	        RewriteEngine on
