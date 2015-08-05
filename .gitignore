@@ -9,6 +9,8 @@
 librairie/
 config/config.php
 services/config.php
+modules/
+modules.json
 
 node_modules/
 npm-debug.log
