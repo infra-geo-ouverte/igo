@@ -160,11 +160,16 @@ function describeFeatureType($data){
         $geometry = json_decode($data["geometry"]);
     }
     
+    $fkId = null;
+    if(isset($data["fk"])) {	
+        $fkId = $data["fk"];
+    }
+    
     $featureTypes = array();
     foreach($services as $srv){
         $featureType = array(
             'name' => $srv->getName(),
-            'featureType' => $srv->getFields($geometry, $data["fk"]),
+            'featureType' => $srv->getFields($geometry, $fkId),
             'type' => $srv->getGeometryType()
         );
         $featureTypes[] = $featureType;
