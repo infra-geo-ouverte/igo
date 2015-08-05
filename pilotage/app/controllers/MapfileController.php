@@ -803,46 +803,7 @@ class MapfileController extends ControllerBase {
                                 while (!empty($nomComplet)) {
 
                                     // Fix pour que le groupe existe la première fois. 
-                                   // $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%{$nomComplet}'");
-                                    $sql = "WITH RECURSIVE s(id, nom, groupe_id, grp) AS (
-         SELECT g.id,
-            g.nom,
-            gg_1.parent_groupe_id AS groupe_id,
-            g.id::text AS grp,
-            g.nom::character varying(500) AS nom_complet,
-            g.est_exclu_arbre
-           FROM igo_groupe g
-             LEFT JOIN igo_groupe_groupe gg_1 ON gg_1.groupe_id = g.id
-        UNION
-         SELECT igo_groupe.id,
-            igo_groupe.nom,
-            s_1.id AS groupe_id,
-            (s_1.grp || '_'::text) || igo_groupe.id::character varying(10)::text AS grp,
-                CASE igo_groupe.est_exclu_arbre
-                    WHEN false THEN (((s_1.nom_complet::text || '/'::text) || igo_groupe.nom::character varying(500)::text))::character varying(500)
-                    ELSE s_1.nom_complet
-                END AS nom_complet,
-            igo_groupe.est_exclu_arbre
-           FROM igo_groupe,
-            igo_groupe_groupe gg_1
-             JOIN s s_1 ON s_1.id = gg_1.parent_groupe_id
-          WHERE gg_1.groupe_id = igo_groupe.id
-        )
- SELECT s.id AS groupe_id,
-    s.nom,
-    s.groupe_id AS parent_groupe_id,
-    s.nom_complet,
-    s.est_exclu_arbre,
-    s.grp
-   FROM s
-  WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
-           FROM s s_1)) AND   nom_complet like '%{$nomComplet}'
-  ORDER BY s.grp";
-                                    $test = new IgoVueGroupesRecursif();
-                                    
-                                    $igoVueGroupesRecursif = new Resultset(null, $test, $test->getReadConnection()->query($sql));
-                                  
-                                    $igoVueGroupesRecursif = $igoVueGroupesRecursif[0];
+                                    $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%{$nomComplet}'");
                                     
                                     $groupe_id = $igoVueGroupesRecursif ? $igoVueGroupesRecursif->groupe_id : $groupID;
                                     
@@ -948,12 +909,6 @@ class MapfileController extends ControllerBase {
 
             $this->db->commit();
             
-            $igoVueGroupesRecursif = new IgoVueGroupesRecursif();
-            $igoVueGroupesRecursif->refresh();
-
-            $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
-            $igoVueContexteGroupesRecursif->refresh();
-            
             if ($igoContexte !== null) {
                 $igoContexte->saveMapFile();
             }
@@ -966,14 +921,7 @@ class MapfileController extends ControllerBase {
         }
     }
     
-    private function toto(){
-        $igoVueGroupesRecursif = new IgoVueGroupesRecursif();
-        $igoVueGroupesRecursif->refresh();
-
-   //     $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
-  //      $igoVueContexteGroupesRecursif->refresh();
-    }
-    
+ 
 
     private function clearSession(){
         //Clear session
