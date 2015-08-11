@@ -25,4 +25,10 @@ if(isset($config->application->services)){
         array_push($dirs, $config->application->services->viewsDir);
 }
 
+$loader->registerNamespaces(
+    array(
+        'IGO\Modules' => $config->application->services->dir . '/modules/'
+    )
+);
+
 $loader->registerDirs($dirs)->register();

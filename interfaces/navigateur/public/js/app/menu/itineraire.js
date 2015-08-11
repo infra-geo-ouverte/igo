@@ -7,6 +7,7 @@
  */
 
 require.ajouterConfig({
+    scope: "itineraire",
     paths: {
         encodedPolyline: 'libs/extension/OpenLayers/EncodedPolyline',
         autocomplete: 'libs/jquery/extensions/autocomplete/jquery.autocomplete.min'

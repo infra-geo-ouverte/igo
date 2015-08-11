@@ -52,10 +52,13 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @exception Vérification de la validité de la couche en paramètre
     */
     GestionCouches.prototype.ajouterCouche = function(couche) {
+        var that = this;
         if (couche instanceof Couche) {
             couche.definirCarte(this.carte);
             couche._ = this;
-            couche._ajoutCallback(this, this._ajouterCoucheCallback);
+            setTimeout(function() {
+                couche._ajoutCallback(that, that._ajouterCoucheCallback);
+            }, 1);
         } else {
             throw new Error("Igo.Carte.ajouterCouche(couche) a besoin d'un objet de type Igo.Couches");
         }

@@ -5,7 +5,7 @@
  * @version 1.0
  */
 
-define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], function(Evenement, Fonctions) {
+define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone'], function(Evenement, Fonctions, Aide) {
      /** 
      * Création de l'object Geometrie.Style.
      * @constructor
@@ -120,7 +120,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
             return valeur;
         }
         if(propriete === "visible"){
-            return valeur === false ? "none": '';
+            return Aide.toBoolean(valeur) === false ? "none": '';
         }
 
        return valeur;

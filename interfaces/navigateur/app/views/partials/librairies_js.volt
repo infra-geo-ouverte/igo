@@ -16,4 +16,5 @@
 {{ view.ajouterJavascript("libs/jquery/cachedScript.js", false) }}
 {{ view.ajouterJavascript("libs/require/lib/require.js", false) }}
 {{ view.ajouterJavascript("libs/extension/ie/ieUpgrade.js", false, true) }}
-
+{{ view.ajouterModuleConfigurations() }}
+{{ view.ajouterJavascriptModules() }}

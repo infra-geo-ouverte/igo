@@ -155,7 +155,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
         }
     };
      ContexteMenuArborescence.prototype.initWMStime = function(args){ 
-        if (args.couche.options.wms_timeitem) {        
+        if (args.couche.options.wms_timeextent) {        
             // This is a layer from the MSP map file. In which case we read the msp metadata.
             // Create the DatePicker
             var timeExtentArray = args.couche.options.wms_timeextent.split("/");							
@@ -171,6 +171,10 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                 allowIntervals = false;
             }
             
+            if(args.couche.options.wms_timeAllowIntervals){
+                allowIntervals = Aide.toBoolean(args.couche.options.wms_timeAllowIntervals);
+            }
+            
             var datePicker = new DateTimeIntervalPicker({
                 id : 'datePicker',
                 layer : args.couche._layer,
@@ -178,7 +182,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                 minStartDate : startDate,
                 maxEndDate : endDate,
                 mapServerTimeString : args.couche.options.wms_timedefault,
-                precision : 'heure'
+                precision : args.couche.options.wms_timeprecision || 'minute'
             });
 
             return {
@@ -219,7 +223,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                 minStartDate : startDate,
                 maxEndDate : endDate,
                 mapServerTimeString : args.couche._layer.options.metadata.dimensions.time['default'],
-                precision : 'heure'
+                precision : 'minute'
             });
 
             return {

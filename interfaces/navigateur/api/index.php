@@ -638,6 +638,8 @@ try {
         unset($paramsGet['_service']);
         unset($paramsPost['_url']);
         unset($paramsGet['_url']);
+        unset($paramsPost['_client_IP']);
+        unset($paramsGet['_client_IP']);
             
         //Services
         $url = "";

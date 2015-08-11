@@ -1,6 +1,6 @@
 /** 
- * Module pour l'objet {@link Panneau.PanneauEdition}.
- * @module PanneauEdition
+ * Module pour l'objet {@link Panneau.PanneauOccurence}.
+ * @module PanneauOccurence
  * @requires panneau
  * @author Frédéric Morin
  * @version 1.0
@@ -9,7 +9,7 @@
 define(['panneau', 'occurence', 'aide'], function(Panneau, Occurence, Aide) {
 
     /** 
-     * Création de l'object Panneau.PanneauEdition.
+     * Création de l'object Panneau.PanneauOccurence.
      * Pour la liste complète des paramètres, voir {@link Panneau}
      * @constructor
      * @name Panneau.PanneauOccurence
@@ -18,7 +18,7 @@ define(['panneau', 'occurence', 'aide'], function(Panneau, Occurence, Aide) {
      * @extends Panneau
      * @requires panneau
      * @param {object} [options] Objet contenant les propriétés du panneau
-     * @returns {Panneau.PanneauOccurence} Instance de {@link Panneau.PanneauEdition}
+     * @returns {Panneau.PanneauOccurence} Instance de {@link Panneau.PanneauOccurence}
      */
     function PanneauOccurence(options) {
         
@@ -205,19 +205,20 @@ define(['panneau', 'occurence', 'aide'], function(Panneau, Occurence, Aide) {
         //this.saveButton.disabled = true;
         //this.saveButton.formBind = true; // Ne fonctionne pas avec les fieldSet.
         this.saveButton.handler = this._onSave.bind(this);
-        this.saveButton.setVisible(false);
+        //this.saveButton.setVisible(false);
         
         this.cancelButton = new Ext.Button();
         //this.cancelButton.id = 'cancelNew';
         this.cancelButton.text = 'Annuler';
         this.cancelButton.tooltip = 'Annuler';
         this.cancelButton.handler = this._onCancel.bind(this);
-        this.cancelButton.setVisible(false);
+        //this.cancelButton.setVisible(false);
         
         this._panel = new Ext.FormPanel({
             frame: false,
             border:false,
             labelAlign: "top",
+            width: 500,
             scope: this,
             items: this.fieldSet,
             bodyStyle: 'background:none',

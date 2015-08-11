@@ -247,7 +247,7 @@ GeoExt.ux.tree.LayerTreeBuilder = Ext.extend(Ext.tree.TreePanel, {
                     loader: {
                         filter: function(record) {
                             if(record.getLayer().options.group !== groupString && groupString.indexOf(record.getLayer().options.group) === 0){
-                                console.warn("Le groupe de la couche '"+record.getLayer().name+"' n'est pas compatible avec l'arborescence.");
+                                //console.warn("Le groupe de la couche '"+record.getLayer().name+"' n'est pas compatible avec l'arborescence.");
                                 return false;
                             }
                             return record.getLayer().options.group == groupString;
