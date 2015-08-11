@@ -35,6 +35,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.listeOccurences = [];
         this.styles={};
         this.templates={};
+        this.defautOptions.rafraichissementPermis = true;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
@@ -163,6 +164,23 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         });
         return occurences;
     };
+    
+    /** 
+    * Obtenir la liste des occurences pas sélectionnées.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurencesNonSelectionnees
+    * @returns {Tableau} Tableau de {@link Occurence}
+    */
+    Vecteur.prototype.obtenirOccurencesNonSelectionnees = function() { 
+        var occurences=[];
+        $.each(this.obtenirOccurences(), function(key, value){
+            if(!value.selectionnee){
+                occurences.push(value);
+            };
+        });
+        return occurences;
+    };
+    
     
     /** 
     * Obtenir l'occurence ayant l'id entré en paramètre.
@@ -447,9 +465,12 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
 
-    Vecteur.prototype.cacherOccurence = function(occurence) { 
+    Vecteur.prototype.cacherOccurence = function(occurence,tousLesStyles) { 
         if(!occurence || occurence.vecteur !== this){return false};
-        occurence.cacher();
+        
+        var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+             
+        occurence.cacher(tousStyles);
     };
 
     Vecteur.prototype.afficherOccurence = function(occurence) { 
@@ -612,13 +633,17 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @name Couche.Vecteur#rafraichir
     */
     Vecteur.prototype.rafraichir = function(occurence) { 
-        if(!occurence){
-            this._layer.redraw();  
+        
+        if(this.defautOptions.rafraichissementPermis){
+            if(!occurence){
+                this._layer.redraw();  
+                this.rafraichirLegende();
+                return true;
+            }
+            this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
-            return true;
         }
-        this._layer.drawFeature(occurence._feature);
-        this.rafraichirLegende();
+        
     };
     
     Vecteur.prototype.rafraichirLegende = function() {
@@ -795,6 +820,41 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
         //that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
     };
+    
+    
+    Vecteur.prototype.afficherSelectionSeulement = function(){
+        this.defautOptions.rafraichissementPermis = false;
+        var selection = this.obtenirOccurencesNonSelectionnees();
+        $.each(selection, function(key, occurence){
+                occurence.cacher(true);
+        });
+        selection = this.obtenirOccurencesSelectionnees();
+        $.each(selection, function(key, occurence){
+                occurence.afficher(true);
+        });
+        this.defautOptions.rafraichissementPermis = true;
+        this.rafraichir();
+    }
+    
+    Vecteur.prototype.cacherTous = function(){
+        this.defautOptions.rafraichissementPermis = false;
+        var selection = this.obtenirOccurences();
+        $.each(selection, function(key, occurence){
+                occurence.cacher(true);
+        });
+        this.defautOptions.rafraichissementPermis = true;
+        this.rafraichir();
+    }
+    
+     Vecteur.prototype.afficherTous = function(){
+         this.defautOptions.rafraichissementPermis = false;
+        var selection = this.obtenirOccurences();
+        $.each(selection, function(key, occurence){
+                occurence.afficher(true);
+        });
+        this.defautOptions.rafraichissementPermis = true;
+        this.rafraichir();
+    }
     
   /*  Vecteur.Controles.prototype.activerClique = function() {   
         this._.carte.ajouterDeclencheur('occurenceClique', this._clique, {scope: this});

@@ -5,7 +5,7 @@
  * @version 1.0
  */
 
-define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], function(Evenement, Fonctions) {
+define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone'], function(Evenement, Fonctions, Aide) {
      /** 
      * Création de l'object Geometrie.Style.
      * @constructor
@@ -120,7 +120,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
             return valeur;
         }
         if(propriete === "visible"){
-            return valeur === false ? "none": '';
+            return Aide.toBoolean(valeur) === false ? "none": '';
         }
 
        return valeur;
@@ -183,7 +183,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
         } else {
             this.propriete[nom] = valeur;
         }
-        
+                
         if (this.parent){
             var nomOL = this._lookupOptionsOL[nom];
             var vTemp = this._traiterValeurIGO(nom, valeur);
@@ -192,7 +192,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
                     this.parent._layer.styleMap.styles['default'].defaultStyle[nomOL] = vTemp;
                 };
                 this.parent._layer.styleMap.styles[this.regle].defaultStyle[nomOL] = vTemp;
-                this.parent.rafraichir();
+                this.parent.rafraichir();       
             } else if (this.parent.obtenirTypeClasse() === 'Occurence'){
                 if(!this.parent._feature.style){
                     this.parent._feature.style = {};
@@ -205,7 +205,7 @@ define(['evenement', 'fonctions', 'libs/extension/OpenLayers/FilterClone'], func
                 if($.isEmptyObject(this.propriete)){
                     this.parent._feature.style = undefined;
                 }
-                this.parent.rafraichir();
+                this.parent.rafraichir();              
             } 
         }
     };

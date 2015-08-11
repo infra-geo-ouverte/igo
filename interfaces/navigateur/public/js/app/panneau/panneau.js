@@ -158,7 +158,12 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
         if(this._panel && this._panel.title){
             return this._panel.title;
         }
-        return this.options.titre;
+        if(this.options.titre){
+            return this.options.titre;
+        }
+        
+        return this.defautOptions.titre;
+        
     };
     
     Panneau.prototype.definirTitre = function(titre){
