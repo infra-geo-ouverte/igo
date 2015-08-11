@@ -222,6 +222,17 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         return this._getLayer().getVisibility();
     };
     
+     /** 
+    * Vérifie si la couche peu être affichée selon le minimum
+    * et maximum de résolution
+    * @method 
+    * @name Couche#estDansPortee
+    * @returns {Boolean}
+    */
+    Couche.prototype.estDansPortee = function() { 
+        return this._getLayer().inRange;
+    };
+    
     /** 
     * Activer la couche
     * @method 
@@ -256,8 +267,25 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     };
     
     
+    /** 
+    * Définir la transparence de la couche 
+    * @method 
+    * @name Couche#definirOpacite
+    * @param {Nombre} opacite nombre entre 0 et 1
+    */
     Couche.prototype.definirOpacite = function(opacite) { 
         this._getLayer().setOpacity(opacite);
+    };
+    
+    
+    /** 
+    * Obtenir la transparence de la couche
+    * @method 
+    * @name Couche#obtenirOpacite
+    * @returns {Nombre} transparence entre 0 et 1
+    */    
+    Couche.prototype.obtenirOpacite = function() { 
+        this._getLayer().opacity;
     };
     
      
