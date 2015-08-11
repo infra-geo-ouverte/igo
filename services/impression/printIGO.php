@@ -8,6 +8,17 @@ header("Pragma: no-cache");
 
 require_once('../config.php');
 require_once('../fonctions.php');
+//require_once(dirname(__file__).'/../../interfaces/navigateur/app/library/Utils.php');
+//load config IGO
+$configIgo = include __DIR__ . "/../../interfaces/navigateur/app/config/config.php";
+include __DIR__ . "/../../interfaces/navigateur/app/config/loader.php";
+include __DIR__ . "/../../interfaces/navigateur/app/config/services.php";
+
+//include $configIgo->application->services->dir."fonctions.php";
+
+//$app = new \Phalcon\Mvc\Micro();
+//$app->setDI($di);
+
 
 /**
  * impression.php
@@ -42,7 +53,6 @@ require_once('../fonctions.php');
 // La fonction dl a été supprimée avec php 5.3
 if (!extension_loaded("MapScript")){
 	die("MapScript extension is not loaded!");
-
 }
 
 if(!extension_loaded("PDFLib")){
@@ -384,6 +394,16 @@ for($i=0, $len=count($aszLayers); $i<$len; $i++){
     $szOpacity = $aszOpacity[$i];
     $szTime = $aszTimes[$i];
     $szLegendTitle = $aszTitles[$i];
+    
+    
+    $igoController = new IgoController();
+
+    //TODO afficher des messages d'erreur pour les URLS qui 
+    //ne fonctionne pas.
+    $szUrl = $igoController->verifierPermis($szURL);
+    if($szURL===false){
+        continue;
+    }
     
     if($showLegend){
            
