@@ -125,6 +125,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
+        
+        this._getLayer().events.register('loadstart',this,function(e){this.afficherChargement()});
+        this._getLayer().events.register('loadend',this,function(e){this.masquerChargement()});
     };
     
     /** 
@@ -329,6 +332,50 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     */
     Couche.prototype.obtenirProjection = function(){
         return this._layer.projection.projCode;
+    };
+    
+    /**
+     * Obtenir le div de l'arborescence des couches pour la couche en cours
+     * @method
+     * @name Couche#obtenirElementDivArbo
+     * @return {Objet} Div de la couche en cours ou false si non défini
+     */
+    Couche.prototype.obtenirElementDivArbo = function(){
+        var that = this;
+        var result = false
+        if(this._layer.layerContainer){
+            $.each(this._layer.layerContainer.childNodes, function(index,node){
+                if (node.text == that.obtenirTitre()){
+                    result = node.ui.elNode;
+                    return false; //stop exécution
+                }
+            });
+        }
+        return result;
+    }
+    
+    /**
+     * Afficher une icône de chargement dans le div de la couche dand l'arborescence des couches
+     * @method
+     * @name Couche#afficherChargement
+     */
+    Couche.prototype.afficherChargement = function(){
+        var div = this.obtenirElementDivArbo();
+        if(div){
+            //div.innerHTML = '<img src="/igo/interfaces/navigateur/public/images/app/large-loading.gif" alt="Chargement" height="16" width="16">' + div.innerHTML;
+            div.innerHTML = div.innerHTML.replace(this.obtenirTitre()+"</span></a>", this.obtenirTitre()+'</span></a><img src="'+ Aide.utiliserBaseUri("images/app/large-loading.gif")+'" alt="Chargement" height="16" width="16">');
+        }
+    };
+     /**
+     * Masquer l'icône de chargement dans le div de la couche dand l'arborescence des couches
+     * @method
+     * @name Couche#masquerChargement
+     */   
+    Couche.prototype.masquerChargement = function(){
+        var div = this.obtenirElementDivArbo();
+        if(div){
+            div.innerHTML = div.innerHTML.replace('<img src="'+ Aide.utiliserBaseUri("images/app/large-loading.gif")+'" alt="Chargement" height="16" width="16">', "");
+        }
     };
     
     return Couche;
