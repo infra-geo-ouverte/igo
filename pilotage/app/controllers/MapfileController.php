@@ -1,5 +1,5 @@
 <?php
-
+use Phalcon\Mvc\Model\Resultset\Simple as Resultset;
 use Phalcon\Mvc\Model\Criteria;
 use Phalcon\Mvc\View;
 use Phalcon\Paginator\Adapter\Model as Paginator;
@@ -39,6 +39,7 @@ class MapfileController extends ControllerBase {
     }
 
     public function retroAction() {
+        
         if ($this->session->get('mapfile')) {
             $this->view->mapfile = $this->session->get('mapfile');
         } else {
@@ -52,13 +53,13 @@ class MapfileController extends ControllerBase {
         $data = null;
 
         //Load a mapfile content
-        if ($request->isPost() == true) {
-            $mapfile = $request->getPost('mapfile', null);
+        if ($request->isPost()) {
+            $mapfile = trim($request->getPost('mapfile', null));
             if ($mapfile) {
                 $mapfileParser = new MapfileParser();
 
                 try {
-                    $data = $mapfileParser->parseFile(trim($mapfile));
+                    $data = $mapfileParser->parseFile($mapfile);
                 } catch (Exception $e) {
                     $this->flashSession->error($e->getMessage());
                 }
@@ -133,16 +134,6 @@ class MapfileController extends ControllerBase {
                         $newLayers[] = $layer;
                     } else {
 
-                        //Trouver le premier
-//                        if ($igoLayer->groupe_id) {
-//                            $groupQuery = 'id="' . $igoLayer->groupe_id . '"';
-//                            $igoGroup = IgoGroupe::findFirst($groupQuery);
-//                            $group = $igoGroup->getNomComplet(true);
-//                            $layer['currentGroup'] = $group;
-//                            if ($layer['wms_group_title'] && $layer['currentGroup'] != $layer['wms_group_title']) {
-//                                $layer['selectClass'] = 'danger';
-//                            }
-//                        }
                         $layer['exists'] = true;
                         $existingLayers[] = $layer;
                     }
@@ -263,117 +254,85 @@ class MapfileController extends ControllerBase {
         $response = new \Phalcon\Http\Response();
         $previousURL = 'mapfile/process';
 
-        if ($request->isPost() == true) {
-            if ($layers = $this->session->get('processData')) {
-                //Check if a context shoud be created
-                $contexte = $request->getPost('contexte', null);
-                $igoContexte = null;
-                if ($contexte && $contexte == 1) {
-                    $contexteName = $request->getPost('name', null);
-                    $contexteCode = $request->getPost('code', null);
-                    $contexteDescription = $request->getPost('description', null);
-                    $onlineResource = $request->getPost('onlineResource', null);
-
-                    $missingParameter = false;
-                    if (!$contexteName || strlen(trim($contexteName)) == 0) {
-                        $this->flashSession->error('Veuillez entrer un nom de contexte.');
-                        $missingParameter = true;
-                    }
-
-                    if (!$contexteCode || strlen(trim($contexteCode)) == 0) {
-                        $this->flashSession->error('Veuillez entrer un code de contexte.');
-                        $missingParameter = true;
-                    }
-
-                    if (!$contexteDescription || strlen(trim($contexteDescription)) == 0) {
-                        $this->flashSession->error('Veuillez entrer une description du contexte.');
-                        $missingParameter = true;
-                    }
-
-                    if (!$onlineResource || strlen(trim($onlineResource)) == 0) {
-                        $this->flashSession->error('Veuillez entré la resource en ligne.');
-                        $missingParameter = true;
-                    }
-
-                    $this->session->set('contexteName', $contexteName);
-                    $this->session->set('contexteCode', $contexteCode);
-                    $this->session->set('contexteDescription', $contexteDescription);
-                    $this->session->set('onlineResource', $onlineResource);
-
-                    if ($missingParameter) {
-
-                        return $response->redirect($previousURL);
-                    }
-
-                    $mapServerConfig = $this->getDI()->getConfig()->mapserver;
-                    $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
-                    if (file_exists($fileName)) {
-                        $this->flash->error("le fichier {$fileName} existe déjà!");
-                        return $this->dispatcher->forward(array(
-                                    "controller" => $this->ctlName,
-                                    "action" => "new",
-                                    "param" => (!is_null($r_id)) ? "/" . $r_controller . "/" . $r_action . "/" . $r_id : ""
-                        ));
-                    }
-
-                    $igoContexte = new IgoContexte();
-
-                    $mapfileData = $this->session->get('mapfileData');
-
-// Online Resource for generated mapfile will be initialised by default to the mapserv.fcgi path and the generated mapfile path.
-//                   $onlineResource = $mapfileData['map']['wms_onlineresource'];
-//                   if (strpos(strtolower($onlineResource), strtolower($this->view->host)) !== false) {
-//                       $igoContexte->mf_map_meta_onlineresource = $onlineResource;
-//                   } else {
-//                       if ($onlineResource && $onlineResource != '') {
-//                           $contexteDescription .= ' (' . $onlineResource . ')';
-//                       }
-//                   }
-                    //$mapserverConfiguration = $this->getDI()->getConfig()->mapserver;
-                    //$onlineResource = $mapserverConfiguration->host . $mapserverConfiguration->mapserver_path . "?" . $mapserverConfiguration->mapfileCacheDir . $contexteCode . ".map";
-                    $onlineResource = trim($onlineResource);
-                    // contains {Code}.map 
-                    if (strpos($onlineResource, '{Code}') !== FALSE)
-                        if ($onlineResource) {
-                            $onlineResource = str_replace("{Code}", $contexteCode, $onlineResource);
-                        }
-
-                    $igoContexte->mf_map_meta_onlineresource = $onlineResource;
-                    //$igoContexte->mf_map_meta_onlineresource = trim($onlineResource);
-                    $igoContexte->mf_map_projection = $mapfileData['map']['projection'];
-                    $igoContexte->nom = trim($contexteName);
-                    $igoContexte->code = trim($contexteCode);
-                    $igoContexte->description = trim($contexteDescription);
-                    $igoContexte->mode = "l";
-                    $igoContexte->generer_onlineresource = true;
-                }
-
-                //Save the layers (and optionally a context)
-                $mapfileParser = new MapfileParser();
-                $data = $mapfileParser->formatSaveData($layers, $this->view->host, $this->view->host_alias);
-                try {
-                    $this->save($data, $igoContexte);
-                    $this->flashSession->success('Sauvegarde effectuée avec succès!');
-                } catch (Exception $e) {
-                    $this->flashSession->error($e->getMessage());
-                    return $response->redirect($previousURL);
-                }
-
-                //Clear session
-                $this->session->set('mapfile', null);
-                $this->session->set('mapfileData', null);
-                $this->session->set('selectData', null);
-                $this->session->set('processData', null);
-                $this->session->set('contexteName', null);
-                $this->session->set('contexteCode', null);
-                $this->session->set('contexteDescription', null);
-                $this->session->set('onlineResource', null);
-            } else {
-                return $response->redirect($this->cancelURL);
-            }
-        } else {
-            return $response->redirect($this->cancelURL);
+        if (!$request->isPost()) {
+             return $response->redirect($this->cancelURL);
         }
+            
+        $layers = $this->session->get('processData');
+        if(!$layers){
+             return $response->redirect($this->cancelURL);
+        }
+
+        //Check if a context shoud be created
+        $creer_contexte = $request->getPost('creer_contexte', null);
+        $igoContexte = null;
+        if ($creer_contexte) {
+            $contexteName = trim($request->getPost('name', null));
+            $contexteCode = trim($request->getPost('code', null));
+            $contexteDescription = trim($request->getPost('description', null));
+            $onlineResource = trim($request->getPost('onlineResource', null));
+
+            if (!$contexteName) {
+                $this->flashSession->error('Veuillez indiquer un nom de contexte.');
+            }
+
+            if (!$contexteCode) {
+                $this->flashSession->error('Veuillez indiquer un code de contexte.');
+            }
+
+            if (!$contexteDescription) {
+                $this->flashSession->error('Veuillez indiquer une description du contexte.');
+            }
+
+            if (!$onlineResource) {
+                $this->flashSession->error('Veuillez indiquer la resource en ligne.');
+            }
+
+            $mapServerConfig = $this->getDI()->getConfig()->mapserver;
+            $fileName = $mapServerConfig->mapfileCacheDir . $mapServerConfig->contextesCacheDir . trim($contexteCode) . ".map";
+            if (file_exists($fileName)) {
+                $this->flash->error("Le fichier {$fileName} existe déjà. Choisissez un autre code.");
+            }
+
+            $this->session->set('contexteName', $contexteName);
+            $this->session->set('contexteCode', $contexteCode);
+            $this->session->set('contexteDescription', $contexteDescription);
+            $this->session->set('onlineResource', $onlineResource);
+
+            if ($this->flashSession->has('error')) {
+
+                return $response->redirect($previousURL);
+            }
+
+            $igoContexte = new IgoContexte();
+
+            $mapfileData = $this->session->get('mapfileData');
+
+            // Substitude contexteCode if provided
+            $onlineResource = str_replace("{Code}", $contexteCode, $onlineResource);
+
+            $igoContexte->mf_map_meta_onlineresource = $onlineResource;
+            $igoContexte->mf_map_projection = $mapfileData['map']['projection'];
+            $igoContexte->nom = $contexteName;
+            $igoContexte->code = $contexteCode;
+            $igoContexte->description = $contexteDescription;
+            $igoContexte->mode = "l"; //mode Liste
+            $igoContexte->generer_onlineresource = true;
+        }
+
+        //Save the layers (and optionally a context)
+        $mapfileParser = new MapfileParser();
+        $data = $mapfileParser->formatSaveData($layers, $this->view->host, $this->view->host_alias);
+        try {
+            $this->save($data, $igoContexte);
+            $this->flashSession->success('Sauvegarde effectuée avec succès!');
+        } catch (Exception $e) {
+            $this->flashSession->error($e->getMessage());
+            return $response->redirect($previousURL);
+        }
+
+        $this->clearSession();
+          
     }
 
     private function getConnection($connectionString, $connectionType) {
@@ -398,33 +357,28 @@ class MapfileController extends ControllerBase {
         } 
 
         //If connection doesn't exist, create it
-        $igoConnection = IgoConnexion::findFirst($connectionQuery);
-        if (!$igoConnection) {
-            $igoConnection = new IgoConnexion();
-            // $igoConnection->setTransaction($transaction);
-            $igoConnection->connexion = $connectionString;
-            $igoConnection->connexion_type_id = $connexionTypeId;
- 
-            if ($igoConnection->save(false) == false) {
-                foreach ($igoConnection->getMessages() as $message) {
-                    throw new Exception($message);
-                }
-                //$transaction->rollback();
-                $this->db->rollback();
-            } else {
-                $igoConnection->nom = $connexionTypeNom . ' ' . $igoConnection->id;
-                $igoConnection->save(false);
-            }
+        $igoConnexion = IgoConnexion::findFirst($connectionQuery);
+        if (!$igoConnexion) {
+            $igoConnexion = new IgoConnexion();
+   
+            $igoConnexion->connexion = $connectionString;
+            $igoConnexion->connexion_type_id = $connexionTypeId;
+
+            $this->igoConnexionSave($igoConnexion);
+            
+            $igoConnexion->nom = $connexionTypeNom . ' ' . $igoConnexion->id;
+            $igoConnexion->save(false);
+         
         } else {
-            if ($igoConnection->nom == "" || $igoConnection->nom == null) {
-                //  $igoConnection->setTransaction($transaction);
-                $igoConnection->nom = $connexionTypeNom . ' ' . $igoConnection->id;
-                $igoConnection->connexion_type_id = $connexionTypeId;
+            if (!$igoConnexion->nom) {
+          
+                $igoConnexion->nom = $connexionTypeNom . ' ' . $igoConnexion->id;
+                $igoConnexion->connexion_type_id = $connexionTypeId;
                
-                $igoConnection->save(false);
+                $igoConnexion->save(false);
             }
         }
-        return $igoConnection;
+        return $igoConnexion;
     }
 
     /**
@@ -441,78 +395,72 @@ class MapfileController extends ControllerBase {
      */
     private function save($data, $igoContexte = null) {
         $this->db->begin();
-
-        // $manager = new Phalcon\Mvc\Model\Transaction\Manager();
-        //$transaction = $manager->get();
+        
         //Create a contexte if IgoContexte is defined
         if ($igoContexte) {
-            //$igoContexte->setTransaction($transaction);
-            if ($igoContexte->save(false) == false) {
-                foreach ($igoContexte->getMessages() as $message) {
-                    throw new Exception($message);
-                }
-                //  $transaction->rollback();
-                $this->db->rollback();
-                $igoContexte = null;
-            }
+            $this->igoContexteSave($igoContexte);
+        
         }
 
-        //Create an associative array of all the possible geometry types
+        //Create an associative array of all the possible non-multi geometry types
         //This way, we dont need to issue a sql request for each layer
         $geometryTypes = array();
-        $allGeometryTypes = IgoGeometrieType::find();
+        //TODO Déterminer pourquoi on ne veut pas les multi
+        $allGeometryTypes = IgoGeometrieType::find("NOT nom ilike '%multi%'");
         foreach ($allGeometryTypes as $geometryType) {
-            $multi = strpos(strtolower($geometryType->nom), 'multi');
-            if ($multi === false) {
-                $geometryTypes[$geometryType->layer_type] = $geometryType->id;
-            }
+           
+            $geometryTypes[$geometryType->layer_type] = $geometryType->id;
+       
         }
 
         //Create an empty array that will be used to store the group IDs
         $groups = array();
         $layerIndex = 1;
         try {
+            
             $igoCouches = array();
+   
             foreach ($data as $d) {
-                $igoConnection = null;
-                if ($d['connection'] and isset($d['connection']['connectionString']) and isset($d['connection']['type'])) {
-                    $igoConnection = $this->getConnection($d['connection']['connectionString'], $d['connection']['type']);
+                
+                $igoConnexion = null;
+                
+                if ($d['connection'] 
+                        && isset($d['connection']['connectionString']) 
+                        && isset($d['connection']['type'])) {
+                
                     //Check if connexion exists already in the database
+                    $igoConnexion = $this->getConnection($d['connection']['connectionString'], $d['connection']['type']);
+                    
                 }
 
-                //echo "connexion: "."<br>";
-                //var_dump($d);
                 foreach ($d['layers'] as $layer) {
-
-                    //var_dump($layer);
-
-                    if (isset($layer['connection']) and isset($layer['connectiontype']) and !""==trim($layer['connection']) and !""==trim($layer['connectiontype'])) {
-                        $igoConnection = $this->getConnection($layer['connection'], $layer['connectiontype']);
-
+                    
+                    if (isset($layer['connection']) 
+                            && isset($layer['connectiontype']) 
+                            && trim($layer['connection']) 
+                            && trim($layer['connectiontype'])) {
+                        
                         //Check if connexion exists already in the database
+                        $igoConnexion = $this->getConnection($layer['connection'], $layer['connectiontype']);
+
                     }
                     $groupeCoucheId = null;
                     $groupID = null;
                     $layer['currentGroup'] = null;
 
-
                     //If geometry type doesn't exist, create it
                     if (!array_key_exists($layer['type'], $geometryTypes)) {
-                        $igoGeometryType = new IgoGeometrieType();
-                        //$igoGeometryType->setTransaction($transaction);
-                        $igoGeometryType->layer_type = $layer['type'];
-                        $igoGeometryType->nom = $layer['type'];
-                        if ($igoGeometryType->save() == false) {
-                            foreach ($igoGeometryType->getMessages() as $message) {
-                                throw new Exception($message);
-                            }
-                            //$transaction->rollback();
-                            $this->db->rollback();
-                        } else {
-                            //Store the new geometry type id in an array and refer to it
-                            //for the following layers with the same geometry type
-                            $geometryTypes[$layer['type']] = $igoGeometryType->id;
-                        }
+                        $igoGeometrieType = new IgoGeometrieType();
+                        
+                        $igoGeometrieType->layer_type = $layer['type'];
+                        $igoGeometrieType->nom = $layer['type'];
+
+                        $this->igoGeometrieTypeSave($igoGeometrieType);
+
+                        //Store the new geometry type id in an array and refer to it
+                        //for the following layers with the same geometry type
+                        $geometryTypes[$layer['type']] = $igoGeometrieType->id;
+                        
                     }
 
                     $layerQuery = 'mf_layer_name="' . $layer['name'] . '"';
@@ -525,14 +473,14 @@ class MapfileController extends ControllerBase {
                             //Find its geometry                        
                             if ($igoLayer->geometrie_id) {
                                 $geometryQuery = 'id="' . $igoLayer->geometrie_id . '"';
-                                $igoGeometry = IgoGeometrie::findFirst($geometryQuery);
+                                $igoGeometrie = IgoGeometrie::findFirst($geometryQuery);
                             } else {
-                                $igoGeometry = new IgoGeometrie();
+                                $igoGeometrie = new IgoGeometrie();
                             }
 
                             //Find it's classe d'entité
-                            if ($igoGeometry && $igoGeometry->classe_entite_id) {
-                                $classeEntiteQuery = 'id="' . $igoGeometry->classe_entite_id . '"';
+                            if ($igoGeometrie && $igoGeometrie->classe_entite_id) {
+                                $classeEntiteQuery = 'id="' . $igoGeometrie->classe_entite_id . '"';
                                 $igoClasseEntite = IgoClasseEntite::findFirst($classeEntiteQuery);
                             } else {
                                 $igoClasseEntite = null;
@@ -546,19 +494,13 @@ class MapfileController extends ControllerBase {
                                 $igoClasses = null;
                             }
 
-                            //Reassign the currentGroup to the layer in case it changed in the database meanwhile
-                            //if ($igoLayer->groupe_id) {
-                            //    $groupQuery = 'id="' . $igoLayer->groupe_id . '"';
-                            //    $igoGroup = IgoGroupe::findFirst($groupQuery);
-                            //    $layer['currentGroup'] = $igoGroup->getNomComplet(true);
-                            //}
                         } else {
                             //If a layer with the same name doesn't exist
                             //Create a new layer
                             $igoLayer = new IgoCouche();
 
                             //Create a new geometry
-                            $igoGeometry = new IgoGeometrie();
+                            $igoGeometrie = new IgoGeometrie();
 
                             //Set some variables to null
                             $igoClasseEntite = null;
@@ -597,31 +539,32 @@ class MapfileController extends ControllerBase {
                                     if (!$found) {
                                         //Check if this group exists in the database already
 
-                                        $igoGroup = IgoGroupe::findFirst('nom="' . $groupName . '"');
+                                        $igoGroupe = IgoGroupe::findFirst('nom="' . $groupName . '"');
 
-                                        if ($igoGroup) {
+                                        if ($igoGroupe) {
                                             //If it exists already, retrieve it's id
-                                            $groupID = $igoGroup->id;
+                                            $groupID = $igoGroupe->id;
                                         } else {
                                             //If it doesn't exist, create it and retrieve it's id
-                                            $igoGroup = new IgoGroupe();
-                                            // $igoGroup->setTransaction($transaction);
-                                            $igoGroup->nom = $groupName;
-                                            $igoGroup->est_exclu_arbre = 'FALSE';
-                                            //$igoGroup->groupe_id = $groupID;
-                                            // $igoGroup->specifie_parent($groupID);
-                                            if ($igoGroup->save() == false) {
-                                                foreach ($igoGroup->getMessages() as $message) {
+                                            $igoGroupe = new IgoGroupe();
+                                       
+                                            $igoGroupe->nom = $groupName;
+                                            $igoGroupe->est_exclu_arbre = 'FALSE';
+
+                                            if (!$igoGroupe->save()) {
+
+                                                foreach ($igoGroupe->getMessages() as $message) {
                                                     throw new Exception($message);
                                                 }
-                                                // $transaction->rollback();
+
                                                 $this->db->rollback();
-                                            } else {
-                                                $groupID = $igoGroup->id;
                                             }
+                                            
+                                            $groupID = $igoGroupe->id;
+                                           
                                         }
 
-                                        $igoGroup->specifie_parent($parent_groupe_id);
+                                        $igoGroupe->specifie_parent($parent_groupe_id);
                                         //Store the id of the newly created group in the groups array
                                         $groups[] = array(
                                             'name' => $fullGroupName,
@@ -647,24 +590,23 @@ class MapfileController extends ControllerBase {
                                 $igoClasseEntite->catalogue_csw_id = $igoCatalogueCsw->id;
                             }
 
-                            // $igoClasseEntite->setTransaction($transaction);
-                            if ($igoClasseEntite->save() == false) {
+                            if (!$igoClasseEntite->save()) {
                                 foreach ($igoClasseEntite->getMessages() as $message) {
                                     throw new Exception($message);
                                 }
-                                /// $transaction->rollback();
+                         
                                 $this->db->rollback();
                             }
                         } //if (!$igoClasseEntite) {
+                        //
                         //Update or set the geometry attributes
-                        // $igoGeometry->setTransaction($transaction);
-                        $igoGeometry->mf_layer_projection = $layer['projection'];
-                        $igoGeometry->mf_layer_data = $layer['data'];
-                        $igoGeometry->connexion_id = ($igoConnection ? $igoConnection->id : $igoGeometry->connexion_id);
-                        $igoGeometry->geometrie_type_id = $geometryTypes[$layer['type']];
-                        $igoGeometry->classe_entite_id = $igoClasseEntite->id;
-                        $igoGeometry->vue_defaut = $layer['vue_defaut'];
-                        $igoGeometry->acces = "L";
+                        $igoGeometrie->mf_layer_projection = $layer['projection'];
+                        $igoGeometrie->mf_layer_data = $layer['data'];
+                        $igoGeometrie->connexion_id = ($igoConnexion ? $igoConnexion->id : $igoGeometrie->connexion_id);
+                        $igoGeometrie->geometrie_type_id = $geometryTypes[$layer['type']];
+                        $igoGeometrie->classe_entite_id = $igoClasseEntite->id;
+                        $igoGeometrie->vue_defaut = $layer['vue_defaut'];
+                        $igoGeometrie->acces = "L";
                         // Définir l'indice d'inclusion...
                         $indice_inclusion = "T"; // T=Tous, E=Exclusion I=Inclusion
                         foreach ($layer['attributes'] as $attribute) {
@@ -676,21 +618,20 @@ class MapfileController extends ControllerBase {
                                 break;
                             }
                         }
-                        $igoGeometry->ind_inclusion = $indice_inclusion;
+                        $igoGeometrie->ind_inclusion = $indice_inclusion;
 
 
-                        if ($igoGeometry->save(false) == false) {
+                        if ($igoGeometrie->save(false) == false) {
                             $this->db->rollback();
-                            foreach ($igoGeometry->getMessages() as $message) {
+                            foreach ($igoGeometrie->getMessages() as $message) {
                                 throw new Exception($message);
                             }
-                            //$transaction->rollback();
-                           
+                            
                         }
 
                         //Insert or update attributes                        
                         foreach ($layer['attributes'] as $attribute) {
-                            $attributeQuery = 'geometrie_id="' . $igoGeometry->id . '" AND colonne="' . $attribute['colonne'] . '"';
+                            $attributeQuery = 'geometrie_id="' . $igoGeometrie->id . '" AND colonne="' . $attribute['colonne'] . '"';
                             $igoAttribute = IgoAttribut::findFirst($attributeQuery);
                             $update = false;
 
@@ -702,24 +643,19 @@ class MapfileController extends ControllerBase {
                             }
 
                             if ($update) {
-                                //  $igoAttribute->setTransaction($transaction);
+                               
                                 $igoAttribute->colonne = $attribute['colonne'];
                                 $igoAttribute->est_cle = ($attribute['est_cle'] ? 'TRUE' : 'FALSE');
                                 $igoAttribute->est_inclu = ($attribute['est_inclu'] ? 'TRUE' : 'FALSE');
-                                $igoAttribute->geometrie_id = $igoGeometry->id;
+                                $igoAttribute->geometrie_id = $igoGeometrie->id;
 
-                                if ($igoAttribute->save(false) == false) {
+                                if (!$igoAttribute->save(false)) {
                                     foreach ($igoAttribute->getMessages() as $message) {
                                         throw new Exception($message);
                                     }
                                     $this->db->rollback();
-                                    // $transaction->rollback();
-                                } /* else{
-                                  //Add the attribute id to the excluded attributes array
-                                  if($igoContexte && !$attribute['est_inclu']){
-                                  $excludedAttributes[] = $igoAttribute->id;
-                                  }
-                                  } */
+                                    
+                                }
                             } else {
                                 if ($igoContexte && !$attribute['est_inclu']) {
                                     if ($igoAttribute->est_inclu == 'TRUE') {
@@ -730,9 +666,8 @@ class MapfileController extends ControllerBase {
                         }
 
                         // Création ou mise à jour de la couche
-                        //$igoLayer->setTransaction($transaction);
                         $igoLayer->type = $layer['location'];
-                        $igoLayer->geometrie_id = $igoGeometry->id;
+                        $igoLayer->geometrie_id = $igoGeometrie->id;
                         $igoLayer->mf_layer_name = $layer['name'];
                         $igoLayer->mf_layer_group = $layer['group'];
                         $igoLayer->mf_layer_meta_name = $layer['wms_name'];
@@ -786,12 +721,12 @@ class MapfileController extends ControllerBase {
                             $igoCoucheContexte->mf_layer_meta_group_title = $layer['wms_group_title'];
                         }
 
-                        if ($igoLayer->save(false) == false) {
+                        if (!$igoLayer->save(false)) {
                             foreach ($igoLayer->getMessages() as $message) {
                                 throw new Exception($message);
                             }
                             $this->db->rollback();
-                            // $transaction->rollback();
+                           
                         } else {
                             $layerSaveSuccessful = true;
                             //If the layer has some classes defined already, delete them and re-insert them
@@ -799,7 +734,7 @@ class MapfileController extends ControllerBase {
                             //(they don't have a name on which we can query)
                             if ($igoClasses) {
                                 foreach ($igoClasses as $igoClass) {
-                                    //  $igoClass->setTransaction($transaction);
+                                   
                                     if ($igoClass->delete() == false) {
                                         foreach ($igoClass->getMessages() as $message) {
                                             throw new Exception($message);
@@ -809,13 +744,13 @@ class MapfileController extends ControllerBase {
                             }
 
                             //Save each classes and assign them a z order
-                            $i = 0;
+                            $mf_class_z_order = 0;
                             foreach ($layer['classes'] as $class) {
                                 $igoClass = new IgoClasse();
-                                // $igoClass->setTransaction($transaction);
+                             
                                 $igoClass->mf_class_def = $class;
                                 $igoClass->couche_id = $igoLayer->id;
-                                $igoClass->mf_class_z_order = $i;
+                                $igoClass->mf_class_z_order = $mf_class_z_order;
                                 $igoClass->save(false);
 
                                 if ($igoLayer->save(false) == false) {
@@ -823,66 +758,29 @@ class MapfileController extends ControllerBase {
                                         throw new Exception($message);
                                     }
                                     $this->db->rollback();
-                                    //$transaction->rollback();
+                               
                                 }
 
-                                $i++;
+                                $mf_class_z_order++;
                             }
                             if ($groupID) {
-                                $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
-                                if (!$igoGroupeCouche) {
-                                    $igoGroupeCouche = new IgoGroupeCouche ();
-                                    $igoGroupeCouche->groupe_id = $groupID;
-                                    $igoGroupeCouche->couche_id = $igoLayer->id;
-                                    //$igoGroupeCouche->setTransaction($transaction);
-                                    $igoGroupeCouche->save();
+                                $igoGroupeeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
+                                if (!$igoGroupeeCouche) {
+                                    $igoGroupeeCouche = new IgoGroupeCouche ();
+                                    $igoGroupeeCouche->groupe_id = $groupID;
+                                    $igoGroupeeCouche->couche_id = $igoLayer->id;
+                            
+                                    $igoGroupeeCouche->save();
                                 }
                             } else {
                                 echo("La couche {$layer['name']} est dans aucun groupe.<br>");
                             }
 
-                            /*
-                              if (!$igoContexte || !$layer['currentGroup']) {
-                              $igoGroupeCouche = new IgoGroupeCouche ();
-                              $igoGroupeCouche->groupe_id = $groupID;
-                              $igoGroupeCouche->couche_id = $igoLayer->id;
-                              //$igoGroupeCouche->setTransaction($transaction);
-                              if ($igoGroupeCouche->save() == false) {
-                              if (!is_null($groupID)) {
-                              $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
-                              $groupeCoucheId = $igoGroupeCouche->id;
-                              } else {
-                              $groupeCoucheId = null;
-                              }
-                              if (!$igoGroupeCouche) {
-                              echo("La couche $igoLayer->nom est dans aucun groupe.");
-                              }
-                              } else {
-                              $groupeCoucheId = $igoGroupeCouche->id;
-                              }
-                              } else {
-                              $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id . ' AND groupe_id=' . $groupID);
-                              if (!$igoGroupeCouche) {
-                              echo("La couche $igoLayer->nom est dans aucun groupe.");
-                              }
-                              $groupeCoucheId = $igoGroupeCouche->id;
-                              } */
                         }
-                    } //if ($layer['action'] == 'insert') {
-                    /*
-                      if ($layer['action'] == 'softinsert') {
-                      //on a besoin du $groupeCoucheId
-                      //Récupére le première groupe où est le layer
-                      $igoGroupeCouche = IgoGroupeCouche::findFirst('couche_id=' . $igoLayer->id);
-                      if (!$igoGroupeCouche) {
-                      echo("La couche $igoLayer->nom  est dans aucun groupe.");
-                      } else {
-                      $groupeCoucheId = $igoGroupeCouche->id;
-                      }
-                      } */
-
+                    } 
+                    
                     //Conserver = softinsert, Insérer/remplacer = insert
-                    if ($layer['action'] == 'softinsert' || ($layer['action'] == 'insert' && $layerSaveSuccessful == true)) {
+                    if ($layer['action'] == 'softinsert' || ($layer['action'] == 'insert' && $layerSaveSuccessful)) {
                         if (!isset($excludedAttributees)) {
                             $excludedAttributes = array();
                         }
@@ -895,32 +793,32 @@ class MapfileController extends ControllerBase {
 
                             foreach ($excludedAttributes as $excludedAttribute) {
                                 $igoCoucheContexte = new IgoCoucheContexte();
-                                // $igoCoucheContexte->setTransaction($transaction);
+                            
                                 $igoCoucheContexte->contexte_id = $igoContexte->id;
                                 $igoCoucheContexte->couche_id = $igoLayer->id;
                                 $igoCoucheContexte->layer_a_order = $layerIndex++;
 
-
                                 $nomComplet = str_replace("'", "_", $layer['wms_group_title']);
-
-
+                                
                                 while (!empty($nomComplet)) {
+
                                     // Fix pour que le groupe existe la première fois. 
-                                    $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%" . $nomComplet . "'");
+                                    $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%{$nomComplet}'");
+                                    
                                     $groupe_id = $igoVueGroupesRecursif ? $igoVueGroupesRecursif->groupe_id : $groupID;
-                                    //echo $nomComplet.'('.$groupe_id.')';
+                                    
                                     if ($groupe_id && $igoVueGroupesRecursif) {
-                                        //echo "->ok";
-                                        $arbre = str_replace(' ', '_', $igoVueGroupesRecursif->grp);
-                                        $igoCoucheContexteGroupe = IgoCoucheContexte::findFirst("contexte_id=$igoContexte->id and couche_id IS NULL and arbre_id='$arbre'");
+                         
+                                        $arbre_id = $igoVueGroupesRecursif->grp;
+                                        $igoCoucheContexteGroupe = IgoCoucheContexte::findFirst("contexte_id={$igoContexte->id} and couche_id IS NULL and arbre_id='{$arbre_id}'");
                                         if (!$igoCoucheContexteGroupe) {
-                                            //echo "->crée";
+                          
                                             $igoCoucheContexteGroupe = new IgoCoucheContexte();
-                                            //  $igoCoucheContexteGroupe->setTransaction($transaction);
+                        
                                             $igoCoucheContexteGroupe->contexte_id = $igoContexte->id;
                                             $igoCoucheContexteGroupe->couche_id = null;
                                             $igoCoucheContexteGroupe->groupe_id = $groupe_id;
-                                            $igoCoucheContexteGroupe->arbre_id = $arbre;
+                                            $igoCoucheContexteGroupe->arbre_id = $arbre_id;
                                             $igoCoucheContexteGroupe->mf_layer_meta_name = $igoVueGroupesRecursif->nom;
                                             $igoCoucheContexteGroupe->mf_layer_meta_title = $igoVueGroupesRecursif->nom_complet;
                                             $a = explode("/", $igoVueGroupesRecursif->nom_complet);
@@ -933,15 +831,16 @@ class MapfileController extends ControllerBase {
                                             $igoCoucheContexteGroupe->save();
                                         }
                                     }
-                                    //echo '<br>';
+                                 
                                     $t = explode('/', $nomComplet);
                                     array_pop($t);
                                     $nomComplet = implode('/', $t);
+                           
                                 }
 
                                 $igoCoucheContexte->groupe_id = $groupe_id;
                                 $igoVueGroupesRecursif = IgoVueGroupesRecursif::findFirst("nom_complet like '%" . str_replace("'", "_", $layer['wms_group_title']) . "'");
-                                $igoCoucheContexte->arbre_id = $igoVueGroupesRecursif ? str_replace(' ', '_', $igoVueGroupesRecursif->grp) : $groupe_id;
+                                $igoCoucheContexte->arbre_id = $igoVueGroupesRecursif ? $igoVueGroupesRecursif->grp : $groupe_id;
                                 $igoCoucheContexte->mf_layer_meta_name = $layer['wms_name'];
 
                                 $igoCoucheContexte->mf_layer_meta_title = $layer['wms_title'];
@@ -954,7 +853,6 @@ class MapfileController extends ControllerBase {
 
                                 $igoCoucheContexte->est_visible = 'TRUE';
                                 $igoCoucheContexte->ind_fond_de_carte = 'D';
-
 
                                 //Check if some attributes should be overwritten in igoCoucheContexte
                                 $coucheContexteName = null;
@@ -999,14 +897,9 @@ class MapfileController extends ControllerBase {
                                 if ($layer['currentGroup'] && ($layer['currentGroup'] != $layer['wms_group_title'])) {
                                     $igoCoucheContexte->mf_layer_meta_group_title = $layer['wms_group_title'];
                                 }
-
-                                if ($igoCoucheContexte->save() == false) {
-                                    foreach ($igoCoucheContexte->getMessages() as $message) {
-                                        throw new Exception($message);
-                                    }
-                                    //$transaction->rollback();
-                                    $this->db->rollback();
-                                }
+                                $this->igoCoucheContexteSave($igoCoucheContexte);
+                      
+                               
                             }
                         }
                     }
@@ -1014,14 +907,7 @@ class MapfileController extends ControllerBase {
                 }
             }
 
-            // $transaction->commit();
             $this->db->commit();
-            
-            $igoVueGroupesRecursif = new IgoVueGroupesRecursif();
-            $igoVueGroupesRecursif->refresh();
-
-            $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
-            $igoVueContexteGroupesRecursif->refresh();
             
             if ($igoContexte !== null) {
                 $igoContexte->saveMapFile();
@@ -1033,6 +919,63 @@ class MapfileController extends ControllerBase {
             error_log(json_encode($e));
             throw $e;
         }
+    }
+    
+ 
+
+    private function clearSession(){
+        //Clear session
+        $this->session->set('mapfile', null);
+        $this->session->set('mapfileData', null);
+        $this->session->set('selectData', null);
+        $this->session->set('processData', null);
+        $this->session->set('contexteName', null);
+        $this->session->set('contexteCode', null);
+        $this->session->set('contexteDescription', null);
+        $this->session->set('onlineResource', null);
+
+    }
+    
+    private function igoCoucheContexteSave($igoCoucheContexte){
+        if ($igoCoucheContexte->save() == false) {
+            foreach ($igoCoucheContexte->getMessages() as $message) {
+               throw new Exception($message);
+            }
+
+            $this->db->rollback();
+        }
+    }
+    
+    
+    private function igoConnexionSave($igoConnexion){
+        if (!$igoConnexion->save(false)) {
+            foreach ($igoConnexion->getMessages() as $message) {
+                throw new Exception($message);
+            }
+
+        $this->db->rollback();
+        }    
+    }
+    
+    private function igoContexteSave($igoContexte){
+        if (!$igoContexte->save(false)) {
+            foreach ($igoContexte->getMessages() as $message) {
+                throw new Exception($message);
+            }
+
+            $this->db->rollback();
+
+        }
+    }
+    
+    private function igoGeometrieTypeSave($igoGeometrieType){
+        if (!$igoGeometrieType->save()) {
+            foreach ($igoGeometrieType->getMessages() as $message) {
+                throw new Exception($message);
+            }
+
+            $this->db->rollback();
+       }
     }
 
 }
