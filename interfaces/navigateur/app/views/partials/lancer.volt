@@ -20,7 +20,6 @@
     var version = "<?php echo $this->config->application->version ?>";
     var buildIGO = ['build'];
     if(debug){
-        debugIGO=debug;
         if(version === 'aleatoire'){
             version=new Date().getTime();
         }
@@ -44,7 +43,8 @@
            
             //Config
             Aide.definirVersion(version);
-
+            Aide.definirDebug(debug);
+            
             {% include "partials/configClient.volt" %}
                 
             var utilisateur = "<?php echo $utilisateur?>";

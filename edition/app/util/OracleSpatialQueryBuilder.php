@@ -28,9 +28,9 @@ class OracleSpatialQueryBuilder implements ISpatialQueryBuilder{
         //Version oracle, ici on compare la géométrie 1 pour 1 sans tenir compte du buffer
         if($geometryType == "point"){
             return "SDO_EQUAL({$geomA},{$geomB})";
-        }else if($this->GetGeometryType() == "LineString"){
+        }else if($geometryType == "LineString"){
             return "SDO_EQUAL({$geomA},{$geomB})";
-        }else if($this->GetGeometryType() == "polygon" || $this->GetGeometryType() == "circle"){
+        }else if($geometryType == "polygon" || $geometryType == "circle"){
             return "SDO_EQUAL({$geomA},{$geomB})";
         }else{
             throw new Exception("Not implemented isEquivalent() for geometry type : {$geometryType}");

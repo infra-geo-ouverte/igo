@@ -5,7 +5,7 @@
 require.ajouterConfig({
     paths: {
         'panneauEdition': '[edition]/public/js/app/panneau/panneauEdition',
-        'service': '[edition]/public/js/app/service/service'
+        'editionService': '[edition]/public/js/app/service/service'
     }
 });
 
@@ -17,7 +17,7 @@ require.ajouterConfig({
  * @version 1.0
  */
 
-define(['panneauOnglet', 'panneauEdition', 'service'], function(PanneauOnglet, PanneauEdition, Service) {
+define(['aide', 'panneauOnglet', 'panneauEdition', 'editionService'], function(Aide, PanneauOnglet, PanneauEdition, Service) {
    
  /** 
      * Création de l'object PanneauOnglet.PanneauOngletEdition.
@@ -35,36 +35,70 @@ define(['panneauOnglet', 'panneauEdition', 'service'], function(PanneauOnglet, P
 function PanneauOngletEdition(options){
         this.options = options || {};
         this.options.panneaux = [];
-            
-        this.options.titre = "Éléments géométriques";
-        this.options.id = 'edition-panneau';
+        this.options.id = 'edition-panneau'; 
+        
+        this.defautOptions.titre = "Éléments géométriques";
+        
     };
 
     PanneauOngletEdition.prototype = new PanneauOnglet();
     PanneauOngletEdition.prototype.constructor = PanneauOngletEdition;
     
-    /** 
-     * Mettre à jour les attributs sur une géométrie dans un panneau du this.options.panneaux
-     * @method 
-     * @name PanneauOngletEdition#mettreAjourAttributGeometrie
-     * @param {object} [e]: elements de l'attribut mis à jour (e.column, e.filed, e.grid, e.originalValue, e.record, e.row, e.value)    
-    */
-    PanneauOngletEdition.prototype.mettreAjourAttributGeometrie = function(e){
+        
+    //Réimplémenter le beforecloseTab pour mieux gérer la fermeture de l'onglet
+    PanneauOngletEdition.prototype._beforeCloseTab = function(element){    
+        var that = this;
+        
+        var elemModif = element.scope.options.vecteur.obtenirOccurencesModifiees();
+        var elemAjout = element.scope.options.vecteur.obtenirOccurencesAjoutees();
+        var elemSupp = element.scope.options.vecteur.obtenirOccurencesEnlevees();
+              
+        if(elemModif.length > 0 || elemSupp.length > 0 || elemAjout.length > 0) {
+            
+            var message = 'Il y a des changements non sauvegardés. <br />Désirez-vous les enregistrer?';
+            var titre = 'Sauvegarder';
+            var boutons = 'YESNOCANCEL';
+            var icone = 'QUESTION';
+            action = function(btn) {
+                        if(btn === 'yes'){
+                            element.scope.contexte.sauvegarder();
+                        }
+                        else if(btn === 'no'){
+                            that.listeOnglets = $.grep(that.listeOnglets, function(value) { 
+                                if(value._panel === element){
+                                    value.avantFermeture();
+                                    value._panel.destroy();
+                                }
 
-        //Afficher un message d'erreur si l'attribut est obligatoire et qu'il a été blanchi
-        if(e.value == "")
-        {
-            //Si le champ est obligatoire
-            if(e.grid.colModel.config[e.column].obligatoire !== undefined && e.grid.colModel.config[e.column].obligatoire == true)
-
-                //Afficher le message de validation du champ si défini
-                if(e.grid.colModel.config[e.column].messageValidation !== undefined)
-                    Ext.alert('mess',e.grid.colModel.config[e.column].messageValidation);
-                else //Sinon afficher un message générique
-                    Ext.alert('mess',"19S");
-        }               
+                                return value._panel !== element; 
+                            });
+                        }
+                    };
+                    
+            Aide.afficherMessage({message:message, titre:titre, boutons:boutons, icone:icone, action:action}); 
+        
+            return false;
+        }
+        else {
+            this.listeOnglets = $.grep(this.listeOnglets, function(value) { 
+                if(value._panel === element){
+                    value.avantFermeture();
+                }
+            
+                return value._panel !== element; 
+            });
+        }  
     };
     
-        
+    /**
+     * Méthode pour ouvrir l'accordéon du panneau
+     * @method
+     * @name PanneauOngletEdition#ouvrir
+     */
+    PanneauOngletEdition.prototype.ouvrir = function(){
+       Aide.obtenirNavigateur().obtenirPanneauParId("panBasPanel").ouvrir();
+        this._panel.expand();
+    };
+            
     return PanneauOngletEdition;
 });

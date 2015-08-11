@@ -1,36 +1,9 @@
 require.ajouterConfig({
     paths: {
-        'service': '../igo/edition/public/js/app/service/service',
-        'panneauOccurence': '../igo/edition/public/js/app/panneau/panneauOccurence'
+        'editionService': '[edition]/public/js/app/service/service',
+        'editionPanneauOccurence': '[edition]/public/js/app/panneau/panneauOccurence'
     }
 });
-
-/*
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (typeof this !== 'function') {
-      // closest thing possible to the ECMAScript 5
-      // internal IsCallable function
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP && oThis
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-*/
 
 /** 
  * Module pour l'objet {@link Panneau.Edition}.
@@ -40,7 +13,7 @@ if (!Function.prototype.bind) {
  * @requires panneau
  */
 
-define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Panneau, PanneauOccurence, Service, Vecteur, Aide) {
+define(['panneau','editionPanneauOccurence' ,'editionService', 'vecteur', 'aide'], function(Panneau, PanneauOccurence, Service, Vecteur, Aide) {
     /** 
      * Création de l'object Panneau.Edition.
      * Objet à ajouter à un panneauMenu.
@@ -61,8 +34,10 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
         this.defautOptions.id = 'edition-panneau';
         var navigateur = Aide.obtenirNavigateur();
         this.carte = navigateur.carte;
-        this.serviceEdition = new Service({projectionCarte: this.carte.obtenirProjection(), url: Aide.obtenirCheminRacine() + "igo/edition/app/"});
-        this.coucheEdition = new Vecteur({titre: this.titre, id:"couche", active:true, visible:false, fnSauvegarder: this.sauvegarder, garderHistorique:true });
+        this.serviceEdition = new Service({projectionCarte: this.carte.obtenirProjection(), url: Aide.utiliserBaseUri("[edition]/app/")});
+        var style = {limiteEpaisseur: 3, limiteOpacite: 0.6, limiteCouleur: "#ee9900"};
+        var styleSelectionne = {limiteEpaisseur: 3, limiteCouleur: "#2668e3"};
+        this.coucheEdition = new Vecteur({titre: this.titre, id:"couche", active:true, visible:false, fnSauvegarder: this.sauvegarder, garderHistorique:true, styles:{defaut: style, select: styleSelectionne}});
         this.carte.gestionCouches.ajouterCouche(this.coucheEdition);
         this.serviceEdition.obtenirCouches(this.obtenirCoucheSuccess.bind(this), this.obtenirCoucheErreur.bind(this));
         this.etat = EditionSimple.ETATS.PENDING;
@@ -135,6 +110,7 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
             this.cancelButton.setVisible(true);            
         }
         this._panel.doLayout();
+        Aide.cacherMessageChargement();
     };
 
     EditionSimple.prototype.obtenirOccurencesSucess = function(donnees){
@@ -143,19 +119,25 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
     };
 
     EditionSimple.prototype.sauvegardeSuccess = function(data) {
+        data = typeof data === 'string' ? JSON.parse(data) : data;
         if(data.result === 'failure' && data.error){
+            Aide.cacherMessageChargement();
             Aide.afficherMessage("Erreur", data.error);            
         }else if(data.result === 'failure' && data.errors){
             var message = "";
             for(var index in data.errors){
                 message += data.errors[index];
             }
+            Aide.cacherMessageChargement();
             Aide.afficherMessage("Erreur", message);            
         }else if(data.result === 'success'){
             console.log("Sauvegarde Success!");
+            this.rafraichirCouchesAssociees();
             this._onCancel();
+            Aide.cacherMessageChargement();
         }else if(data.result === 'warning'){
-            Igo.Aide.afficherMessage({
+            Aide.cacherMessageChargement();
+            Aide.afficherMessage({
                 titre: "Avertissement", 
                 message: data.warning,
                 boutons: 'OUINON',
@@ -166,6 +148,7 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
     
     EditionSimple.prototype.avertissementJustifie = function(e){    
         if(e === "yes"){
+            Aide.afficherMessageChargement({titre:"Sauvegarde en cours..."});
             this.occurence.definirPropriete("ignoreWarning", true);
             if(this.etat === EditionSimple.ETATS.CREATING){
                 this.serviceEdition.creerOccurence(this.serviceSelectionne['name'], this.occurence, this.sauvegardeSuccess.bind(this), this.sauvegardeErreur.bind(this));// = function(couche, occurence, success, error){
@@ -189,9 +172,11 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
     
     EditionSimple.prototype.decrireCoucheErreur = function() {
         console.log("DecrireCouche Erreur!");
+        Aide.cacherMessageChargement();
     };
     
     EditionSimple.prototype.sauvegardeErreur = function(status, error, response) {
+        Aide.cacherMessageChargement();
         Aide.afficherMessage("Erreur", response.error);
     };
     
@@ -262,6 +247,15 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
         this._onCancel();
     };
     
+    EditionSimple.prototype.rafraichirCouchesAssociees = function(){
+        for(var index = 0; index < this.serviceSelectionne.associatedLayers.length; index++){
+            var couches = this.carte.gestionCouches.obtenirCouchesParTitre(this.serviceSelectionne.associatedLayers[index]);
+            for(var indexCouche = 0; indexCouche < couches.length; indexCouche++){
+                couches[indexCouche].rafraichir(true);
+            }
+        }
+    };
+    
     EditionSimple.prototype.occurenceCree = function(e){
         this.coucheEdition.enleverDeclencheur('ajouterOccurence', 'EditionSimple');
         this.carte.controles.desactiverDessin();
@@ -277,6 +271,7 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
         this.coucheEdition.enleverTout();
         this.occurence = occurences[0];
         this.coucheEdition.ajouterOccurence(this.occurence);
+        //Aide.afficherMessageChargement({titre:"Selection en cours..."});
         this.serviceEdition.decrireCouche(this.serviceSelectionne['name'], this.decrireCoucheSucess.bind(this), this.decrireCoucheErreur.bind(this), this.occurence);
         this.occurence.ajouterDeclencheur('occurenceModifiee',this.occurenceModifiee.bind(this), {id:'EditionSimple'});        
     };
@@ -365,9 +360,14 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
     };
             
     EditionSimple.prototype._onJustified = function(button, text){
-        
-        this.occurence.definirPropriete("justification", this.occurence.obtenirPropriete("justification") + Aide.profil.utilisateur + ": " + text + "\n");
-        
+        if(button === 'cancel'){
+            this._onCancel();
+            return false;
+        }
+        Aide.afficherMessageChargement({titre:"Sauvegarde en cours..."});
+        var justification = this.occurence.obtenirPropriete("justification") || "";
+        this.occurence.definirPropriete("justification", justification + Aide.profil.utilisateur + ": " + text + "\n");
+
         if(this.etat === EditionSimple.ETATS.CREATING){
             this.serviceEdition.creerOccurence(this.serviceSelectionne['name'], this.occurence, this.sauvegardeSuccess.bind(this), this.sauvegardeErreur.bind(this));// = function(couche, occurence, success, error){
         }else if(this.etat === EditionSimple.ETATS.EDITING){
@@ -375,6 +375,7 @@ define(['panneau','panneauOccurence' ,'service', 'vecteur', 'aide'], function(Pa
         }else if(this.etat === EditionSimple.ETATS.DELETING){
             this.serviceEdition.supprimerOccurence(this.serviceSelectionne['name'], this.occurence, this.sauvegardeSuccess.bind(this), this.sauvegardeErreur.bind(this));    
         }
+        
     };
 
     EditionSimple.prototype._onCancel = function(){
