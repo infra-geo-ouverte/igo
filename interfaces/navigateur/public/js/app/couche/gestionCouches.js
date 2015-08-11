@@ -52,13 +52,10 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @exception Vérification de la validité de la couche en paramètre
     */
     GestionCouches.prototype.ajouterCouche = function(couche) {
-        var that = this;
         if (couche instanceof Couche) {
             couche.definirCarte(this.carte);
             couche._ = this;
-            setTimeout(function() {
-                couche._ajoutCallback(that, that._ajouterCoucheCallback);
-            }, 1);
+            couche._ajoutCallback(this, this._ajouterCoucheCallback);
         } else {
             throw new Error("Igo.Carte.ajouterCouche(couche) a besoin d'un objet de type Igo.Couches");
         }
@@ -73,13 +70,16 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @param {Couche} couche
     */
     GestionCouches.prototype._ajouterCoucheCallback = function(couche) {
+        var that = this;
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            this.carte._carteOL.addLayer(couche._getLayer());
-            couche.definirOrdreAffichage();
-            if (couche.estFond()){
-                couche.desactiver(!Aide.toBoolean(couche.options.active));
-            }
+            setTimeout(function() {
+                that.carte._carteOL.addLayer(couche._getLayer());
+                couche.definirOrdreAffichage();
+                if (couche.estFond()){
+                    couche.desactiver(!Aide.toBoolean(couche.options.active));
+                }
+            }, 1);
             this.declencher({ type: "ajouterCouche", couche: couche }); 
         };
     };
