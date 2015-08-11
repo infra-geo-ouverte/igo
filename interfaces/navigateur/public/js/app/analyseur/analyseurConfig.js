@@ -163,7 +163,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         }
 
         if(!this.igo.nav){
-            this.igo.nav = new Navigateur(new Carte(this.contexteAttributs));
+            this.igo.nav = new Navigateur(new Carte(this.contexteAttributs), Aide.obtenirConfigXML("attributs"));
             this.igo.nav.analyseur = this;
             this.igo.nav.evenements = new Evenement();
             this._analyserCouches(groupeCouches);
