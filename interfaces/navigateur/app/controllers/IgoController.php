@@ -345,7 +345,7 @@ class IgoController extends ControllerBase
                 }
                 $serviceRep["test"] = $test;
             }
-        } else {
+        } else if(!$session->has("info_utilisateur"){
             return false;
         }
        
