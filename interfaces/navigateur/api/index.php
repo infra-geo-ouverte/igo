@@ -607,6 +607,13 @@ try {
         unset($paramsPost['_client_IP']);
         unset($paramsGet['_client_IP']);
             
+        //Session
+        $session = $app->getDI()->getSession();
+        if(!$session->has("info_utilisateur")){
+            http_response_code(401);
+            die("Vous devez être connecté pour utiliser ce service");
+        }
+        
         //Services       
         $igoController = new IgoController();
         $url = $igoController->verifierPermis($service);

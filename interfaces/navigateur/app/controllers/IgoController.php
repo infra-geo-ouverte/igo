@@ -345,6 +345,8 @@ class IgoController extends ControllerBase
                 }
                 $serviceRep["test"] = $test;
             }
+        } else {
+            return false;
         }
        
         //general
