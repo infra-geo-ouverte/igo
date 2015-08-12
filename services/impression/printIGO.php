@@ -317,19 +317,41 @@ if($szUnits == "default"){
 $oMap->scalebar->outlinecolor->setRGB(0,0,0);
 $oMap->scalebar->set("status", MS_EMBED);
 
+/*
+ * Projection
+ */
+
+$oLayerPoints = ms_newLayerObj($oMap);
+$oLayerPoints->set( "name", "Projection");
+$oLayerPoints->set( "type", MS_LAYER_ANNOTATION);
+$oLayerPoints->set( "status", MS_DEFAULT);
+$oLayerPoints->set( "transform", MS_FALSE); 
+
+$oCoordList = ms_newLineObj();
+$oPointShape = ms_newShapeObj(MS_SHAPE_POINT);
+$oCoordList->addXY(265,$nMapHeight-4);
+$oPointShape->add($oCoordList);
+$oPointShape->set("text", "Projection : " . $szSRS);
+$oLayerPoints->addFeature($oPointShape);
+
+$oLabelObj  = new labelObj();
+$oLabelObj->set( "position", MS_UC);
+$oLabelObj->set( "size", 8);
+$oLabelObj->set( "type", MS_TRUETYPE);
+$oLabelObj->set( "font", "arial");
+$oLabelObj->color->setRGB(0,0,0);
+
+$oMapClass = ms_newClassObj($oLayerPoints);
+$oMapClass->addLabel($oLabelObj);
+
 /**
  * Uncomment this to enable debug
  */
 //$oMap->setconfigoption('MS_ERRORFILE','/tmp/ms_tmp/wms2pdf.log');
 
-/**
- * Mode setting
- */
-//if($szMode == "scale"){
-    $oCenter = ms_newPointObj();
-    $oCenter->setXY($nMapWidth/2,$nMapHeight/2);
-    $oMap->zoomscale($szScale, $oCenter, $nMapWidth, $nMapHeight, $oMap->extent);
-//}
+$oCenter = ms_newPointObj();
+$oCenter->setXY($nMapWidth/2,$nMapHeight/2);
+$oMap->zoomscale($szScale, $oCenter, $nMapWidth, $nMapHeight, $oMap->extent);
 
 /**
  * If document produced is not a pdf, we need to set the imageurl path.
@@ -337,11 +359,8 @@ $oMap->scalebar->set("status", MS_EMBED);
 $oMap->web->set('imagepath', $_IMAGEPATH);
 $oMap->web->set('imageurl', $_IMAGEURL);
 
-
 /**
  * Map outputformat
- * Modification par MAT, sélection du format PNG pour permettre la transparence (OPACITY)
- * MOdification pour avoir un meilleur rendu cartographique lors de l'impression (Nicolas G.)
  */
 
 $oMap->outputformat->setOption("QUALITY", "100");
@@ -483,7 +502,7 @@ for($i=0, $len=count($aszLayers); $i<$len; $i++){
  * to the map, positioned on upper-center.  The comments are not added
  */
 if($szOutputFormat != 'pdf'){
-
+        
     //TITRE
     $oLayerPoints = ms_newLayerObj($oMap);
     $oLayerPoints->set( "name", "Title");

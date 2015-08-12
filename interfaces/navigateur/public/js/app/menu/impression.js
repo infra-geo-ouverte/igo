@@ -646,23 +646,6 @@ Impression.prototype.getLayersPrintOption = function(aoLayers, szOption){
     return szOptionValues;
 };
 
-/**
- * Function: getLayersPrintOption
- *
- * Return a given print option value of a layer.  Each layer type and option
- * type is treated separately.
- *
- * Parameters:
- * oLayer   - {<couche>}  couche 
- * szOption - {string}              A possible option of the layer printOptions
- *                                  properties.  See readme at beginning for
- *                                  for more details.
- *
- * Returns:
- * {string}  Layer print option needed for the server-side printing script
- * 
- */
-
 /** 
     * Obtenir les options d'impression pour une couche
     * @method 
