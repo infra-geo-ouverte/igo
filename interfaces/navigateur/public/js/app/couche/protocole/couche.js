@@ -362,8 +362,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     Couche.prototype.afficherChargement = function(){
         var div = this.obtenirElementDivArbo();
         if(div){
-            //div.innerHTML = '<img src="/igo/interfaces/navigateur/public/images/app/large-loading.gif" alt="Chargement" height="16" width="16">' + div.innerHTML;
-            div.innerHTML = div.innerHTML.replace(this.obtenirTitre()+"</span></a>", this.obtenirTitre()+'</span></a><img src="'+ Aide.utiliserBaseUri("images/app/large-loading.gif")+'" alt="Chargement" height="16" width="16">');
+            $(div).find(".x-tree-node-anchor").after('<img class="layerArboLoading" src="'+ Aide.utiliserBaseUri("images/app/large-loading.gif")+'" alt="Chargement" height="16" width="16">');
         }
     };
      /**
@@ -374,7 +373,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     Couche.prototype.masquerChargement = function(){
         var div = this.obtenirElementDivArbo();
         if(div){
-            div.innerHTML = div.innerHTML.replace('<img src="'+ Aide.utiliserBaseUri("images/app/large-loading.gif")+'" alt="Chargement" height="16" width="16">', "");
+            $(div).find(".layerArboLoading").remove();
         }
     };
     
