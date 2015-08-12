@@ -361,8 +361,11 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
      */
     Couche.prototype.afficherChargement = function(){
         var div = this.obtenirElementDivArbo();
-        if(div){
-            $(div).find(".x-tree-node-anchor").after('<img class="layerArboLoading" src="'+ Aide.utiliserBaseUri("images/app/large-loading.gif")+'" alt="Chargement" height="16" width="16">');
+        var $layerArboLoading = $(div).find(".layerArboLoading");
+        if($layerArboLoading.length){
+            $layerArboLoading.show();
+        } else if(div){
+            $(div).find(".x-tree-node-anchor").after('<img class="layerArboLoading" src="'+ Aide.utiliserBaseUri("images/app/loading_14_14.gif")+'" alt="Chargement">');
         }
     };
      /**
@@ -373,7 +376,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     Couche.prototype.masquerChargement = function(){
         var div = this.obtenirElementDivArbo();
         if(div){
-            $(div).find(".layerArboLoading").remove();
+            $(div).find(".layerArboLoading").hide();
         }
     };
     
