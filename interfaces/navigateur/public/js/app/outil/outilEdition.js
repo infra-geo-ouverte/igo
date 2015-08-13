@@ -67,7 +67,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 that.carte.declencher({type: 'changerCoucheEdition', couche: args.couche});
             }, 
             condition: function(args){
-                return (args.couche.obtenirTypeClasse()=='Vecteur' || args.couche.obtenirTypeClasse()=='VecteurCluster' || args.couche.obtenirTypeClasse()==='WFS') && that.carte.gestionCouches.coucheVecteurActive !== args.couche && args.couche.options.editable;
+                return (args.couche.obtenirTypeClasse()=='Vecteur' || args.couche.obtenirTypeClasse()=='VecteurCluster') && that.carte.gestionCouches.coucheVecteurActive !== args.couche && Aide.toBoolean(args.couche.options.editable) !== false;
             }, 
             position: 4
         });
@@ -81,7 +81,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 that.carte.declencher({type: 'changerCoucheEdition', couche: undefined});
             }, 
             condition: function(args){
-                return(args.couche.obtenirTypeClasse()=='Vecteur' || args.couche.obtenirTypeClasse()=='VecteurCluster' || args.couche.obtenirTypeClasse()==='WFS') && that.carte.gestionCouches.coucheVecteurActive === args.couche;
+                return(args.couche.obtenirTypeClasse()=='Vecteur' || args.couche.obtenirTypeClasse()=='VecteurCluster') && that.carte.gestionCouches.coucheVecteurActive === args.couche;
             }, 
             position: 5
         });
