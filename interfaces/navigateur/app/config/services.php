@@ -13,6 +13,13 @@ use Phalcon\Session\Adapter\Files as SessionAdapter;
  */
 $di = new FactoryDefault();
 
+$di->set('chargeurModules', function () {
+    $chargeurModules = new \IGO\Modules\ChargeurModules();
+    $chargeurModules->initialiser();
+
+    return $chargeurModules;
+});
+
 /**
  * The URL component is used to generate all kind of urls in the application
  */
@@ -277,5 +284,37 @@ class igoView extends Phalcon\Mvc\View {
         print($this->config->application->baseUri);
     }
     
+    /**
+     * Ajoute tous les scripts Javascript requis pour chacun des modules.
+     * 
+     * @return void
+     */
+    public function ajouterJavascriptModules() {
+        $chargeurModules = $this->getDi()->get('chargeurModules');
+        $librairies = $chargeurModules->obtenirLibrairiesJavascript();
 
+        foreach($librairies as $url) {
+            print('<script src="' . $url . '" type="text/javascript"></script>' . PHP_EOL);
+        }
+    }
+
+    /**
+     * Ajoute un module RequireJS qui expose des configurations
+     * spécifiées dans le fichier de configuration IGO.
+     * 
+     * @return string Un contenu text définissant le module de configuration.
+     */
+    public function ajouterModuleConfigurations() {
+        $config = $this->getDi()->get('config');
+        
+        echo '
+        <script type="text/javascript">
+            define("Configuration", [], function() {
+                return {
+                    uri: ' . json_encode($config->get('uri')) . '
+                };
+            })
+        </script>
+        ';
+    }
 }

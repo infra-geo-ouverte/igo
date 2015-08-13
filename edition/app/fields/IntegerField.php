@@ -18,8 +18,9 @@ class IntegerField extends Field{
     * @param boolean $editable Determines wether the field is editable or not.
     * @param boolean $mandatory Determines wether the field is mandatory or not.
     */
-    function __construct($name, $title, $editable, $mandatory) {
-        parent::__construct($name, $title, "integer", $editable, $mandatory); 
+    function __construct($name, $title, $editable, $mandatory, $visible = true) {
+        
+        parent::__construct($name, $title, "integer", $editable, $mandatory, $visible); 
     }
 
     function Escape($connection, $value){

@@ -679,5 +679,17 @@ define([], function() {
         $('#divInfobulle').hide();
     };
    
+    Aide.obtenirDebug = function(){
+        return this.debug;
+    };
+    
+    Aide.estDebug = function(){
+        return !!this.debug;
+    };
+    
+    Aide.definirDebug = function(debug){
+        this.debug = debug;
+    };
+    
     return Aide;
 });

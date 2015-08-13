@@ -54,6 +54,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     Recherche.prototype._init = function() {
         var that = this;
         this.defautOptions = $.extend({}, Aide.obtenirConfig('Recherche'), this.defautOptions);
+        if(this.parent.options.cle) {this.defautOptions.cle = this.parent.options.cle;}
         Panneau.prototype._init.call(this);
 
         this.indexDebut = 0;

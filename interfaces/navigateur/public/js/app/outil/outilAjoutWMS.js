@@ -13,7 +13,7 @@ require.ajouterConfig({
  * TODO L'ajout des couches n'est pas fait en mode IGO
  * 
  */
-define(['outil', 'aide'/*, 'css!/igo/interfaces/navigateur/css/sample.css'*/], function(Outil, Aide) {
+define(['outil', 'aide'], function(Outil, Aide) {
 
     function OutilAjoutWMS(options){
         this.options = options || {};

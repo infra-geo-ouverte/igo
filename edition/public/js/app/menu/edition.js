@@ -1,7 +1,7 @@
 require.ajouterConfig({
     paths: {
-        'service': '../igo/edition/public/js/app/service/service',
-        'panneauEdition': '../igo/edition/public/js/app/panneau/panneauEdition'
+        'editionService': '[edition]/public/js/app/service/service',
+        'panneauEdition': '[edition]/public/js/app/panneau/panneauEdition'
     }
 });
 
@@ -13,7 +13,7 @@ require.ajouterConfig({
  * @requires panneau
  */
 
-define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, PanneauEdition) {
+define(['panneau', 'editionService', 'panneauEdition'], function(Panneau, Service, PanneauEdition) {
     /** 
      * Création de l'object Panneau.Edition.
      * Objet à ajouter à un panneauMenu.
@@ -44,19 +44,35 @@ define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, Pann
     Edition.prototype = new Panneau();
     Edition.prototype.constructor = Edition;
 
-  
+    /**
+     * Méthode appellé lors du succès de l'appel ajax pour obtenir les couches
+     * @method
+     * @name Edition#obtenirCoucheSuccess
+     * @Param {object} data Données des couches
+     */  
     Edition.prototype.obtenirCoucheSuccess = function(data){
                
         this.storeEdition.loadData(data);       
     };
-      
-    Edition.prototype.obtenirCoucheErreur = function(data){   
+
+    /**
+     * Méthode appellé lors du succès de l'appel ajax pour obtenir les couches
+     * @method
+     * @name Edition#obtenirCoucheSuccess
+     */      
+    Edition.prototype.obtenirCoucheErreur = function(){   
         
         console.log("Erreur! obtenirCoucheErreur!"); 
                                          
         Igo.Aide.cacherMessageChargement();
-    }; 
+    };
     
+    /**
+     * Méthode appellé lors du succès de l'appel ajax pour décrire la couche
+     * @method
+     * @name Edition#decrireCoucheSucess
+     * @Param {object} data Données description de la couche
+     */      
     Edition.prototype.decrireCoucheSucess = function(data){
         
         this.DescOccuEdition = data;
@@ -66,6 +82,11 @@ define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, Pann
         this.serviceEdition.obtenirOccurences(this.selection, limites, this.obtenirOccurencesSucess.bind(this), this.obtenirOccurencesErreur.bind(this));
     };
     
+    /**
+     * Méthode appellé lors de l'échec de l'appel ajax pour décrire la couche
+     * @method
+     * @name Edition#decrireCoucheErreur
+     */     
      Edition.prototype.decrireCoucheErreur = function(){
         
         console.log("Erreur! decrireCoucheErreur!");    
@@ -73,28 +94,41 @@ define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, Pann
         Igo.Aide.cacherMessageChargement();
     };
     
+    /**
+     * Méthode appellé lors du succès de l'appel ajax pour obtenir les occurrences
+     * @method
+     * @name Edition#obtenirOccurencesSucess
+     * @Param {object} donnees Données des occurences de la couche
+     */       
     Edition.prototype.obtenirOccurencesSucess = function(donnees){
         
         console.log("obtenir Occurences Sucess");
 
         panneauEdition = new PanneauEdition({titre: this.selection, 
-                                                       colonnes: this.DescOccuEdition[0].featureType, 
-                                                       donnees: donnees, 
-                                                       base: undefined,
+                                             colonnes: this.DescOccuEdition[0].featureType, 
+                                             donnees: donnees, 
+                                             base: undefined,
                                              typeGeom: this.typeGeom,
-                                             donnees: donnees});
+                                             fermable: true});
                            
         Igo.Aide.cacherMessageChargement();
 
         //Igo.nav.obtenirPanneauxParType("PanneauAccordeon")[0].listePanneaux[1].ajouterPanneau(panneauEdition);    
         var accordeon = Igo.nav.obtenirPanneauxParType("PanneauAccordeon")[0];       
         accordeon.obtenirPanneauParId("edition-panneau").ajouterPanneau(panneauEdition);
-    };
-    
+    };   
+    /**
+     * Méthode appellé lors de l'échec de l'appel ajax pour obtenir les occurrences
+     * @method
+     * @name Edition#obtenirOccurencesErreur
+     */       
      Edition.prototype.obtenirOccurencesErreur = function(){
           console.log("Erreur! obtenirOccurencesErreur!");   
     };
     
+    /**
+     * Définition du store contenant les informations des couches
+     */
     Edition.prototype.storeEdition = new Ext.data.JsonStore({ 
         fields: [{name:"allowDelete", type:"boolean"},
                  {name:"allowNew", type:"boolean"},
@@ -118,7 +152,13 @@ define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, Pann
             direction: 'DESC'
         }
     });
-           
+    
+    /** 
+     * Obtenir le panneau ExtJS pour le panneau d'édition
+     * @method 
+     * @private
+     * @name Edition#_init
+    */
     Edition.prototype._init = function(){
         
         var that = this;
@@ -219,7 +259,7 @@ define(['panneau', 'service', 'panneauEdition'], function(Panneau, Service, Pann
                             return false;
                         } 
                         
-                        Igo.Aide.afficherMessageChargement()
+                        Igo.Aide.afficherMessageChargement();
                         
                         that.serviceEdition.decrireCouche(that.selection, that.decrireCoucheSucess.bind(that), that.decrireCoucheErreur.bind(that));
                     }

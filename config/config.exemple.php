@@ -52,7 +52,8 @@ return array(
             'fieldsDir' => $baseEditionDir . 'app/fields/',
             'utilDir' => $baseEditionDir . 'app/util/',
             'servicesDir' => $baseEditionDir . 'app/services/',
-            'exemplesServicesDir' => $baseEditionDir . 'app/services/exemple/'
+            'exemplesServicesDir' => $baseEditionDir . 'app/services/exemple/',
+            'customServicesDir' => $baseEditionDir . 'app/services/monService/'
         ),        
         'services'  => array(
             'dir'            => $baseServicesDir,
@@ -65,7 +66,7 @@ return array(
                                                     // sans valider le $PHP_AUTH_PW; Si elle est désactivé, mais que PHP_AUTH_USER et PHP_AUTH_PW sont présent,
                                                     // elle validera ces paramêtre en utilisant la configuration  authenticationModule ci bas.
                                                     // Si elle est désactivé et que PHP_AUTH_USER n'est pas présent, une fenêtre de Connexion affichera.
-            'module' => 'AuthentificationMSP',  // Le nom de la classe responsable de l'authentification. Doit implémenter l'interface IAuthentification
+            'module' => 'AuthentificationTest',  // Le nom de la classe responsable de l'authentification. Doit implémenter l'interface IAuthentification
             'activerSelectionRole' => true,                     // Détermine si un role doit être activé, ou si les permissions sont attribués selon tous les roles disponibles
             'permettreAccesAnonyme' => true,                    // Détermine si l'accès anomyme est permise pour le système
             'nomProfilAnonyme' => 'cn=GRAPP-VIG-MSP_ANONYME,ou=VIG,ou=PROD,ou=APP,ou=SSO,o=MSP' // Détermine le nom du profil à utiliser pour les utilisateurs anonymes.
@@ -81,12 +82,15 @@ return array(
         'mapfileInclude' => array() //tableau de chemin de mapfile devant être incluent dans tous les mapfiles IGO
         //'url' => "/cgi-wms/mapserv.fcgi?"
     ),
+    'modules' => $baseDir . '/modules',
     'uri' => array(
         'navigateur'    => "/igo_navigateur/",
         'librairies'    => "/igo/librairie/",
         'services'      => "/igo/services/",
         'api'           => "/api/",
-        'pilotage'      => "/pilotage/"
+        'pilotage'      => "/pilotage/",
+        'modules'       => '/igo/modules',
+        'edition'      => "/igo/edition/"
     ),
     'navigateur' => array(
         'OutilRapporterBogue'    => array('lien' => 'http://geoegl.msp.gouv.qc.ca/mantis/login_page.php'),
