@@ -165,6 +165,9 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                //Projection de la carte
                                 //data.append("targetSrs", that.projection);
                                 data.append("targetSrs", "EPSG:4326");
+                                
+                                //type de ficheir voulu
+                                data.append("formatOutput", "GEOJSON");
 
                                 //Projection source si défini
                                 var sourceSrs = jQuery('input[id^="sourceSrs"]').val();
