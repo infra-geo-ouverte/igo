@@ -412,7 +412,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         var szDefaultEPSG = this.oEPSGStore.data.items[0].data.value;
         var oEPSGComboBox = new Ext.form.ComboBox({
             id : 'exportEPSGOutput',
-            fieldLabel: 'Système de coordonnée <br>'+this.oEPSGStore.data.items[0].data.exemple,
+            fieldLabel: 'Système de coordonnée <br>Ex. :'+this.oEPSGStore.data.items[0].data.exemple,
             store: this.oEPSGStore,
             valueField: 'value',
             value: szDefaultEPSG,
@@ -426,7 +426,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         });
         
         oEPSGComboBox.on( 'select', function(combo, record, index ) {   
-            combo.label.update("Système de coordonnée <br>"+record.data.exemple);
+            combo.label.update("Système de coordonnée <br>Ex. :"+record.data.exemple);
         });
         
         var separateurDefaut = this.separateurStore.data.items[0].data.value;
