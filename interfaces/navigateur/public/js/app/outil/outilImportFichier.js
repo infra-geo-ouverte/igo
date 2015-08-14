@@ -70,6 +70,14 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
             }
         });
         
+        this.ouiNonStore = new Ext.data.SimpleStore({
+            fields: ['value', 'text'],
+            data : [
+                    ['Oui', 'Oui'],
+                    ['Non', 'Non']           
+                    ]
+        });
+        
     };
     
     /**
@@ -116,19 +124,74 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             else{
                                 this.ownerCt.form.findField("sourceSrs").hide();
                             }
+                            
+                            if(extension.toUpperCase() === 'CSV'){
+                                this.ownerCt.form.findField('geocodageLotId').show();
+                            }
+                            else{
+                                this.ownerCt.form.findField('geocodageLotId').hide();
+                            }
                         }
                     }
                 },
                 {
                     xtype:'textfield',
-                    fieldLabel: 'Projection source du fichier : EPSG',
+                    fieldLabel: 'Projection du fichier : EPSG',
                     id: 'sourceSrs',
                     allowBlank: true,
                     value: '',
                     labelStyle: 'width:195px',
                     style: {width:'75px'},
                     hidden: true
-                }],
+                },
+               {
+                    xtype: 'combo',
+                    id : 'geocodageLotId',
+                    fieldLabel: 'Votre CSV contient 2 colonnes nommées X et Y <br> ou latitude et longitude ?',
+                    store: this.ouiNonStore,
+                    valueField: 'value',
+                    value: 'Oui',
+                    displayField:'text',
+                    editable: false,
+                    mode: 'local',
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    lazyInit: false,
+                    listWidth: 75,
+                    hidden : true,
+                    listeners:{
+                       select : function(combo, record, index){
+                           if(record.data.value === 'Non'){
+                               this.ownerCt.form.findField("X_POSSIBLE_NAMES").show();
+                               this.ownerCt.form.findField("Y_POSSIBLE_NAMES").show();
+                           }else{
+                               this.ownerCt.form.findField("X_POSSIBLE_NAMES").hide();
+                               this.ownerCt.form.findField("Y_POSSIBLE_NAMES").hide();
+                           }
+                       }
+                   }
+                },
+               {
+                    xtype:'textfield',
+                    fieldLabel: 'nom de la colonne des X(longitude)',
+                    id: 'X_POSSIBLE_NAMES',
+                    allowBlank: true,
+                    value: '',
+                    labelStyle: 'width:195px',
+                    style: {width:'75px'},
+                    hidden: true
+                },
+                {
+                    xtype:'textfield',
+                    fieldLabel: 'nom de la colonne des Y(latitude)',
+                    id: 'Y_POSSIBLE_NAMES',
+                    allowBlank: true,
+                    value: '',
+                    labelStyle: 'width:195px',
+                    style: {width:'75px'},
+                    hidden: true
+                }
+                ],
                 buttons: [{
                     text: 'Importer',
                     handler: function(){
@@ -168,7 +231,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                 
                                 //type de ficheir voulu
                                 data.append("formatOutput", "GEOJSON");
-
+                                
                                 //Projection source si défini
                                 var sourceSrs = jQuery('input[id^="sourceSrs"]').val();
                                 if(sourceSrs !== ""){
@@ -190,7 +253,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                             Aide.afficherMessage("Erreur", "Fichier invalide, les formats permis sont: BNA, CSV, DGN, DXF, ESRI Shapefile, GeoConcept, GeoJSON, GeoRSS, GML, GMT, GPX, Interlis 1, KML, KMZ, MapInfo, S-57, TIGER, VRT");
                                         }
                                         else{                                    
-                                            that.importerJson(data);
+                                            that.importerJson(data, filename);
                                         }
                                     }
                                 });   
@@ -208,8 +271,9 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
 
         var myWin = new Ext.Window({
             id     : 'myWin',
-            height : 200,
-            width  : 400,
+            title : 'Importation de fichier',
+            autoHeight : true,
+            autoWidth  : true,
             items  : [myuploadform],
             modal  : true
         });
@@ -228,27 +292,30 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         //Boucle de nettoyage des anomalies des géométries
         //TODO si d'autres ajouts, mettre dans une fonction
         $.each(geoJson.features, function(index, feat) {
-            //Si un point, éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
-            if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
-                feat.geometry.coordinates.pop();
-            }
             
-            //Illiminé les doublons de coordonnées pour chaque géométrie de type ligne
-            if(feat.geometry.type === "Line" || feat.geometry.type === "LineString"){
-                var coordPrec = "";
-                var coordIndexToPop = new Array();
-                $.each(feat.geometry.coordinates, function(ind, coord){                   
-                    if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
-                        coordIndexToPop.push(ind);
-                    }                 
-                    coordPrec = coord;    
-                });
-                if (coordIndexToPop.length > 0) {
-                    $.each(coordIndexToPop, function(ind, indToPop){
-                        //Car la position diminue de 1 à chaque fois qu'on retire un élément
-                        var posToPop = indToPop-(ind*1);
-                        feat.geometry.coordinates.splice(posToPop, 1);
-                    });         
+            if(feat.geometry){
+                //Si un point, éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
+                if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
+                    feat.geometry.coordinates.pop();
+                }
+
+                //Illiminé les doublons de coordonnées pour chaque géométrie de type ligne
+                if(feat.geometry.type === "Line" || feat.geometry.type === "LineString"){
+                    var coordPrec = "";
+                    var coordIndexToPop = new Array();
+                    $.each(feat.geometry.coordinates, function(ind, coord){                   
+                        if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
+                            coordIndexToPop.push(ind);
+                        }                 
+                        coordPrec = coord;    
+                    });
+                    if (coordIndexToPop.length > 0) {
+                        $.each(coordIndexToPop, function(ind, indToPop){
+                            //Car la position diminue de 1 à chaque fois qu'on retire un élément
+                            var posToPop = indToPop-(ind*1);
+                            feat.geometry.coordinates.splice(posToPop, 1);
+                        });         
+                    }
                 }
             }
         });
@@ -267,7 +334,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         var coucheImportFichier = gestionCouche.obtenirCoucheParId(this.nomCouche + filename);
         
         if(coucheImportFichier === undefined){
-            coucheImportFichier = new Vecteur({titre: this.nomCouche + filename, id:this.nomCouche + filename, active:true, visible:true, suppressionPermise:true});
+            coucheImportFichier = new Vecteur({titre: filename, id:this.nomCouche + filename, active:true, visible:true, suppressionPermise:true});
             gestionCouche.ajouterCouche(coucheImportFichier);
         }
         
