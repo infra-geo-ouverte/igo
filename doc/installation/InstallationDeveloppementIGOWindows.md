@@ -86,8 +86,8 @@ apache.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Alias /api "C:/wamp/www/igo/interfaces/navigateur/api"
-	Alias /librairie "C:/wamp/www/igo/librairie"    
-	Alias /pilotage "C:/wamp/www/igo/pilotage"
+    Alias /librairie "C:/wamp/www/igo/librairie"    
+    Alias /pilotage "C:/wamp/www/igo/pilotage"
     Alias /navigateur "C:/wamp/www/igo/interfaces/navigateur"
      
      <Directory "C:/wamp/www/igo/interfaces/navigateur/api">
@@ -97,25 +97,25 @@ apache.
           RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
         </IfModule>
      </Directory>
-	 
+     
   
     <Directory C:/wamp/www/igo/interfaces/navigateur/>
     <IfModule mod_rewrite.c>
             RewriteEngine on
             RewriteRule  ^$ public/    [L]
             RewriteRule  (.*) public/$1 [L]
-	</IfModule>
-	</Directory>
+    </IfModule>
+    </Directory>
 
-	<Directory C:/wamp/www/igo/interfaces/navigateur/public/>
-		AddDefaultCharset UTF-8
-		<IfModule mod_rewrite.c>
-			RewriteEngine On
-			RewriteCond %{REQUEST_FILENAME} !-d
-			RewriteCond %{REQUEST_FILENAME} !-f
-			RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
-		</IfModule>
-	</Directory>
+    <Directory C:/wamp/www/igo/interfaces/navigateur/public/>
+        AddDefaultCharset UTF-8
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
+        </IfModule>
+    </Directory>
     
    <Directory C:/wamp/www/igo/pilotage/>
     <IfModule mod_rewrite.c>
@@ -124,17 +124,17 @@ apache.
             RewriteRule  (.*) public/$1 [L]
     </IfModule>
     php_value max_input_vars 2000
-	</Directory>
+    </Directory>
 
-	<Directory C:/wamp/www/igo/pilotage/public/>
-		AddDefaultCharset UTF-8
-		<IfModule mod_rewrite.c>
-			RewriteEngine On
-			RewriteCond %{REQUEST_FILENAME} !-d
-			RewriteCond %{REQUEST_FILENAME} !-f
-			RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
-		</IfModule>
-	</Directory>
+    <Directory C:/wamp/www/igo/pilotage/public/>
+        AddDefaultCharset UTF-8
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteRule ^(.*)$ index.php?_url=/$1 [QSA,L]
+        </IfModule>
+    </Directory>
      
  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -353,12 +353,9 @@ git clone https://github.com/infra-geo-ouverte/igo.git
 
 ![](<MarkdownImage/image48.png>)
 
-Faire la ligne commande suivante et vérifier que c’est le code de la branche de
-« dev » et non « master » entre parenthèses :
+ 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cd igo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
 
 ![](<MarkdownImage/image49.png>)
 
@@ -384,6 +381,15 @@ git clone https://github.com/infra-geo-ouverte/igo-lib.git librairie
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ![](<MarkdownImage/image51.png>)
+
+Faire la ligne commande suivante et vérifier que c’est le code de la branche de
+« dev » et non « master » entre parenthèses :
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cd librairie
+git checkout dev
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Configuration du projet navigateur
 ----------------------------------

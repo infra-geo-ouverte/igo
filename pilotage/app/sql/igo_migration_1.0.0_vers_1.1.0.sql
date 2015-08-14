@@ -1,9 +1,11 @@
 -- Pour les vues matérialisées
-DROP VIEW igo_vue_contexte_couche_navigateur;
-DROP VIEW igo_vue_contexte_groupes_recursif;
-DROP VIEW igo_vue_groupes_recursif;
+DROP VIEW IF EXISTS igo_vue_contexte_couche_navigateur;
+DROP MATERIALIZED VIEW IF EXISTS igo_vue_contexte_groupes_recursif_materialized;
+DROP VIEW IF EXISTS igo_vue_contexte_groupes_recursif;
+DROP MATERIALIZED VIEW IF EXISTS igo_vue_groupes_recursif_materialized;
+DROP VIEW IF EXISTS igo_vue_groupes_recursif;
 
-CREATE MATERIALIZED VIEW igo_vue_contexte_groupes_recursif AS 
+CREATE VIEW igo_vue_contexte_groupes_recursif AS 
  WITH RECURSIVE s(id, nom, contexte_id, groupe_id, grp) AS (
          SELECT g.id,
             g.nom,
@@ -45,7 +47,10 @@ CREATE MATERIALIZED VIEW igo_vue_contexte_groupes_recursif AS
    FROM s
   WHERE NOT (concat(s.contexte_id, s.grp) IN ( SELECT concat(s_1.contexte_id, substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1)) AS substr
            FROM s s_1)) AND s.contexte_id IS NOT NULL AND NULLIF(s.nom_complet::text, ''::text) IS NOT NULL
-  ORDER BY s.grp
+  ORDER BY s.grp;
+
+CREATE MATERIALIZED VIEW igo_vue_contexte_groupes_recursif_materialized AS 
+    SELECT * FROM igo_vue_contexte_groupes_recursif
 WITH DATA;
 
 CREATE OR REPLACE VIEW igo_vue_contexte_couche_navigateur AS 
@@ -135,7 +140,7 @@ CREATE OR REPLACE VIEW igo_vue_contexte_couche_navigateur AS
   GROUP BY a.couche_id, a.groupe_id, a.contexte_id, a.arbre_id, a.mf_layer_name_igo
   ORDER BY last(a.layer_a_order);
 
-CREATE MATERIALIZED VIEW igo_vue_groupes_recursif AS 
+CREATE VIEW igo_vue_groupes_recursif AS 
  WITH RECURSIVE s(id, nom, groupe_id, grp) AS (
          SELECT g.id,
             g.nom,
@@ -169,7 +174,10 @@ CREATE MATERIALIZED VIEW igo_vue_groupes_recursif AS
    FROM s
   WHERE NOT (s.grp IN ( SELECT substr(s_1.grp, strpos(concat(s_1.grp, '_'), '_'::text) + 1) AS substr
            FROM s s_1))
-  ORDER BY s.grp
+  ORDER BY s.grp;
+
+CREATE MATERIALIZED VIEW igo_vue_groupes_recursif_materialized AS 
+    SELECT * FROM igo_vue_groupes_recursif
 WITH DATA;
 
 ALTER SEQUENCE igo.igo_groupe_groupe_id_seq OWNED BY igo.igo_groupe_groupe.id;

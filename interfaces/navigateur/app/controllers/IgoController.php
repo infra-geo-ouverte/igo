@@ -294,5 +294,112 @@ class IgoController extends ControllerBase
         else{
             $this->view->setVar("callbackInitIGO", 'null');
         }
-    }    
+    }
+    
+    /*
+     * vérifie si URL ou nom du service est permis selon config.php.
+     * retour false ou l'url permis
+     */
+    public function verifierPermis($szUrl){
+        
+        //vérifier URL 
+        //Services
+        $url = "";
+        $serviceRep = array(
+            "url"  => "",
+            "test" => false
+        );
+        $session = $this->getDI()->getSession();
+        
+        if($session->has("info_utilisateur") && isset($this->config['profilsDroit'])) {
+            //utilisateur
+            if(($session->info_utilisateur->identifiant) && isset($this->config->profilsDroit[$session->info_utilisateur->identifiant])){
+                $serviceExtUser = $this->config->profilsDroit[$session->info_utilisateur->identifiant];
+                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser);
+            }
+               
+            //profils
+            if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
+           
+                $test = false;
+                foreach ($session->info_utilisateur->profils as $key => $value) {
+                    if(is_array($value)){
+                        $idValue = $value["id"];
+                        $profil = $value["libelle"];
+                    } else {
+                        $idValue = $value->id;
+                        $profil = $value->libelle;
+                    }
+                    if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
+                        if(isset($profil) && isset($config->profilsDroit[$profil])){
+                            $serviceExtProfil = $this->config->profilsDroit[$profil];
+                            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil);
+                            if($serviceRep["test"] !== false){                        
+                                $test = true;
+                                if($serviceRep["url"] !== false){
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                $serviceRep["test"] = $test;
+            }
+        } else if(!$session->has("info_utilisateur")){
+            return false;
+        }
+       
+        //general
+        if(($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
+            $servicesExternes = $this->config['servicesExternes'];
+            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes);
+        }
+        
+        if(($serviceRep["url"] === false)||($serviceRep["test"]===false)){
+            return false;
+        }
+
+        if ($serviceRep["test"] === true && $serviceRep["url"] === ""){
+            $szUrl = $szUrl;
+        } else {
+            $szUrl = $serviceRep["url"];
+        }
+        
+        return $szUrl;
+    }
+    
+    private function verifieDomaineRegexFunc($service, $arrayRegex) {
+        $trustedDom = array();
+        foreach ($arrayRegex as $regex){
+            if($regex[0] === '#' || $regex[0] === '/') {
+                $trustedDom[] = $regex;
+            } else if($regex[0] === "*"){
+                $trustedDom[] = "#(.)+#";
+            } else {
+                $trustedDom[] = '#'.preg_quote($regex, '#').'#';
+            }
+        }
+        $test = preg_replace($trustedDom, 'ok', $service);
+
+        return $test==="ok";
+    }
+    
+    private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes){
+        if(isset($arrayServicesExternes[$service])){
+            $serviceRep["url"] = $arrayServicesExternes[$service];
+            $serviceRep["test"] = true;
+        } else {
+            $serviceArray = explode("?", $service);
+            $serviceSplit = $serviceArray[0];   
+            if(isset($arrayServicesExternes['regexInterdits'])){
+                $serviceRep["test"] = self::verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regexInterdits']);
+            }
+            if($serviceRep["test"] === true){
+                $serviceRep["url"] = false;
+            } else if(isset($arrayServicesExternes['regex']) && (strpos($serviceSplit,'/') !== false)) {
+                $serviceRep["test"] = self::verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regex']);
+            }
+        } 
+        return $serviceRep;
+    }
 }
