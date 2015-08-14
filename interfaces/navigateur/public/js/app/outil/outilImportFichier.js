@@ -102,6 +102,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                 defaults: {
                     msgTarget: 'side'               
                 },
+                labelWidth: 175,
                 items:[
                 {
                     anchor: '95%',
@@ -126,10 +127,12 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             }
                             
                             if(extension.toUpperCase() === 'CSV'){
-                                this.ownerCt.form.findField('geocodageLotId').show();
+                                this.ownerCt.form.findField('csvContientY').show();
+                                this.ownerCt.form.findField('csvContientX').show();
                             }
                             else{
-                                this.ownerCt.form.findField('geocodageLotId').hide();
+                                this.ownerCt.form.findField('csvContientY').hide();
+                                this.ownerCt.form.findField('csvContientX').hide();
                             }
                         }
                     }
@@ -146,8 +149,9 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                 },
                {
                     xtype: 'combo',
-                    id : 'geocodageLotId',
-                    fieldLabel: 'Votre CSV contient 2 colonnes nommées X et Y <br> ou latitude et longitude ?',
+                    id : 'csvContientX',
+                    fieldLabel: 'Votre CSV contient 1 colonne nommée "X" ou \n\
+                                    "lon" ou "lng" ou "longitude" ?',
                     store: this.ouiNonStore,
                     valueField: 'value',
                     value: 'Oui',
@@ -163,15 +167,13 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                        select : function(combo, record, index){
                            if(record.data.value === 'Non'){
                                this.ownerCt.form.findField("X_POSSIBLE_NAMES").show();
-                               this.ownerCt.form.findField("Y_POSSIBLE_NAMES").show();
                            }else{
                                this.ownerCt.form.findField("X_POSSIBLE_NAMES").hide();
-                               this.ownerCt.form.findField("Y_POSSIBLE_NAMES").hide();
                            }
                        }
                    }
                 },
-               {
+                {
                     xtype:'textfield',
                     fieldLabel: 'nom de la colonne des X(longitude)',
                     id: 'X_POSSIBLE_NAMES',
@@ -180,6 +182,32 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     labelStyle: 'width:195px',
                     style: {width:'75px'},
                     hidden: true
+                },
+                {
+                    xtype: 'combo',
+                    id : 'csvContientY',
+                    fieldLabel: 'Votre CSV contient 1 colonne nommée "Y" ou "lat" <br> \n\
+                                   ou "latitude" ?',
+                    store: this.ouiNonStore,
+                    valueField: 'value',
+                    value: 'Oui',
+                    displayField:'text',
+                    editable: false,
+                    mode: 'local',
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    lazyInit: false,
+                    listWidth: 75,
+                    hidden : true,
+                    listeners:{
+                       select : function(combo, record, index){
+                           if(record.data.value === 'Non'){
+                               this.ownerCt.form.findField("Y_POSSIBLE_NAMES").show();
+                           }else{
+                               this.ownerCt.form.findField("Y_POSSIBLE_NAMES").hide();
+                           }
+                       }
+                   }
                 },
                 {
                     xtype:'textfield',
@@ -236,6 +264,16 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                 var sourceSrs = jQuery('input[id^="sourceSrs"]').val();
                                 if(sourceSrs !== ""){
                                     data.append("sourceSrs", "EPSG:"+sourceSrs);
+                                }
+                                
+                                var xPossibleNames = jQuery('input[id^="X_POSSIBLE_NAMES"]').val();
+                                if(xPossibleNames !== ""){
+                                    data.append("X_POSSIBLE_NAMES", xPossibleNames);
+                                }
+                                
+                                var yPossibleNames = jQuery('input[id^="Y_POSSIBLE_NAMES"]').val();
+                                if(yPossibleNames !== ""){
+                                    data.append("Y_POSSIBLE_NAMES", yPossibleNames);
                                 }
 
                                 jQuery.ajax({
@@ -334,7 +372,13 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         var coucheImportFichier = gestionCouche.obtenirCoucheParId(this.nomCouche + filename);
         
         if(coucheImportFichier === undefined){
-            coucheImportFichier = new Vecteur({titre: filename, id:this.nomCouche + filename, active:true, visible:true, suppressionPermise:true});
+            coucheImportFichier = new Vecteur({titre: filename, 
+                                                id:this.nomCouche + filename, 
+                                                active:true, 
+                                                visible:true, 
+                                                suppressionPermise:true,
+                                                editable: true,
+                                                geometrieNullePermise: true});
             gestionCouche.ajouterCouche(coucheImportFichier);
         }
         
