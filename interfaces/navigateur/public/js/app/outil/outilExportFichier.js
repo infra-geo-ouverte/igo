@@ -51,11 +51,40 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         });
         
         this.oEPSGStore = new Ext.data.SimpleStore({
+            fields: ['value', 'text', 'exemple'],
+            data : [
+                ['EPSG:32198', 'EPSG:32198', '"-119820.522383, 594656.307879" <br> en mètres'],
+                ['EPSG:3799', 'EPSG:3799 (NAD83 CSRS MTQ/Lambert)', '"788540.5947, 593873.0983" <br> en mètres'],
+                ['EPSG:3799', 'EPSG:3797 (NAD27 MTQ/Lambert)', '"788509.4700, 593871.1210" <br> en mètres'],
+                ['EPSG:4269', 'EPSG:4269 (NAD83)', '"-70.157745, 49.342105" <br> en degrés décimaux'],
+                ['EPSG:3857', 'EPSG:3857 (Google)(900913)', '"-7809924.526660, 6333110.209241" <br> en mètres'],
+                ['EPSG:4326', 'EPSG:4326 (WGS84)', '"-70.157745, 49.342105" <br> en degrés décimaux'],
+                ['EPSG:26917', 'EPSG:26917 UTM zone 17', '"1286853.2279, 5522280.1159" <br> en mètres'],
+                ['EPSG:26918', 'EPSG:26918 UTM zone 18', '"851679.4746, 5476773.2620" <br> en mètres'],
+                ['EPSG:26919', 'EPSG:26919 UTM zone 19', '"415901.8955, 5466131.7953" <br> en mètres'],
+                ['EPSG:26920', 'EPSG:26920 UTM zone 20', '"-19734.6510, 5490174.6287" <br> en mètres'],
+                ['EPSG:26921', 'EPSG:26921 UTM zone 21', '"-454452.5742, 5549309.8653" <br> en mètres'],
+                ['EPSG:32181', 'EPSG:32181 MTM Zone 1', '"-938855.7578, 5610376.9310" <br> en mètres'],
+                ['EPSG:32182', 'EPSG:32182 MTM Zone 2', '"-722260.0446, 5564308.0180" <br> en mètres'],
+                ['EPSG:32183', 'EPSG:32183 MTM Zone 3', '"-541361.6573, 5532851.8772" <br> en mètres'],
+                ['EPSG:32184', 'EPSG:32184 MTM Zone 4', '"-323922.4119, 5503290.8654" <br> en mètres'],
+                ['EPSG:32185', 'EPSG:32185 MTM Zone 5', '"-106202.4196. 5482544.9072" <br> en mètres'],
+                ['EPSG:32186', 'EPSG:32186 MTM Zone 6', '"111693.0862, 5470526.2767" <br> en mètres'],
+                ['EPSG:32187', 'EPSG:32187 MTM Zone 7', '"329668.8844, 5467183.8387" <br> en mètres'],
+                ['EPSG:32188', 'EPSG:32188 MTM Zone 8', '"547634.4199, 5472503.3319" <br> en mètres'],
+                ['EPSG:32189', 'EPSG:32189 MTM Zone 9', '"765498.5383, 5486507.4448" <br> en mètres'],
+                ['EPSG:32190', 'EPSG:32190 MTM Zone 10', '"983164.2090, 5509255.6947" <br> en mètres']
+            ]
+        });
+        
+         this.separateurStore = new Ext.data.SimpleStore({
             fields: ['value', 'text'],
-            data : [['32198', 'EPSG:32198'],
-                    ['3857', 'EPSG:3857'],
-                    ['4326', 'EPSG:4326']                 
-                    ]
+            data : [
+                ['COMMA', ','],
+                ['SEMICOLON', ';'],
+                ['TAB', '*tabulation*'],
+                ['SPACE', '*espace*']                
+            ]
         });
         
        
@@ -104,11 +133,12 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         var myuploadform= new Ext.FormPanel({
                 id: "idFormExport",
                 fileUpload: true,
-                width: 400,
+                width: 430,
                 autoHeight: true,
                 frame: true,
                 bodyStyle: 'padding: 10px 10px 10px 10px;',
                 standardSubmit:false,
+                labelWidth: 200,
                 defaults: {
                     msgTarget: 'side'               
                 },
@@ -131,7 +161,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             id     : 'myWin',
             title  : "Exportation de occurences sélectionnées",
             autoHeight : true,
-            width  : 400,
+            autoWidth: true,
             items  : [myuploadform],
             modal  : true
         });
@@ -235,6 +265,11 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             if(outputName){
                 inputs+='<input id="name" name="outputName" value="' + outputName +  '" class="form-control">';
             }
+            
+            if(this.obtenirValeursRecherche()['exportSeparateurId'])
+                inputs+='<textarea id="separateurOutput" class="form-control" type="hidden" name="separateurOutput">'+ this.obtenirValeursRecherche()['exportSeparateurId'] +'</textarea>';
+            
+            
             
             var form = '<form name=' + outputName + ' action="'+ url +'" method="post">'+inputs+'</form>';
             content.write(form);
@@ -345,14 +380,25 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             triggerAction: 'all',
             lazyRender: true,
             lazyInit: false,
-            listWidth: 75
+            listWidth: 125
         });
         
         oOutputFormatComboBox.on( 'select', function(combo, record, index ) {   
-            if(record.data.value === "GEORSS" || record.data.value === "KML"){
-                this.ownerCt.getComponent("exportEPSGOutput").setDisabled(false);
+            
+            if(record.data.value === "GEORSS" || record.data.value === "KML" || 
+                record.data.value === "GPX" ){
+                this.ownerCt.getComponent("exportEPSGOutput").setDisabled(true);
                 this.ownerCt.getComponent("exportEPSGOutput").setValue("EPSG:4326");        
+            }else{
+                this.ownerCt.getComponent("exportEPSGOutput").setDisabled(false);
             }
+                
+            if(record.data.value === "CSV"){
+                this.ownerCt.getComponent("exportSeparateurId").setVisible(true);
+            }else{
+                this.ownerCt.getComponent("exportSeparateurId").setVisible(false);
+            }
+            
         });
         
         var oNomFichier = {
@@ -366,7 +412,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         var szDefaultEPSG = this.oEPSGStore.data.items[0].data.value;
         var oEPSGComboBox = new Ext.form.ComboBox({
             id : 'exportEPSGOutput',
-            fieldLabel: 'EPSG Output',
+            fieldLabel: 'Système de coordonnée <br>'+this.oEPSGStore.data.items[0].data.exemple,
             store: this.oEPSGStore,
             valueField: 'value',
             value: szDefaultEPSG,
@@ -376,19 +422,39 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             triggerAction: 'all',
             lazyRender: true,
             lazyInit: false,
-            listWidth: 75
+            listWidth: 175
+        });
+        
+        oEPSGComboBox.on( 'select', function(combo, record, index ) {   
+            combo.label.update("Système de coordonnée <br>"+record.data.exemple);
+        });
+        
+        var separateurDefaut = this.separateurStore.data.items[0].data.value;
+        var separateurComboBox = new Ext.form.ComboBox({
+            id : 'exportSeparateurId',
+            fieldLabel: 'Séparateur',
+            store: this.separateurStore,
+            valueField: 'value',
+            value: separateurDefaut,
+            displayField:'text',
+            editable: false,
+            mode: 'local',
+            triggerAction: 'all',
+            lazyRender: true,
+            lazyInit: false,
+            listWidth: 75,
+            hidden : true
         });
         
         var oSkipFailure =
-             {
-                xtype: 'checkbox',
-                id : 'skipfailureCheckBox',
-                fieldLabel : ' Ne pas prendre en compte les erreurs.'
-            } ;         
-        
-        
+        {
+           xtype: 'checkbox',
+           id : 'skipfailureCheckBox',
+           fieldLabel : ' Ne pas prendre en compte les erreurs.'
+       } ;     
+             
             
-         return [oOutputFormatComboBox, oEPSGComboBox];
+         return [oOutputFormatComboBox, oEPSGComboBox, separateurComboBox];
     };
     
     /** 
@@ -399,7 +465,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
      */
     OutilExportFichier.prototype.obtenirValeursRecherche = function() {
         //Retourner la valeur des éléments contenus dans le formulaire
-        return  this.myWin.getComponent("idFormExport").getForm().getValues();
+        return  this.myWin.getComponent("idFormExport").getForm().getFieldValues();
     };
   
     return OutilExportFichier;
