@@ -1,54 +1,18 @@
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors','On');
+
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
+//header("content-type: application/json; charset=UTF-8");
 
 require_once('../config.php');
 require_once('../fonctions.php');
-//require_once(dirname(__file__).'/../../interfaces/navigateur/app/library/Utils.php');
 //load config IGO
 $configIgo = include __DIR__ . "/../../interfaces/navigateur/app/config/config.php";
 include __DIR__ . "/../../interfaces/navigateur/app/config/loader.php";
 include __DIR__ . "/../../interfaces/navigateur/app/config/services.php";
 
-//include $configIgo->application->services->dir."fonctions.php";
-
-//$app = new \Phalcon\Mvc\Micro();
-//$app->setDI($di);
-
-
-/**
- * impression.php
- *
- * This script creates a temporary mapfile, add WMS layers to it, draw it and
- * return the result as a document (pdf or image).
- *
- * PHP versions 5
- *
- * @author    : Alexandre Dubé
- * @contact   : adube@mapgears.com
- *
- * @requires  : phpmapscript
- *
- * @modification : 21juillet09 - Changer le fonction qui initialise le fichier fonset
- * @modification : 21 décembre 2011 - F.Morin (Thales)
- * 				- Changé ezpdf pour libpdf-lite (support des png qui donne une meilleure qualitée que jpeg).
- * 				- Modifié l'interface du service.
- * 					- Enlevé les paramétre:
- * 						- printMode[echelle courante, vue courante]; maintenant toujours échelle courante.
- * 						- printPaper, le service n'a pas a connaitre les formats de papier. lettre/legal etc.
- * 						- printOrientation, le service n'a pas a connaitre l'orientation du papier.
- * 						- printResolution, toujours 72dpi.
- * 					- Ajouté les paramétres:
- * 						- width;  pour spécifier la largeur de l'image/de la feuille pdf a retourner (en pouces).
- * 						- height; pour spécifier la hauteur de l'image/de la feuille pdf a retourner (en pouces).
- * @modification : 5 janvier 2012. Ajout de l'affichage de légende lors de l'impression.
- * 				- Ajouter option utilisateur pour afficher la map.
- * 					- Parametre: 'showLegendGraphics' doit etre true ou false.
- */
 
 // La fonction dl a été supprimée avec php 5.3
 if (!extension_loaded("MapScript")){
@@ -59,22 +23,15 @@ if(!extension_loaded("PDFLib")){
 	die("pdflib extension is not loaded!");
 }
 
-
 /******************/
 /*     GLOBAL     */
 /******************/
 /**
  * IMAGEPATH and IMAGE URL must be set manually according to current
  * configuration
- 11 avril 2011: On crée l'image dans partage a cause du load balancing de prod
  L'alias /ms_tmp a été modifié dans config Apache
  */
-if (PHP_OS == "WINNT" || PHP_OS == "WIN32"){
-  $_IMAGEPATH = "/ms4w/tmp/ms_tmp";
-}
-else{
-  $_IMAGEPATH = $GLOBALS['apps_config']['impression']['imagepath'];
-}
+$_IMAGEPATH = $GLOBALS['apps_config']['impression']['imagepath'];
 
 $_IMAGEURL = $GLOBALS['apps_config']['impression']['imageurl'];
 
@@ -140,13 +97,17 @@ $_SEPARATOR = "#";
  */
 $_MSVERSION = ms_GetVersionInt();
 
-//var_dump($_GET);
+$dpi = 72;
+$heightComments = 35;
+$heightMaxLogo = 50;
+//array contenant les possibles erreurs des URLs fournient.
+//[message=>'', niveau=>]
+$erreurs = array();
 
 /*************************/
 /* PARAMETERS VALIDATION */
 /*************************/
-validateParams();
-
+validateParams($erreurs);
 
 /**********************/
 /* PARAMETERS PARSING */
@@ -154,7 +115,51 @@ validateParams();
 /**
  * Each parameter is assigned to a variable, ready to be used.
  */
-$aszExtents = explode(",", $_GET['BBOX']);
+
+$aszExtents = explode(",", filter_input(INPUT_GET, 'BBOX',FILTER_SANITIZE_STRING));
+$szComments = utf8_decode(filter_input(INPUT_GET, 'printComments',FILTER_SANITIZE_STRING));// may contain "\n"filter_input(INPUT_GET, 'printUnits',FILTER_SANITIZE_STRING);
+$height = filter_input(INPUT_GET, 'height',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION) * $dpi;
+$width = filter_input(INPUT_GET, 'width',FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)* $dpi;
+$szSRS = filter_input(INPUT_GET, 'SRS',FILTER_SANITIZE_STRING);
+$szScale = filter_input(INPUT_GET, 'SCALE',FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+$szTitle = utf8_decode(filter_input(INPUT_GET, 'printTitle',FILTER_SANITIZE_STRING));
+$szUnits = filter_input(INPUT_GET, 'printUnits',FILTER_SANITIZE_STRING);
+$szOutputFormat = filter_input(INPUT_GET, 'printOutputFormat',FILTER_SANITIZE_STRING);
+$szForce = filter_input(INPUT_GET, 'force',FILTER_VALIDATE_BOOLEAN);
+$aszOpacity = explode($_SEPARATOR, filter_input(INPUT_GET, 'OPACITY',FILTER_SANITIZE_STRING));
+$aszLayers = explode($_SEPARATOR, filter_input(INPUT_GET, 'LAYERS',FILTER_SANITIZE_STRING));
+$aszURLs = explode($_SEPARATOR, filter_input(INPUT_GET, 'URLS',FILTER_SANITIZE_URL));
+$aszFormats = explode($_SEPARATOR, filter_input(INPUT_GET, 'FORMAT',FILTER_SANITIZE_STRING));
+$aszTimes = explode($_SEPARATOR, filter_input(INPUT_GET, 'TIME',FILTER_SANITIZE_STRING));
+$kml = filter_input(INPUT_POST, 'vecteurs',FILTER_SANITIZE_STRING);
+$auteurNom = filter_input(INPUT_GET,'printNomAuteur', FILTER_SANITIZE_STRING);
+$aszTitles = explode($_SEPARATOR, filter_input(INPUT_GET, 'TITLE',FILTER_SANITIZE_STRING));
+
+$hasbaselayer = filter_input(INPUT_GET, 'HASBASELAYER',FILTER_VALIDATE_BOOLEAN);
+if($hasbaselayer === null){
+    $hasbaselayer = false;
+}
+
+$printDescription = filter_input(INPUT_GET, 'printDescription',FILTER_VALIDATE_BOOLEAN);
+if($printDescription === null){
+    $printDescription = false;
+}
+
+$printLogo = filter_input(INPUT_GET, 'printLogo',FILTER_VALIDATE_BOOLEAN);
+if($printLogo === null){
+    $printLogo = false;
+}
+
+$showLegend = filter_input(INPUT_GET, 'showLegendGraphics',FILTER_VALIDATE_BOOLEAN);
+if($showLegend === null){
+    $showLegend = false;
+}
+
+$aszPositionLegende = explode($_SEPARATOR, filter_input(INPUT_GET, 'printLegendeLocation',FILTER_SANITIZE_STRING));
+if($aszPositionLegende === null){
+    $aszPositionLegende = 'UR';
+}
+
 if ($aszExtents && count($aszExtents) == 4){
     $minx = min($aszExtents[0], $aszExtents[2]);
     $miny = min($aszExtents[1], $aszExtents[3]);
@@ -162,118 +167,18 @@ if ($aszExtents && count($aszExtents) == 4){
     $maxy = max($aszExtents[1], $aszExtents[3]);
 }
 
-$szSRS = $_GET['SRS'];
-$szScale = $_GET['SCALE'];
-$szMapFormat = $_GET['MAPFORMAT'];
-
-$szTitle = $_GET['printTitle'];
-$szComments = $_GET['printComments']; // may contain "\n"
-$szShowLegendGraphics = $_GET['showLegendGraphics'];
-$showLegend = false;
-
-if($szShowLegendGraphics === 'true'){
-	$showLegend = true;
-}
-
-
 // text decoding in case of special characters
-$szTitle = utf8_decode($szTitle);
-$szComments = utf8_decode($szComments);
 $numberLineComments = count(explode("\n", $szComments));
-if($numberLineComments <= 0){$numberLineComments=1;}
+if($numberLineComments <= 0){
+    $numberLineComments=1;
+}
 
-$height = $_GET['height'];
-$width = $_GET['width'];
-$dpi = 72;
-$height = $height * $dpi;
-$width = $width * $dpi;
-$page_width = $width;
-$page_height = $height;
-$nMapWidth = $width - 60;
-$nMapHeight = $height - 130;
-
-$heightComments = 35;
 $heightMaxComments = $numberLineComments*7.5;
-$heightMaxLogo = 50;
-
-$szUnits = $_GET['printUnits'];
-$szOutputFormat = $_GET['printOutputFormat'];
-
-if(isset($_GET['force'])){
-    $szForce = $_GET['force'];
-} else {
-    $szForce = '';
-}
-
-if(isset($_GET['OPACITY'])){
-    $aszOpacity = $_GET['OPACITY'];
-	$aszOpacity = explode($_SEPARATOR, $_GET['OPACITY']);
-
-} else {
-    $aszOpacity = explode($_SEPARATOR, $_GET['OPACITY']);
-}
-
-if(is_array($_GET['LAYERS'])){ // user use the list
-    $aszLayers = $_GET['LAYERS'];
-} else { // &LAYERS=foo1,foo2,foo3
-    //$aszLayers = split(",", $_GET['LAYERS']);
-    $aszLayers = explode($_SEPARATOR, $_GET['LAYERS']);
-}
-
-if(is_array($_GET['URLS'])){ // user use the list
-    $aszURLs = $_GET['URLS'];
-} else { // &URLS=foo1,foo2,foo3
-    $aszURLs = explode($_SEPARATOR, $_GET['URLS']);
-}
-
-if(is_array($_GET['FORMAT'])){ // user use the list
-    $aszFormats = $_GET['FORMAT'];
-} else { // &FORMAT=foo1,foo2,foo3
-    $aszFormats = explode($_SEPARATOR, $_GET['FORMAT']);
-}
-
-if(is_array($_GET['TIME'])){ // user use the list
-    $aszTimes = $_GET['TIME'];
-} else { // &FORMAT=foo1,foo2,foo3
-    $aszTimes = explode($_SEPARATOR, $_GET['TIME']);
-}
-
-if(isset($_GET['HASBASELAYER'])){
-	$hasbaselayer = $_GET['HASBASELAYER'];
-}
-else{
-	$hasbaselayer = false;
-}
-
-if(isset($_GET['printDescription'])){
-        $printDescription = ($_GET['printDescription']==='true')?true:false;
-}
-else{
-	$printDescription = false;
-}
-
-if(isset($_GET['printLogo'])){
-        $printLogo = ($_GET['printLogo']==='true')?true:false;
-}
-else{
-	$printLogo = false;
-}
-
-if(is_array($_GET['TITLE'])){ // user use the list
-    $aszTitles = $_GET['TITLE'];
-} else { 
-    $aszTitles = explode($_SEPARATOR, $_GET['TITLE']);
-}
-
-if(isset($_GET['printLegendeLocation'])){ // user use the list
-    $aszPositionLegende = $_GET['printLegendeLocation'];
-} else { 
-    $aszPositionLegende = 'UR';
-}
 
 //Calcul de correction de la légende pour ne pas avoir de conflit entre la légende
 //, le logo, auteur, commentaire et échelle
 $correctionLegende = 0;
+
 switch ($aszPositionLegende){
     CASE 'UL':
     case 'LL':
@@ -286,7 +191,13 @@ switch ($aszPositionLegende){
         break;
 }
 
-/***************************/
+
+$page_width = $width;
+$page_height = $height;
+$nMapWidth = $width - 60;
+$nMapHeight = $height - 130;
+
+/**************************/
 /*   MAP OBJECT CREATION   */
 /***************************/
 
@@ -307,13 +218,7 @@ $oMap->setProjection("init=".strtolower($szSRS));
 $oMap->setExtent($minx, $miny, $maxx, $maxy);
 $oMap->set("units", MS_METERS);
 
-//Particularité WINDOWS/LINUX
-if (PHP_OS == "WINNT" || PHP_OS == "WIN32"){
-  $oMap->setFontSet(dirname($_SERVER['SCRIPT_FILENAME']) . "\\..\\font\\fonts.txt");
-}
-else{
-  $oMap->setFontSet(dirname($_SERVER['SCRIPT_FILENAME']) . "/../font/fonts.txt");
-}
+$oMap->setFontSet(dirname(__FILE__) . "/../font/fonts.txt");
 
 /**
  * Scalebar
@@ -357,7 +262,7 @@ $oMapClass->addLabel($oLabelObj);
 /**
  * Uncomment this to enable debug
  */
-//$oMap->setconfigoption('MS_ERRORFILE','/tmp/ms_tmp/wms2pdf.log');
+$oMap->setconfigoption('MS_ERRORFILE','/srv/www/geomatique/partage/log/wms2pdf.log');
 
 $oCenter = ms_newPointObj();
 $oCenter->setXY($nMapWidth/2,$nMapHeight/2);
@@ -372,14 +277,13 @@ $oMap->web->set('imageurl', $_IMAGEURL);
 /**
  * Map outputformat
  */
-
 $oMap->outputformat->setOption("QUALITY", "100");
 $oMap->outputformat->set("transparent","1");
 $oMap->selectOutputFormat("png");
 $oMap->outputformat->set('name','png');
 $oMap->outputformat->set('driver','GD/PNG');
 $oMap->outputformat->set('mimetype','image/png');
-$oMap->outputformat->set('imagemode',MS_IMAGEMODE_RGBA);
+//$oMap->outputformat->set('imagemode',MS_IMAGEMODE_RGBA);
 $oMap->outputformat->setOption("INTERLACE", "OFF");
 
 /******************************/
@@ -397,12 +301,13 @@ $legendIndex = 0;
 
 for($i=0, $len=count($aszLayers); $i<$len; $i++){
     $szLayer = $aszLayers[$i];
-    
+   
     if($szLayer=='')continue;
     // Nom du layer pour le GetLegendGraphic de la legende
     $szLayer_legend = $szLayer;
 
-    // si plus d'une couche dans un ajouter service web : on prend le premier nom du layer pour le GetLegendGraphic de la legende
+    // si plus d'une couche dans un ajout service web : on prend le premier nom du layer 
+    // pour le GetLegendGraphic de la legende
     if(strstr($szLayer_legend, ',')){
         list($szLayer_legend) = explode(",", $szLayer_legend);
     }
@@ -414,19 +319,19 @@ for($i=0, $len=count($aszLayers); $i<$len; $i++){
     $szTime = $aszTimes[$i];
     $szLegendTitle = $aszTitles[$i];
     
-    
     $igoController = new IgoController();
-
+    
     //TODO afficher des messages d'erreur pour les URLS qui 
     //ne fonctionne pas.
     $szUrl = $igoController->verifierPermis($szURL);
     if($szURL===false){
+        $erreurs[] = array('message'=>"L'Url $szURL n'est pas permis.", 'niveau'=>'eleve');
         continue;
     }
-    
+
     if($showLegend){
            
-        if($hasbaselayer == "false" || $i != 0){
+        if($hasbaselayer === false || $i != 0){
             // Construit requete GetLegendGraphic
             $getLegendGraphic = $szURL . "&TRANSPARENT=TRUE&NOCACHE=0.39793555804004654&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=" . $szLayer_legend . "&FORMAT=image%2Fpng";
 
@@ -434,14 +339,18 @@ for($i=0, $len=count($aszLayers); $i<$len; $i++){
             $resource = curl_file_get_contents($getLegendGraphic);
             
             if(strpos($resource, '<?xml')!==false){
+                $erreurs[] = array('message'=>$resource, 'niveau'=>'eleve');
                 continue; 
             } 
-
+            
             $imgRes = imagecreatefromstring($resource);
-
+           
             //  Sauve l'image retournee par GetLegendGraphic dans le repertoire de partage temporaire.
-            if($imgRes === false) // Le service n'a pas retourné une image valide.
-                    continue;
+            if($imgRes === false){ // Le service n'a pas retourné une image valide.
+                $erreurs[] = array('message'=>"L'image retournée par $getLegendGraphic n'est pas valide.", 'niveau'=>'faible');
+                continue;
+            }
+            
             $imagePath = $_IMAGEPATH . $szLayer_legend . ".png";
             $imageUrl = $_IMAGEURL . "/" . $szLayer_legend . ".png";
             imagealphablending($imgRes, false);
@@ -456,35 +365,31 @@ for($i=0, $len=count($aszLayers); $i<$len; $i++){
         }
     }
 
-    if($szURL == "foo"){ // if foo, means the layer is not valid
-        continue;
-    }
-
     if($i!=0){
         $szURL .= '&randomnumber='. mt_rand() . '&';
 
         if($szTime != "null"){
             $szURL .= '&TIME=' . $szTime . '&' ;
-        }
-            // Patch pour l'impression de la session ID de GO-Collaboration.
+        }     
+        // Patch pour l'impression de la session ID de GO-Collaboration.
         if (isset($_SERVER["HTTP_REFERER"])){
-                        $referer = $_SERVER["HTTP_REFERER"];
-                        $explodedReferer = explode("&", $referer);
+            $referer = $_SERVER["HTTP_REFERER"];
+            $explodedReferer = explode("&", $referer);
         }
 
         if (isset($explodedReferer[1])){
             $sessionId = explode("=", $explodedReferer[1]);
             
             if (isset($sessionId[1])){
-                    $szSessionIDs = $sessionId[1];
+                $szSessionIDs = $sessionId[1];
             }
 
             if($szSessionIDs != "null"){
-                    $szURL .= '&SESSION_ID=' . $szSessionIDs . '&' ;
+                $szURL .= '&SESSION_ID=' . $szSessionIDs . '&' ;
             }
         }
     }
-    
+
     $oLayer = ms_newLayerObj($oMap);
     $oLayer->set("name", $szLayer);
     $oLayer->set("type", MS_LAYER_RASTER);
@@ -508,11 +413,10 @@ for($i=0, $len=count($aszLayers); $i<$len; $i++){
     if($szOpacity != 'null'){
         $oLayer->set("opacity", floor(((double)$szOpacity)*100));
         if($szOpacity=='1'){
-                $oLayer->set("opacity", 99);
+            $oLayer->set("opacity", 99);
         }
     }
 }
-
 
 /**********************/
 /* MORE LAYER OBJECTS */
@@ -574,9 +478,8 @@ if($szOutputFormat != 'pdf'){
     $oMapClass2->addLabel($oLabelObj2);
     
     //auteur et logo
-    if($printLogo && isset($_GET['printNomAuteur'])){
-       
-        $auteurNom = $_GET['printNomAuteur'];
+    if($printLogo && $auteurNom != null){
+        
         $oLayerPoints3 = ms_newLayerObj($oMap);
         $oLayerPoints3->set( "name", "Title");
         $oLayerPoints3->set("type", MS_LAYER_ANNOTATION);
@@ -607,7 +510,7 @@ if($szOutputFormat != 'pdf'){
 }
 
 // If the vecteurs parameter is present, print the vecteurs!
-if(isset($_POST['vecteurs']) && $_POST['vecteurs'] != null){
+if($kml != null){
        
         // Create a random file name for temporary kml and map file.
 	$randomFileName = uniqid();
@@ -617,9 +520,7 @@ if(isset($_POST['vecteurs']) && $_POST['vecteurs'] != null){
         $vecteurTemplateMapFilePath = $GLOBALS['apps_config']['impression']['map_template'];
 	$mapTemplateFileHandler = fopen($vecteurTemplateMapFilePath, 'r') or die("can't open file");
 	$mapTemplateFileContent = fread($mapTemplateFileHandler, filesize($vecteurTemplateMapFilePath));
-        
-	$kml = $_POST['vecteurs'];
-                    
+               
         //Check SVG
         if(preg_match_all('/<Icon><href>([^<]+\.svg)<\/href><\/Icon>/', $kml, $matches)){              
             foreach($matches[1] as $key => $value){                
@@ -648,9 +549,7 @@ if(isset($_POST['vecteurs']) && $_POST['vecteurs'] != null){
                 //modification du kml pour faire référence au nom du symbol
                 $kml = str_ireplace($value,$randomFileName.$name,$kml);
             }
-        };
-        
-        
+        }        
 
 	// Read the template map file and replace the filename tag with the path of the kml file
 	$vecteurMapFileContent = str_replace ( "mapfilename" , $vecteurMapFilePath , $mapTemplateFileContent);
@@ -674,18 +573,8 @@ if(isset($_POST['vecteurs']) && $_POST['vecteurs'] != null){
 	$oLayer->set("type", MS_LAYER_RASTER);
 	$oLayer->set("status", MS_ON);
         
-	if(isset($_SERVER["HTTP_X_FORWARDED_HOST"])){
-		$host = $_SERVER["HTTP_HOST"];
-		if(strpos($_SERVER["HTTP_HOST"], "preegl")===0){
-			$host = str_replace("preegl", "pregeoegl", $_SERVER["HTTP_HOST"]);
-		}else if(strpos($_SERVER["HTTP_HOST"], "egl")===0){
-			$host = str_replace("egl", "geoegl", $_SERVER["HTTP_HOST"]);
-		}
-		$oLayer->set("connection", 'http://'. $host .'/cgi-wms/mapserv.fcgi?map=' . $vecteurMapFilePath);
-	}else{
-
-		$oLayer->set("connection", 'http://'. $_SERVER["HTTP_HOST"] .'/cgi-wms/mapserv.fcgi?map=' . $vecteurMapFilePath);
-	}
+	$host = filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING);
+	$oLayer->set("connection", 'http://'. $host .'/cgi-wms/mapserv.fcgi?map=' . $vecteurMapFilePath);
 
 	if($_MSVERSION < 50400){
 		$oLayer->set("connectiontype", MS_WMS);
@@ -771,13 +660,13 @@ if($showLegend === true && count($legendsPaths) > 0 ){
         if($imageWidth > $largestLegend){
                 $largestLegend = $imageWidth;
         }
-        $totalHeight = $totalHeight + $imageHeight + $ecartEntreCouce;
+        $totalHeight += $imageHeight + $ecartEntreCouce;
         imagedestroy($imgSrc);
         
     }
     
     //ajout du titre de la légende
-    $totalHeight = $totalHeight + ($fontSizeLegendeTitle*2);
+    $totalHeight +=  ($fontSizeLegendeTitle*2);
 
     // Create one image to contain all the legends.
     $newLegendImage = imagecreatetruecolor($largestLegend, $totalHeight);
@@ -966,11 +855,10 @@ if($szOutputFormat == 'pdf'){
     $pdfPath = $_IMAGEPATH . $basename;
     $pdfUrl = $szMapImageURL . ".pdf";
     createPDF($page_width, $page_height, $szTitle, $szComments, $pdfPath);
-    print($pdfUrl);
+    $reponse = json_encode(['url'=>$pdfUrl, 'erreurs'=>$erreurs]);
 }
 else{
-    
-    print ($szMapImageURL);
+    $reponse = json_encode(['url'=>$szMapImageURL, 'erreurs'=>$erreurs]);
 }
 
 if(isset($vecteurFilePath)){
@@ -978,8 +866,8 @@ if(isset($vecteurFilePath)){
     unlink($vecteurMapFilePath);
 }
 
-
-
+$oMap->save('/srv/www/geomatique/dev/geodev1/partage/services/tmp/wms2pdf.map');
+print($reponse);
 
 /**
  * This function creates a PDF with a title, an image and a comment.
@@ -1031,13 +919,15 @@ function createPDF($page_width, $page_height, $title, $comments, $mapImageUrl){
  * Check each param property and value.  If one is invalid, the script stops and
  * output what's wrong
  */
-function validateParams(){
+function validateParams(&$erreurs){
+ 
     if(isset($argv)) {
         exit("Error : this is a cgi utility only\n");
     }
 
     if (!isset($_GET) || count($_GET) == 0){
-        exit("Error : no parameters found\n");
+        $erreurs[] = array('message'=>"Aucune paramètre n'a été trouvé.", 'niveau'=>'eleve');  
+        die($erreurs);
     }
 
     $aszParams = array('BBOX','SRS','SCALE','URLS','LAYERS', 'TIME','FORMAT',
@@ -1048,92 +938,99 @@ function validateParams(){
     foreach($aszParams as $szParam){
         if($szParam != 'force'){
             if (!isset($_GET[$szParam])){
-                exit ("Error : missing '$szParam' parameter\n");
+                $erreurs[] = array('message'=>"Le paramètre '$szParam' est manquant.", 'niveau'=>'eleve');  
+                die($erreurs);
             } else {
-				$szParamValue = urldecode($_GET[$szParam]);
+                $szParamValue = urldecode($_GET[$szParam]);
             }
         }
 
         switch ($szParam) {
-          case 'BBOX':
-            if (preg_match('/^-?\d+.?\d*,-?\d+.?\d*,-?\d+.?\d*,-?\d+.?\d*$/',
-                           $szParamValue) != 1){
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'SRS':
-            if (preg_match('/^EPSG:\d{4,6}$/', $szParamValue) != 1){
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'SCALE':
-            if (preg_match('/^\d+.?\d*$/', $szParamValue) != 1){
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'URLS':
-            global $_SEPARATOR;
-            $aszURLs = explode($_SEPARATOR, $szParamValue);
-            /*foreach($aszURLs as $szURL){
-                if (preg_match('/(http|https):\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/', $szURL) != 1){
-                    exit("Error : parameter value of '$szParam' is invalid");
+            case 'BBOX':
+                if (preg_match('/^-?\d+.?\d*,-?\d+.?\d*,-?\d+.?\d*,-?\d+.?\d*$/',
+                               $szParamValue) != 1){
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
                 }
-            }*/
-            break;
-          case 'MAPFORMAT':
-            global $_MAPFORMAT;
-            if(!in_array($szParamValue, $_MAPFORMAT)) {
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'FORMAT':
-          case 'LAYERS':
-		  case 'TIME':
-          case 'printTitle':
-          case 'printComments':
+                break;
+            case 'SRS':
+                if (preg_match('/^EPSG:\d{4,6}$/', $szParamValue) != 1){
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
+                }
+                break;
+            case 'SCALE':
+                if (preg_match('/^\d+.?\d*$/', $szParamValue) != 1){
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
+                }
+                break;
+            case 'URLS':
+                global $_SEPARATOR;
+                $aszURLs = explode($_SEPARATOR, $szParamValue);
+                break;
+            case 'MAPFORMAT':
+                global $_MAPFORMAT;
+                if(!in_array($szParamValue, $_MAPFORMAT)) {
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
+                }
+                break;
+            case 'FORMAT':
+            case 'LAYERS':
+            case 'TIME':
+            case 'printTitle':
+             case 'printComments':
             // no need to validate anything
             break;
-          case 'width':
-          case 'height':
+            case 'width':
+            case 'height':
           	global $_MAXIMUM_SIZE_INCHES;
-			if($szParamValue > $_MAXIMUM_SIZE_INCHES){
-				exit("Error : parameter value of '$szParam' is too large.");
-			}
-          	break;
-          case 'printUnits':
-            global $_UNITS;
-            if(!array_key_exists($szParamValue, $_UNITS)) {
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'printMode':
-            global $_MODE;
-            if(!in_array($szParamValue, $_MODE)) {
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'printOutputFormat':
-            global $_OUTPUTFORMAT;
-            if(!in_array($szParamValue, $_OUTPUTFORMAT)) {
-                exit("Error : parameter value of '$szParam' is invalid");
-            }
-            break;
-          case 'force':
-            if (isset($_GET[$szParam])){
-				$szParamValue = urldecode($_GET[$szParam]);
-                global $_FORCE;
-                if(!in_array($szParamValue, $_FORCE)) {
-                    exit("Error : parameter value of '$szParam' is invalid");
+                if($szParamValue > $_MAXIMUM_SIZE_INCHES){
+                    $erreurs[] = array('message'=>"La valeur du paramètre '$szParam' est trop grande.", 'niveau'=>'eleve');  
+                    die($erreurs);
                 }
-            }
-            break;
-          case 'showLegendGraphics':
-			if($szParamValue !== 'true' && $szParamValue !== 'false'){
-				exit("Error : parameter value of '$szParam' must be true or false.");
-			}
+          	break;
+            case 'printUnits':
+                global $_UNITS;
+                if(!array_key_exists($szParamValue, $_UNITS)) {
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
+                }
+                break;
+            case 'printMode':
+                global $_MODE;
+                if(!in_array($szParamValue, $_MODE)) {
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
+                }
+                break;
+            case 'printOutputFormat':
+                global $_OUTPUTFORMAT;
+                if(!in_array($szParamValue, $_OUTPUTFORMAT)) {
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                    die($erreurs);
+                }
+                break;
+            case 'force':
+                if (isset($_GET[$szParam])){
+                    $szParamValue = urldecode($_GET[$szParam]);
+                    global $_FORCE;
+                    if(!in_array($szParamValue, $_FORCE)) {
+                        $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas valide.", 'niveau'=>'eleve');  
+                        die($erreurs);
+                    }
+                }
+                break;
+            case 'showLegendGraphics':
+                if($szParamValue !== 'true' && $szParamValue !== 'false'){
+                    $erreurs[] = array('message'=>"Le paramètre '$szParam' doit être true ou false.", 'niveau'=>'eleve');
+                    die($erreurs);                            
+                }
           	break;
           default:
-            exit ("Error : parameter '$szParam' is unsuported");
+            $erreurs[] = array('message'=>"Le paramètre '$szParam' n'est pas supporté.", 'niveau'=>'eleve');  
+            die($erreurs);
             break;
         }
     }

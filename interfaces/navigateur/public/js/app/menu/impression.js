@@ -798,14 +798,14 @@ Impression.prototype.afficherImpression = function(action){
         resizable   : true
     };
 
-     var htmlContent = null;
+    var htmlContent = null;
      
     var afficherItineraire = true;
     if(afficherItineraire && $('#itineraire').css('display') === 'block'){
         var itineraire = $('#itineraire').clone();
         itineraire.find('.button').remove();
         htmlContent = "<div id='impressionItineraire'> <a href='#' onClick='window.stop(); window.print()'> Imprimer </a>"+
-                itineraire.html()+"</div><br/><img src=" + action.response.responseText+"> ";
+                itineraire.html()+"</div><br/><img src=" + action.result.url+"> ";
         
         var myWindow = window.open('','','scrollbars=1,width=800,height=800');
         myWindow.document.write('<html><head>');
@@ -815,10 +815,10 @@ Impression.prototype.afficherImpression = function(action){
         myWindow.document.write(htmlContent);
         myWindow.document.write('</body></html>');
         return true;
-    } else if(action.response.responseText.indexOf("html") === -1){
-        htmlContent = "<iframe src=" + action.response.responseText + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
+    } else if(action.result.url.indexOf("html") === -1){
+        htmlContent = "<iframe src=" + action.result.url + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
     }else{
-        htmlContent = action.response.responseText;
+        htmlContent = action.result.url;
     }
 
     this.oPDFWindow = new Ext.Window({
@@ -845,6 +845,13 @@ Impression.prototype.afficherImpression = function(action){
     var oPrintButton = Ext.get('printButton');
     Ext.MessageBox.hide();
     this.oPDFWindow.show(oPrintButton); 
+    
+    if(action.result.erreurs){
+        $.each(action.result.erreurs, function(key, erreur){
+            Aide.afficherMessageConsole(erreur.message, erreur.niveau);
+        });  
+    }
+    
 };
 
 return Impression;
