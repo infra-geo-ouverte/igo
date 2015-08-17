@@ -8,7 +8,7 @@
 		</div>
 
 		<div class="form-group">
-			<label class="control-label col-sm-3" for="mapfile">Mapfile</label>
+			<label class="control-label col-sm-3" for="mapfile">Mapfile<span class="glyphicon glyphicon-asterisk oblig"></span></label>
 			<div class="col-sm-6">
 				<input class="form-control" type="text" id="mapfile" name="mapfile" value="{{mapfile}}"/>
 			</div> 

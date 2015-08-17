@@ -429,3 +429,9 @@ div.olControlMousePosition {
 .x-grid3-row:hover {
   background-color: #f2f2f2;
 }
+
+.layerArboLoading {
+    position: relative;
+    top: 3px;
+    left: 5px;
+}
