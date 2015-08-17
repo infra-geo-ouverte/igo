@@ -115,7 +115,7 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
         var selectionnerOccurencePanneauTable = function(e){
             this.deselectionnerTout();
             Igo.nav.obtenirPanneauxParType('PanneauTable')[0].selectionnerParOccurences(e.occurence);
-        }
+        };
         
         var couche1a1 = new Igo.Couches.Vecteur({
                 titre : '1 à 1',
@@ -141,7 +141,7 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
 
             });
             
-             couche1a0.templates = panneauTemplate;
+            couche1a0.templates = panneauTemplate;
             
             couche1a0.ajouterDeclencheur("occurenceClique", selectionnerOccurencePanneauTable);
             
@@ -156,13 +156,14 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
                 groupe: "Résultat"
                              
             });
+            
             couche1aN.templates = panneauTemplate;
             
             couche1aN.ajouterDeclencheur("occurenceClique", selectionnerOccurencePanneauTable);
             
             couche1aN.ajouterDeclencheur("vecteurOccurenceModifiee", modifierGeom);
             
-            var couche1aNCluster = new Igo.Couches.VecteurCluster({
+            /*var couche1aNCluster = new Igo.Couches.VecteurCluster({
                 titre : '1 à N Cluster',
                 id: 'couche1aNCluster',
                 editable: true,
@@ -173,20 +174,18 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
                              
             });
             couche1aNCluster.templates = panneauTemplate;
-            
+            */
+           
             this.gestionCouches.ajouterCouches([couche1a1, couche1a0,couche1aN]);   
 
              OpenLayers.Request.GET({
                  url: this.gestionCouches.obtenirCoucheParId('resultatGeo').options.source,
                  success: geocodagePostScript.lireReponse,
                  error: geocodagePostScript.appelerServiceErreur
-             });
-    
-              
+             });        
     };
     
     geocodagePostScript.lireReponse = function(data, status, b){
-        var ttest =1;
 
         var json = new OpenLayers.Format.JSON().read( data.responseText );
 
@@ -235,16 +234,10 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
                                 var proj="EPSG:"+ value2.codeEPSG;
                                 var geom = new Igo.Geometrie.Point(x,y,proj);
                                 geom = geom.projeter('EPSG:3857');
-                                
-                                
-                                
+                                                    
                                 var style = new Style({
                                     visible: true,
-                                    couleur : couleurAleatoire,
-                                    iconeHauteur: 34,
-                                    iconeLargeur: 20,
-                                    iconeOffsetX: -10,
-                                    iconeOffsetY: -34
+                                    couleur : couleurAleatoire
                                 });
                                 
                                 var valeur = {"entree":value.entree};
@@ -252,9 +245,6 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
                                 
                                 var occurence = new Occurence(geom,valeur,style,{});
                                 Igo.nav.carte.gestionCouches.obtenirCoucheParId('couche1aN').ajouterOccurence(occurence);                            
-                            
-                                //Igo.nav.carte.gestionCouches.obtenirCoucheParId('couche1aNCluster').ajouterOccurence(occurence);                            
-                            
                                
                             });
                         }
@@ -262,7 +252,7 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
                             var x = null;
                             var y = null;
                             var proj =null;
-                           // var geom = new Igo.Geometrie.Point(x,y,proj);
+                            
                             var occurence = new Occurence(null,value,{},{typeGeometrie:'Point'});
                             Igo.nav.carte.gestionCouches.obtenirCoucheParId('couche1a0').ajouterOccurence(occurence);
                         }
@@ -273,8 +263,8 @@ define(['aide','occurence', 'style'], function(Aide, Occurence, Style) {
     };
         
     geocodagePostScript.appelerServiceErreur = function(data, status) {
-            alert('pinpon pinpon pinpon');
-        };
+            alert('Erreur lors de l\'appel au serveur. Veuillez rafraichir la page.');
+    };
 
     return geocodagePostScript;
 });
