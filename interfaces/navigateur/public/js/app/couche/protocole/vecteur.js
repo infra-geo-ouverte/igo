@@ -880,10 +880,10 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
                 }
                 break;
             case 'fin':
-                if(this.options.rafraichissementPermis){
+                if(!this.options.rafraichissementPermis){
                     this.options.rafraichissementPermis = true;
-                    this.rafraichir();
                 }
+                this.rafraichir();
                 break;
         }
     }
