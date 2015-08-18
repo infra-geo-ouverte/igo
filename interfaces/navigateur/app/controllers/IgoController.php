@@ -343,6 +343,8 @@ class IgoController extends ControllerBase
                         }
                     }
                 }
+                
+                //todo -> si anonyme vérifier profil invité/anonyme
                 $serviceRep["test"] = $test;
             }
         } else if(!$session->has("info_utilisateur")){

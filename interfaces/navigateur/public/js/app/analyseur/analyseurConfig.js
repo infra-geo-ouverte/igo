@@ -9,7 +9,7 @@
  * @version 1.0
  */
 
-define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, Navigateur, Carte, Contexte, Evenement) {
+define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], function(Aide, Navigateur, Carte, Contexte, Evenement, Serveur) {
     /** 
      * Création de l'object AnalyseurConfig.
      * @constructor
@@ -166,6 +166,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
             this.igo.nav = new Navigateur(new Carte(this.contexteAttributs), Aide.obtenirConfigXML("attributs"));
             this.igo.nav.analyseur = this;
             this.igo.nav.evenements = new Evenement();
+            if(Aide.obtenirConfigXML('client')){
+                new Serveur();
+            }
             this._analyserCouches(groupeCouches);
         } else {
             Aide.afficherMessageChargement({titre: "Chargement des couches"});
