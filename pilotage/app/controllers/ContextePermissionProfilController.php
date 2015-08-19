@@ -69,7 +69,7 @@ class ContextePermissionProfilController extends ControllerBase {
         $transaction = $manager->get();
         
         //Récupérer toutes les couches/groupes du contexte
-        $igoCoucheContextes = IgoCoucheContexte::find('contexte_id = ' . $idContexte);
+        $igoCoucheContextes = IgoCoucheContexte::find('contexte_id = ' . $idContexte . ' AND (est_visible OR est_active)');
 
         foreach($igoCoucheContextes as $igoCoucheContexte){
 
