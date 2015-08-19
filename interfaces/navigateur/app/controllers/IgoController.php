@@ -300,7 +300,7 @@ class IgoController extends ControllerBase
      * vérifie si URL ou nom du service est permis selon config.php.
      * retour false ou l'url permis
      */
-    public function verifierPermis($szUrl){
+    public function verifierPermis($szUrl, $restService=false){
         
         //vérifier URL 
         //Services
@@ -315,7 +315,7 @@ class IgoController extends ControllerBase
             //utilisateur
             if(($session->info_utilisateur->identifiant) && isset($this->config->profilsDroit[$session->info_utilisateur->identifiant])){
                 $serviceExtUser = $this->config->profilsDroit[$session->info_utilisateur->identifiant];
-                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser);
+                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
             }
                
             //profils
@@ -333,7 +333,7 @@ class IgoController extends ControllerBase
                     if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
                         if(isset($profil) && isset($config->profilsDroit[$profil])){
                             $serviceExtProfil = $this->config->profilsDroit[$profil];
-                            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil);
+                            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil, $restService);
                             if($serviceRep["test"] !== false){                        
                                 $test = true;
                                 if($serviceRep["url"] !== false){
@@ -354,7 +354,7 @@ class IgoController extends ControllerBase
         //general
         if(($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
             $servicesExternes = $this->config['servicesExternes'];
-            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes);
+            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes, $restService);
         }
         
         if(($serviceRep["url"] === false)||($serviceRep["test"]===false)){
@@ -386,8 +386,9 @@ class IgoController extends ControllerBase
         return $test==="ok";
     }
     
-    private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes){
+    private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes, $restService){
         if(isset($arrayServicesExternes[$service])){
+            if($restService == false){return $serviceRep;}
             $serviceRep["url"] = $arrayServicesExternes[$service];
             $serviceRep["test"] = true;
         } else {

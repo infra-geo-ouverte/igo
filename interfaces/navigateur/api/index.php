@@ -561,7 +561,7 @@ try {
         );
     }
 
-  $app->map('/service',"proxyNavigateur")->via(array('GET','POST'));
+  $app->map('/service[/]?{service}',"proxyNavigateur")->via(array('GET','POST'));
   
     function ObtenirAdresseIP($serveur){
       if (!empty($serveur['HTTP_CLIENT_IP'])){   //check ip from share internet
@@ -579,9 +579,7 @@ try {
       return $ip;
     }
     
-    function proxyNavigateur() {
-        //todo: http://php.net/manual/en/function.curl-setopt.php
-            
+    function proxyNavigateur($service=null) {
         global $app;
         $config = $app->getDI()->get("config");
 
@@ -598,8 +596,12 @@ try {
         if($files!=null) {
             $options['files'] = $files;
         }
-
-        $service = urldecode(isset($paramsPost['_service']) ? $paramsPost['_service'] : $paramsGet['_service']);
+        
+        $restService = true;
+        if($service == null){
+            $restService = false;
+            $service = urldecode(isset($paramsPost['_service']) ? $paramsPost['_service'] : $paramsGet['_service']);
+        }
         unset($paramsPost['_service']);
         unset($paramsGet['_service']);
         unset($paramsPost['_url']);
@@ -616,7 +618,7 @@ try {
         
         //Services       
         $igoController = new IgoController();
-        $url = $igoController->verifierPermis($service);
+        $url = $igoController->verifierPermis($service, $restService);
         if($url === false){
             http_response_code(403);
             die("Vous n'avez pas les droits pour ce service.");
