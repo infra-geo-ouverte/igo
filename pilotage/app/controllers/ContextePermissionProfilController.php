@@ -46,8 +46,8 @@ class ContextePermissionProfilController extends ControllerBase {
         $idProfil = $this->request->getPost("idProfil");
         
         $nbDonnees = $this->donnerPermissionsContexteProfil($idContexte, $idProfil);  
-        
-        $pluriel = (count($nbDonnees)> 1) ? 's' : '';
+   
+        $pluriel = ($nbDonnees > 1) ? 's' : '';
         $nomProfil = $this->nomProfil($idProfil);
 
         $this->view->setVar('idProfil', $idProfil);
