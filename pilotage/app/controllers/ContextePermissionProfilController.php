@@ -63,7 +63,7 @@ class ContextePermissionProfilController extends ControllerBase {
      * @return ing Nombre de permissions données
      */
     function donnerPermissionsContexteProfil($idContexte, $idProfil){
-        $nbPermissionsCrees = 0;
+        $nbPermissions = 0;
         
         $manager = new Phalcon\Mvc\Model\Transaction\Manager();
         $transaction = $manager->get();
@@ -73,9 +73,14 @@ class ContextePermissionProfilController extends ControllerBase {
 
         foreach($igoCoucheContextes as $igoCoucheContexte){
 
-            if(!$this->permissionExisteDeja($idProfil, 
-                                            $igoCoucheContexte->couche_id, 
-                                            $igoCoucheContexte->groupe_id)){
+            $igoPermission = $this->obtenirPermission($idProfil, 
+                                $igoCoucheContexte->couche_id, 
+                                $igoCoucheContexte->groupe_id);
+
+            if($igoPermission){
+
+                $igoPermission->est_lecture = true;
+            }else{
     
                 //Créer la permission
                 $igoPermission = new IgoPermission();
@@ -84,26 +89,27 @@ class ContextePermissionProfilController extends ControllerBase {
                 $igoPermission->couche_id = $igoCoucheContexte->couche_id;
                 $igoPermission->est_lecture = true;
                 $igoPermission->groupe_id = (!$igoCoucheContexte->couche_id ? $igoCoucheContexte->groupe_id : null);
-                
-                if(!$igoPermission->save()){
-                  
-                    $flash = $this->getDI()->getFlash();
-                    foreach ($igoPermission->getMessages() as $message) {
-                        $flash->error($message);
-                    }
-                    try{
-                        $transaction->rollback("Un problème est survenu. Aucune permission n'a été accordée");
-                    }catch(Phalcon\Mvc\Model\Transaction\Failed $e){
-                        $flash->error($e->getMessage());
-                    }
-                    return false;
+               
+                $nbPermissions++;
+            }
+
+            if(!$igoPermission->save()){
+              
+                $flash = $this->getDI()->getFlash();
+                foreach ($igoPermission->getMessages() as $message) {
+                    $flash->error($message);
                 }
-                $nbPermissionsCrees++;
+                try{
+                    $transaction->rollback("Un problème est survenu. Aucune permission n'a été accordée");
+                }catch(Phalcon\Mvc\Model\Transaction\Failed $e){
+                    $flash->error($e->getMessage());
+                }
+                return false;
             }
         
         }
         $transaction->commit();
-        return $nbPermissionsCrees;
+        return $nbPermissions;
     }    
       
     private function accesAdminSeulement(){
@@ -124,19 +130,18 @@ class ContextePermissionProfilController extends ControllerBase {
      * @param int $idGroupe
      * @return bool
      */
-    private function permissionExisteDeja($idProfil, $idCouche, $idGroupe){
+    private function obtenirPermission($idProfil, $idCouche, $idGroupe){
         $conditions = array();
-            $conditions[] = "profil_id = {$idProfil}";
-            if($idCouche){
-                $conditions[] = "couche_id = {$idCouche}";
-            }
-            if($idGroupe && !$idCouche){
-                $conditions[] = "groupe_id = {$idGroupe}";
-            }
-            $conditions = implode(' AND ', $conditions);
+        $conditions[] = "profil_id = {$idProfil}";
+        if($idCouche){
+            $conditions[] = "couche_id = {$idCouche}";
+        }
+        if($idGroupe && !$idCouche){
+            $conditions[] = "groupe_id = {$idGroupe}";
+        }
+        $conditions = implode(' AND ', $conditions);
 
-            $igoPermission = IgoPermission::findFirst($conditions);
-            return (bool)$igoPermission;
+        return IgoPermission::findFirst($conditions);
     }
     
     private function nomProfil($idProfil){
