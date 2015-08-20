@@ -288,7 +288,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     * @returns {Nombre} transparence entre 0 et 1
     */    
     Couche.prototype.obtenirOpacite = function() { 
-        this._getLayer().opacity;
+        return this._getLayer().opacity;
     };
     
      
