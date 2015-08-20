@@ -799,6 +799,7 @@ Impression.prototype.afficherImpression = function(action){
     };
 
     var htmlContent = null;
+    var cssItineraire = Aide.obtenirCheminRacine()+'css/itineraire.css?version=0.2.0';
     
     if(action.result === false){
         //ne rien faire car problème côté serveur
@@ -810,14 +811,6 @@ Impression.prototype.afficherImpression = function(action){
             htmlContent = "<div id='impressionItineraire'> <a href='#' onClick='window.stop(); window.print()'> Imprimer </a>"+
                     itineraire.html()+"</div><br/><img src=" + action.result.url+"> ";
 
-            var myWindow = window.open('','','scrollbars=1,width=800,height=800');
-            myWindow.document.write('<html><head>');
-            myWindow.document.write('<title>' + 'Impression' + '</title>');
-            myWindow.document.write('<link rel="Stylesheet" type="text/css" href="'+Aide.obtenirCheminRacine()+'css/itineraire.css?version=0.2.0" />');
-            myWindow.document.write('</head><body>');
-            myWindow.document.write(htmlContent);
-            myWindow.document.write('</body></html>');
-            return true;
         } else if(action.result.url.indexOf("html") === -1){
             htmlContent = "<iframe src=" + action.result.url + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
         }else{
@@ -836,6 +829,7 @@ Impression.prototype.afficherImpression = function(action){
             constrain: true,
             region: 'center',
             mediaCfg : mConfig,
+            cls : cssItineraire,
             xtype: 'application/pdf',
             //height:'fit',
             hidden: false,
