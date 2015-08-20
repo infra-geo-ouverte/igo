@@ -799,29 +799,32 @@ Impression.prototype.afficherImpression = function(action){
     };
 
     var htmlContent = null;
-     
-    var afficherItineraire = true;
-    if(afficherItineraire && $('#itineraire').css('display') === 'block'){
-        var itineraire = $('#itineraire').clone();
-        itineraire.find('.button').remove();
-        htmlContent = "<div id='impressionItineraire'> <a href='#' onClick='window.stop(); window.print()'> Imprimer </a>"+
-                itineraire.html()+"</div><br/><img src=" + action.result.url+"> ";
-        
-        var myWindow = window.open('','','scrollbars=1,width=800,height=800');
-        myWindow.document.write('<html><head>');
-        myWindow.document.write('<title>' + 'Impression' + '</title>');
-        myWindow.document.write('<link rel="Stylesheet" type="text/css" href="'+Aide.obtenirCheminRacine()+'css/itineraire.css?version=0.2.0" />');
-        myWindow.document.write('</head><body>');
-        myWindow.document.write(htmlContent);
-        myWindow.document.write('</body></html>');
-        return true;
-    } else if(action.result.url.indexOf("html") === -1){
-        htmlContent = "<iframe src=" + action.result.url + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
+    
+    if(action.result === false){
+        //ne rien faire car problème côté serveur
     }else{
-        htmlContent = action.result.url;
-    }
+        var afficherItineraire = true;
+        if(afficherItineraire && $('#itineraire').css('display') === 'block'){
+            var itineraire = $('#itineraire').clone();
+            itineraire.find('.button').remove();
+            htmlContent = "<div id='impressionItineraire'> <a href='#' onClick='window.stop(); window.print()'> Imprimer </a>"+
+                    itineraire.html()+"</div><br/><img src=" + action.result.url+"> ";
 
-    this.oPDFWindow = new Ext.Window({
+            var myWindow = window.open('','','scrollbars=1,width=800,height=800');
+            myWindow.document.write('<html><head>');
+            myWindow.document.write('<title>' + 'Impression' + '</title>');
+            myWindow.document.write('<link rel="Stylesheet" type="text/css" href="'+Aide.obtenirCheminRacine()+'css/itineraire.css?version=0.2.0" />');
+            myWindow.document.write('</head><body>');
+            myWindow.document.write(htmlContent);
+            myWindow.document.write('</body></html>');
+            return true;
+        } else if(action.result.url.indexOf("html") === -1){
+            htmlContent = "<iframe src=" + action.result.url + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
+        }else{
+            htmlContent = action.result.url;
+        }
+        
+        this.oPDFWindow = new Ext.Window({
             title    : this.szWindowTitle,
             closable : true,
             width    : nWinWidth,
@@ -841,15 +844,20 @@ Impression.prototype.afficherImpression = function(action){
                     html: htmlContent,
                     border: false
             }]
-    });
-    var oPrintButton = Ext.get('printButton');
-    Ext.MessageBox.hide();
-    this.oPDFWindow.show(oPrintButton); 
+        });
+        var oPrintButton = Ext.get('printButton');
+       
+        this.oPDFWindow.show(oPrintButton); 
+    }
     
-    if(action.result.erreurs){
+    Ext.MessageBox.hide();
+     
+    if(action.result ===false){
+            Aide.afficherMessageConsole(action.response.responseText,'eleve');
+    }else if(action.result.erreurs){
         $.each(action.result.erreurs, function(key, erreur){
             Aide.afficherMessageConsole(erreur.message, erreur.niveau);
-        });  
+        }); 
     }
     
 };
