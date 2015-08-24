@@ -12,3 +12,4 @@ services/config.php
 modules/
 node_modules/
 librairie/
+modules.json
