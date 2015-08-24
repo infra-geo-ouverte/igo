@@ -17,25 +17,25 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	/**
 	 * Le chemin vers le script de point d'entrée
 	 */
-	const FICHIER_JAVASCRIPT_PRINCIPAL = '/js/module.js';
+	const FICHIER_JAVASCRIPT_PRINCIPAL = '/public/js/module.js';
 
 	/**
 	 * La configuration du module. Lu à partir de `config/config.php`
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $configuration;
 
 	/**
 	 * Liste des script Javascript inclus par le module.
-	 * 
+	 *
 	 * @var array
 	 */
-	protected $librairiesJavascript = array();
+	protected $javascript = array();
 
 	/**
 	 * Constructeur par défaut.
-	 * 
+	 *
 	 * @param object $configuration La configuration du module.
 	 */
 	public function __construct($configuration) {
@@ -46,14 +46,25 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 * {@inheritDoc}
 	 */
 	public function initialiser() {
-		$this->enregistrerLibrairieJavascript(IGOModule::FICHIER_JAVASCRIPT_PRINCIPAL);
+		$this->enregistrerJavascript(IGOModule::FICHIER_JAVASCRIPT_PRINCIPAL);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function obtenirLibrairiesJavascript() {
-		return $this->librairiesJavascript;
+	public function obtenirNom($capitale=false) {
+		$nom = $this->configuration->offsetGet('nomDossierModule');
+		if($capitale === true){
+			$nom = ucfirst($nom);
+		}
+		return $nom;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function obtenirJavascript() {
+		return $this->javascript;
 	}
 
 	/**
@@ -64,30 +75,63 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	}
 
 	/**
-	 * Enregistre un script et ajoute automatiquement
-	 * la version du module au bout de celle-çi.
+	 * {@inheritDoc}
+	 */
+	public function obtenirServices($type) {
+		$services = array();
+
+		if($this->configuration->get('services')) {
+			$dossierServices = $this->configuration->get('services');
+
+			if(!file_exists($dossierServices) || !is_dir($dossierServices)) {
+				throw new \Exception('Le répertoire de services `' . $dossierServices . '` n\'existe pas ou n\'est pas un répertoire valide.');
+			}
+
+			$classeServices = $this->chargerServices($dossierServices);
+		}
+
+		return $services;
+	}
+
+	/**
+	 * Obtient tous les instances des services définit par le module.
 	 *
-	 * Exemple:
-	 * `modules/mon_module/js/modules.js` deviendra
-	 * `modules/mon_module/js/modules.js?version=<version>`
+	 * @param  string $dossierServices Dossier dans lequel sont contenues les classes de service.
+	 * @return void
+	 */
+	protected function chargerServices($dossierServices) {
+		$services = array();
+		$fichiers = scandir($dossierServices);
+
+		foreach($fichiers as $fichier) {
+			$fichierServicePotentiel = $dossierServices . '/' . $fichiers;
+			if($fichier{0} !== '.' && is_file($fichier) && pathinfo($fichier)['extension'] === 'php') {
+		        $definitionClasse = include $fichierServicePotentiel;
+
+		        var_dump($definitionClasse); die;
+	        }
+	    }
+
+	    return $services;
+	}
+
+	/**
+	 * Enregistre un javascript à inclure 
 	 *
 	 * @param  string $cheminFichier Chemin vers le fichier Javascript
 	 * @return void
 	 */
-	protected function enregistrerLibrairieJavascript($cheminFichier) {
+	protected function enregistrerJavascript($cheminFichier) {
 		$script = $this->convertirCheminRelatifEnCheminAbsolue($cheminFichier);
 
 		if(file_exists($script)) {
-			$uriScript = $this->convertCheminRelatifEnUriRelatif($cheminFichier);
-			$uriScript = $this->ajouterVersionUri($uriScript);
-
-			array_push($this->librairiesJavascript, $uriScript);
+			array_push($this->javascript, $script);
 		}
 	}
 
 	/**
 	 * Ajouter un paramètre de requête `version` à l'uri spécifiéé
-	 * 
+	 *
 	 * @param  string $uriScript L'uri auquel ajouter la version.
 	 * @return string L'uri avec le paramètre `version` ajouté.
 	 */
@@ -106,7 +150,7 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 *
 	 * Exemple:
 	 * `js/module.js` deviendra `/opt/igo/www/modules/<nom-du-module>/js/modules.js`
-	 * 
+	 *
 	 * @param  string $cheminRelatif Chemin relatif à partir de la racine du dossier du module.
 	 * @return string Un chemin converti à partir du dossier racine du système d'exploitation.
 	 */
@@ -120,7 +164,7 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 *
 	 * Exemple:
 	 * `js/module.js` deviendra `/modules/<nom-du-module>/js/modules.js`
-	 * 
+	 *
 	 * @param  string $cheminRelatif Chemin relatif à partir de la racine du dossier du module.
 	 * @return string Un uri relatif
 	 */

@@ -77,25 +77,38 @@ class IgoController extends ControllerBase
         }
         $this->view->setVar("contexteCode", $contexteArrayCode);
         $this->view->setVar("contexteId", $contexteArrayId);
-                
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->libUri)){
-            $this->config->uri->librairies = $element->attributes()->baseUri . $element->attributes()->libUri;
+          
+        if(isset($element->attributes()->aliasUri)){
+            $this->config->uri->librairies = $element->attributes()->aliasUri . 'librairie/';
+            $this->config->uri->services = $element->attributes()->aliasUri . 'services/';
+            $this->config->uri->api = $element->attributes()->aliasUri . 'api/';
+            $this->config->uri->modules = $element->attributes()->aliasUri . 'modules/';
+
+            $this->config->uri->navigateur = $element->attributes()->aliasUri . 'public/';
+            $this->config->application->baseUri = $this->config->uri->navigateur;
+        } else if(isset($element->attributes()->baseUri)){
+            if(isset($element->attributes()->libUri)){
+                $this->config->uri->librairies = $element->attributes()->baseUri . $element->attributes()->libUri;
+            }
+            if(isset($element->attributes()->serviceUri)){
+                $this->config->uri->services = $element->attributes()->baseUri . $element->attributes()->serviceUri;
+            }
+            if(isset($element->attributes()->apiUri)){
+                $this->config->uri->api = $element->attributes()->baseUri . $element->attributes()->apiUri;
+            }
+            if(isset($element->attributes()->modulesUri)){
+                $this->config->uri->modules = $element->attributes()->modulesUri;
+            }        
+
+            $this->config->uri->navigateur = $element->attributes()->baseUri;
+            $this->config->application->baseUri = $this->config->uri->navigateur;
         }
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->serviceUri)){
-            $this->config->uri->services = $element->attributes()->baseUri . $element->attributes()->serviceUri;
-        }
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->apiUri)){
-            $this->config->uri->api = $element->attributes()->baseUri . $element->attributes()->apiUri;
-        }        
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->mapserver)){
+
+        if(isset($element->attributes()->mapserver)){
             $this->config->uri->mapserver = $element->attributes()->mapserver;
         }
         $this->getDi()->getView()->config = $this->config;
-        
-        if(isset($element->attributes()->baseUri)){
-            $this->config->uri->navigateur = $element->attributes()->baseUri;
-            $this->config->application->baseUri = $this->config->uri->navigateur;
-        }                
+                      
     }
     
     public function contexteAction($code) {
@@ -294,5 +307,18 @@ class IgoController extends ControllerBase
         else{
             $this->view->setVar("callbackInitIGO", 'null');
         }
+        $this->ajouterJavascriptModules();
     }    
+
+    /**
+     * Ajoute tous les scripts Javascript requis pour chacun des modules.
+     * 
+     * @return void
+     */
+    public function ajouterJavascriptModules() {
+        $chargeurModules = $this->getDi()->get('chargeurModules');
+        $modules = $chargeurModules->obtenirJavascript();
+
+        $this->view->setVar("modules", $modules);
+    }
 }

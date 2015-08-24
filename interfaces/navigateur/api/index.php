@@ -1,26 +1,27 @@
 <?php
 
-
-
 try {
     $config = include __DIR__ . "/../app/config/config.php";
-    
+
     include __DIR__ . "/../app/config/loader.php";
     include __DIR__ . "/../app/config/services.php";
 
     include $config->application->services->dir."fonctions.php";
-    
+
     $app = new \Phalcon\Mvc\Micro();
     $app->setDI($di);
-    
-    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {                
+
+    $di->get('chargeurModules')->chargerApis($app);
+
+    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {
+
         $configArray = explode(".", $configuration);
         $configKey = $configArray[0];
         $encoding = "json";
         if(count($configArray) === 2){
             $encoding = $configArray[1];
         }
-     
+
         // Gerer le cas où on appelle une configuration inexistante et où il y aurait une erreur dans la configuration.
         if(isset($di->getConfig()->configurations[$configKey])){
             $xmlPath = $di->getConfig()->configurations[$configKey];
@@ -32,19 +33,19 @@ try {
             $error = new stdClass();
             $error->error = "La configuration « {$configuration} » n'existe pas!";
             $app->response->send();
-            die(json_encode($error));                        
+            die(json_encode($error));
         }
         if($encoding === "json"){
-            $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();  
+            $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
 
             if(file_exists($xmlPath)){
-                $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);           
+                $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
             } else {
-                $element = simplexml_load_string(curl_file_get_contents($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);   
+                $element = simplexml_load_string(curl_file_get_contents($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);
             }
 
             if ($element->getName() === "navigateur" ){
-                
+
                 //Gerer le cas des couches seulement avec un Id
                 //Retourner l'info pour creer correctement la couche cote client
                 $result = $element->xpath('//couche[boolean(@idbd)]');
@@ -52,7 +53,7 @@ try {
                 $debug = $app->getDI()->get("config")->application->debug;
                 foreach($result as $couche){
                     $coucheId =  $couche->attributes()->idbd->__toString();
-                                      
+
                     if(is_numeric($coucheId)){
                         $coucheBd = IgoVueCouche::findFirst("id=".$coucheId);
                     }
@@ -62,7 +63,7 @@ try {
 
                     if($coucheBd === false){
                         if(is_numeric($coucheId)){
-                            $avertissement[] = "La couche avec id:« {$coucheId} » n'existe pas!";   
+                            $avertissement[] = "La couche avec id:« {$coucheId} » n'existe pas!";
                             $dom=dom_import_simplexml($couche);
                             $dom->parentNode->removeChild($dom);
                             continue;
@@ -72,9 +73,9 @@ try {
                             $dom=dom_import_simplexml($couche);
                             $dom->parentNode->removeChild($dom);
                             continue;
-                        }         
+                        }
                     }
-                    
+
                     //Vérifier l'access
                     $permission = obtenirPermission($coucheBd->id);
                     if($permission != null && $permission->est_lecture){
@@ -87,7 +88,7 @@ try {
                                                             $coucheBd->mf_layer_name .
                                                             '.map';
                             $protocole = 'WMS';
-                            //ne pas exposer 
+                            //ne pas exposer
                             unset($coucheBd->connexion);
 
                         }
@@ -108,39 +109,39 @@ try {
                             if(!$couche->attributes()->$key){
                                 $couche->addAttribute($key,$value);
                             }
-                        }                        
+                        }
                     }
                     else{
                          if (isset($debug) && ($debug > 1 || $debug===true)){
                             $avertissement[] = 'Vous n\'avez pas les droits sur la couche "'
                                                 .$coucheBd->mf_layer_meta_title.'" (id:'.$coucheBd->id.')';
-                        }                    
+                        }
                         $dom=dom_import_simplexml($couche);
-                        $dom->parentNode->removeChild($dom);       
+                        $dom->parentNode->removeChild($dom);
                     }
                 }
-                                
+
                 if($avertissement != null){
                     foreach($avertissement as $value){
                         $element->addChild('avertissements', $value);
                     }
                 }
-                
-                echo json_encode($element);               
+
+                echo json_encode($element);
             }
             else{
                 $app->response->setStatusCode(404, "Not Found");
                 $error = new stdClass();
                 $error->error = "L'élément racine du fichier de configuration doit se nommer « navigateur »!";
                 $app->response->send();
-                die(json_encode($error));                                                    
-            }                
-        }else{        
+                die(json_encode($error));
+            }
+        }else{
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
             $error->error = "L'encodage «{$encoding} » n'est pas supporté!";
             $app->response->send();
-            die(json_encode($error));                                    
+            die(json_encode($error));
         }
     });
 
@@ -152,7 +153,7 @@ try {
             $error = new stdClass();
             $error->error = "Le contexte « {$contexteId} » n'existe pas!";
             $app->response->send();
-            die(json_encode($error));            
+            die(json_encode($error));
         }
         return $contexte;
     }
@@ -165,23 +166,23 @@ try {
             $error = new stdClass();
             $error->error = "Le contexte « {$contexteCode} » n'existe pas!";
             $app->response->send();
-            die(json_encode($error));            
+            die(json_encode($error));
         }
         return $contexte;
     }
-    
+
     function estAuthentifie($session) {
         if(!$session->has("info_utilisateur"))
             return false;
         return $session->get("info_utilisateur")->estAuthentifie;
     }
 
-    function estAnonyme($session) {        
+    function estAnonyme($session) {
         if(!$session->has("info_utilisateur"))
             return true;
         return $session->get("info_utilisateur")->estAnonyme;
     }
-    
+
     function obtenirProfils($session) {
         return $session->get("info_utilisateur")->profils;
     }
@@ -198,10 +199,10 @@ try {
             $error = new stdClass();
             $error->error = "Vous n'êtes pas authentifié!";
             $app->response->send();
-            die(json_encode($error));            
+            die(json_encode($error));
         }
         return $authentificationModule;
-    }    
+    }
      function obtenirUtilisateurProfilsInQuery() {
         global $app;
         $authentificationModule = $app->getDI()->get("authentificationModule");
@@ -213,7 +214,7 @@ try {
             }
             return (string) '0,'.IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
         }
-            
+
         if(!is_null($app->getDI()->getSession()->get("info_utilisateur")->profilActif)) {
             $profil = $app->getDI()->getSession()->get("info_utilisateur")->profilActif;
             return (string) '0,'.$profil;
@@ -227,13 +228,13 @@ try {
             return implode(",", $profilsArray);
         }
     }
-    
+
     function obtenirPermission($couche_id){
         global $app;
         if(is_null($app->getDI()->getConfig()->database)) {
             return null;
         }else{
-            $conditions = "profil_id in (" . obtenirUtilisateurProfilsInQuery() . ") AND (couche_id = ?1)";        
+            $conditions = "profil_id in (" . obtenirUtilisateurProfilsInQuery() . ") AND (couche_id = ?1)";
             $parameters = array(1 => $couche_id);
             $permission = IgoVuePermissionsPourCouches::findFirst(array(
                 $conditions,
@@ -244,39 +245,39 @@ try {
             return $permission;
         }
     }
-    
-    function obtenirGroupeCouche($coucheId){ 
+
+    function obtenirGroupeCouche($coucheId){
         $groupes = IgoGroupeCouche::find("couche_id=".$coucheId);
         // TODO cleanup
         $in='';
         foreach($groupes as $value){
-            $in .= $value->groupe_id . ','; 
+            $in .= $value->groupe_id . ',';
         }
         return  substr($in,0,strlen($in)-1);
-    } 
-    
+    }
+
    $app->get('/couche/{coucheId}', function($coucheId) use($di, $app){
-        
+
         $authentificationModule = obtenirAuthentificationModule();
         $arrayCoucheId = explode(",",$coucheId);
         $couches = array();
         $avertissements = null;
         $debug = $app->getDI()->get("config")->application->debug;
         foreach ($arrayCoucheId as $key => $value) {
-            
+
             $couche = IgoVueCouche::findFirst("id=$value");
-            
+
             if($couche === false){
                 $avertissements[] = 'La couche avec le id:'.$value.' n\'existe pas.';
                 continue;
             }
-            
+
             $permission = obtenirPermission($couche->id);
             if($permission != null && $permission->est_lecture){
-                 
+
                 if($couche->connexion_type == 'POSTGIS' || $couche->connexion_type == null){
 
-                    $couche->mf_map_meta_onlineresource = 
+                    $couche->mf_map_meta_onlineresource =
                                                         $di->getConfig()->mapserver['host'].
                                                         $di->getConfig()->mapserver['mapserver_path'] .
                                                         $di->getConfig()->mapserver['executable'].
@@ -284,7 +285,7 @@ try {
                                                         $di->getConfig()->mapserver['couchesCacheDir'] .
                                                         $couche->mf_layer_name .
                                                         '.map';
-                    $couche->protocole = 'WMS';  
+                    $couche->protocole = 'WMS';
                     //ne pas exposer
                     unset($couche->connexion);
                 }
@@ -304,48 +305,48 @@ try {
                     $avertissements[] = 'Vous n\'avez pas les droits sur la couche "'.$couche->mf_layer_meta_title.'" (id:'.$value.').';
                 }
             }
-            
+
         }
-        
+
         if($avertissements != null){
             $reponse = array('couches'=>$couches, 'avertissements'=>$avertissements);
         }
         else{
             $reponse = $couches;
         }
-        
-        $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();        
+
+        $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
         echo json_encode($reponse);
-    }); 
-    
+    });
+
     $app->get('/contexteCode/{contexteCode}', function($contexteCode) use($app, $di){
-        $contexte = obtenirContexteParCode($contexteCode);              
+        $contexte = obtenirContexteParCode($contexteCode);
         obtenirInfoContexte($contexte, $app, $di);
     });
 
     $app->get('/contexte/{contexteId:[0-9]+}', function($contexteId) use($app, $di){
-        $contexte = obtenirContexte($contexteId);      
+        $contexte = obtenirContexte($contexteId);
         obtenirInfoContexte($contexte, $app, $di);
     });
-    
+
     function obtenirInfoContexte($contexte, $app, $di){
         $contexteId = $contexte->id;
-        $contexteCouches = IgoVueContexteCoucheNavigateur::find(array("conditions"=>"contexte_id=$contexteId","order"=>array("layer_a_order","mf_layer_meta_group_title","mf_layer_meta_title")));        
+        $contexteCouches = IgoVueContexteCoucheNavigateur::find(array("conditions"=>"contexte_id=$contexteId","order"=>array("layer_a_order","mf_layer_meta_group_title","mf_layer_meta_title")));
         $authentificationModule = obtenirAuthentificationModule();
         $array = array();
         $avertissements = null;
         $debug = $app->getDI()->get("config")->application->debug;
         foreach($contexteCouches as $couche){
             // Petite passe croche pour établire le protocole des couches...
-            if($couche->connexion_type !== "Google" 
-                    && $couche->connexion_type !== "TMS" 
-                    && $couche->connexion_type !== "OSM" 
+            if($couche->connexion_type !== "Google"
+                    && $couche->connexion_type !== "TMS"
+                    && $couche->connexion_type !== "OSM"
                     && $couche->connexion_type !== "Blanc"){
                 $couche->protocole = "WMS";
                 //ne pas exposer
                 unset($couche->connexion);
             }else{
-                $couche->protocole = $couche->connexion_type;   
+                $couche->protocole = $couche->connexion_type;
                 $couche->mf_map_meta_onlineresource = $couche->connexion;
             }
             unset($couche->connexion_type);
@@ -354,58 +355,58 @@ try {
                 $array[] = $couche;
             }else{
                 $permission = obtenirPermission($couche->couche_id);
-                
+
                 if($permission != false && $permission->est_lecture){
                     unset($couche->couche_id);
                     $array[] = $couche;
-                    
+
                     if($couche->mf_layer_meta_def){
                         $test= preg_match("/wms_timeitem\"\s\"([^\"]*)/i", $couche->mf_layer_meta_def, $matches);
                         ($test==1&&isset($matches[1]))?$couche->wms_timeitem = true:$couche->wms_timeitem = false;
-                        
+
                         $test= preg_match("/msp_wmst_multiplevalues\"\s\"([^\"]*)/i", $couche->mf_layer_meta_def, $matches);
                         ($test==1&&isset($matches[1]))?$couche->msp_wmst_multiplevalues = true:$couche->msp_wmst_multiplevalues = false;
-                        
+
                         $test= preg_match("/wms_timedefault\"\s\"([^\"]*)/i", $couche->mf_layer_meta_def, $matches);
                         if($test==1&&isset($matches[1]))$couche->wms_timedefault = $matches[1];
-                        
+
                         $test= preg_match("/wms_timeextent\"\s\"([^\"]*)/i", $couche->mf_layer_meta_def, $matches);
-                        if($test==1&&isset($matches[1]))$couche->wms_timeextent = $matches[1];                               
-                    }    
+                        if($test==1&&isset($matches[1]))$couche->wms_timeextent = $matches[1];
+                    }
                 }else{
-                    if (isset($debug) && ($debug > 1 || $debug===true)){                 
+                    if (isset($debug) && ($debug > 1 || $debug===true)){
                         $avertissements[] = 'Vous n\'avez pas les droits sur la couche "'.$couche->mf_layer_meta_title.'" (id:'.$couche->couche_id.')';
                     }
-                }            
+                }
             }
         }
-        
+
         $contexte->couches = $array;
-        
+
         if($avertissements != null){
-            $contexte->avertissements = array('avertissements'=>$avertissements);    
+            $contexte->avertissements = array('avertissements'=>$avertissements);
         }
-        
-        $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();        
+
+        $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
         echo json_encode($contexte);
-    }        
+    }
 
     $app->map('/wms/{contexteId:[0-9]+}',"wms_proxy")->via(array('GET','POST'));
-    
+
     function wms_proxy($contexteId){
         global $app;
         $httprequest = new Phalcon\Http\Request();
         $httprequest->setDI($app->getDI());
-        
+
         //Possible sanitize filters: string, email, int, float, alphanum, striptags, trim, lower, upper
         $filter = new \Phalcon\Filter();
-        
-        if($httprequest->isGet() || $httprequest->isPost()){  
+
+        if($httprequest->isGet() || $httprequest->isPost()){
             $datain = $httprequest->get();
             $data = array();
             foreach($datain as $key=>$value){
                 $data[strtoupper($key)] = $value;
-            }            
+            }
             $service = $filter->sanitize($data["SERVICE"], array("string","upper"));
             $request = $filter->sanitize($data["REQUEST"], array("string","upper"));
         }else{
@@ -415,7 +416,7 @@ try {
         }
         error_log("service: {$service}, request: {$request}");
         if($service === "WMS"){
-            
+
             $config = $app->getDI()->get("config");
             $mapserver = $config['mapserver']['host'] . $config['mapserver']['mapserver_path'] . $config['mapserver']['executable'];
             $contexte = IgoContexte::findFirst("id='$contexteId'");
@@ -423,7 +424,7 @@ try {
 
             $method = $httprequest->getMethod();
             $data = $httprequest->get();
-            $data["MAP"] = $map;            
+            $data["MAP"] = $map;
             $response = null;
             switch($request){
                 case "GETCAPABILITIES":
@@ -431,12 +432,12 @@ try {
                     // Devrait-on enlever les couches non permises en lecture de la réponse.? C'est probablement trop complexe...
                     break;
                 case "GETMAP":
-                case "GETFEATUREINFO":   
-                case "DESCRIBELAYER":    
-                case "GETLEGENDGRAPHIC":                    
+                case "GETFEATUREINFO":
+                case "DESCRIBELAYER":
+                case "GETLEGENDGRAPHIC":
                     $authentificationModule = obtenirAuthentificationModule();
                     if($authentificationModule === null){
-                        $response = proxy_request($mapserver, $data , $method);                        
+                        $response = proxy_request($mapserver, $data , $method);
                     }else{
                         if(isset($data["LAYERS"])){
                             $couches = explode(",", $data["LAYERS"]);
@@ -450,9 +451,9 @@ try {
                             if($igoVueContexteCoucheNavigateur === false){
                                 $coucheContexte = IgoVueContexteCoucheNavigateur::find("mf_layer_group='$couche' and contexte_id='$contexteId'");
                             }
-                            
+
                             if(count($coucheContexte) === 0){
-                                // L'utilisateur essaie d'appeler la couche root du mapfile qui consiste à toutes les couches. 
+                                // L'utilisateur essaie d'appeler la couche root du mapfile qui consiste à toutes les couches.
                                 // Nous interdissons ce type d'appels pour le moment.
                                 die("Forbidden");
                             }
@@ -462,30 +463,30 @@ try {
                                 if($permission !== null && $permission->est_lecture){
                                     $estPermis = true;
                                     break;
-                                }            
+                                }
                             }
                             if(!$estPermis){
                                 die("Forbidden");
                             }
                         }
-                        $response = proxy_request($mapserver, $data , $method);           
+                        $response = proxy_request($mapserver, $data , $method);
                     }
                     break;
                 default:
                     break;
             }
-            
+
             $headerArray = explode("\r\n", $response["header"]);
             foreach($headerArray as $headerLine) {
                 header($headerLine);
             }
             echo $response["content"];
-            
+
         }else{
             die("Seul les services WMS sont pris en charge par ce proxy.");
         }
     }
-    
+
     function proxy_request($url, $data, $method) {
         // Based on https://github.com/eslachance/php-transparent-proxy Copyright (c) 2011, Eric-Sebastien Lachance <eslachance@gmail.com>
         // Based on post_request from http://www.jonasjohn.de/snippets/php/post-request.htm
@@ -497,7 +498,7 @@ try {
         // parse the given URL
         $url = parse_url($url);
 
-        if ($url['scheme'] != 'http') { 
+        if ($url['scheme'] != 'http') {
             die('Error: Only HTTP request are supported !');
         }
 
@@ -518,7 +519,7 @@ try {
             fputs($fp, "Host: $host\r\n");
 
             fputs($fp, "X-Forwarded-For: $ip\r\n");
-            fputs($fp, "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"); 
+            fputs($fp, "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n");
 
             $requestHeaders = apache_request_headers();
             while ((list($header, $value) = each($requestHeaders))) {
@@ -531,15 +532,15 @@ try {
             fputs($fp, "Connection: close\r\n\r\n");
             fputs($fp, $data);
 
-            $result = ''; 
+            $result = '';
             while(!feof($fp)) {
                 // receive the results of the request
                 $result .= fgets($fp, 128);
             }
         }
-        else { 
+        else {
             return array(
-                'status' => 'err', 
+                'status' => 'err',
                 'error' => "$errstr ($errno)"
             );
         }
@@ -562,7 +563,7 @@ try {
     }
 
   $app->map('/service',"proxyNavigateur")->via(array('GET','POST'));
-  
+
     function ObtenirAdresseIP($serveur){
       if (!empty($serveur['HTTP_CLIENT_IP'])){   //check ip from share internet
           $ip=$serveur['HTTP_CLIENT_IP'];
@@ -593,14 +594,14 @@ try {
         $test = preg_replace($trustedDom, 'ok', $service);
         return $test==="ok";
     }
-    
+
     function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes){
         if(isset($arrayServicesExternes[$service])){
             $serviceRep["url"] = $arrayServicesExternes[$service];
             $serviceRep["test"] = true;
         } else {
             $serviceArray = explode("?", $service);
-            $serviceSplit = $serviceArray[0];   
+            $serviceSplit = $serviceArray[0];
             if(isset($arrayServicesExternes['regexInterdits'])){
                 $serviceRep["test"] = verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regexInterdits']);
             }
@@ -609,13 +610,13 @@ try {
             } else if(isset($arrayServicesExternes['regex']) && (strpos($serviceSplit,'/') !== false)) {
                 $serviceRep["test"] = verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regex']);
             }
-        } 
+        }
         return $serviceRep;
     }
-    
+
     function proxyNavigateur() {
         //todo: http://php.net/manual/en/function.curl-setopt.php
-            
+
         global $app;
         $config = $app->getDI()->get("config");
 
@@ -626,7 +627,7 @@ try {
         }
         $paramsGet = $_GET;
         $paramsPost = $method == "POST" ? $_POST : array();
-        
+
         $options = array();
         $files = count($_FILES)>0?$_FILES:null;
         if($files!=null) {
@@ -640,7 +641,7 @@ try {
         unset($paramsGet['_url']);
         unset($paramsPost['_client_IP']);
         unset($paramsGet['_client_IP']);
-            
+
         //Services
         $url = "";
         $serviceRep = array(
@@ -655,7 +656,7 @@ try {
                 $serviceExtUser = $config->profilsDroit[$session->info_utilisateur->identifiant];
                 $serviceRep = verifieDomaineFunc($serviceRep, $service, $serviceExtUser);
             }
-               
+
             //profils
             if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
                 $test = false;
@@ -671,7 +672,7 @@ try {
                         if(isset($profil) && isset($config->profilsDroit[$profil])){
                             $serviceExtProfil = $config->profilsDroit[$profil];
                             $serviceRep = verifieDomaineFunc($serviceRep, $service, $serviceExtProfil);
-                            if($serviceRep["test"] !== false){                        
+                            if($serviceRep["test"] !== false){
                                 $test = true;
                                 if($serviceRep["url"] !== false){
                                     break;
@@ -692,18 +693,18 @@ try {
             $servicesExternes = $config['servicesExternes'];
             $serviceRep = verifieDomaineFunc($serviceRep, $service, $servicesExternes);
         }
-   
+
         if($serviceRep["url"] === false){
             http_response_code(403);
             die("Vous n'avez pas les droits pour ce service.");
         }
-        
+
         if ($serviceRep["test"] === true && $serviceRep["url"] === ""){
             $url = $service;
         } else {
             $url = $serviceRep["url"];
         }
-          
+
         $protocole = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://';
         if(isset($url) && is_string($url) && $url !== ""){
             //$url = str_replace("//localhost/","//".$appelant."/", $url);
@@ -715,20 +716,20 @@ try {
             http_response_code(403);
             die("Ce service n'est pas permis.");
         }
-        
+
         $urlParse = parse_url($url);
-        if (!isset($urlParse['scheme']) || $urlParse['scheme']."://" != $protocole) { 
+        if (!isset($urlParse['scheme']) || $urlParse['scheme']."://" != $protocole) {
             http_response_code(403);
             die('Seul le protocole ('.$protocole.') est valide');
         }
 
-        $encodage = isset($paramsPost['_encodage']) ? $paramsPost['_encodage'] : (isset($paramsGet['_encodage']) ? $paramsGet['_encodage'] : NULL); 
+        $encodage = isset($paramsPost['_encodage']) ? $paramsPost['_encodage'] : (isset($paramsGet['_encodage']) ? $paramsGet['_encodage'] : NULL);
         if($encodage != NULL){
             $options['encodage'] = $encodage;
             unset($paramsPost['_encodage']);
             unset($paramsGet['_encodage']);
         }
-        
+
         //ajouter la clé
 	if(isset($paramsPost['_cle'])){
             $_cle = $paramsPost['_cle'];
@@ -737,16 +738,16 @@ try {
             $_cle = $paramsGet['_cle'];
             $cleM = "GET";
         }
-        if(isset($_cle)){             
+        if(isset($_cle)){
             if($session->has("info_utilisateur") && isset($config['profilsDroit'])) {
                 //utilisateur
                 if(($session->info_utilisateur->identifiant) && isset($config->profilsDroit[$session->info_utilisateur->identifiant]["cles"])){
                     $clesUser = $config->profilsDroit[$session->info_utilisateur->identifiant]["cles"];
-                    if(isset($clesUser[$_cle])){ 
+                    if(isset($clesUser[$_cle])){
                         $cle = $clesUser[$_cle];
                     }
                 }
-                
+
                 //profils
                 if(!isset($cle) && isset($session->info_utilisateur->profils)){
                     $profilActif = $session->info_utilisateur->profilActif;
@@ -762,7 +763,7 @@ try {
                         if($nbProfils === 1 || $idValue == $profilActif){
                             if(isset($profil) && isset($config->profilsDroit[$profil]["cles"])){
                                 $clesProfil = $config->profilsDroit[$profil]["cles"];
-                                if(isset($clesProfil[$_cle])){ 
+                                if(isset($clesProfil[$_cle])){
                                     $cle = $clesProfil[$_cle];
                                 }
                             }
@@ -771,7 +772,7 @@ try {
                     }
                 }
             }
-            
+
             if(!isset($cle)){
                 if(isset($config['cles'][$_cle])){
                     $cle = $config['cles'][$_cle];
@@ -789,7 +790,7 @@ try {
                 $paramsGet['cle'] = $cle;
             }
         }
-        
+
         if(count($paramsGet)!=0){
             if (strpos($url,'?') === false) {
                 $url = $url.'?';
@@ -804,19 +805,19 @@ try {
             $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $url);
         }
         proxyRequestNavigateur($url, $paramsPost, $method, $options);
-    };    
-    
-    function proxyRequestNavigateur($url, $data, $method, $options) {        
+    };
+
+    function proxyRequestNavigateur($url, $data, $method, $options) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);  
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
             curl_setopt($ch, CURLOPT_POST, 1 );
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $GLOBALS['HTTP_RAW_POST_DATA'] ); 
-            curl_setopt($ch, CURLOPT_HTTPHEADER,  array('Content-Type: text/plain')); 
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $GLOBALS['HTTP_RAW_POST_DATA'] );
+            curl_setopt($ch, CURLOPT_HTTPHEADER,  array('Content-Type: text/plain'));
         } else if ($method === 'POST') {
             if(isset($options['files'])){
                 $filesTemp = array();
@@ -832,22 +833,22 @@ try {
                 $result = array_merge($data, $filesTemp);
 
                 curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER,  array('multipart/form-data;charset=UTF-8')); 
+                curl_setopt($ch, CURLOPT_HTTPHEADER,  array('multipart/form-data;charset=UTF-8'));
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $result);
                 curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
             } else {
                 $dataQuery = http_build_query($data);
                 curl_setopt($ch, CURLOPT_POST, count($data));
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $dataQuery);  
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $dataQuery);
             }
 
         }
-        
+
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close ($ch);
-        
+
        if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)){
             if(($contentType === "application/xml" || $contentType === "application/vnd.ogc.wms_xml" || $contentType === "application/vnd.ogc.gml" || $contentType === "text/xml; subtype=gml/3.1.1") && !isset($options['encodage'])){
                 $pos = strpos($result,'encoding=');
@@ -858,22 +859,25 @@ try {
                 }
             }
         }
-        
+
         if(isset($options['encodage'])){
-            $contentType = $contentType."; charset=".$options['encodage']; 
+            $contentType = $contentType."; charset=".$options['encodage'];
         }
         header('Content-type: '.$contentType);
 
         http_response_code($http_status_code);
         echo ($result);
     }
-    
+
     $app->notFound(function () use ($app) {
         $app->response->setStatusCode(404, "Not Found");
-        die();
-    });    
-    
+        $errorNotFound = new stdClass();
+        $errorNotFound->error = "Not Found";
+        $errorNotFound->errorCode = "404";
+        die(json_encode($errorNotFound));
+    });
+
     $app->handle();
 } catch (\Exception $e) {
-    echo $e->getMessage();    
+    echo $e->getMessage();
 }

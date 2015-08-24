@@ -9,7 +9,7 @@ use Phalcon\Loader;
 * Charge les modules contenus dans le répertoire définit dans la configuration
 * 'modules' du fichier de configuration.
 *
-* Chaque module doit contenir un fichier de configuration 'config/config.php'.
+* Chaque module doit contenir un fichier de configuration 'app/config/config.php'.
 * Voici un exemple de fichier de configuration de module contenant les propriétés
 * minimales à définir.
 *
@@ -128,16 +128,36 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	}
 
 	/**
+	 * Obtient tous les services d'un certain type.
+	 * 
+	 * @return array Une liste des services défini avec le tyoe donné.
+	 */
+	public function obtenirServices($type) {
+		$services = array();
+
+		try {
+			foreach ($this->modules as $module) {
+				$servicesModule = $module->obtenirServices($type);
+				$services = array_merge($services, $servicesModule);
+			}
+		} catch (\Exception $e) {
+			die('Erreur lors du chargement des services du module \'' . $module->obtenirNom() . '\': ' . $e->getMessage());
+		}
+
+		return $services;
+	}
+
+	/**
 	 * Obtient tous les fichiers javascript demandés d'être inclus
 	 * pour chacun des modules chargés.
 	 * 
 	 * @return array Une liste des fichiers javascripts
 	 */
-	public function obtenirLibrairiesJavascript() {
+	public function obtenirJavascript() {
 		$librairies = array();
 
 		foreach ($this->modules as $module) {
-			$librairiesModule = $module->obtenirLibrairiesJavascript();
+			$librairiesModule = $module->obtenirJavascript();
 			$librairies = array_merge($librairies, $librairiesModule);
 		}
 
@@ -157,12 +177,12 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	private function chargerModule($configurationModule, $nomDossierModule, $cheminRacine, $uri) {
 	    $cheminClasseModule = $cheminRacine . '/Module.php';
 
-	    if(!file_exists($cheminClasseModule)) {
-	    	throw new \Exception('Le fichier Module.php doit être présent à la racine de chaque module.');
+	    if(file_exists($cheminClasseModule)) {
+	    	$nomClasse = '\\' . $configurationModule->get('espaceDeNoms') . '\Module';
+	    	$this->enregistrerEspaceDeNoms($configurationModule->get('espaceDeNoms'), $cheminRacine);
+	    } else {
+	    	$nomClasse = '\IGO\Modules\DefaultModule';
 	    }
-
-		$nomClasse = '\\' . $configurationModule->get('espaceDeNoms') . '\Module';
-		$this->enregistrerEspaceDeNoms($configurationModule->get('espaceDeNoms'), $cheminRacine);
 
 		$configurationModule->offsetSet('cheminRacine', $cheminRacine);
 		$configurationModule->offsetSet('uri', $uri);
@@ -225,30 +245,11 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	 * @return object La configuration du module
 	 */
 	private function chargerConfiguration($cheminAbsoluModule) {
-		$tableauConfiguration = include  $cheminAbsoluModule . IGOModule::FICHIER_CONFIGURATION;
-		$configuration = new \Phalcon\Config($tableauConfiguration);
-
-		$this->verifierConfiguration($configuration);
-
+		$configurationArray = array();
+		if(file_exists($cheminAbsoluModule . IGOModule::FICHIER_CONFIGURATION)) {
+			$configurationArray = include  $cheminAbsoluModule . IGOModule::FICHIER_CONFIGURATION;
+		};
+		$configuration = new \Phalcon\Config($configurationArray);
 		return $configuration;
-	}
-
-	/**
-	 * Vérifie que la configuration du module respecte le bon format.
-	 * 
-	 * @param  array $configuration La configuration du module
-	 * @throws Exception Retourne les exceptions correspondant aux erreurs de validation.
-	 */
-	private function verifierConfiguration($configuration) {
-		$proprietesMandatatoires = array(
-			'espaceDeNoms',
-			'version'
-		);
-
-		foreach ($proprietesMandatatoires as $propriete) {
-			if(!$configuration->offsetExists($propriete)) {
-				throw new \Exception("La propriété '" . $propriete . "' doit être définie.");
-			}
-		}
 	}
 }
