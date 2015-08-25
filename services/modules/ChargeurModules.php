@@ -86,6 +86,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	}
 
 	private function verifierModulePermission($configGlobal, $configModule, $session, $nomDossier) {
+		//die(var_dump($this->getDi()->getView()->config->modules));
 		if(!$configModule->get('enabled', true)) {
 			return false;
 		}

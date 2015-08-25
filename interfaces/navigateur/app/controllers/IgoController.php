@@ -14,6 +14,7 @@ class IgoController extends ControllerBase
         $this->view->setVar("contexteId", "null");
         $this->view->setVar("contexteCode", "null");
         $this->view->setVar("couche", "null");
+        $this->ajouterJavascriptModules();
     }
     
     public function configurationAction($configuration) {
@@ -107,8 +108,16 @@ class IgoController extends ControllerBase
         if(isset($element->attributes()->mapserver)){
             $this->config->uri->mapserver = $element->attributes()->mapserver;
         }
+
+        if(isset($element->modules)){
+            foreach ($element->modules->children() as $module){
+                $this->config->modules[$module->getName()] = ($module->attributes()->actif == 'true');
+            }
+        }
+
         $this->getDi()->getView()->config = $this->config;
-                      
+
+        $this->ajouterJavascriptModules();                      
     }
     
     public function contexteAction($code) {
@@ -138,6 +147,7 @@ class IgoController extends ControllerBase
         }else {
             $this->view->setVar("avertissement", "Le contexte avec le $type:$code n'existe pas");
         }
+        $this->ajouterJavascriptModules();
     }
 
     public function coucheAction($id) {  
@@ -176,6 +186,7 @@ class IgoController extends ControllerBase
             $this->view->setVar("avertissement", "Aucune couche n'a été trouvée avec le(s) id(s) suivant :".implode(";", $arrayCoucheId));
             $this->view->setVar("couche", "null"); 
         }
+        $this->ajouterJavascriptModules();
     }
     
      public function groupeAction($id) {
@@ -226,6 +237,7 @@ class IgoController extends ControllerBase
             $this->view->setVar("avertissement", "Aucun groupe n'a été trouvé avec le(s) id(s) suivant :".implode(";", $arrayGroupeCoucheId));
             $this->view->setVar("couche", "null"); 
         }
+        $this->ajouterJavascriptModules();
     }
     
     
@@ -307,8 +319,6 @@ class IgoController extends ControllerBase
         else{
             $this->view->setVar("callbackInitIGO", 'null');
         }
-
-        $this->ajouterJavascriptModules();
     }    
 
     /**
