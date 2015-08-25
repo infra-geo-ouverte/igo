@@ -37,6 +37,7 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
      * @alias impression:Panneau.Impression
      * @extends Panneau
      * @requires impression
+     * @param {Objet} options options
      * @returns {Panneau.Impression} Instance de {@link Panneau.Impression}
     */
     function Impression(options){
@@ -47,10 +48,8 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
          
         this.separator = "&";
         this.aszPrintableLayerTypes = [
-            "OpenLayers.Layer.WMS",
-            "OpenLayers.Layer.WMS.Untiled",
-            "OpenLayers.Layer.MapServer",
-         //   "OpenLayers.Layer.OpenLayers"
+            "WMS",
+            "WMTS"
         ];
     };
     
@@ -173,31 +172,31 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
 		var width = widthNumberField.getValue();
 		var height = heightNumberField.getValue();
 		
-		if(paper == "Personalisé"){
+		if(paper === "Personalisé"){
 			widthNumberField.setDisabled(false);
 			heightNumberField.setDisabled(false);
 		}
 		else{
-			if(paper == "LETTER"){
+			if(paper === "LETTER"){
 				width = 8.5;
 				height = 11;
-			}else if(paper == "LEGAL"){
+			}else if(paper === "LEGAL"){
 				width = 8.5;
 				height = 14;
-			}else if(paper == "LEDGER"){
+			}else if(paper === "LEDGER"){
 				width = 11;
 				height = 17;
-			}else if(paper == "A1"){
+			}else if(paper === "A1"){
 				width = 23;
 				height = 33;
-			}else if(paper == "ANSI E"){
+			}else if(paper === "ANSI E"){
 				width = 34;
 				height = 44;
 			}
 			widthNumberField.setDisabled(true);
 			heightNumberField.setDisabled(true);
 			
-			if(orientation == "landscape"){
+			if(orientation === "landscape"){
 				// Invert width & height
 				var buffer = width;
 				width = height;
@@ -404,12 +403,12 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
     });
     
     this.printForm.on('beforeaction', function(form, action) {
-        if (action.type == 'submit') {
+        if (action.type === 'submit') {
 
             //Vérifie qu'on doit réellement envoyé le fichier.
-            if(form.items.get("printLogo").checked == false || 
-                    form.items.get("printLogoPath").value == "" ||
-                    typeof(form.items.get("printLogoPath").value) == "undefined"){
+            if(form.items.get("printLogo").checked === false || 
+                    form.items.get("printLogoPath").value === "" ||
+                    typeof(form.items.get("printLogoPath").value) === "undefined"){
                 form.items.get("printLogoPath").setDisabled(true);
             }
 
@@ -418,7 +417,7 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
     });
     
     this.printForm.on('actionfailed', function(form, action) {
-        if (action.type == 'submit') {
+        if (action.type === 'submit') {
            form.items.get("printLogoPath").setDisabled(false);
            return true;
         }
@@ -431,40 +430,37 @@ define(['panneau', 'aide', 'kmlMsp', 'fileUploadField'], function(Panneau, Aide)
         }
     });
     
-}
+};
 
-/**
- * Function: printMap
- *
- * Get all visible and printable layers currently on map.  Get all required
- * parameters and build a request url string to be putted in a Ext.Window that
- * contains an iframe.  The actual "printing" (image/pdf generation) is done
- * server-side by the url (wms2pdf.php).
- *
- * In the end, an image or pdf appears in the Ext.Window.  See wms2pdf.php for
- * more details on how the actual "printing" works.
- */
+/** 
+    * Début du script lancant l'impression
+    * 
+    * Get all visible and printable layers currently on map.  Get all required
+     * parameters and build a request url string to be putted in a Ext.Window that
+    * contains an iframe.  The actual "printing" (image/pdf generation) is done
+    * server-side by the url (wms2pdf.php).
+    *
+    * In the end, an image or pdf appears in the Ext.Window.  See wms2pdf.php for
+    * more details on how the actual "printing" works.
+    * @method 
+    * @name Impression#printMap
+    */ 
 Impression.prototype.printMap = function(){
     
     var vecteursKml = this.exportVecteur(); 
     
-    if(vecteursKml != null){
+    if(vecteursKml !== null){
         var aoLayers = this.getPrintableLayers(false);
     }else{
         var aoLayers = this.getPrintableLayers(true);
     }
     
-
     if(!aoLayers){
         return false;
     }
     
     //Lancer l'impression
-    var szURL = this.options.service || this.defautOptions.service;
-    /*if (szURL[0]==='/') {
-        szURL = szURL.slice(1);
-    }*/
-        
+    var szURL = this.options.service || this.defautOptions.service;       
     var oParams = this.getPrintParams(aoLayers);
     var szTitle = "Création du fichier";
     var szWait = "Création du fichier en cours, veuillez patienter quelques"+
@@ -476,7 +472,6 @@ Impression.prototype.printMap = function(){
         szURL += '?' + szParams;
     }
 
-    //var proxy = Aide.obtenirProxy() + '?url=';
     szURL=Aide.utiliserProxy(szURL);
 
     if(this.printForm.getForm().isValid()){
@@ -498,22 +493,27 @@ Impression.prototype.printMap = function(){
                this.afficherImpression(action); 
             }
         });
-
     }
- 
-}
+};
 
+/** 
+    * Obtenir les options d'impression pour une série de couche
+    * @method 
+    * @name Impression#getPrintableLayers
+    * @param {boolean} flagVecteur signifie si des couches vecteurs sont présentes
+    * @returns {couche[]} aoLayers série de couche à imprimer
+    */  
 Impression.prototype.getPrintableLayers = function(flagVecteur) {
     
     var flagVecteur = (typeof flagVecteur === "undefined") ? true : flagVecteur;
     var aolBase = [], aolOverlays = [], aoLayers;
 
     var oMap = Igo.nav.carte._carteOL;
-    for (var i = 0, len = oMap.layers.length; i < len; i++) {
-        var oLayer = oMap.layers[i];
-        var coucheIGO = Igo.nav.carte.gestionCouches.obtenirCoucheParId(oLayer.id);
-        if (!oLayer.printOptions) {
-            if (oLayer.getVisibility() && coucheIGO && (coucheIGO.obtenirTypeClasse()==="Google" || coucheIGO.obtenirTypeClasse()==="OSM")){
+    var layers = Igo.nav.carte.gestionCouches.obtenirCouches(true);
+    for (var i = 0, len = layers.length; i < len; i++) {
+        var coucheIGO = layers[i];
+        if (!coucheIGO._layer.printOptions) {
+            if (coucheIGO.options.visible && (coucheIGO.obtenirTypeClasse()==="Google" || coucheIGO.obtenirTypeClasse()==="OSM")){
                 Aide.afficherMessage("Impression", 
                                     "Les couches Google et OpenStreetMap, ne sont pas disponible à l'impression pour des raisons de  droits d'utilisation.", 
                                     "OK", 
@@ -521,28 +521,27 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
                 return;
             }
             
-            if(OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, oLayer.CLASS_NAME) == -1){
+            if(OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, coucheIGO.obtenirTypeClasse()) === -1){
                 continue;
             }
         }
 
-        if( (OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, oLayer.CLASS_NAME) == -1) &&
-           ((!oLayer.printOptions['url'] ||
-             !oLayer.printOptions['layers'] ||
-             !oLayer.printOptions['mapformat'] ||
-             !oLayer.printOptions['format']) ||
-            oLayer.printOptions['fromLayer'] == true)){
+        if( (OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, coucheIGO.obtenirTypeClasse()) === -1) &&
+          ((!coucheIGO._layer.printOptions['url'] ||
+             !coucheIGO._layer.printOptions['layers'] ||
+             !coucheIGO._layer.printOptions['mapformat'] ||
+             !coucheIGO._layer.printOptions['format']) ||
+            coucheIGO._layer.printOptions['fromLayer'] === true)){
             continue;
         }
 
-        if (oLayer.isBaseLayer) {
+        if (coucheIGO.estFond()) {
 
-            if (oLayer.getVisibility()) {
-
-                aolBase.push(oLayer);
+            if (coucheIGO.estActive()) {
+                aolBase.push(coucheIGO);
             }
-        } else if (oLayer.inRange && oLayer.getVisibility()) {
-            aolOverlays.push(oLayer);
+        } else if (coucheIGO.estDansPortee() && coucheIGO.estActive()) {
+            aolOverlays.push(coucheIGO);
         }
     }
 
@@ -558,6 +557,13 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
     return aoLayers;
 };
 
+/** 
+    * Obtenir les options d'impression pour une série de couche
+    * @method 
+    * @name Impression#getPrintParams
+    * @param {couche[]} aoLayers série de couche
+    * @returns {Object} oParams object contenant les paramètres d'impression
+    */  
 Impression.prototype.getPrintParams = function(aoLayers){
     // Patch pour pallier à  l'erreur de la projection Google avec 
     // le paramètre geodesic à  true dans le GOLOC, voir mantis #	0000874
@@ -566,7 +572,7 @@ Impression.prototype.getPrintParams = function(aoLayers){
 	
     var hasBaseLayer = false;
     for(var i = 0; i < aoLayers.length; i++){
-            if(aoLayers[i].isBaseLayer){
+            if(aoLayers[i].estFond()){
                     hasBaseLayer = true;
                     break;
             }
@@ -593,7 +599,7 @@ Impression.prototype.getPrintParams = function(aoLayers){
         oElement = aoElements[i];
         oParams[oElement.getId()] = oElement.getValue();
 
-        if(oElement.getId() == "printOutputFormat"){
+        if(oElement.getId() === "printOutputFormat"){
             szOutputFormat = oElement.getValue();
             switch(szOutputFormat){
               case "pdf":
@@ -603,15 +609,22 @@ Impression.prototype.getPrintParams = function(aoLayers){
                 this.szWindowTitle = "Présente carte en image.  Clique droit "+
                                 "sur l'image pour la sauvegarder.";
             }
-        }else if(oElement.getId() == "printPaper" || oElement.getId() == "printOrientation"){
+        }else if(oElement.getId() === "printPaper" || oElement.getId() === "printOrientation"){
         	// Do not send the print paper/orientation, this is application specific, 
         	// the services requires a width and a height parameter and does not know about the paper formats.
         	continue;
         }
     }
     return oParams;
-}
+};
 
+/** 
+    * Obtenir les options d'impression pour une série de couche
+    * @method 
+    * @name Impression#getLayersPrintOption
+    * @param {couche[]} aoLayers série de couche
+    * @returns {String} szOptionValues chaine de caractère
+    */  
 Impression.prototype.getLayersPrintOption = function(aoLayers, szOption){
     var szOptionValues = "";
 
@@ -625,36 +638,28 @@ Impression.prototype.getLayersPrintOption = function(aoLayers, szOption){
             szOptionValues += this.getLayerPrintOption(oLayer, szOption);
 
             //Changer les urls de layers pour que ça soit en http
-            if ( szOption == 'url'){
+            if ( szOption === 'url'){
                 szOptionValues.replace(/https:\/\//gi, /*Aide.obtenirHote() + Aide.utiliserProxy() +*/ 'https://');
             }
 	}
 	
     return szOptionValues;
-}
+};
 
-/**
- * Function: getLayersPrintOption
- *
- * Return a given print option value of a layer.  Each layer type and option
- * type is treated separately.
- *
- * Parameters:
- * oLayer   - {<OpenLayers.Layer>}  A printable OpenLayer.Layer object
- * szOption - {string}              A possible option of the layer printOptions
- *                                  properties.  See readme at beginning for
- *                                  for more details.
- *
- * Returns:
- * {string}  Layer print option needed for the server-side printing script
- * 
- */
+/** 
+    * Obtenir les options d'impression pour une couche
+    * @method 
+    * @name Impression#getLayerPrintOption
+    * @param {couche} oLayer signifie si des couches vecteurs sont présentes
+    * @param {string} szOption l'option a rechercher
+    * @returns {String} szOptionValue l'option rechercher
+    */ 
 Impression.prototype.getLayerPrintOption = function(oLayer, szOption){
-    var szOptionValue = oLayer.printOptions[szOption];
+    var szOptionValue = oLayer._layer.printOptions[szOption];
     if(szOptionValue){
         switch(szOption){
             case "url":
-                if(szOptionValue.substring(0,1) == "/"){
+                if(szOptionValue.substring(0,1) === "/"){
                     //Call fait pas le server donc pas de https
                     szOptionValue = Aide.obtenirHote() + szOptionValue;
                 }
@@ -668,22 +673,22 @@ Impression.prototype.getLayerPrintOption = function(oLayer, szOption){
 
         case "url":
             var szURL;
-            if (oLayer.url instanceof Array && oLayer.url.length > 1){
-                szURL = oLayer.url[0];
+            if (oLayer._layer.url instanceof Array && oLayer._layer.url.length > 1){
+                szURL = oLayer._layer.url[0];
             } else {
-                szURL = oLayer.url;
+                szURL = oLayer._layer.url;
             }
-            var oParam = OpenLayers.Util.upperCaseObject(oLayer.params);
+            var oParam = OpenLayers.Util.upperCaseObject(oLayer._layer.params);
             var szMap = oParam.MAP;
 
             // if the layer has a 'map' param and it is not in the url, add it.
             if (szMap &&
-                (szURL.indexOf('map=') == -1 || szURL.indexOf('MAP=') == -1)){
+                (szURL.indexOf('map=') === -1 || szURL.indexOf('MAP=') === -1)){
                 var szMapParam = "map="+szMap;
                 szURL += szMapParam + this.separator;
             }
 
-            if(szURL.substring(0,1) == "/"){
+            if(szURL.substring(0,1) === "/"){
                 szURL = Aide.obtenirHote() + szURL;
             }
 
@@ -691,18 +696,17 @@ Impression.prototype.getLayerPrintOption = function(oLayer, szOption){
             break;
 
         case "layers":
-            var oParam = OpenLayers.Util.upperCaseObject(oLayer.params);
-            szOptionValue = oParam.LAYERS;
+            szOptionValue = oLayer.options.nom;
             break;
 
         case "format":
-            switch(oLayer.CLASS_NAME){
+            switch(oLayer._layer.CLASS_NAME){
                 case "OpenLayers.Layer.WMS":
                 case "OpenLayers.Layer.WMS.Untiled":
-                    szOptionValue = oLayer.params.FORMAT;
+                    szOptionValue = oLayer._layer.params.FORMAT;
                     break;
                 case "OpenLayers.Layer.MapServer":
-                    szOptionValue = oLayer.params.map_imagetype;
+                    szOptionValue = oLayer._layer.params.map_imagetype;
                     break;
             }
             break;
@@ -712,26 +716,32 @@ Impression.prototype.getLayerPrintOption = function(oLayer, szOption){
             break;
 
         case "opacity":
-            szOptionValue = oLayer.opacity;
+            szOptionValue = oLayer.obtenirOpacite();
             break;
 
         case "time":
-                if (oLayer.params['TIME']){
-                szOptionValue = oLayer.params['TIME'];
+                if (oLayer._layer.params['TIME']){
+                    szOptionValue = oLayer._layer.params['TIME'];
                 }else{
-                szOptionValue = "null";
+                    szOptionValue = "null";
                 }
         break;
                 
         case "title":
-            szOptionValue = oLayer.name;
+            szOptionValue = oLayer.obtenirTitre();
             break;
                 
     }    
 
     return szOptionValue;
-}
+};
 
+/** 
+    * Converti les données vecteurs en KML lisible par OGR
+    * @method 
+    * @name Impression#exportVecteur
+    * @return {OpenLayers.Format.KML_MSP} dataConvertie KML lisible par OGR 
+    */ 
 Impression.prototype.exportVecteur = function(){
 
     var dataConvertie;
@@ -746,7 +756,7 @@ Impression.prototype.exportVecteur = function(){
         }
     });
     
-    if(vecteurCouches.length == 0){
+    if(vecteurCouches.length === 0){
         return null;
     }else{
         var kmlWriter = new OpenLayers.Format.KML_MSP({
@@ -766,6 +776,13 @@ Impression.prototype.exportVecteur = function(){
     
 };
 
+/** 
+    * Affiche le résultat de l'impression
+    * @method 
+    * @name Impression#afficherImpression
+    * @param {object} action réponse ajax 
+    */ 
+
 Impression.prototype.afficherImpression = function(action){
     
     oMapComponent = Igo.nav.obtenirPanneauxParType('PanneauCarte')[0]._getMapComponent();
@@ -781,30 +798,26 @@ Impression.prototype.afficherImpression = function(action){
         resizable   : true
     };
 
-     var htmlContent = null;
-     
-    var afficherItineraire = true;
-    if(afficherItineraire && $('#itineraire').css('display') === 'block'){
-        var itineraire = $('#itineraire').clone();
-        itineraire.find('.button').remove();
-        htmlContent = "<div id='impressionItineraire'> <a href='#' onClick='window.stop(); window.print()'> Imprimer </a>"+
-                itineraire.html()+"</div><br/><img src=" + action.response.responseText+"> ";
-        
-        var myWindow = window.open('','','scrollbars=1,width=800,height=800');
-        myWindow.document.write('<html><head>');
-        myWindow.document.write('<title>' + 'Impression' + '</title>');
-        myWindow.document.write('<link rel="Stylesheet" type="text/css" href="'+Aide.obtenirCheminRacine()+'css/itineraire.css?version=0.2.0" />');
-        myWindow.document.write('</head><body>');
-        myWindow.document.write(htmlContent);
-        myWindow.document.write('</body></html>');
-        return true;
-    } else if(action.response.responseText.indexOf("html") == -1){
-        htmlContent = "<iframe src=" + action.response.responseText + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
+    var htmlContent = null;
+    var cssItineraire = Aide.obtenirCheminRacine()+'css/itineraire.css?version=0.2.0';
+    
+    if(action.result === false){
+        //ne rien faire car problème côté serveur
     }else{
-        htmlContent = action.response.responseText;
-    }
+        var afficherItineraire = true;
+        if(afficherItineraire && $('#itineraire').css('display') === 'block'){
+            var itineraire = $('#itineraire').clone();
+            itineraire.find('.button').remove();
+            htmlContent = "<div id='impressionItineraire'> <a href='#' onClick='window.stop(); window.print()'> Imprimer </a>"+
+                    itineraire.html()+"</div><br/><img src=" + action.result.url+"> ";
 
-    this.oPDFWindow = new Ext.Window({
+        } else if(action.result.url.indexOf("html") === -1){
+            htmlContent = "<iframe src=" + action.result.url + " width='" + nIFrameWidth + "px' height='"+nIFrameHeight+"px'> ";
+        }else{
+            htmlContent = action.result.url;
+        }
+        
+        this.oPDFWindow = new Ext.Window({
             title    : this.szWindowTitle,
             closable : true,
             width    : nWinWidth,
@@ -816,6 +829,7 @@ Impression.prototype.afficherImpression = function(action){
             constrain: true,
             region: 'center',
             mediaCfg : mConfig,
+            cls : cssItineraire,
             xtype: 'application/pdf',
             //height:'fit',
             hidden: false,
@@ -824,10 +838,22 @@ Impression.prototype.afficherImpression = function(action){
                     html: htmlContent,
                     border: false
             }]
-    });
-    var oPrintButton = Ext.get('printButton');
+        });
+        var oPrintButton = Ext.get('printButton');
+       
+        this.oPDFWindow.show(oPrintButton); 
+    }
+    
     Ext.MessageBox.hide();
-    this.oPDFWindow.show(oPrintButton); 
+     
+    if(action.result ===false){
+            Aide.afficherMessageConsole(action.response.responseText,'eleve');
+    }else if(action.result.erreurs){
+        $.each(action.result.erreurs, function(key, erreur){
+            Aide.afficherMessageConsole(erreur.message, erreur.niveau);
+        }); 
+    }
+    
 };
 
 return Impression;
