@@ -562,8 +562,8 @@ try {
         );
     }
 
-  $app->map('/service',"proxyNavigateur")->via(array('GET','POST'));
-
+    $app->map('/service[/]?{service}',"proxyNavigateur")->via(array('GET','POST'));
+  
     function ObtenirAdresseIP($serveur){
       if (!empty($serveur['HTTP_CLIENT_IP'])){   //check ip from share internet
           $ip=$serveur['HTTP_CLIENT_IP'];
@@ -579,44 +579,8 @@ try {
       $ip = $tabIPs[0];
       return $ip;
     }
-
-    function verifieDomaineRegexFunc($service, $arrayRegex) {
-        $trustedDom = array();
-        foreach ($arrayRegex as $regex){
-            if($regex[0] === '#' || $regex[0] === '/') {
-                $trustedDom[] = $regex;
-            } else if($regex[0] === "*"){
-                $trustedDom[] = "#(.)+#";
-            } else {
-                $trustedDom[] = '#'.preg_quote($regex, '#').'#';
-            }
-        }
-        $test = preg_replace($trustedDom, 'ok', $service);
-        return $test==="ok";
-    }
-
-    function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes){
-        if(isset($arrayServicesExternes[$service])){
-            $serviceRep["url"] = $arrayServicesExternes[$service];
-            $serviceRep["test"] = true;
-        } else {
-            $serviceArray = explode("?", $service);
-            $serviceSplit = $serviceArray[0];
-            if(isset($arrayServicesExternes['regexInterdits'])){
-                $serviceRep["test"] = verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regexInterdits']);
-            }
-            if($serviceRep["test"] === true){
-                $serviceRep["url"] = false;
-            } else if(isset($arrayServicesExternes['regex']) && (strpos($serviceSplit,'/') !== false)) {
-                $serviceRep["test"] = verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regex']);
-            }
-        }
-        return $serviceRep;
-    }
-
-    function proxyNavigateur() {
-        //todo: http://php.net/manual/en/function.curl-setopt.php
-
+   
+    function proxyNavigateur($service=null) {
         global $app;
         $config = $app->getDI()->get("config");
 
@@ -633,77 +597,33 @@ try {
         if($files!=null) {
             $options['files'] = $files;
         }
-
-        $service = urldecode(isset($paramsPost['_service']) ? $paramsPost['_service'] : $paramsGet['_service']);
+        
+        $restService = true;
+        if($service == null){
+            $restService = false;
+            $service = urldecode(isset($paramsPost['_service']) ? $paramsPost['_service'] : $paramsGet['_service']);
+        }
         unset($paramsPost['_service']);
         unset($paramsGet['_service']);
         unset($paramsPost['_url']);
         unset($paramsGet['_url']);
         unset($paramsPost['_client_IP']);
         unset($paramsGet['_client_IP']);
-
-        //Services
-        $url = "";
-        $serviceRep = array(
-            "url"  => "",
-            "test" => false
-        );
+            
+        //Session
         $session = $app->getDI()->getSession();
-        //var_dump($session->info_utilisateur);
-        if($session->has("info_utilisateur") && isset($config['profilsDroit'])) {
-            //utilisateur
-            if(($session->info_utilisateur->identifiant) && isset($config->profilsDroit[$session->info_utilisateur->identifiant])){
-                $serviceExtUser = $config->profilsDroit[$session->info_utilisateur->identifiant];
-                $serviceRep = verifieDomaineFunc($serviceRep, $service, $serviceExtUser);
-            }
-
-            //profils
-            if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
-                $test = false;
-                foreach ($session->info_utilisateur->profils as $key => $value) {
-                    if(is_array($value)){
-                        $idValue = $value["id"];
-                        $profil = $value["libelle"];
-                    } else {
-                        $idValue = $value->id;
-                        $profil = $value->libelle;
-                    }
-                    if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
-                        if(isset($profil) && isset($config->profilsDroit[$profil])){
-                            $serviceExtProfil = $config->profilsDroit[$profil];
-                            $serviceRep = verifieDomaineFunc($serviceRep, $service, $serviceExtProfil);
-                            if($serviceRep["test"] !== false){
-                                $test = true;
-                                if($serviceRep["url"] !== false){
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                $serviceRep["test"] = $test;
-            }
-        } else if(!$session->has("info_utilisateur")){
+        if(!$session->has("info_utilisateur")){
             http_response_code(401);
             die("Vous devez être connecté pour utiliser ce service");
         }
-
-        //general
-        if(($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($config['servicesExternes'])) {
-            $servicesExternes = $config['servicesExternes'];
-            $serviceRep = verifieDomaineFunc($serviceRep, $service, $servicesExternes);
-        }
-
-        if($serviceRep["url"] === false){
+        
+        //Services       
+        $igoController = new IgoController();
+        $url = $igoController->verifierPermis($service, $restService);
+        if($url === false){
             http_response_code(403);
             die("Vous n'avez pas les droits pour ce service.");
-        }
-
-        if ($serviceRep["test"] === true && $serviceRep["url"] === ""){
-            $url = $service;
-        } else {
-            $url = $serviceRep["url"];
-        }
+        }     
 
         $protocole = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://';
         if(isset($url) && is_string($url) && $url !== ""){
@@ -731,7 +651,7 @@ try {
         }
 
         //ajouter la clé
-	if(isset($paramsPost['_cle'])){
+	   if(isset($paramsPost['_cle'])){
             $_cle = $paramsPost['_cle'];
             $cleM = "POST";
         } else if (isset($paramsGet['_cle'])){

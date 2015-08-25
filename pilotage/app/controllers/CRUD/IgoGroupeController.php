@@ -278,11 +278,11 @@ class IgoGroupeController extends ControllerBase {
         $this->gererAssociationParentsGroupeCouche($id, $profil_proprietaire_id);
         $this->gererAssociationEnfantsGroupeCouche($id, $profil_proprietaire_id);
         
-        $igoVueGroupesRecursif = new IgoVueContexteGroupesRecursif();
-        $igoVueGroupesRecursif->refresh();
+        $igoVueGroupesRecursifMaterialized = new IgoVueContexteGroupesRecursifMaterialized();
+        $igoVueGroupesRecursifMaterialized->refresh();
         
-        $igoVueContexteGroupesRecursif = new IgoVueContexteGroupesRecursif();
-        $igoVueContexteGroupesRecursif->refresh();
+        $igoVueContexteGroupesRecursifMaterialized = new IgoVueContexteGroupesRecursifMaterialized();
+        $igoVueContexteGroupesRecursifMaterialized->refresh();
 
         return $save;
     }

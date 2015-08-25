@@ -175,8 +175,8 @@ define([], function() {
 
         if(adresse[0] === '[' && adresse[adresse.length-1] === ']'){
             adresse = adresse.substr(1, adresse.length-2);
-            urlC = params ? adresse + '&' + params : adresse;
-            return this.obtenirProxy(true) + encodeURI(urlC);
+            urlC = params ? '?' + params : "";
+            return this.obtenirProxy() + adresse + encodeURI(urlC);
         }
         if(toujoursUtiliser){
             if(!r.test(adresse)) {

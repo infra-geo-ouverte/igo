@@ -70,13 +70,16 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @param {Couche} couche
     */
     GestionCouches.prototype._ajouterCoucheCallback = function(couche) {
+        var that = this;
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            this.carte._carteOL.addLayer(couche._getLayer());
-            couche.definirOrdreAffichage();
-            if (couche.estFond()){
-                couche.desactiver(!Aide.toBoolean(couche.options.active));
-            }
+            setTimeout(function() {
+                that.carte._carteOL.addLayer(couche._getLayer());
+                couche.definirOrdreAffichage();
+                if (couche.estFond()){
+                    couche.desactiver(!Aide.toBoolean(couche.options.active));
+                }
+            }, 1);
             this.declencher({ type: "ajouterCouche", couche: couche }); 
         };
     };

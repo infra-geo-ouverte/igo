@@ -49,7 +49,6 @@
 							</td>
 							<td>
 								<select class="{{layer['selectClass']}} form-control" name="group[{{layer['id']}}]">
-									<option value=""></option>
 
 									{% if layer['currentGroup'] and layer['wms_group_title'] != layer['currentGroup'] %}
 										<option class="danger" value="{{layer['wms_group_title']}}" selected>{{layer['wms_group_title']}}</option>

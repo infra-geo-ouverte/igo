@@ -786,6 +786,8 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
         if (!options.mesure && !couche) {
             throw new Error("Carte.Controles.activerDessin : La couche est obligatoire");
+        } else if (!options.mesure && (!couche.obtenirTypeClasse || couche.obtenirTypeClasse() !== 'Vecteur')){
+            throw new Error("Carte.Controles.activerDessin : La couche doit être de type Vecteur");
         }
 
         if (this.controleDessin &&
