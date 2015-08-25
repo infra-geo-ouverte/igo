@@ -156,7 +156,7 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 */
 	protected function convertirCheminRelatifEnCheminAbsolue($cheminRelatif) {
 		$config = $this->getDi()->get('config');
-		return $config->modules . '/' . $this->configuration->offsetGet('nomDossierModule') . '/' . $cheminRelatif;
+		return $config->application->modules . '/' . $this->configuration->offsetGet('nomDossierModule') . '/' . $cheminRelatif;
 	}
 
 	/**

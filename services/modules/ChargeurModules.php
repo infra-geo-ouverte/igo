@@ -52,8 +52,9 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	 */
 	public function initialiser() {
 		$configGlobal = $this->getDi()->get('config');
+		$session = $this->getDi()->getSession();
 
-		if(!$configGlobal->offsetExists('modules')) {
+		if(!$configGlobal->application->offsetExists('modules')) {
 			return;
 		}
 
@@ -61,11 +62,11 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			throw new \Exception('Lorsque le système de modules est utilisé, le paramètre `modules` doit être défini dans la configuraiton `uri`');
 		}
 
-		if(!file_exists($configGlobal->modules) || !is_dir($configGlobal->modules)) {
+		if(!file_exists($configGlobal->application->modules) || !is_dir($configGlobal->application->modules)) {
 			throw new \Exception('Le répertoire de module `' . $configGlobal->modules . '` n\'existe pas ou n\'est pas un répertoire valide.');
 		}
 
-		$repertoireModules = $configGlobal->modules;
+		$repertoireModules = $configGlobal->application->modules;
 		$dossiers = $this->filterDossiersModules($repertoireModules);
 
 	    foreach($dossiers as $nomDossier) {
@@ -73,9 +74,8 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 
 			try {
 				$configurationModule = $this->chargerConfiguration($dossierAbsolu);
-
-				if($configurationModule->get('enabled', true)) {
-
+				
+				if($this->verifierModulePermission($configGlobal, $configurationModule, $session, $nomDossier)) {
 					$uri = $configGlobal->uri->modules . '/' . $nomDossier;
 					$this->chargerModule($configurationModule, $nomDossier, $dossierAbsolu, $uri);
 				}
@@ -83,6 +83,59 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 				die('Erreur lors du chargement du module \'' . $nomDossier . '\': ' . $e->getMessage());
 			}
 	    }
+	}
+
+	private function verifierModulePermission($configGlobal, $configModule, $session, $nomDossier) {
+		if(!$configModule->get('enabled', true)) {
+			return false;
+		}
+
+		$espaceDeNoms = $configModule->get('espaceDeNoms', true);
+		$espaceDeNoms = $espaceDeNoms != 1 ? $espaceDeNoms : $nomDossier;
+
+		$permis = true;
+		if(isset($configGlobal->modules[$espaceDeNoms]) && $configGlobal->modules[$espaceDeNoms] === false){
+			$permis = false;
+		}
+
+		if(!isset($session['info_utilisateur'])){
+			return false;
+		} else if ($session['info_utilisateur']->estAuthentifie){
+			if(isset($configGlobal->profilsDroit[$session['info_utilisateur']->identifiant])){
+				$identifiant = $configGlobal->profilsDroit[$session['info_utilisateur']->identifiant];
+				if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
+					return $identifiant->modules[$espaceDeNoms];		
+				}
+			}
+
+			//profils
+            foreach ($session['info_utilisateur']->profils as $key => $value) {
+                if(is_array($value)){
+                    $idValue = $value["id"];
+                    $profil = $value["libelle"];
+                } else {
+                    $idValue = $value->id;
+                    $profil = $value->libelle;
+                }
+                if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
+                    if(isset($profil) && isset($configGlobal->profilsDroit[$profil])){
+                        $modules = $configGlobal->profilsDroit[$profil]->modules;
+                        if(isset($modules[$espaceDeNoms])){
+							$permis = $modules[$espaceDeNoms];	
+							break;	
+						}
+                    }
+                }
+            }
+
+		} else if ($session['info_utilisateur']->estAnonyme && isset($configGlobal->profilsDroit['Anonyme'])){
+			$modules = $configGlobal->profilsDroit['Anonyme']->modules;
+			if(isset($modules[$espaceDeNoms])){
+				return $modules[$espaceDeNoms];
+			}
+		}
+
+		return $permis;
 	}
 
 	/**

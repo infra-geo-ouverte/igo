@@ -343,11 +343,13 @@ class IgoController extends ControllerBase
             if(($session->info_utilisateur->identifiant) && isset($this->config->profilsDroit[$session->info_utilisateur->identifiant])){
                 $serviceExtUser = $this->config->profilsDroit[$session->info_utilisateur->identifiant];
                 $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
+            } else if ($session->info_utilisateur->estAnonyme && isset($this->config->profilsDroit['Anonyme'])){
+                $serviceExtUser = $this->config->profilsDroit['Anonyme'];
+                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
             }
                
             //profils
             if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
-           
                 $test = false;
                 foreach ($session->info_utilisateur->profils as $key => $value) {
                     if(is_array($value)){
@@ -358,7 +360,7 @@ class IgoController extends ControllerBase
                         $profil = $value->libelle;
                     }
                     if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
-                        if(isset($profil) && isset($config->profilsDroit[$profil])){
+                        if(isset($profil) && isset($this->config->profilsDroit[$profil])){
                             $serviceExtProfil = $this->config->profilsDroit[$profil];
                             $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil, $restService);
                             if($serviceRep["test"] !== false){                        
@@ -370,8 +372,7 @@ class IgoController extends ControllerBase
                         }
                     }
                 }
-                
-                //todo -> si anonyme vérifier profil invité/anonyme
+                 
                 $serviceRep["test"] = $test;
             }
         } else if(!$session->has("info_utilisateur")){
