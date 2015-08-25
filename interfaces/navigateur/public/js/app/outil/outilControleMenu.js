@@ -69,7 +69,7 @@ define(['outilMenu', 'aide', 'outil'], function(OutilMenu, Aide, Outil) {
             this.changerIcone(outil.options.icone);
         }
         if(enfoncer !== false){
-            this.enfoncerBouton();
+            this.enfoncer();
         }
     };
     

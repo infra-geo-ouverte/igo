@@ -1,7 +1,7 @@
 options.requireConfigFct = function(version, debug){
 
     require.config({
-        baseUrl: "<?php echo $this->url->getBaseUri()?>",
+        baseUrl: "{{this.url.getBaseUri()}}",
         urlArgs: "version="+ version,
         waitSeconds: 30,
         paths: {
@@ -36,8 +36,8 @@ options.requireConfigFct = function(version, debug){
             css : "libs/require/src/css",
             text : "libs/require/src/text",
             hbars : "libs/require/src/hbars",
-            handlebars: '<?php echo $this->config->uri->librairies?>/handlebars/handlebars',
-            jquery: debug ? "<?php echo $this->config->uri->librairies?>/jquery/jquery" : "<?php echo $this->config->uri->librairies?>/jquery/jquery.min",
+            handlebars: '{{this.config.uri.librairies}}/handlebars/handlebars',
+            jquery: debug ? "{{this.config.uri.librairies}}/jquery/jquery" : "{{this.config.uri.librairies}}/jquery/jquery.min",
             proj4js: 'libs/proj/Proj4js',
             epsgDef: 'libs/proj/epsgDef',
             build: "js/main-build"

@@ -103,7 +103,7 @@ define([], function() {
 		        text : "libs/require/src/text",
 		        hbars : "libs/require/src/hbars",
 		        handlebars: uri.librairies+'/handlebars/handlebars',
-		        jquery: debug ? uri.librairies+"/jquery/jquery.min",
+		        jquery: debug ? uri.librairies+"/jquery/jquery" : uri.librairies+"/jquery/jquery.min",
 		        proj4js: 'libs/proj/Proj4js',
 		        epsgDef: 'libs/proj/epsgDef',
 		        build: "js/main-build"

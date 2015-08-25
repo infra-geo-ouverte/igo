@@ -632,11 +632,22 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         var that = this;
         var listCouches = [];
         var couches = $.isArray(data) ? data : data.couches || [];
+        var layernamePermis = Aide.obtenirParametreURL("layername");
+        if(layernamePermis){
+            layernamePermis = layernamePermis.split(',');
+        }
         $.each(couches, function(key, couche) {
+            var layername = couche.mf_layer_name || couche.mf_layer_meta_name;
+            if(layernamePermis){
+                if(layernamePermis.indexOf(layername) === -1){
+                    return true;
+                }
+                couche.est_active = true;
+            }
             var options = {
                 id: couche.couche_id,
                 url: couche.mf_map_meta_onlineresource || data.mf_map_meta_onlineresource,
-                nom: couche.mf_layer_name || couche.mf_layer_meta_name,
+                nom: layername,
                 titre: couche.mf_layer_meta_title,
                 active: couche.est_active,
                 visible: couche.est_visible,
@@ -657,8 +668,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 wms_timeextent: couche.wms_timeextent,
                 msp_wmst_multiplevalues: couche.msp_wmst_multiplevalues,
                 wms_timeformat: couche.wms_timeformat
-                
             };
+
             if(Aide.obtenirConfig("uri.mapserver")){
                 if(Aide.obtenirConfig("uri.mapserver") !== true){
                     options.url = Aide.obtenirConfig("uri.mapserver") + options.url;

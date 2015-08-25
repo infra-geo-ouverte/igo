@@ -236,9 +236,10 @@ define([], function() {
      * @name helper.Aide#obtenirParametreURL
      * @param {String} sParam Paramètre voulu
      * @param {String} [url] Si absent, url du navigateur.
+     * @param {Boolean} [array] Retourne un array
      * @returns {String} Valeur du paramètre
     */
-    Aide.obtenirParametreURL = function(sParam, url) {
+    Aide.obtenirParametreURL = function(sParam, url, array) {
         if(url){
             var urlArray = url.split('?');
             if (urlArray.length===2){
@@ -247,12 +248,18 @@ define([], function() {
         }
         var sPageURL = url || window.location.search.substring(1);
         var sURLVariables = sPageURL.split('&');
+        var arrayValue = [];
         for (var i = 0; i < sURLVariables.length; i++) {
             var sParameterName = sURLVariables[i].split('=');
             if (sParameterName[0] == sParam) {
-                return decodeURIComponent(sParameterName[1]);
+                if(array){
+                    arrayValue.push(decodeURIComponent(sParameterName[1]));
+                } else {
+                    return decodeURIComponent(sParameterName[1]);
+                }
             };
-        };        
+        };    
+        return array ? arrayValue : undefined;    
     };
     
     /** 
