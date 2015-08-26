@@ -258,19 +258,19 @@ class IgoController extends ControllerBase
         if($application->getDI()->getSession()->has("info_utilisateur")){
             if($application->getDI()->getSession()->get("info_utilisateur")->identifiant){
                 $user = $application->getDI()->getSession()->get("info_utilisateur")->identifiant;
-                $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
-                if(isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
-                    $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
-                    foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
-                        if($value['id']== $idProfil){
-                             $libelleProfil = $value['libelle']; 
-                             break;
-                        }
+            }
+            $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
+            if(isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
+                $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
+                foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
+                    if($value['id']== $idProfil){
+                         $libelleProfil = $value['libelle']; 
+                         break;
                     }
                 }
-                if($libelleProfil === ''){
-                    $count = 0;
-                }
+            }
+            if($libelleProfil === ''){
+                $count = 0;
             }
         }
         $this->view->setVar("profil", $libelleProfil);   
@@ -352,9 +352,6 @@ class IgoController extends ControllerBase
             //utilisateur
             if(($session->info_utilisateur->identifiant) && isset($this->config->profilsDroit[$session->info_utilisateur->identifiant])){
                 $serviceExtUser = $this->config->profilsDroit[$session->info_utilisateur->identifiant];
-                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
-            } else if ($session->info_utilisateur->estAnonyme && isset($this->config->profilsDroit['Anonyme'])){
-                $serviceExtUser = $this->config->profilsDroit['Anonyme'];
                 $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
             }
                

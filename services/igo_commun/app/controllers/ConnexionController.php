@@ -4,7 +4,6 @@ use Phalcon\Mvc\Controller;
 class ConnexionController extends Controller{
     
     public function indexAction() {
-        
         $authentificationModule = $this->getDI()->get("authentificationModule");        
 
         $configuration = $this->getDI()->get("config");
@@ -153,13 +152,18 @@ class ConnexionController extends Controller{
             if(!$this->session->has("info_utilisateur")) {
                 $this->session->set("info_utilisateur", new SessionController());
             }
-            if(estAuthentifier !== TRUE){
+            if($estAuthentifier !== TRUE){
                 $this->session->get("info_utilisateur")->estAuthentifie = false;
                 $this->session->get("info_utilisateur")->estAnonyme = true;
+                $this->session->get("info_utilisateur")->persistant = true;
             }
             if($configuration->offsetExists("database")) {
                 if($configuration->application->authentification->activerSelectionRole){
-                    $this->session->get("info_utilisateur")->profilActif = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
+                    $profilAnonyme = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                    if($profilAnonyme){
+                        $this->session->get("info_utilisateur")->profils = array($profilAnonyme->toArray());
+                        $this->session->get("info_utilisateur")->profilActif = $this->session->get("info_utilisateur")->profils[0]['id'];
+                    }
                 } else {
                     $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->toArray();
                 }

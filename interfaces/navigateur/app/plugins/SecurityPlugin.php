@@ -25,6 +25,8 @@ class SecurityPlugin extends Plugin
             $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
+            $user = $this->session->get("info_utilisateur");
+
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
             if(isset($this->getDi()->getConfig()->configurations[$configuration])){
                 $file = $this->getDi()->getConfig()->configurations[$configuration];
@@ -34,9 +36,9 @@ class SecurityPlugin extends Plugin
             if((!file_exists($file) && !curl_url_exists($file))){
                 return $this->forwardToErrorPage();
             }
-            if($this->estAuthentificationRequise($configuration) && !$this->estAnonyme() && !$this->estAuthentifie()){
+            if($this->estAuthentificationRequise($configuration) && !$this->estAuthentifie() && (!$this->estAnonyme() || ($this->estAnonyme() && (!isset($user->persistant) || $user->persistant == false)))){
                 return $this->forwardToLoginPage();
-            }else if($this->estAuthentificationRequise($configuration) && $this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
+            } else if($this->estAuthentificationRequise($configuration) && $this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
                 return $this->forwardToRolePage();
             } else if (!$this->estAuthentificationRequise($configuration) && !$this->estAuthentifie()){
                 $authentificationModule = $this->getDI()->get("authentificationModule");
@@ -45,9 +47,12 @@ class SecurityPlugin extends Plugin
                 }
                 $configuration = $this->getDI()->get("config");
                 if($configuration->offsetExists("database")) {
-                    // Si la BD n'existe pas dans la config on n'ajoute pas de profil et on se base sur le xml
                     if($this->estRoleSelectionneRequis()){
-                        $this->session->get("info_utilisateur")->profilActif = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
+                        $profilAnonyme = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                        if($profilAnonyme){
+                            $this->session->get("info_utilisateur")->profils = array($profilAnonyme->toArray());
+                            $this->session->get("info_utilisateur")->profilActif = $this->session->get("info_utilisateur")->profils[0]['id'];
+                        }
                     } else if(isset($configuration->application->authentification->nomProfilAnonyme)){
                         $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
                     } 
@@ -60,8 +65,19 @@ class SecurityPlugin extends Plugin
             if($this->estAnonyme() && isset($config->application->authentification->permettreAccesAnonyme) && !$config->application->authentification->permettreAccesAnonyme){
                 return $this->forwardToUnauthorizedPage();
             }
-
-        }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){                        
+            if($this->estAnonyme()){
+                $this->session->get("info_utilisateur")->persistant = false;
+            }
+        }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){    
+            if($this->estAnonyme()){
+                $user = $this->session->get("info_utilisateur");
+                if(isset($user->persistant) && $user->persistant === true){
+                    $user->persistant = false;
+                } else {
+                    $this->session->destroy();
+                    $authentificationModule->deconnexion();
+                } 
+            }                 
             if(!$this->estAnonyme() && !$this->estAuthentifie()){                
                 return $this->forwardToLoginPage();
             }else if($this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
@@ -76,6 +92,7 @@ class SecurityPlugin extends Plugin
         $this->dispatcher->forward(array(
             "controller" => "connexion",
             "action" => "index"
+            //"params" => array($this->getDi()->getConfig()->application->authentification->nomProfilAnonyme)
         ));
         return;
     }
@@ -114,13 +131,16 @@ class SecurityPlugin extends Plugin
             $xmlPath = $this->getDi()->getConfig()->configurationsDir . $configuration . '.xml';
         }
         if(file_exists($xmlPath)){
-            $element = simplexml_load_file($xmlPath);            
+            $element = simplexml_load_file($xmlPath);   
+            if(isset($element->serveur) && isset($element->serveur->authentification) && isset($element->serveur->authentification->attributes()->nomProfilAnonyme)){
+               $this->getDi()->getConfig()->application->authentification->nomProfilAnonyme = $element->serveur->authentification->attributes()->nomProfilAnonyme->__toString();
+            }         
         } else { //url externe
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }              
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
-        }else{
+        } else{
             $authentification = "true"; // Est-ce qu'on devrait forcer l'authentification par defaut? En attendant de décider, on le force par défaut.
         }        
         // Si la configuration demande que l'utilisateur soit authentifié et qu'il ne l'est pas encore, le rediriger vers la fenetre de connexion        

@@ -101,40 +101,39 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 
 		if(!isset($session['info_utilisateur'])){
 			return false;
-		} else if ($session['info_utilisateur']->estAuthentifie){
-			if(isset($configGlobal->profilsDroit[$session['info_utilisateur']->identifiant])){
-				$identifiant = $configGlobal->profilsDroit[$session['info_utilisateur']->identifiant];
-				if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
-					return $identifiant->modules[$espaceDeNoms];		
-				}
-			}
+		}
+		
+		if(!isset($configGlobal->profilsDroit)){
+			return $permis;
+		}
 
-			//profils
-            foreach ($session['info_utilisateur']->profils as $key => $value) {
-                if(is_array($value)){
-                    $idValue = $value["id"];
-                    $profil = $value["libelle"];
-                } else {
-                    $idValue = $value->id;
-                    $profil = $value->libelle;
-                }
-                if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
-                    if(isset($profil) && isset($configGlobal->profilsDroit[$profil])){
-                        $modules = $configGlobal->profilsDroit[$profil]->modules;
-                        if(isset($modules[$espaceDeNoms])){
-							$permis = $modules[$espaceDeNoms];	
-							break;	
-						}
-                    }
-                }
-            }
-
-		} else if ($session['info_utilisateur']->estAnonyme && isset($configGlobal->profilsDroit['Anonyme'])){
-			$modules = $configGlobal->profilsDroit['Anonyme']->modules;
-			if(isset($modules[$espaceDeNoms])){
-				return $modules[$espaceDeNoms];
+		//utilisateur
+		if ($session['info_utilisateur']->estAuthentifie && isset($configGlobal->profilsDroit[$session['info_utilisateur']->identifiant])){
+			$identifiant = $configGlobal->profilsDroit[$session['info_utilisateur']->identifiant];
+			if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
+				return $identifiant->modules[$espaceDeNoms];		
 			}
 		}
+
+		//profils
+        foreach ($session['info_utilisateur']->profils as $key => $value) {
+            if(is_array($value)){
+                $idValue = $value["id"];
+                $profil = $value["libelle"];
+            } else {
+                $idValue = $value->id;
+                $profil = $value->libelle;
+            }
+            if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
+                if(isset($profil) && isset($configGlobal->profilsDroit[$profil])){
+                    $modules = $configGlobal->profilsDroit[$profil]->modules;
+                    if(isset($modules[$espaceDeNoms])){
+						$permis = $modules[$espaceDeNoms];	
+						break;	
+					}
+                }
+            }
+        }
 
 		return $permis;
 	}

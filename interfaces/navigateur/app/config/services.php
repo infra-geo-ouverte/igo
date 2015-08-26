@@ -197,6 +197,14 @@ $di->set('router', function(){
     $router = new \Phalcon\Mvc\Router();
     //Define a route
     $router->add(
+        "#^/([a-zA-Z0-9_-]++)#",
+        array(
+            "controller" => "error",
+            "action" => "error404"
+        )
+    );
+
+    $router->add(
         "/contexte/{contexte}",
         array(
             "controller" => "igo",
@@ -226,6 +234,14 @@ $di->set('router', function(){
             "controller" => "igo",
             "action"     => "groupe",
             "coucheid" => 1
+        )
+    );
+
+    $router->add(
+        "/connexion/{action}",
+        array(
+            "controller" => "connexion",
+            "action" => 1
         )
     );
        

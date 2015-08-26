@@ -127,6 +127,7 @@ try {
                     }
                 }
 
+                unset($element->serveur);
                 echo json_encode($element);
             }
             else{
@@ -208,11 +209,9 @@ try {
         $authentificationModule = $app->getDI()->get("authentificationModule");
 
         if (estAnonyme($app->getDI()->getSession())) {
-            $configuration = $app->getDI()->get("config");
-            if(!isset($configuration->application->authentification->nomProfilAnonyme)){
+            if((null === $app->getDI()->getSession()->get("info_utilisateur")) || is_null($app->getDI()->getSession()->get("info_utilisateur")->profilActif)){
                 return (string) '0';
             }
-            return (string) '0,'.IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
         }
 
         if(!is_null($app->getDI()->getSession()->get("info_utilisateur")->profilActif)) {
