@@ -23,7 +23,7 @@ var options = {
 
 
 options.modulesFct = [];
-{% for module in modules %}
+{% for module in modulesJS %}
     options.modulesFct.push(function(Configuration, Aide){
         //saut de ligne
         <?php include($module); ?>

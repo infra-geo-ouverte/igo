@@ -20,6 +20,16 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	const FICHIER_JAVASCRIPT_PRINCIPAL = '/public/js/module.js';
 
 	/**
+	 * Le chemin vers la vue .volt à inclure
+	 */
+	const FICHIER_VUE_PRINCIPAL = '/views/module.volt';
+
+	/**
+	 * Le chemin vers la fonction php à inclure
+	 */
+	const FICHIER_FONCTION_PRINCIPAL = '/php/module.php';
+
+	/**
 	 * La configuration du module. Lu à partir de `config/config.php`
 	 *
 	 * @var array
@@ -32,6 +42,20 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 * @var array
 	 */
 	protected $javascript = array();
+
+	/**
+	 * Liste des script Javascript inclus par le module.
+	 *
+	 * @var array
+	 */
+	protected $vues = array();
+
+	/**
+	 * Liste des fonctions php inclus par le module.
+	 *
+	 * @var array
+	 */
+	protected $fonctions = array();
 
 	/**
 	 * Constructeur par défaut.
@@ -47,6 +71,8 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 */
 	public function initialiser() {
 		$this->enregistrerJavascript(IGOModule::FICHIER_JAVASCRIPT_PRINCIPAL);
+		$this->enregistrerVue(IGOModule::FICHIER_VUE_PRINCIPAL);
+		$this->enregistrerFonction(IGOModule::FICHIER_FONCTION_PRINCIPAL);
 	}
 
 	/**
@@ -65,6 +91,20 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 */
 	public function obtenirJavascript() {
 		return $this->javascript;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function obtenirVues() {
+		return $this->vues;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function obtenirFonctions() {
+		return $this->fonctions;
 	}
 
 	/**
@@ -126,6 +166,34 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 
 		if(file_exists($script)) {
 			array_push($this->javascript, $script);
+		}
+	}
+
+	/**
+	 * Enregistre une vue .volt à inclure 
+	 *
+	 * @param  string $cheminFichier Chemin vers le fichier volt
+	 * @return void
+	 */
+	protected function enregistrerVue($cheminFichier) {
+		$script = $this->convertirCheminRelatifEnCheminAbsolue($cheminFichier);
+
+		if(file_exists($script)) {
+			array_push($this->vues, $script);
+		}
+	}
+
+	/**
+	 * Enregistre une function php à exécuter avant de traiter la vue.
+	 *
+	 * @param  string $cheminFichier Chemin vers le fichier php
+	 * @return void
+	 */
+	protected function enregistrerFonction($cheminFichier) {
+		$script = $this->convertirCheminRelatifEnCheminAbsolue($cheminFichier);
+
+		if(file_exists($script)) {
+			array_push($this->fonctions, $script);
 		}
 	}
 

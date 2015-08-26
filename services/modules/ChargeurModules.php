@@ -218,6 +218,40 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	}
 
 	/**
+	 * Obtient tous les fichiers javascript demandés d'être inclus
+	 * pour chacun des modules chargés.
+	 * 
+	 * @return array Une liste des fichiers javascripts
+	 */
+	public function obtenirVues() {
+		$vues = array();
+
+		foreach ($this->modules as $module) {
+			$vueModule = $module->obtenirVues();
+			$vues = array_merge($vues, $vueModule);
+		}
+
+		return $vues;
+	}
+
+	/**
+	 * Obtient toutes les fonctions php demandés d'être inclus
+	 * pour chacun des modules chargés.
+	 * 
+	 * @return array Une liste des fichiers javascripts
+	 */
+	public function obtenirFonctions() {
+		$vues = array();
+
+		foreach ($this->modules as $module) {
+			$vueModule = $module->obtenirFonctions();
+			$vues = array_merge($vues, $vueModule);
+		}
+
+		return $vues;
+	}
+
+	/**
 	 * Charge un module.
 	 *
 	 * @param  object $configurationModule La configuraiton du module à charger.

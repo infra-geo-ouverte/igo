@@ -31,6 +31,20 @@ interface IIGOModule {
 	public function chargerApi($api);
 
 	/**
+	 * Retour la liste de toutes les vues inclus par le module.
+	 *
+	 * @return array
+	 */
+	public function obtenirVues();
+
+	/**
+	 * Retour la liste de toutes les fonctions php inclus par le module.
+	 *
+	 * @return array
+	 */
+	public function obtenirFonctions();
+
+	/**
 	 * Retour la liste de tous les librairies Javascript inclus par le module.
 	 *
 	 * @return array

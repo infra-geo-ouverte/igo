@@ -14,7 +14,7 @@ class IgoController extends ControllerBase
         $this->view->setVar("contexteId", "null");
         $this->view->setVar("contexteCode", "null");
         $this->view->setVar("couche", "null");
-        $this->ajouterJavascriptModules();
+        $this->ajouterModules();
     }
     
     public function configurationAction($configuration) {
@@ -116,8 +116,9 @@ class IgoController extends ControllerBase
         }
 
         $this->getDi()->getView()->config = $this->config;
+        $this->getDi()->getView()->configXml = $element;
 
-        $this->ajouterJavascriptModules();                      
+        $this->ajouterModules();                      
     }
     
     public function contexteAction($code) {
@@ -147,7 +148,7 @@ class IgoController extends ControllerBase
         }else {
             $this->view->setVar("avertissement", "Le contexte avec le $type:$code n'existe pas");
         }
-        $this->ajouterJavascriptModules();
+        $this->ajouterModules();
     }
 
     public function coucheAction($id) {  
@@ -186,7 +187,7 @@ class IgoController extends ControllerBase
             $this->view->setVar("avertissement", "Aucune couche n'a été trouvée avec le(s) id(s) suivant :".implode(";", $arrayCoucheId));
             $this->view->setVar("couche", "null"); 
         }
-        $this->ajouterJavascriptModules();
+        $this->ajouterModules();
     }
     
      public function groupeAction($id) {
@@ -237,7 +238,7 @@ class IgoController extends ControllerBase
             $this->view->setVar("avertissement", "Aucun groupe n'a été trouvé avec le(s) id(s) suivant :".implode(";", $arrayGroupeCoucheId));
             $this->view->setVar("couche", "null"); 
         }
-        $this->ajouterJavascriptModules();
+        $this->ajouterModules();
     }
     
     
@@ -326,11 +327,21 @@ class IgoController extends ControllerBase
      * 
      * @return void
      */
-    public function ajouterJavascriptModules() {
+    public function ajouterModules() {
         $chargeurModules = $this->getDi()->get('chargeurModules');
-        $modules = $chargeurModules->obtenirJavascript();
+        
+        $modulesJS = $chargeurModules->obtenirJavascript();
+        $this->view->setVar("modulesJS", $modulesJS);
 
-        $this->view->setVar("modules", $modules);
+        $modulesVues = $chargeurModules->obtenirVues();
+        $this->view->setVar("modulesVues", $modulesVues);
+
+        $config = $this->getDi()->getView()->config;
+        $configXml = $this->getDi()->getView()->configXml;
+        $modulesFonctions = $chargeurModules->obtenirFonctions();
+        foreach ($modulesFonctions as $fct) {
+            include($fct);    
+        }
     }
     
     /*

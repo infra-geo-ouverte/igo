@@ -12,5 +12,11 @@ and open the template in the editor.
     </head>
     <body>  
     {{ content() }}
+
+	{% for module in modulesVues %}
+
+	        <?php include($module); ?>
+
+	{% endfor  %}
     </body>
 </html>
