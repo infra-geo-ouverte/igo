@@ -72,9 +72,10 @@
           Mapfile <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-            <li class="enabled">{{ link_to("mapfile/cree","Création d'un mapfile" )}}</li> 
-            <li class="enabled">{{ link_to("mapfile/retro","Rétroingénierie d'un mapfile" )}}</li> 
-            <li class="disabled">{{ link_to("gestion_couche/loadMapfile","Rétroingénierie d'un layer" )}}</li> 
+            <li class="enabled">{{ link_to("mapfile/cree","Visionnement d'un Mapfile" )}}</li> 
+            <li class="enabled">{{ link_to("mapfile/retro","Rétroingénierie d'un Mapfile" )}}</li> 
+            <li class="disabled"><!--{{ link_to("gestion_couche/loadMapfile","Rétroingénierie d'un layer" )}}--><a>Rétroingénierie d'un layer</a></li>
+
         </ul>
     </li>
     {% endif %}
