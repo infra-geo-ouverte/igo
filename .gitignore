@@ -16,7 +16,7 @@ node_modules/
 librairie/
 pilotage/
 
-modules.json
+configGrunt.json
 config/config.php
 services/config.php
 

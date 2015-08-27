@@ -1,20 +1,22 @@
 module.exports = function(grunt) {
+    globalGrunt = grunt;
     initTasks(grunt);
     initConfigs(grunt);
 }
 
-function getModulesDir(grunt){
-    var modulesJson = grunt.file.readJSON('modules.json');
+/*function getModulesDir(grunt){
+    var modulesJson = grunt.config.get("config").modules;
     var modulesDir = [];
     for (var key in modulesJson) {
         modulesDir.push(modulesJson[key].options.directory);
     };
     return modulesDir;
-}
+}*/
 
 function initConfigs(grunt){
-grunt.initConfig({
+    grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        config: grunt.config.set('config', grunt.file.readJSON('configGrunt.json')),
         dirs: {
             publicNav: 'interfaces/navigateur/public/',
             build: 'interfaces/navigateur/build/',
@@ -222,6 +224,21 @@ grunt.initConfig({
             }
         },
         shell: {
+            gitstatus: {
+                command: function (dir) {
+                    return "cd " + dir + " && git status -s";
+                }
+            },
+            gitstatuscomplet: {
+                command: function (dir) {
+                    return "cd " + dir + " && git status";
+                }
+            },
+            gitcheckout: {
+                command: function (dir, branch) {
+                    return "cd " + dir + " && git checkout " + branch;
+                }
+            },
             bowerinstall: {
                 command: function () {
                     return 'bower install';
@@ -241,7 +258,7 @@ grunt.initConfig({
             },
             qUnit: {
                 command: function () {
-                    return "phantomjs interfaces/navigateur/public/testUnit/run-qunit.js <%= pkg.urlTestUnit %> | \
+                    return "phantomjs interfaces/navigateur/public/testUnit/run-qunit.js <%= config.urlTestUnit %> | \
                             grep 'failures=\"0\"'";
                 },
                 options: {
@@ -254,7 +271,7 @@ grunt.initConfig({
                             if (err && err.signal === "SIGTERM") {
                                 grunt.log.error("timeout");
                             } else {
-                                grunt.log.error("Dans package.json, veillez définir 'urlTestUnit'");
+                                grunt.log.error("Dans configGrunt.json, veillez définir 'urlTestUnit'");
                             }
                             return cb(new Error('Tests échecs'));
                         }
@@ -276,8 +293,8 @@ grunt.initConfig({
             }
         },
         clean: {
-            cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*'],
-            modules: [getModulesDir(grunt)]
+            cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*']
+           // modules: [getModulesDir(grunt)]
         },
         watch: {
             scripts: {
@@ -311,8 +328,8 @@ grunt.initConfig({
                 }
             }
         },
-        gitclone: grunt.file.readJSON('modules.json'),
-        gitpull: grunt.file.readJSON('modules.json')
+        gitclone: grunt.config.get("config").modules,
+        gitpull: grunt.config.get("config").modules
     });
 }
 
@@ -343,10 +360,184 @@ function initTasks(grunt){
     grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('qUnit', ['shell:qUnit']);
-    grunt.registerTask('cloneModules', ['gitclone']);
-    grunt.registerTask('pullModules', ['gitpull']);
-    grunt.registerTask('cleanModules', ['clean:modules']);
+    //grunt.registerTask('cloneModules', ['gitclone']);
+    //grunt.registerTask('pullModules', ['gitpull']);
+    //grunt.registerTask('cleanModules', ['clean:modules']);
     //jsbeautifier et //jshint
 
+    grunt.task.registerTask('modules', 'Gérer les modules', modulesTask);
+
     grunt.task.run('notify_hooks');
+}
+
+
+function modulesTask(commande, nomModule, param3){
+    var grunt = globalGrunt;
+
+    var modules = grunt.config.get("config").modules;
+    if(!modules){
+        grunt.log.error("La liste des modules doit être dans configGrunt.json");
+        return false;
+    }
+    if(nomModule && nomModule !== 'all'){
+        var moduleTrouve = modules[nomModule];
+        if(!moduleTrouve){
+            grunt.log.error("Module '" + nomModule + "' inconnu");
+            return false;
+        }
+        modules = {};
+        modules[nomModule] = moduleTrouve;
+    }
+
+    if(commande === 'obtenir'){
+        modulesObtenirTask(grunt, modules);
+    } else if (commande === 'maj'){
+        modulesMajTask(grunt, modules);
+    } else if (commande === 'clean'){
+        modulesCleanTask(grunt, modules);
+    } else if (commande === 'reset') {
+        modulesResetTask(grunt, modules);
+    } else if (commande === 'status') {
+        modulesStatusTask(grunt, modules);
+    } else if (commande === 'statusD') {
+        modulesStatusTask(grunt, modules, true);
+    } else if (commande === 'checkout') {
+        modulesCheckoutTask(grunt, modules, param3);
+    } else if (commande === '') {
+        grunt.log.error("Une commande est requise.");
+    } else {
+        grunt.log.error("Commande introuvable.");
+    }
+
+
+  //  console.log(modules);
+}
+
+
+function modulesObtenirTask(grunt, modules){
+    var i = 0;
+    var iE = 0;
+    for (var key in modules) {
+        var mod = modules[key];
+        if(!mod.options){
+            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        }
+        if(grunt.file.isDir(mod.options.directory)){
+            grunt.verbose.warn("Le répertoire du module '" + key + "' existe déjà.");
+            iE++;
+        } else {
+            var task = "gitclone:" + key;
+            grunt.task.run(task);
+            i++;
+        }
+    };
+    grunt.log.writeln(i + " modules à cloner.");
+    if(iE){
+        grunt.log.writeln(iE + " modules existe déjà.");
+    }
+}
+
+function modulesMajTask(grunt, modules){
+    var iC = 0;
+    var iM = 0;
+    var iG = 0;
+    for (var key in modules) {
+        var mod = modules[key];
+        if(!mod.options){
+            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        }
+        if(grunt.file.isDir(mod.options.directory)){
+            if(grunt.file.isDir(mod.options.directory + ".git")){
+                var task = "gitpull:" + key;
+                grunt.task.run(task);
+                iM++;
+            } else {
+                grunt.log.warn("Le module '" + key + "' n'est pas dans git.");
+                iG++;
+            }      
+        } else {
+            var task = "gitclone:" + key;
+            grunt.task.run(task);
+            iC++;
+        }
+    };
+    grunt.log.writeln(iC + " modules à cloner.");
+    grunt.log.writeln(iM + " modules à mettre à mis à jour.");
+    if(iG){
+        grunt.log.writeln(iG + " modules absents de git.");
+    }
+}
+
+function modulesCleanTask(grunt, modules){
+    var i = 0;
+    for (var key in modules) {
+        var mod = modules[key];
+        if(!mod.options){
+            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        }
+        if(grunt.file.isDir(mod.options.directory)){
+            grunt.file.delete(mod.options.directory)
+            i++;
+        } 
+    };
+    grunt.log.writeln(i + " modules à supprimer.");
+}
+
+function modulesResetTask(grunt, modules){
+    modulesCleanTask(grunt, modules);
+    modulesObtenirTask(grunt, modules);
+}
+
+function modulesStatusTask(grunt, modules, gitstatuscomplet){
+    var i = 0;
+    var iG = 0;
+    for (var key in modules) {
+        var mod = modules[key];
+        if(!mod.options){
+            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        }
+        if(grunt.file.isDir(mod.options.directory)){
+            if(grunt.file.isDir(mod.options.directory + ".git")){
+                var task = "shell:gitstatus:" + mod.options.directory;
+                if(gitstatuscomplet){
+                    task = "shell:gitstatuscomplet:" + mod.options.directory;
+                }
+                grunt.task.run(task);
+                i++;
+            } else {
+                grunt.log.warn("Le module '" + key + "' n'est pas dans git.");
+                iG++;
+            } 
+        }
+    };
+    grunt.log.writeln(i + " modules à analyser.");
+    if(iG){
+        grunt.log.writeln(iG + " modules absents de git.");
+    }
+}
+
+function modulesCheckoutTask(grunt, modules, branche){
+    branche = branche || 'master';
+    var i = 0;
+    var iG = 0;
+    for (var key in modules) {
+        var mod = modules[key];
+        if(!mod.options){
+            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        }
+        if(grunt.file.isDir(mod.options.directory)){
+            if(grunt.file.isDir(mod.options.directory + ".git")){
+                var task = "shell:gitcheckout:" + mod.options.directory + ":" + branche;
+                grunt.task.run(task);
+                i++;
+            } else {
+                grunt.log.warn("Le module '" + key + "' n'est pas dans git.");
+                iG++;
+            } 
+        }
+    };
+    grunt.log.writeln(i + " modules à changer de branche.");
+    if(iG){
+        grunt.log.writeln(iG + " modules absents de git.");
+    }
 }

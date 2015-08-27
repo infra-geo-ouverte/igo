@@ -1,7 +1,6 @@
 {
   "name": "Igo",
   "version": "1.1.0",
-  "urlTestUnit": "",
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-bower": "^0.19.0",
