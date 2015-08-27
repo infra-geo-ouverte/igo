@@ -1,22 +1,20 @@
+/*{
+    "urlTestUnit": "igo/navigateur/testUnit/",
+    "pathModules": "modules.json"
+}
+*/
+
 module.exports = function(grunt) {
     globalGrunt = grunt;
     initTasks(grunt);
     initConfigs(grunt);
 }
 
-/*function getModulesDir(grunt){
-    var modulesJson = grunt.config.get("config").modules;
-    var modulesDir = [];
-    for (var key in modulesJson) {
-        modulesDir.push(modulesJson[key].options.directory);
-    };
-    return modulesDir;
-}*/
-
 function initConfigs(grunt){
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         config: grunt.config.set('config', grunt.file.readJSON('configGrunt.json')),
+        modules: grunt.config.set('modules', grunt.file.readJSON(grunt.config.get('config').pathModules)),
         dirs: {
             publicNav: 'interfaces/navigateur/public/',
             build: 'interfaces/navigateur/build/',
@@ -294,7 +292,14 @@ function initConfigs(grunt){
         },
         clean: {
             cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*']
-           // modules: [getModulesDir(grunt)]
+        },
+        copy: {
+            config: {
+                files: [
+                  {expand: false, src: ['modules/specifique/configIgo/config.php'], dest: 'config/config.php', filter: 'isFile'},
+                  {expand: false, src: ['modules/specifique/configGrunt.json'], dest: 'configGrunt.json', filter: 'isFile'},
+                ],
+            },
         },
         watch: {
             scripts: {
@@ -328,8 +333,8 @@ function initConfigs(grunt){
                 }
             }
         },
-        gitclone: grunt.config.get("config").modules,
-        gitpull: grunt.config.get("config").modules
+        gitclone: grunt.config.get("modules"),
+        gitpull: grunt.config.get("modules")
     });
 }
 
@@ -346,6 +351,7 @@ function initTasks(grunt){
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks("grunt-jsbeautifier");
     grunt.loadNpmTasks('grunt-git');
@@ -360,6 +366,7 @@ function initTasks(grunt){
     grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('qUnit', ['shell:qUnit']);
+    grunt.registerTask('specifique', ['copy:config']);
     //grunt.registerTask('cloneModules', ['gitclone']);
     //grunt.registerTask('pullModules', ['gitpull']);
     //grunt.registerTask('cleanModules', ['clean:modules']);
@@ -374,9 +381,9 @@ function initTasks(grunt){
 function modulesTask(commande, nomModule, param3){
     var grunt = globalGrunt;
 
-    var modules = grunt.config.get("config").modules;
+    var modules = grunt.config.get("modules");
     if(!modules){
-        grunt.log.error("La liste des modules doit être dans configGrunt.json");
+        grunt.log.error("La liste des modules n'est pas définie");
         return false;
     }
     if(nomModule && nomModule !== 'all'){
