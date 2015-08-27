@@ -8,6 +8,7 @@ module.exports = function(grunt) {
     globalGrunt = grunt;
     initTasks(grunt);
     initConfigs(grunt);
+    includeModules(grunt);
 }
 
 function initConfigs(grunt){
@@ -293,14 +294,6 @@ function initConfigs(grunt){
         clean: {
             cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*']
         },
-        copy: {
-            config: {
-                files: [
-                  {expand: false, src: ['modules/specifique/configIgo/config.php'], dest: 'config/config.php', filter: 'isFile'},
-                  {expand: false, src: ['modules/specifique/configGrunt.json'], dest: 'configGrunt.json', filter: 'isFile'},
-                ],
-            },
-        },
         watch: {
             scripts: {
                 files: ['interfaces/navigateur/public/js/app/*.js', 'interfaces/navigateur/public/js/app/**/*.js'],
@@ -338,7 +331,23 @@ function initConfigs(grunt){
     });
 }
 
-    
+function includeModules(grunt){
+    var modules = grunt.config.get("modules");
+    if(!modules){
+        return false;
+    }
+    for (var key in modules) {
+        var mod = modules[key];
+        if(!mod.options){
+            continue;
+        }
+        if(grunt.file.isDir(mod.options.directory) && grunt.file.isFile(mod.options.directory + '/Gruntfile.js')){
+            require("grunt-load-gruntfile")(grunt);
+            grunt.loadGruntfile(mod.options.directory);
+        } 
+    }; 
+}
+
 function initTasks(grunt){
     //grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -366,7 +375,6 @@ function initTasks(grunt){
     grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('qUnit', ['shell:qUnit']);
-    grunt.registerTask('specifique', ['copy:config']);
     //grunt.registerTask('cloneModules', ['gitclone']);
     //grunt.registerTask('pullModules', ['gitpull']);
     //grunt.registerTask('cleanModules', ['clean:modules']);
@@ -428,6 +436,7 @@ function modulesObtenirTask(grunt, modules){
         var mod = modules[key];
         if(!mod.options){
             grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+            continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
             grunt.verbose.warn("Le répertoire du module '" + key + "' existe déjà.");
@@ -452,6 +461,7 @@ function modulesMajTask(grunt, modules){
         var mod = modules[key];
         if(!mod.options){
             grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+            continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
             if(grunt.file.isDir(mod.options.directory + ".git")){
@@ -481,6 +491,7 @@ function modulesCleanTask(grunt, modules){
         var mod = modules[key];
         if(!mod.options){
             grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+            continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
             grunt.file.delete(mod.options.directory)
@@ -502,6 +513,7 @@ function modulesStatusTask(grunt, modules, gitstatuscomplet){
         var mod = modules[key];
         if(!mod.options){
             grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+            continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
             if(grunt.file.isDir(mod.options.directory + ".git")){
@@ -531,6 +543,7 @@ function modulesCheckoutTask(grunt, modules, branche){
         var mod = modules[key];
         if(!mod.options){
             grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+            continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
             if(grunt.file.isDir(mod.options.directory + ".git")){

@@ -15,6 +15,7 @@
     "grunt-git": "^0.3.5",
     "grunt-jsbeautifier": "^0.2.10",
     "grunt-jsdoc": "^0.6.7",
+    "grunt-load-gruntfile": "0.0.2",
     "grunt-notify": "^0.4.1",
     "grunt-shell": "^1.1.2",
     "rjs-build-analysis": "0.0.3"
