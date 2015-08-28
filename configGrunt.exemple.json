@@ -1,5 +1,5 @@
 {
     "urlTestUnit": "http://localhost/igo/navigateur/testUnit/",
-    "pathModules": "modules/specifique/modules.json"
+    "pathModules": "modules.json"
 }
 

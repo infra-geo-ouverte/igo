@@ -17,6 +17,7 @@ librairie/
 pilotage/
 
 configGrunt.json
+modules.json
 config/config.php
 services/config.php
 
