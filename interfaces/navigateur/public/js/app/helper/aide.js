@@ -75,11 +75,6 @@ define([], function() {
         return hote+ "/";
     };
     
-    Aide.obtenirUrlServices = function(){
-        return this.obtenirConfig("uri.services");
-    };
-
-
     Aide.obtenirConfig = function(param){
         if (this.config && param){            
             var obj = this.config;
