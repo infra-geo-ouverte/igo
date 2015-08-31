@@ -1,6 +1,6 @@
 <?php $this->partial("commun/titre", array("titre" =>"Rétroingénierie d'un mapfile - étape 3 de 4")) ?>
 
-<div class="retro-wizard">
+<div class="retro-wizard controller-mapfile-action-select">
 	<form class="form-horizontal" action="{{url('mapfile/process')}}" method="post">
 		<div class="wizard-nav">
 			<a class="btn btn-primary" href="{{url('mapfile/load')}}">Précédent</a>
@@ -18,7 +18,7 @@
 		{% else %}
 			<h3>{{nExistingLayers}} couches existent déjà dans la base de données.</h3>
 		{% endif %}
-
+		<div class="alert alert-warning" role="alert"><b>Attention</b>! Lors d’une rétroingénierie des couches d’un mapfile, si vous sélectionnez ‘Insérer/Remplacer’, les paramètres de ces couches vont affecter TOUS LES paramètres par défaut de ces couches qui sont déjà inscrites dans la base de données.</div>
 		<table id="layers" class="table table-striped table-bordered">
 
 		    <thead>
@@ -40,12 +40,12 @@
 		    <tbody>
 				{% for layer in layers %}
 					{% if layer['exists'] %}
-						<tr class="danger">
+						<tr class="danger" data-etat="ferme" data-utilite="sommaire" data-layer_name="{{layer['name']}}">
 					{% else %}
-						<tr>
+						<tr data-etat="ferme" data-layer_name="{{layer['name']}}">
 					{% endif %}
 							<td>
-								<a href="#">{{layer['name']}}</a>
+								{{layer['name']}} <a href="#" data-layer_name="{{layer['name']}}"><span class="etq-ouvrir">(ouvrir)</span><span class="etq-fermer">(fermer)</span></a>
 							</td>
 							<td>
 								<select class="{{layer['selectClass']}} form-control" name="group[{{layer['id']}}]">
@@ -86,8 +86,8 @@
 							</td>
 						</tr>
 
-					<tr style="display:none;">
-						<td colspan=4>
+					<tr  data-layer_name="{{layer['name']}}" data-utilite="detail">
+						<td colspan="4">
 							<p>
 								<label>Name</label> : {{layer['name']}}
 							</p>
