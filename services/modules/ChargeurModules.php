@@ -27,7 +27,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	 * 
 	 * @var array
 	 */
-	private $modules = array();
+	public $modules = array();
 
 	/**
 	 * Contient tous les définitions de module `Phalcon` permettant le
@@ -52,8 +52,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	 */
 	public function initialiser() {
 		$configGlobal = $this->getDi()->get('config');
-		$session = $this->getDi()->getSession();
-
+		
 		if(!$configGlobal->application->offsetExists('modules')) {
 			return;
 		}
@@ -75,7 +74,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			try {
 				$configurationModule = $this->chargerConfiguration($dossierAbsolu);
 				
-				if($this->verifierModulePermission($configGlobal, $configurationModule, $session, $nomDossier)) {
+				if($this->verifierModulePermission($nomDossier, true)) {
 					$uri = $configGlobal->uri->modules . '/' . $nomDossier;
 					$this->chargerModule($configurationModule, $nomDossier, $dossierAbsolu, $uri);
 				}
@@ -85,58 +84,100 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	    }
 	}
 
-	private function verifierModulePermission($configGlobal, $configModule, $session, $nomDossier) {
-		//die(var_dump($this->getDi()->getView()->config->modules));
-		if(!$configModule->get('enabled', true)) {
-			return false;
+
+	public function verifierModulePermission($espaceDeNoms, $estNomDossier=false) {
+		return $this->obtenirModuleConfig($espaceDeNoms, $estNomDossier) !== false;		
+	}
+
+	public function obtenirModuleConfig($espaceDeNoms, $estNomDossier=false) {
+		$configGlobal = $this->getDi()->get('config');
+		$session = $this->getDi()->getSession();
+
+		if($estNomDossier === true){
+			$repertoireModules = $configGlobal->application->modules;
+			$dossierAbsolu = $repertoireModules . '/' . $espaceDeNoms;
+			$configModule = $this->chargerConfiguration($dossierAbsolu);
+			if($configModule){
+				//Module désactivé
+				if(!$configModule->get('enabled', true)) {
+					return false;
+				}	
+				if($configModule->get('espaceDeNoms', true) !== true){
+					$espaceDeNoms = $configModule->get('espaceDeNoms', true);	
+				}
+			}	
 		}
 
-		$espaceDeNoms = $configModule->get('espaceDeNoms', true);
-		$espaceDeNoms = $espaceDeNoms != 1 ? $espaceDeNoms : $nomDossier;
-
-		$permis = true;
-		if(isset($configGlobal->modules[$espaceDeNoms]) && $configGlobal->modules[$espaceDeNoms] === false){
-			$permis = false;
-		}
-
+		//Pas connecté
 		if(!isset($session['info_utilisateur'])){
 			return false;
 		}
-		
-		if(!isset($configGlobal->profilsDroit)){
-			return $permis;
-		}
 
-		//utilisateur
-		if ($session['info_utilisateur']->estAuthentifie && isset($configGlobal->profilsDroit[$session['info_utilisateur']->identifiant])){
-			$identifiant = $configGlobal->profilsDroit[$session['info_utilisateur']->identifiant];
-			if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
-				return $identifiant->modules[$espaceDeNoms];		
+		$permis = null;
+
+		//XML
+		$configXml = $this->getDi()->getView()->configXml;
+		if(isset($configXml) && isset($configXml->modules) &&
+			count($configXml->modules->xpath($espaceDeNoms)) !== 0){
+			$actif = $configXml->modules->xpath($espaceDeNoms)[0]->attributes()['actif'] == 'true';
+			if($actif == false){
+				return false;
+			} else if ($actif == true){
+				$permis = true;
 			}
 		}
 
-		//profils
-        foreach ($session['info_utilisateur']->profils as $key => $value) {
-            if(is_array($value)){
-                $idValue = $value["id"];
-                $profil = $value["libelle"];
-            } else {
-                $idValue = $value->id;
-                $profil = $value->libelle;
-            }
-            if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
-                if(isset($profil) && isset($configGlobal->profilsDroit[$profil])){
-                    $modules = $configGlobal->profilsDroit[$profil]->modules;
-                    if(isset($modules[$espaceDeNoms])){
-						$permis = $modules[$espaceDeNoms];	
-						break;	
-					}
-                }
-            }
-        }
+		if(isset($configGlobal->permissions)){
+			//utilisateur
+			if ($session['info_utilisateur']->estAuthentifie && isset($configGlobal->permissions[$session['info_utilisateur']->identifiant])){
+				$identifiant = $configGlobal->permissions[$session['info_utilisateur']->identifiant];
+				if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
+					$permis = $identifiant->modules[$espaceDeNoms];		
+					if($permis === false || is_object($permis)){
+						return $permis;
+					} 
+				}
+			}
+			//Profils
+			if(isset($session['info_utilisateur']->profils)){
+		        foreach ($session['info_utilisateur']->profils as $key => $value) {
+	                $idValue = $value["id"];
+	                $profil = $value["libelle"];
+		            if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
+		                if(isset($profil) && isset($configGlobal->permissions[$profil])){
+		                    $modules = $configGlobal->permissions[$profil]->modules;
+		                    if(isset($modules[$espaceDeNoms])){
+								if(is_object($modules[$espaceDeNoms])){
+									return $modules[$espaceDeNoms];
+								} else if ($modules[$espaceDeNoms] === true){
+									$permis = true;
+								} else if ($modules[$espaceDeNoms] === false && $permis === null){
+									$permis = false;
+								}							
+							}
+		                }
+		            }
+		        }
+		        if($permis === false){
+		        	return false;
+		        }
+			}
+		}
 
-		return $permis;
+		//anonyme
+		if(isset($configGlobal->modules[$espaceDeNoms])){
+			if(is_object($configGlobal->modules[$espaceDeNoms])){
+				return $configGlobal->modules[$espaceDeNoms];
+			} else if ($permis === true){
+				return true;
+			} else {
+				return $configGlobal->modules[$espaceDeNoms];
+			}
+		}
+
+		return false; // par defaut
 	}
+
 
 	/**
 	 * Filtre les dossiers qui contiennent potentiellement des modules à charger.
@@ -340,3 +381,4 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 		return $configuration;
 	}
 }
+

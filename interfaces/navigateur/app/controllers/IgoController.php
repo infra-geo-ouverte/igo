@@ -109,12 +109,6 @@ class IgoController extends ControllerBase
             $this->config->uri->mapserver = $element->attributes()->mapserver;
         }
 
-        if(isset($element->modules)){
-            foreach ($element->modules->children() as $module){
-                $this->config->modules[$module->getName()] = ($module->attributes()->actif == 'true');
-            }
-        }
-
         $this->getDi()->getView()->config = $this->config;
         $this->getDi()->getView()->configXml = $element;
 
@@ -329,7 +323,7 @@ class IgoController extends ControllerBase
      */
     public function ajouterModules() {
         $chargeurModules = $this->getDi()->get('chargeurModules');
-        
+
         $modulesJS = $chargeurModules->obtenirJavascript();
         $this->view->setVar("modulesJS", $modulesJS);
 
@@ -349,7 +343,7 @@ class IgoController extends ControllerBase
      * retour false ou l'url permis
      */
     public function verifierPermis($szUrl, $restService=false){
-        
+       
         //vérifier URL 
         //Services
         $url = "";
@@ -359,10 +353,10 @@ class IgoController extends ControllerBase
         );
         $session = $this->getDI()->getSession();
         
-        if($session->has("info_utilisateur") && isset($this->config['profilsDroit'])) {
+        if($session->has("info_utilisateur") && isset($this->config['permissions'])) {
             //utilisateur
-            if(($session->info_utilisateur->identifiant) && isset($this->config->profilsDroit[$session->info_utilisateur->identifiant])){
-                $serviceExtUser = $this->config->profilsDroit[$session->info_utilisateur->identifiant];
+            if(($session->info_utilisateur->identifiant) && isset($this->config->permissions[$session->info_utilisateur->identifiant]) && isset($this->config->permissions[$session->info_utilisateur->identifiant]->servicesExternes)){
+                $serviceExtUser = $this->config->permissions[$session->info_utilisateur->identifiant]->servicesExternes;
                 $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
             }
                
@@ -378,8 +372,8 @@ class IgoController extends ControllerBase
                         $profil = $value->libelle;
                     }
                     if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
-                        if(isset($profil) && isset($this->config->profilsDroit[$profil])){
-                            $serviceExtProfil = $this->config->profilsDroit[$profil];
+                        if(isset($profil) && isset($this->config->permissions[$profil]) && isset($this->config->permissions[$profil]->servicesExternes)){
+                            $serviceExtProfil = $this->config->permissions[$profil]->servicesExternes;
                             $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil, $restService);
                             if($serviceRep["test"] !== false){                        
                                 $test = true;

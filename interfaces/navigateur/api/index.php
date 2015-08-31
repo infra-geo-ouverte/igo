@@ -658,10 +658,10 @@ try {
             $cleM = "GET";
         }
         if(isset($_cle)){
-            if($session->has("info_utilisateur") && isset($config['profilsDroit'])) {
+            if($session->has("info_utilisateur") && isset($config['permissions'])) {
                 //utilisateur
-                if(($session->info_utilisateur->identifiant) && isset($config->profilsDroit[$session->info_utilisateur->identifiant]["cles"])){
-                    $clesUser = $config->profilsDroit[$session->info_utilisateur->identifiant]["cles"];
+                if(($session->info_utilisateur->identifiant) && isset($config->permissions[$session->info_utilisateur->identifiant]["cles"])){
+                    $clesUser = $config->permissions[$session->info_utilisateur->identifiant]["cles"];
                     if(isset($clesUser[$_cle])){
                         $cle = $clesUser[$_cle];
                     }
@@ -680,8 +680,8 @@ try {
                             $profil = $value->libelle;
                         }
                         if($nbProfils === 1 || $idValue == $profilActif){
-                            if(isset($profil) && isset($config->profilsDroit[$profil]["cles"])){
-                                $clesProfil = $config->profilsDroit[$profil]["cles"];
+                            if(isset($profil) && isset($config->permissions[$profil]["cles"])){
+                                $clesProfil = $config->permissions[$profil]["cles"];
                                 if(isset($clesProfil[$_cle])){
                                     $cle = $clesProfil[$_cle];
                                 }
