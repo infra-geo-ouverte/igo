@@ -6,7 +6,7 @@
         </a>
         <ul class="dropdown-menu">
             {% if this.getDI().get('session').get('info_utilisateur').estAdmin %}
-                <li class="disabled">{{ link_to("gestion_couche/creation","Création rapide", 'disabled':'' )}}</li>
+                <li class="disabled"><!--{{ link_to("gestion_couche/creation","Création rapide", 'disabled':'' )}}--><a>Création rapide</a></li>
                 <li class="enabled">{{ link_to("igo_classe_entite/search","Classes entité" )}}</li> 
                 <li class="enabled">{{ link_to("igo_geometrie/search","Géométries" )}}</li>
             {% endif %} 
@@ -72,9 +72,10 @@
           Mapfile <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-            <li class="enabled">{{ link_to("mapfile/cree","Création d'un mapfile" )}}</li> 
-            <li class="enabled">{{ link_to("mapfile/retro","Rétroingénierie d'un mapfile" )}}</li> 
-            <li class="disabled">{{ link_to("gestion_couche/loadMapfile","Rétroingénierie d'un layer" )}}</li> 
+            <li class="enabled">{{ link_to("mapfile/cree","Visionnement d'un Mapfile" )}}</li> 
+            <li class="enabled">{{ link_to("mapfile/retro","Rétroingénierie d'un Mapfile" )}}</li> 
+            <li class="disabled"><!--{{ link_to("gestion_couche/loadMapfile","Rétroingénierie d'un layer" )}}--><a>Rétroingénierie d'un layer</a></li>
+
         </ul>
     </li>
     {% endif %}
