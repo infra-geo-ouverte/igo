@@ -2,21 +2,6 @@
 <ul class="nav nav-tabs">
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-          Classes entité <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu">
-            {% if this.getDI().get('session').get('info_utilisateur').estAdmin %}
-                <li class="disabled"><!--{{ link_to("gestion_couche/creation","Création rapide", 'disabled':'' )}}--><a>Création rapide</a></li>
-                <li class="enabled">{{ link_to("igo_classe_entite/search","Classes entité" )}}</li> 
-                <li class="enabled">{{ link_to("igo_geometrie/search","Géométries" )}}</li>
-            {% endif %} 
-            <li class="enabled">{{ link_to("igo_couche/search","Couches" )}}</li> 
-            <li class="enabled">{{ link_to("igo_groupe/search","Groupes" )}}</li>
-            <li class="disabled"><!--{{ link_to("igo_groupe_couche/search","Association groupes et couches" )}}--><a>Association groupes et couches</a></li> 
-        </ul>
-    </li>
-    <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
           Contextes <span class="caret"></span>
         </a>
     <ul class="dropdown-menu">
@@ -53,7 +38,7 @@
           Pilotage <span class="caret"></span><!-- Style pilotage (CRUD)-->
         </a>
         <ul class="dropdown-menu"> 
-            <li class="enabled">{{ link_to("igo_classe/search","Classes" )}}</li> 
+            <li class="enabled">{{ link_to("igo_groupe/search","Groupes" )}}</li> 
             <li class="enabled">{{ link_to("igo_source_entite/search","Sources d'entitée" )}}</li> 
             <li class="enabled">{{ link_to("igo_catalogue_csw/search","Catalogues" )}}</li> 
             <li class="enabled">{{ link_to("igo_organisme_responsable/search","Organismes responsables" )}}</li> 
