@@ -64,6 +64,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             var url = Aide.obtenirConfig('uri.api')+"configuration/" + this.options.configuration;
             $.ajax({
                 url: url,
+                data: {
+                    mode: Aide.obtenirParametreURL('mode')
+                },
                 context: this,
                 success: function(data){
                     this._chargementConfigSuccess(data);

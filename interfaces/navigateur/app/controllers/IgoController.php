@@ -31,8 +31,13 @@ class IgoController extends ControllerBase
         } else { //url externe
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }
-        if(isset($element->attributes()->titre)){
-            $titre = $element->attributes()->titre;
+        $elAttributes = $element->attributes();
+        if(isset($_GET['mode'])){
+            $element = $element->mode;
+        }
+
+        if(isset($elAttributes->titre)){
+            $titre = $elAttributes->titre;
         }else{
             $titre = "Navigateur";
         }
@@ -79,34 +84,34 @@ class IgoController extends ControllerBase
         $this->view->setVar("contexteCode", $contexteArrayCode);
         $this->view->setVar("contexteId", $contexteArrayId);
           
-        if(isset($element->attributes()->aliasUri)){
-            $this->config->uri->librairies = $element->attributes()->aliasUri . 'librairie/';
-            $this->config->uri->services = $element->attributes()->aliasUri . 'services/';
-            $this->config->uri->api = $element->attributes()->aliasUri . 'api/';
-            $this->config->uri->modules = $element->attributes()->aliasUri . 'modules/';
+        if(isset($elAttributes->aliasUri)){
+            $this->config->uri->librairies = $elAttributes->aliasUri . 'librairie/';
+            $this->config->uri->services = $elAttributes->aliasUri . 'services/';
+            $this->config->uri->api = $elAttributes->aliasUri . 'api/';
+            $this->config->uri->modules = $elAttributes->aliasUri . 'modules/';
 
-            $this->config->uri->navigateur = $element->attributes()->aliasUri . 'public/';
+            $this->config->uri->navigateur = $elAttributes->aliasUri . 'public/';
             $this->config->application->baseUri = $this->config->uri->navigateur;
-        } else if(isset($element->attributes()->baseUri)){
-            if(isset($element->attributes()->libUri)){
-                $this->config->uri->librairies = $element->attributes()->baseUri . $element->attributes()->libUri;
+        } else if(isset($elAttributes->baseUri)){
+            if(isset($elAttributes->libUri)){
+                $this->config->uri->librairies = $elAttributes->baseUri . $elAttributes->libUri;
             }
-            if(isset($element->attributes()->serviceUri)){
-                $this->config->uri->services = $element->attributes()->baseUri . $element->attributes()->serviceUri;
+            if(isset($elAttributes->serviceUri)){
+                $this->config->uri->services = $elAttributes->baseUri . $elAttributes->serviceUri;
             }
-            if(isset($element->attributes()->apiUri)){
-                $this->config->uri->api = $element->attributes()->baseUri . $element->attributes()->apiUri;
+            if(isset($elAttributes->apiUri)){
+                $this->config->uri->api = $elAttributes->baseUri . $elAttributes->apiUri;
             }
-            if(isset($element->attributes()->modulesUri)){
-                $this->config->uri->modules = $element->attributes()->modulesUri;
+            if(isset($elAttributes->modulesUri)){
+                $this->config->uri->modules = $elAttributes->modulesUri;
             }        
 
-            $this->config->uri->navigateur = $element->attributes()->baseUri;
+            $this->config->uri->navigateur = $elAttributes->baseUri;
             $this->config->application->baseUri = $this->config->uri->navigateur;
         }
 
-        if(isset($element->attributes()->mapserver)){
-            $this->config->uri->mapserver = $element->attributes()->mapserver;
+        if(isset($elAttributes->mapserver)){
+            $this->config->uri->mapserver = $elAttributes->mapserver;
         }
 
         $this->getDi()->getView()->config = $this->config;

@@ -45,6 +45,12 @@ try {
             }
 
             if ($element->getName() === "navigateur" ){
+                $elAttributes = $element->attributes();
+                if(isset($_GET['mode'])){
+                    $element = $element->mode;
+                } else {
+                    unset($element->mode);
+                }
 
                 //Gerer le cas des couches seulement avec un Id
                 //Retourner l'info pour creer correctement la couche cote client
