@@ -316,7 +316,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         var that = this;
         var parent = panneauOccurence || this.igo.nav;
         var tagPermis = ['panneau', 'element-accordeon', 'element'];
-        var modulesReq = ['panneau'];
+        var modulesReq = ['panneau', 'panneauCarte'];
         modulesReq = this._analyserRequire(json, modulesReq);
 
         require(modulesReq, function() {
@@ -337,22 +337,27 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                             if (!options.centre) {
                                 options.centre = that.contexteAttributs.centre;
                             };
-                            
                             if (!options.zoom) {
                                 options.zoom = that.contexteAttributs.zoom;
                             };
                         };
 
-                        var panneauOccurence = new Igo.Panneaux[classe](options);
-                        parent.ajouterPanneau(panneauOccurence);
+                        var panneauOccurenceT = new Igo.Panneaux[classe](options);
+                        parent.ajouterPanneau(panneauOccurenceT);
 
                         if (panneau.element || panneau["element-accordeon"]) {
-                            that._analyserPanneaux(panneau, panneauOccurence);
+                            that._analyserPanneaux(panneau, panneauOccurenceT);
                         }
                     });
                 });
             }
             if (!panneauOccurence) {
+                if(!parent.obtenirPanneauxParType("PanneauCarte").length){
+                    parent.ajouterPanneau(new Igo.Panneaux.PanneauxCarte({
+                        centre: that.contexteAttributs.centre,
+                        zoom: that.contexteAttributs.zoom
+                    }));
+                }
                 that.igo.nav.init(function() {
                     that.fin.panneaux = true;
                     that._analyserContexte();
