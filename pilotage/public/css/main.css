@@ -24,3 +24,18 @@ body.igo_couche hr{
     height:2px;
     background-color:grey;
 }
+
+
+.controller-mapfile-action-select [data-etat="ferme"] .etq-fermer, 
+.controller-mapfile-action-select [data-etat="ouvert"] .etq-ouvrir{
+    display:none;
+}
+
+.controller-mapfile-action-select [data-etat="ferme"] .etq-ouvrir,
+.controller-mapfile-action-select [data-etat="ouvert"] .etq-fermer{
+    display:visible;
+}
+
+.controller-mapfile-action-select [data-utilite="detail"]{
+    display:none;
+}

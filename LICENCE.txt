@@ -119,3 +119,14 @@ Pour UMN MapServer (https://github.com/mapserver/mapserver), licence de type MIT
 
 https://github.com/mapserver/mapserver/blob/branch-7-0/README
 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+Pour Phalcon (https://github.com/phalcon/cphalcon/tree/1.3.2), licence de type BSD :
+
+https://raw.githubusercontent.com/phalcon/cphalcon/1.3.2/docs/LICENSE.txt
+
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+Pour Php (https://secure.php.net/), licence de type BSD :
+
+http://php.net/license/
