@@ -318,6 +318,10 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
         this.listeOccurences.push(occurence);
         if(!opt.existe){
+            if(!this._layer.map){
+                console.warn("Cette couche n'est pas associée à la carte, l'ajout d'occurrence n'est pas permis.");
+                return false;
+            }
             occurence._feature.utilisateur=true;
             this._layer.addFeatures(occurence._feature);
         };
