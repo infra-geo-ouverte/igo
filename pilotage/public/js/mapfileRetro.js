@@ -1,13 +1,24 @@
 $(document).ready(function(){
 	/*---- Load and select ----*/
-	$('table#layers a').on('click', function(){
-		var tr = $(this).parent().parent().next('tr');
-		if(tr.css('display') == 'none'){
-			tr.css('display', 'table-row');
-		} else{
-			tr.css('display', 'none');
+	$('table#layers a').on('click', function(event){
+
+		var layer_name = $(this).attr('data-layer_name');
+		var ligne_sommaire = $('tr[data-utilite="sommaire"][data-layer_name="'+layer_name+'"]');
+		var ligne_detail = $('tr[data-utilite="detail"][data-layer_name="'+layer_name+'"]');
+		var etat = ligne_sommaire.attr('data-etat');
+
+
+		if('ferme' == etat){
+			//Ouvrir
+			ligne_detail.show();
+			ligne_sommaire.attr('data-etat', 'ouvert');
+		}else{
+			//Fermer
+			ligne_detail.hide();
+			ligne_sommaire.attr('data-etat', 'ferme');
 		}
 
+		event.preventDefault();
 		return false;
 	});
 

@@ -14,8 +14,6 @@ class IgoContexte extends \Phalcon\Mvc\Model {
 
     /**
      *
-     * l : Liste
-     * p : Permission
      * @var string
      */
     public $mode;

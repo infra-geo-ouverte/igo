@@ -79,8 +79,9 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
                 if (couche.estFond()){
                     couche.desactiver(!Aide.toBoolean(couche.options.active));
                 }
+                that.declencher({ type: "ajouterCouche", couche: couche }); 
+                couche.declencher({ type: "coucheAjoutee" }); 
             }, 1);
-            this.declencher({ type: "ajouterCouche", couche: couche }); 
         };
     };
 
