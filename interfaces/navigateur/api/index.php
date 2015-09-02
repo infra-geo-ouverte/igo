@@ -31,9 +31,9 @@ try {
         if(!file_exists ($xmlPath) && !curl_url_exists($xmlPath)){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
-            $error->error = "La configuration « {$configuration} » n'existe pas!";
+            $error->error = "La configuration '{$configuration}' n'existe pas!";
             $app->response->send();
-            die(json_encode($error));
+            die(htmlspecialchars(json_encode($error)));
         }
         if($encoding === "json"){
             $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
@@ -69,13 +69,13 @@ try {
 
                     if($coucheBd === false){
                         if(is_numeric($coucheId)){
-                            $avertissement[] = "La couche avec id:« {$coucheId} » n'existe pas!";
+                            $avertissement[] = "La couche avec id:'{$coucheId}' n'existe pas!";
                             $dom=dom_import_simplexml($couche);
                             $dom->parentNode->removeChild($dom);
                             continue;
                         }
                         else{
-                            $avertissement[] = "La couche avec mf_layer_name:« {$coucheId} » n'existe pas!";
+                            $avertissement[] = "La couche avec mf_layer_name:'{$coucheId}' n'existe pas!";
                             $dom=dom_import_simplexml($couche);
                             $dom->parentNode->removeChild($dom);
                             continue;
@@ -139,16 +139,16 @@ try {
             else{
                 $app->response->setStatusCode(404, "Not Found");
                 $error = new stdClass();
-                $error->error = "L'élément racine du fichier de configuration doit se nommer « navigateur »!";
+                $error->error = "L'élément racine du fichier de configuration doit se nommer 'navigateur'!";
                 $app->response->send();
-                die(json_encode($error));
+                die(htmlspecialchars(json_encode($error)));
             }
         }else{
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
-            $error->error = "L'encodage «{$encoding} » n'est pas supporté!";
+            $error->error = "L'encodage «{$encoding}' n'est pas supporté!";
             $app->response->send();
-            die(json_encode($error));
+            die(htmlspecialchars(json_encode($error)));
         }
     });
 
@@ -158,9 +158,9 @@ try {
         if($contexte === false){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
-            $error->error = "Le contexte « {$contexteId} » n'existe pas!";
+            $error->error = "Le contexte '{$contexteId}' n'existe pas!";
             $app->response->send();
-            die(json_encode($error));
+            die(htmlspecialchars(json_encode($error)));
         }
         return $contexte;
     }
@@ -171,9 +171,9 @@ try {
         if($contexte === false){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
-            $error->error = "Le contexte « {$contexteCode} » n'existe pas!";
+            $error->error = "Le contexte '{$contexteCode}' n'existe pas!";
             $app->response->send();
-            die(json_encode($error));
+            die(htmlspecialchars(json_encode($error)));
         }
         return $contexte;
     }
@@ -206,7 +206,7 @@ try {
             $error = new stdClass();
             $error->error = "Vous n'êtes pas authentifié!";
             $app->response->send();
-            die(json_encode($error));
+            die(htmlspecialchars(json_encode($error)));
         }
         return $authentificationModule;
     }
