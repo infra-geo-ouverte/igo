@@ -43,12 +43,19 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 id: 'zoom_auto',
                 xtype:'menucheckitem',
                 titre: 'Zoom auto sur la sélection',
-                infobulle: 'Zoom auto sur la sélection',
+                infobulle: 'Zoom auto sur la sélection'
                 
            });
        // } else {
        //     throw new Error("OutilTableSelection a besoin d'un type");
-        }  
+        }  else if (this.options.type === 'selectionSeulement'){
+            this.defautOptions = $.extend({},this.defautOptions, {
+                id: 'affiche_selection_seulement',
+                xtype:'menucheckitem',
+                titre: 'Afficher la sélection seulement',
+                infobulle: 'Affiche seulement la sélection'                
+           });
+        } 
     };
     
     OutilTableSelection.prototype = new Outil();
@@ -72,6 +79,9 @@ define(['outil', 'aide'], function(Outil, Aide) {
             this.options.couche.zoomerOccurences(this.options.couche.obtenirOccurencesSelectionnees());
         } else if (this.options.type === 'auto'){
             this.options.couche.zoomAuto = !this._bouton.checked;
+        } else if (this.options.type === 'selectionSeulement'){
+            this.options.couche.options.selectionSeulement = !this._bouton.checked;
+            this.options.couche.declencher({ type: "occurenceClique", occurence:this.options.couche.obtenirOccurencesSelectionnees()});
         }
     };
     
