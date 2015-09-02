@@ -81,6 +81,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
                 }
             }, 1);
             this.declencher({ type: "ajouterCouche", couche: couche }); 
+            couche.declencher({ type: "coucheAjoutee" }); 
         };
     };
 
