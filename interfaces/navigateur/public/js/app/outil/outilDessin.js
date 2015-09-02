@@ -40,7 +40,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
             if(typeof this.options.couche === "string"){
                 this.options.couche = this.carte.gestionCouches.obtenirCoucheParId(this.options.couche);
             }
-            if(this.options.couche.obtenirTypeClasse && (this.options.couche.obtenirTypeClasse() === "Vecteur" || this.options.couche.obtenirTypeClasse() === "VecteurCluster" || this.options.couche.obtenirTypeClasse() === "WFS")){
+            if(this.options.couche && this.options.couche.obtenirTypeClasse && (this.options.couche.obtenirTypeClasse() === "Vecteur" || this.options.couche.obtenirTypeClasse() === "VecteurCluster" || this.options.couche.obtenirTypeClasse() === "WFS")){
                 this.couche = this.options.couche;
             } else {
                 this.options.couche = undefined;
