@@ -123,7 +123,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			if($actif == false){
 				return false;
 			} else if ($actif == true){
-				$permis = true;
+				$permisXml = true;
 			}
 		}
 
@@ -168,14 +168,14 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 		if(isset($configGlobal->modules[$espaceDeNoms])){
 			if(is_object($configGlobal->modules[$espaceDeNoms])){
 				return $configGlobal->modules[$espaceDeNoms];
-			} else if ($permis === true){
+			} else if ($permis === true || $permisXml === true){
 				return true;
 			} else {
 				return $configGlobal->modules[$espaceDeNoms];
 			}
 		}
 
-		return false; // par defaut
+		return true; // par defaut
 	}
 
 
