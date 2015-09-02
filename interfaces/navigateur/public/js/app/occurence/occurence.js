@@ -755,25 +755,45 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @returns {Geometrie} Géométrie de l'occurence
      */
     Occurence.prototype._obtenirGeometrie = function() {
-        if(this.x && this.y){
-            switch (this.obtenirTypeGeometrie()) {
-                case "Point":
+        switch (this.obtenirTypeGeometrie()) {
+            case "Point":
+                if(this.x && this.y){
                     return new Point(this.x, this.y, this.obtenirProjection());
-                case "Ligne":
-                    return new Ligne(this.points, this.obtenirProjection());
-                case "Polygone":
-                    return new Polygone(this.lignes, this.obtenirProjection());
-                case "MultiPolygone":
-                    return new MultiPolygone(this.polygones, this.obtenirProjection());
-                case "Limites":
-                    return new Limites(this.gauche, this.bas, this.droite, this.haut);
-                default:
+                }
+                else{
                     return undefined;
-            }
-        }
-        else{
-            return undefined;
-        }
+                }
+            case "Ligne":
+                if(this.points){
+                    return new Ligne(this.points, this.obtenirProjection());
+                }
+                else{
+                    return undefined;
+                }
+            case "Polygone":
+                if(this.lignes){
+                    return new Polygone(this.lignes, this.obtenirProjection());
+                }
+                else{
+                    return undefined;
+                }
+            case "MultiPolygone":
+                if(this.polygones){
+                    return new MultiPolygone(this.polygones, this.obtenirProjection());
+                }
+                else{
+                    return undefined;
+                }
+            case "Limites":
+                if(this.gauche && this.bas && this.droite && this.haut){
+                    return new Limites(this.gauche, this.bas, this.droite, this.haut);
+                }
+                else{
+                    return undefined;
+                }
+            default:
+                return undefined;
+        }    
     };
 
     /** 
