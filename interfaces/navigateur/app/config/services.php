@@ -181,9 +181,17 @@ if($config->offsetExists("database")) {
  * Start the session the first time some component request the session service
  */
 $di->setShared('session', function () {
-   
+    $cookieName = 'sessionIGO';
     $session = new SessionAdapter();
-    session_name('sessionIGO');
+
+    if (isset($_COOKIE[$cookieName])) {
+        $sessid = $_COOKIE[$cookieName];
+        if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $sessid)) {
+            unset($_COOKIE[$cookieName]);
+            setcookie($cookieName, '', time() - 3600, '/');
+        }     
+    } 
+    session_name($cookieName);
     $session->start();
 
     return $session;
