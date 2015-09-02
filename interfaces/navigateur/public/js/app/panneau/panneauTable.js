@@ -1,9 +1,19 @@
-define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu) {
+/*if(!require.estDansConfig("pagingStore")){   
+    require.ajouterConfig({
+        paths: {
+            pagingStore: 'libs/Ext.ux/PagingStore/PagingStore'
+        }
+    });
+}*/
+
+define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu) {
 
     function PanneauTable(options) {
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
-            id: 'table-panneau'
+            id: 'table-panneau',
+            start: 0,
+            limit: 50
         });   
     };
     
@@ -12,35 +22,36 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     
     PanneauTable.prototype._init = function() {
         Ext.QuickTips.init();
-        
-        this.controles = new PanneauTable.Controles(this);
-        this.template = this.options.template || {colonnes: []};
-        this.donnees = this.options.donnees || [];
-        var config = this.configurer(this.template, this.donnees);
+                
+            this.controles = new PanneauTable.Controles(this);
+            this.template = this.options.template || {colonnes: []};
+            this.donnees = this.options.donnees || [];                    
+            var config = this.configurer(this.template, this.donnees); 
+            
+            this._extOptions = {
+                    xtype: 'editorgrid',
+                    store: config.store,
+                    colModel:  config.columnModel,
+                    stripeRows: true,
+                    stateful: true,
+                    stateId: 'grid'+this.options.titre,
+                    clicksToEdit: 1,
+                    width:screen.width, // corrige le bug dernière colonne width (vue module d'édition)
+                    viewConfig: {
+                      forceFit: true
+                    },
+                    sm: new Ext.grid.RowSelectionModel(),
+                    tbar: this._obtenirToolbar(),
+                    bbar: this._obtenirPaginationBarre(config)
 
-        this._extOptions = {
-            xtype: 'editorgrid',
-            store: config.store,
-            colModel:  config.columnModel,
-            stripeRows: true,
-            stateful: true,
-            stateId: 'grid'+this.options.titre,
-            clicksToEdit: 1,
-            width:screen.width, // corrige le bug dernière colonne width (vue module d'édition)
-            viewConfig: {
-              forceFit: true
-            },
-            sm: new Ext.grid.RowSelectionModel(),
-            tbar: this._obtenirToolbar()
-
-        };
-
-        Panneau.prototype._init.call(this);
-        this._initEvent();
-        this.barreOutils._setPanelContainer(this._panel);
-        if(this.options.vecteur){
-            this.ouvrirTableVecteur();
-        }
+                };
+                   
+                Panneau.prototype._init.call(this);
+                this._initEvent();
+                this.barreOutils._setPanelContainer(this._panel);
+                if(this.options.vecteur){
+                    this.ouvrirTableVecteur();
+                }                    
     };
     
   
@@ -67,6 +78,25 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         return this.barreOutils._getToolbar();
     };
     
+    PanneauTable.prototype._obtenirPaginationBarre = function(config){
+        if(this.options.paginer){
+            return new Ext.PagingToolbar({
+                        id: 'idPaginationBarre',
+                        pageSize: config.store.lastOptions.params.limit,
+                        store: config.store,
+                        displayInfo: true,
+                        displayMsg: 'Displaying topics {0} - {1} of {2}',
+                        emptyMsg: "No topics to display"
+                    });
+        }
+        else{
+            return null;
+        }
+       
+    };
+    
+    
+   
     
     PanneauTable.prototype.chargerDonnees = function(donnees, garderDonnees){
         var that=this;
@@ -345,13 +375,17 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
            });
             columnModel.push(that._obtenirColumnModel(value));
         });
-
-        var store = new Ext.data.JsonStore({
-            root: this.template.base,
-            fields: fields
-        });  
-
-
+        
+        var store = new Ext.ux.data.PagingJsonStore({
+            fields:fields,
+            root: this.template.base
+        });
+                
+        var start = this.options.start?this.options.start:this.defautOptions.start;
+        var limit = this.options.limit?this.options.limit:this.defautOptions.limit;
+       
+        store.load({params:{start:start,limit:limit}});
+        
         try {
             store.loadData(that.donnees);
         } catch(e){
@@ -360,7 +394,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         
         if(this._panel && this._panel.store && this._panel.store.sortInfo){
             var sortInfo  = this._panel.store.sortInfo;
-            store.sort(sortInfo.field, sortInfo.direction);
+            store.sort(sortInfo.field, sortInfo.direction);         
         } else {
             store.sort('id', "ASC");
         }
@@ -368,8 +402,18 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this.activerDeclencheursVecteur(this.donnees);
         this.reconfigurerBarreOutils(this.donnees);
         this.controles.activerSelection();
+        this.reconfigurerPaginationBarre(store);
         
         return {columnModel: new Ext.grid.ColumnModel(columnModel), store: store};
+    };
+    
+    PanneauTable.prototype.reconfigurerPaginationBarre = function(store){
+        if(this.options.paginer && this._panel){
+            var paginationBarre = this._panel.getBottomToolbar();
+            if(paginationBarre){
+                paginationBarre.bind(store);
+            }
+        }
     };
     
     
@@ -460,7 +504,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
     
     PanneauTable.prototype.reconfigurer = function(template, donnees){
-        var config = this.configurer(template, donnees);       
+        var config = this.configurer(template, donnees);      
         this._panel.reconfigure(config.store, config.columnModel);
         var that=this;
         setTimeout(function() {
