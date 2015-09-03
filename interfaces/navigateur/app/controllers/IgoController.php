@@ -115,8 +115,10 @@ class IgoController extends ControllerBase
         }
 
         if(file_exists($xmlPath)){
+            $externe = false;
             $element = simplexml_load_file($xmlPath);            
         } else { //url externe
+            $externe = true;
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }
         $elAttributes = $element->attributes();
@@ -204,6 +206,20 @@ class IgoController extends ControllerBase
 
         $this->getDi()->getView()->config = $this->config;
         $this->getDi()->getView()->configXml = $element;
+
+        global $application;
+        $configServeurXml = array();
+        if($externe === false){
+            if(isset($element->serveur)){
+                if(isset($element->serveur->authentification)) {
+                    $configServeurXml['authentification'] = array();
+                    foreach ($element->serveur->authentification->attributes() as $key=>$attr) {
+                       $configServeurXml['authentification'][$key] = (String) $attr;
+                    }
+                }
+            }
+        }
+        $application->getDI()->getSession()->set('configXml', $configServeurXml);
 
         $this->ajouterModules();                 
     }

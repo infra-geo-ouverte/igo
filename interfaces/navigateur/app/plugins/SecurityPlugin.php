@@ -26,7 +26,8 @@ class SecurityPlugin extends Plugin
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $user = $this->session->get("info_utilisateur");
-
+            $authObligatoire = isset($_GET['auth']) ? $_GET['auth'] : false;
+            
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
             if(isset($this->getDi()->getConfig()->configurations[$configuration])){
                 $file = $this->getDi()->getConfig()->configurations[$configuration];
@@ -36,7 +37,7 @@ class SecurityPlugin extends Plugin
             if((!file_exists($file) && !curl_url_exists($file))){
                 return $this->forwardToErrorPage();
             }
-            if($this->estAuthentificationRequise($configuration) && !$this->estAuthentifie() && (!$this->estAnonyme() || ($this->estAnonyme() && (!isset($user->persistant) || $user->persistant == false)))){
+            if(($authObligatoire || $this->estAuthentificationRequise($configuration)) && !$this->estAuthentifie() && (!$this->estAnonyme() || ($this->estAnonyme() && (!isset($user->persistant) || $user->persistant == false)))){
                 return $this->forwardToLoginPage();
             } else if($this->estAuthentificationRequise($configuration) && $this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
                 return $this->forwardToRolePage();
@@ -133,7 +134,8 @@ class SecurityPlugin extends Plugin
         if(file_exists($xmlPath)){
             $element = simplexml_load_file($xmlPath);   
             if(isset($element->serveur) && isset($element->serveur->authentification) && isset($element->serveur->authentification->attributes()->nomProfilAnonyme)){
-               $this->getDi()->getConfig()->application->authentification->nomProfilAnonyme = $element->serveur->authentification->attributes()->nomProfilAnonyme->__toString();
+               $this->getDi()->getConfig()->application->authentification->nomProfilAnonyme = (String) $element->serveur->authentification->attributes()->nomProfilAnonyme;
+               $this->session->set('nomProfilAnonyme', $this->getDi()->getConfig()->application->authentification->nomProfilAnonyme);
             }         
         } else { //url externe
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 

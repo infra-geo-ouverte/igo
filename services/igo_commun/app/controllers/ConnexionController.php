@@ -130,7 +130,6 @@ class ConnexionController extends Controller{
     }
 
     public function accesAction() {
-        
         $request = new \Phalcon\Http\Request();
         if ($request->isPost()) {
            $this->session->get("info_utilisateur")->profilActif = $request->getPost('profil', null);
@@ -139,11 +138,35 @@ class ConnexionController extends Controller{
     }        
     
     public function deconnexionAction() {
-        $this->session->destroy();
-        $this->view->setVar("titre", "Déconnexion");
+        $xmlConfig = $this->session->get('configXml');
+        $xmlAuth = (object) array();
+        if(isset($xmlConfig) && isset($xmlConfig['authentification'])){
+            $xmlAuth = (object) $xmlConfig['authentification'];
+        }
         $configuration = $this->getDI()->get("config");
+
+        $pageRedirection = '';
+        $seConnecter = false;
+        if((isset($xmlAuth->aDeconnectionRetourNav) && $xmlAuth->aDeconnectionRetourNav !== 'false') || (!isset($xmlAuth->aDeconnectionRetourNav) && $configuration->application->authentification->aDeconnectionRetourNav !== false)){
+            $pageRedirection = $this->obtenirPageRedirection();
+            if((isset($xmlAuth->aDeconnectionSeConnecter) && $xmlAuth->aDeconnectionSeConnecter === 'true') || (!isset($xmlAuth->aDeconnectionSeConnecter) && $configuration->application->authentification->aDeconnectionSeConnecter == true)){
+                $seConnecter = true;
+            }
+        }
+
         $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";       
+
+        $pageAccueil = $configuration->application->authentification->deconnectionAccueil;
+        if(isset($xmlAuth->deconnectionAccueil) && $xmlAuth->deconnectionAccueil !== false){
+            $pageAccueil = $xmlAuth->deconnectionAccueil;
+        }
+
+        $this->session->destroy();
         $this->getDI()->get("authentificationModule")->deconnexion();
+        $this->view->setVar("titre", "Déconnexion");
+        $this->view->setVar("pageRedirection", $pageRedirection);
+        $this->view->setVar("seConnecter", $seConnecter);
+        $this->view->setVar("pageAccueil", $pageAccueil);
     }    
     
     public function anonymeAction($estAuthentifier = FALSE){
@@ -158,14 +181,19 @@ class ConnexionController extends Controller{
                 $this->session->get("info_utilisateur")->persistant = true;
             }
             if($configuration->offsetExists("database")) {
+                $nomProfilAnonyme = $this->session->get('nomProfilAnonyme');
+                if($nomProfilAnonyme === null){
+                    $nomProfilAnonyme = $configuration->application->authentification->nomProfilAnonyme;
+                }
+                    
                 if($configuration->application->authentification->activerSelectionRole){
-                    $profilAnonyme = IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                    $profilAnonyme = IgoProfil::findFirst("nom = '{$nomProfilAnonyme}'");
                     if($profilAnonyme){
                         $this->session->get("info_utilisateur")->profils = array($profilAnonyme->toArray());
                         $this->session->get("info_utilisateur")->profilActif = $this->session->get("info_utilisateur")->profils[0]['id'];
                     }
                 } else {
-                    $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->toArray();
+                    $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$nomProfilAnonyme}'")->toArray();
                 }
             }
             return $this->redirigeVersPage();        
