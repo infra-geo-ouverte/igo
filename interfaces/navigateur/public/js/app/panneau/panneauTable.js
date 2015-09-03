@@ -85,8 +85,8 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                         pageSize: config.store.lastOptions.params.limit,
                         store: config.store,
                         displayInfo: true,
-                        displayMsg: 'Displaying topics {0} - {1} of {2}',
-                        emptyMsg: "No topics to display"
+                        displayMsg: 'Affiche les occurences {0} à {1} de {2}',
+                        emptyMsg: "Aucune occurence"
                     });
         }
         else{
@@ -376,16 +376,16 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             columnModel.push(that._obtenirColumnModel(value));
         });
         
+        var debut = this.options.start?parseInt(this.options.start):this.defautOptions.start;
+        var limite = this.options.limit?parseInt(this.options.limit):this.defautOptions.limit;
+        
         var store = new Ext.ux.data.PagingJsonStore({
             fields:fields,
-            root: this.template.base
+            root: this.template.base,
+            lastOptions: {'params':{'start':debut,'limit':limite}}
         });
                 
-        var start = this.options.start?this.options.start:this.defautOptions.start;
-        var limit = this.options.limit?this.options.limit:this.defautOptions.limit;
-       
-        store.load({params:{start:start,limit:limit}});
-        
+                
         try {
             store.loadData(that.donnees);
         } catch(e){
