@@ -9,7 +9,7 @@ try {
     include __DIR__ . "/../app/config/services.php";
 
     include $config->application->services->dir."fonctions.php";
-    
+
     $app = new \Phalcon\Mvc\Micro();
     $app->setDI($di);
     
@@ -617,6 +617,24 @@ try {
         //Services       
         $igoController = new IgoController();
         $url = $igoController->verifierPermis($service);
+        
+       //Obtenir la chaine de connexion pour un service
+        $auth = $igoController->obtenirChaineConnexion($service);
+
+       //Decrypter la chaine de connexion
+        if ($auth != NULL) {
+            $crypt = $app->getDI()->get("crypt");
+            $chaine = explode(",", $crypt->decryptBase64(urldecode($auth['pass'])));
+            $auth['user'] = ltrim($chaine[0], " user:");
+            $auth['pass'] = ltrim($chaine[1], " pass:");
+            
+            if (empty($auth['pass'])) {
+                die("Votre clef ne decrypt pas correctement elle est incorrect.");
+            }
+            $authtmp['auth'] = $auth;
+            $options = array_merge($options, $authtmp);
+        }
+
         if($url === false){
             http_response_code(403);
             die("Vous n'avez pas les droits pour ce service.");
@@ -761,9 +779,48 @@ try {
 
         }
         
+
+        if (($method === 'POST') && isset($_SERVER['HTTP_SOAPACTION']) && isset($_SERVER['CONTENT_TYPE'])) {
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $GLOBALS['HTTP_RAW_POST_DATA']);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:' . $_SERVER['CONTENT_TYPE'],
+                'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
+        }
+
+        if (!empty($options['auth'])) {
+            $auth = $options['auth'];
+            if (isset($auth['method']) && isset($auth['user']) && isset($auth['pass'])) {
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+                switch ($auth['method']) {
+                    case "BASIC":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                        break;
+                    case "NTLM":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
+                        break;
+                    case "GSSNEGOTIATE":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);
+                        break;
+                    case "DIGEST":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
+                        break;
+                    default:
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+                        break;
+                }
+
+                curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ':' . $auth['pass']);
+            }
+        }
+
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+     
         curl_close ($ch);
         
        if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)){

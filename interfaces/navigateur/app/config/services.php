@@ -118,6 +118,32 @@ $di->set('dispatcher', function() use($di){
 
 
 /**
+ * Encryption pour les mots de passes des couches securisées
+ */
+
+$di->set('crypt', function () use ($config) {
+
+    $crypt = new Phalcon\Crypt();
+    $crypt->setCipher('blowfish');
+    $crypt->setMode('cbc');
+
+    $xmlPath = $config->application->authentification->secretXmlFile;
+
+    if (file_exists($xmlPath)) {
+        $key = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
+    }
+
+    if (empty($key)) {
+        die("La clef n'a pas été trouvé dans ce chemin" . $xmlPath . "ou elle n'existe pas!");
+    }
+
+    $crypt->setKey($key['authentification']);
+
+    return $crypt;
+}, true);
+
+
+/**
  * Database connection is created based in the parameters defined in the configuration file
  */
 $di->set('db', function () use ($config) {
