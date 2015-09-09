@@ -448,15 +448,46 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     
 
     Vecteur.prototype.cacherOccurence = function(occurence) { 
-        if(!occurence || occurence.vecteur !== this){return false};
-        occurence.cacher();
+        if(Array.isArray(occurence)){
+            $.each(occurence, function(index, value){
+                value.cacher();
+            })
+        }else{
+            if(!occurence || occurence.vecteur !== this){return false};
+            occurence.cacher();
+        }
+    };
+    
+    Vecteur.prototype.cacherTout = function(tousLesStyles) { 
+        
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        
+        $.each(this.listeOccurences, function(index, value){
+            value.cacher(tousLesStyles);
+        })
+       
     };
 
     Vecteur.prototype.afficherOccurence = function(occurence) { 
-        if(!occurence || occurence.vecteur !== this){return false};
-        occurence.afficher();
+        if(Array.isArray(occurence)){
+            $.each(occurence, function(index, value){
+                value.afficher();
+            })
+        }else{
+            if(!occurence || occurence.vecteur !== this){return false};
+            occurence.afficher();
+        }
     };
-    
+        
+    Vecteur.prototype.afficherTout = function(tousLesStyles) { 
+        
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+               
+        $.each(this.listeOccurences, function(index, value){
+            value.afficher(tousLesStyles);
+        })
+       
+    };
     /** 
      * Obtenir l'emprise de toutes les occurences de la couche
      * @method 
