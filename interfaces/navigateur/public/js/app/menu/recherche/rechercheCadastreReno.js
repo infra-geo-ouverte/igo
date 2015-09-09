@@ -47,7 +47,7 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(
         var tabValeursRecherche = this.obtenirValeursRecherche();    
         
         var that = this;
-        var numCadastre = tabValeursRecherche["RechercheTitle" + this.options.id];
+        var numCadastre = tabValeursRecherche["RechercheTitle" + this.options.id].replace(/ /g,'');
         
         if(!numCadastre){
             Aide.afficherMessage({titre: "Recherche", message:'Vous devez saisir un cadastre rénové'});
