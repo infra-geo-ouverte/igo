@@ -46,6 +46,14 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 infobulle: 'Zoom auto sur la sélection',
                 
            });
+        }  else if (this.options.type === 'contenupage'){
+            this.defautOptions = $.extend({},this.defautOptions, {
+                id: 'contenupage',
+                xtype:'menucheckitem',
+                titre: 'Afficher le contenu de la page seulement',
+                infobulle: 'Affiche seulement le contenu de la page active.',
+                
+           });
        // } else {
        //     throw new Error("OutilTableSelection a besoin d'un type");
         }  
@@ -60,7 +68,9 @@ define(['outil', 'aide'], function(Outil, Aide) {
         Outil.prototype._init.call(this);
     };
    
-    OutilTableSelection.prototype.executer =  function () {
+    OutilTableSelection.prototype.executer =  function (lancementManuel) {
+       
+        lancementManuel = typeof lancementManuel === "undefined"?false:true;
        
         if (this.options.type === 'efface'){
             this.options.couche.deselectionnerTout();
@@ -71,7 +81,18 @@ define(['outil', 'aide'], function(Outil, Aide) {
         } else if (this.options.type === 'zoom'){
             this.options.couche.zoomerOccurences(this.options.couche.obtenirOccurencesSelectionnees());
         } else if (this.options.type === 'auto'){
-            this.options.couche.zoomAuto = !this._bouton.checked;
+            if(!lancementManuel){
+                this.options.couche.zoomAuto = !this._bouton.checked;
+            }
+        }  else if (this.options.type === 'contenupage'){
+           
+            if(this._bouton.checked){
+                this.options.couche.cacherTout();
+                this.options.couche.afficherOccurence(this.options.panneauTable.obtenirOccurences());
+            }
+            else{
+                this.options.couche.afficherTout();
+            }
         }
     };
     

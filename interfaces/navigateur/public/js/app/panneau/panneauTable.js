@@ -12,8 +12,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             id: 'table-panneau',
-            start: 0,
-            limit: 50
+            paginer : false,
+            paginer_debut:0,
+            paginer_limite:50
         });   
     };
     
@@ -23,6 +24,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype._init = function() {
         Ext.QuickTips.init();
                 
+            var that =this;
             this.controles = new PanneauTable.Controles(this);
             this.template = this.options.template || {colonnes: []};
             this.donnees = this.options.donnees || [];                    
@@ -42,8 +44,12 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     },
                     sm: new Ext.grid.RowSelectionModel(),
                     tbar: this._obtenirToolbar(),
-                    bbar: this._obtenirPaginationBarre(config)
-
+                    bbar: this._obtenirPaginationBarre(config),
+                    listeners:{
+                        reconfigure: function(ceci , store, colModel){
+                            that.reconfigurerPaginationBarre(store);
+                        }                           
+                    }
                 };
                    
                 Panneau.prototype._init.call(this);
@@ -81,7 +87,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype._obtenirPaginationBarre = function(config){
         if(this.options.paginer){
             return new Ext.PagingToolbar({
-                        id: 'idPaginationBarre',
                         pageSize: config.store.lastOptions.params.limit,
                         store: config.store,
                         displayInfo: true,
@@ -376,13 +381,24 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             columnModel.push(that._obtenirColumnModel(value));
         });
         
-        var debut = this.options.start?parseInt(this.options.start):this.defautOptions.start;
-        var limite = this.options.limit?parseInt(this.options.limit):this.defautOptions.limit;
+        var debut = this.options.paginer_debut?parseInt(this.options.paginer_debut):this.defautOptions.paginer_debut;
+        var limite = this.options.paginer_limite?parseInt(this.options.paginer_limite):this.defautOptions.paginer_limite;
         
         var store = new Ext.ux.data.PagingJsonStore({
             fields:fields,
             root: this.template.base,
-            lastOptions: {'params':{'start':debut,'limit':limite}}
+            lastOptions: {'params':{'start':debut,'limit':limite}},
+            listeners : {
+                datachanged: function(pagingJsonStore){         
+                    if(that.barreOutils){
+                        $.each(that.barreOutils.obtenirOutilsParType("OutilTableSelection",3), function(index , value){
+                            if(typeof value._bouton.isXType === "function" && value._bouton.isXType("menucheckitem")){
+                                value.executer(true);
+                            }
+                        });
+                    }
+                }
+            }
         });
                 
                 
@@ -402,7 +418,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this.activerDeclencheursVecteur(this.donnees);
         this.reconfigurerBarreOutils(this.donnees);
         this.controles.activerSelection();
-        this.reconfigurerPaginationBarre(store);
         
         return {columnModel: new Ext.grid.ColumnModel(columnModel), store: store};
     };
@@ -494,12 +509,27 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             outilsSelection.push(new OutilTableSelection({
                 type:'zoom',    
                 couche: this.donnees}));
+            
+            var selectionnerAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
              outilsSelection.push(new OutilTableSelection({
                 type:'auto',
-                couche: this.donnees}));
-
-
+                couche: this.donnees,
+                _extOptions:{checked:selectionnerAuto}}));
+            
+            
+            var selectionnerContenuPage = typeof this.options.outils_contenupage ? this.options.outils_contenupage:false;
+            if(this.options.paginer){
+                outilsSelection.push(new OutilTableSelection({
+                    type:'contenupage',
+                    couche: this.donnees,
+                    panneauTable: this,
+                    _extOptions:{checked:selectionnerContenuPage}}));
+            }
+            
+           
             menuSelection.ajouterOutils(outilsSelection);  
+            if(selectionnerContenuPage)outilsSelection[outilsSelection.length-1].executer(true);
+            if(selectionnerAuto)outilsSelection[outilsSelection.length-1].executer(true);
         }
     };
     
@@ -595,7 +625,12 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}
             var index = that._panel.store.indexOfId(value.id);
-            if(index === -1){return true;}
+            if(index === -1){
+                if(value.selectionnee){
+                    value.deselectionner();
+                }
+                return true;
+            }
             that.selectionnerParIndex(index, true);
         });
     };
@@ -605,7 +640,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}
             var index = that._panel.store.indexOfId(value.id);
-            if(index === -1){return true;}
+            if(index === -1){
+                return true;
+            }
             that.deselectionnerParIndex(index);
         });
     };
@@ -771,6 +808,20 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
       this.afficherErreurs();     
     };
     
+    PanneauTable.prototype.obtenirOccurences = function(){
+        var that = this;
+        var listeOccurences = Array();
+        $.each(this.donnees.obtenirOccurences(), function(index, value){
+            if(!that._panel.store){return false;}
+            var index = that._panel.store.indexOfId(value.id);
+            if(index !== -1){
+               listeOccurences.push(value);
+            }
+        });
+        return listeOccurences;
+    };
+    
+    
     PanneauTable.Controles = function(_){
         this._ = _;
         this.activerSelection();
@@ -817,7 +868,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur }); 
     };
     
-    
+  
     return PanneauTable;
     
 });
