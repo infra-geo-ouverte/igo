@@ -522,7 +522,7 @@ try {
             error_log("not a get or a post?");
             return;
         }
-        error_log("service: {$service}, request: {$request}");
+        
         if($service === "WMS"){
             
             $config = $app->getDI()->get("config");
