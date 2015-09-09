@@ -15,9 +15,11 @@ try {
     
     /**
      * 
-     * @param ??? $configuration
+     * @param string $configuration
      */
-    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {                
+    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {  
+
+        $config = $di->getConfig();
         $configArray = explode(".", $configuration);
         $configKey = $configArray[0];
         $encoding = "json";
@@ -27,10 +29,10 @@ try {
         }
      
         // Gerer le cas où on appelle une configuration inexistante et où il y aurait une erreur dans la configuration.
-        if(isset($di->getConfig()->configurations[$configKey])){
-            $xmlPath = $di->getConfig()->configurations[$configKey];
+        if(isset($config->configurations[$configKey])){
+            $xmlPath = $config->configurations[$configKey];
         } else {
-            $xmlPath = $di->getConfig()->configurationsDir . $configKey . '.xml';
+            $xmlPath = $config->configurationsDir . $configKey . '.xml';
         }
 
         if(!file_exists ($xmlPath) && !curl_url_exists($xmlPath)){
@@ -56,7 +58,7 @@ try {
                 //Retourner l'info pour creer correctement la couche cote client
                 $result = $element->xpath('//couche[boolean(@idbd)]');
                 $avertissement = null;
-                $debug = $app->getDI()->get("config")->application->debug;
+                $debug = $config->application->debug;
                 foreach($result as $couche){
                     $coucheId =  $couche->attributes()->idbd->__toString();
                                       
@@ -69,12 +71,12 @@ try {
                     if($coucheBd === false){
                         if(is_numeric($coucheId)){
                             $avertissement[] = "La couche avec id : « {$coucheId} » n'existe pas!";   
-                            $dom=dom_import_simplexml($couche);
+                            $dom = dom_import_simplexml($couche);
                             $dom->parentNode->removeChild($dom);
                             continue;
                         }else{
                             $avertissement[] = "La couche avec mf_layer_name : « {$coucheId} » n'existe pas!";
-                            $dom=dom_import_simplexml($couche);
+                            $dom = dom_import_simplexml($couche);
                             $dom->parentNode->removeChild($dom);
                             continue;
                         }         
@@ -87,11 +89,11 @@ try {
 
                         if($coucheBd->connexion_type == 'POSTGIS' || $coucheBd->connexion_type == null){
 
-                            $mf_map_meta_onlineresource =   $di->getConfig()->mapserver['host'] .
-                                                            $di->getConfig()->mapserver['mapserver_path'] .
-                                                            $di->getConfig()->mapserver['executable'] .
-                                                            $di->getConfig()->mapserver['mapfileCacheDir'] .
-                                                            $di->getConfig()->mapserver['couchesCacheDir'] .
+                            $mf_map_meta_onlineresource =   $config->mapserver['host'] .
+                                                            $config->mapserver['mapserver_path'] .
+                                                            $config->mapserver['executable'] .
+                                                            $config->mapserver['mapfileCacheDir'] .
+                                                            $config->mapserver['couchesCacheDir'] .
                                                             $coucheBd->mf_layer_name . '.map';
                             $protocole = 'WMS';
                             //ne pas exposer 
@@ -103,22 +105,21 @@ try {
 
                         }
 
-                        $couche->attributes()->nom ? $couche->addAttribute("mf_map_meta_onlineresource", $mf_map_meta_onlineresource) : null;
-                        $couche->attributes()->protocole ? $couche->addAttribute("protocole", $protocole) : null;
-                        $couche->attributes()->nom ? $couche->addAttribute("nom", $coucheBd->mf_layer_name) : null;
-                        $couche->attributes()->titre ? $couche->addAttribute("titre", $coucheBd->mf_layer_meta_title) : null;
-                        $couche->attributes()->url ? $couche->addAttribute("url", $mf_map_meta_onlineresource) : null;
-                        $couche->attributes()->fond ? $couche->addAttribute("fond", $coucheBd->est_fond_de_carte) : null;
+                        !$couche->attributes()->nom ? $couche->addAttribute("mf_map_meta_onlineresource", $mf_map_meta_onlineresource) : null;
+                        !$couche->attributes()->protocole ? $couche->addAttribute("protocole", $protocole) : null;
+                        !$couche->attributes()->nom ? $couche->addAttribute("nom", $coucheBd->mf_layer_name) : null;
+                        !$couche->attributes()->titre ? $couche->addAttribute("titre", $coucheBd->mf_layer_meta_title) : null;
+                        !$couche->attributes()->url ? $couche->addAttribute("url", $mf_map_meta_onlineresource) : null;
+                        !$couche->attributes()->fond ? $couche->addAttribute("fond", $coucheBd->est_fond_de_carte) : null;
 
                         foreach($coucheBd as $key => $value){
                             if(!$couche->attributes()->$key){
-                                $couche->addAttribute($key,$value);
+                                $couche->addAttribute($key, $value);
                             }
                         }                        
                     }else{
                          if (isset($debug) && ($debug > 1 || $debug===true)){
-                            $avertissement[] = 'Vous n\'avez pas les droits sur la couche "'
-                                                . $coucheBd->mf_layer_meta_title . '" (id:' . $coucheBd->id . ')';
+                            $avertissement[] = "Vous n'avez pas les droits sur la couche {$coucheBd->mf_layer_meta_title} (id : {$coucheBd->id})";
                         }                    
                         $dom = dom_import_simplexml($couche);
                         $dom->parentNode->removeChild($dom);       
@@ -152,11 +153,12 @@ try {
 
     /**
      *
+     * @param int $contexteId
      * @return IgoContexte
      */
     function obtenirContexte($contexteId){
         global $app;
-        $contexte = IgoContexte::findFirst("id=$contexteId");
+        $contexte = IgoContexte::findFirst("id={$contexteId}");
         if($contexte === false){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
@@ -169,11 +171,12 @@ try {
 
     /**
      *
+     * @param string $contexteCode Ex : "gouvouvert"
      * @return IgoContexte
      */
     function obtenirContexteParCode($contexteCode){
         global $app;
-        $contexte = IgoContexte::findFirst("code='$contexteCode'");
+        $contexte = IgoContexte::findFirst("code='{$contexteCode}'");
         if($contexte === false){
             $app->response->setStatusCode(404, "Not Found");
             $error = new stdClass();
@@ -182,28 +185,6 @@ try {
             die(htmlspecialchars(json_encode($error)));            
         }
         return $contexte;
-    }
-    
-    /**
-     *
-     * @return bool
-     */
-    function estAuthentifie($session) {
-        if(!$session->has("info_utilisateur")){
-            return false;
-        }
-        return $session->get("info_utilisateur")->estAuthentifie;
-    }
-
-    /**
-     *
-     * @return bool
-     */
-    function estAnonyme($session) {        
-        if(!$session->has("info_utilisateur")){
-            return true;
-        }
-        return $session->get("info_utilisateur")->estAnonyme;
     }
     
     /**
@@ -227,7 +208,7 @@ try {
             return null;
         }
 
-        if(!estAuthentifie($app->getDI()->getSession()) && !estAnonyme($app->getDI()->getSession())){
+        if(!utilisateurActuelEstAuthentifie() && !utilisateurActuelEstAnonyme()){
             $app->response->setStatusCode(401, "Unauthorized");
             $error = new stdClass();
             $error->error = "Vous n'êtes pas authentifié!";
@@ -235,29 +216,70 @@ try {
             die(htmlspecialchars(json_encode($error)));            
         }
         return $authentificationModule;
-    }    
+    }  
+
+    /**
+     * Indique si l'utilisateur courant est authentifié
+     * @return bool
+     */
+    function utilisateurActuelEstAuthentifie(){
+        //TODO Utiliser un acesseur de info_utilisateur ex : ... info_utilisateur->getEstAuthentifie()
+        global $app;
+        $session = $app->getDI()->getSession();
+        if(!$session->has("info_utilisateur")){
+            return false;
+        }
+        return $session->get("info_utilisateur")->estAuthentifie;
+    }  
+
+    /**
+     * Indique si l'utilisateur courant est anonyme
+     * @return bool
+     */
+    function utilisateurActuelEstAnonyme(){
+        //TODO Utiliser un acesseur de info_utilisateur ex : ... info_utilisateur->getEstAnonyme()
+        global $app;
+        $session = $app->getDI()->getSession();
+        if(!$session->has("info_utilisateur")){
+            return true;
+        }
+        return $session->get("info_utilisateur")->estAnonyme;
+    }
 
     /**
      *
-     * @return string
+     * @return
+     */
+    function utilisateurActuelProfils(){
+        global $app;
+        return $app->getDI()->getSession()->get("info_utilisateur")->profils;
+    }
+
+    function utilisateurActuelProfilActif(){
+        global $app;
+        return $app->getDI()->getSession()->get("info_utilisateur")->profilActif;
+    }
+
+    /**
+     * Liste de id des profils de l'utilisateur
+     * @return string Ex : "1,2,3"
      */
     function obtenirUtilisateurProfilsInQuery() {
         global $app;
-        $authentificationModule = $app->getDI()->get("authentificationModule");
 
-        if (estAnonyme($app->getDI()->getSession())) {
-            $configuration = $app->getDI()->get("config");
-            if(!isset($configuration->application->authentification->nomProfilAnonyme)){
+        if (utilisateurActuelEstAnonyme()) {
+            $config = $app->getDI()->get("config");
+            if(!isset($config->application->authentification->nomProfilAnonyme)){
                 return (string) '0';
             }
-            return (string) '0,'.IgoProfil::findFirst("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->id;
+            return (string) '0,'.IgoProfil::findFirst("nom = '{$config->application->authentification->nomProfilAnonyme}'")->id;
         }
-            
-        if(!is_null($app->getDI()->getSession()->get("info_utilisateur")->profilActif)) {
-            $profil = $app->getDI()->getSession()->get("info_utilisateur")->profilActif;
-            return (string) '0,'.$profil;
+        
+        $profiLActif = utilisateurActuelProfilActif();
+        if(!is_null($profiLActif)) {
+            return (string) '0,' . $profiLActif;
         }else{
-            $profils = obtenirProfils($app->getDI()->getSession());
+            $profils = utilisateurActuelProfils();
             $profilsArray = array();
             foreach ($profils as $profil) {
                 array_push($profilsArray, $profil["id"]);
@@ -311,6 +333,7 @@ try {
      */
     $app->get('/couche/{coucheId}', function($coucheId) use($di, $app){
         
+        $config = $di->getConfig();
         $authentificationModule = obtenirAuthentificationModule();
         $arrayCoucheId = explode(",", $coucheId);
         $couches = array();
@@ -332,11 +355,11 @@ try {
                 if($couche->connexion_type == 'POSTGIS' || $couche->connexion_type == null){
 
                     $couche->mf_map_meta_onlineresource = 
-                                                        $di->getConfig()->mapserver['host'].
-                                                        $di->getConfig()->mapserver['mapserver_path'] .
-                                                        $di->getConfig()->mapserver['executable'].
-                                                        $di->getConfig()->mapserver['mapfileCacheDir'] .
-                                                        $di->getConfig()->mapserver['couchesCacheDir'] .
+                                                        $config->mapserver['host'].
+                                                        $config->mapserver['mapserver_path'] .
+                                                        $config->mapserver['executable'].
+                                                        $config->mapserver['mapfileCacheDir'] .
+                                                        $config->mapserver['couchesCacheDir'] .
                                                         $couche->mf_layer_name . '.map';
                     $couche->protocole = 'WMS';  
                     //ne pas exposer
@@ -506,8 +529,7 @@ try {
             $mapserverPath = $config['mapserver']['host'] . $config['mapserver']['mapserver_path'] . $config['mapserver']['executable'];
             $igoContexte = IgoContexte::findFirstById($contexteId);
 
-            //S'assurer que le mapfile du contexte existe
-            $igoContexte->toto();
+            //TODO S'assurer que le mapfile du contexte existe
 
             $method = $httprequest->getMethod();
             $data = $httprequest->get();
@@ -724,9 +746,9 @@ try {
                   
         $protocole = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://';
         if(isset($url) && is_string($url) && $url !== ""){
-            //$url = str_replace("//localhost/","//".$appelant."/", $url);
+            
             if(substr($url, 0, 1) === "/"){
-                //$url = $protocole.$appelant.$url;
+                
                 $url = $protocole."localhost".$url;
             }
         } else {
@@ -821,7 +843,7 @@ try {
             $url = $url.http_build_query($paramsGet);
 
             //remplacer les parametres array ([0]= , [1]= , ...) par le même nom.
-            //todo en faire une option?
+            //TODO en faire une option?
             $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $url);
         }
         proxyRequestNavigateur($url, $paramsPost, $method, $options);
