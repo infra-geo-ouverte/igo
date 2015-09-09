@@ -622,7 +622,7 @@ try {
         $auth = $igoController->obtenirChaineConnexion($service);
 
        //Decrypter la chaine de connexion
-        if ($auth != NULL) {
+        if (!empty($auth['pass']) && isset($auth['pass'])) {
             $crypt = $app->getDI()->get("crypt");
             $chaine = explode(",", $crypt->decryptBase64(urldecode($auth['pass'])));
             $auth['user'] = ltrim($chaine[0], " user:");

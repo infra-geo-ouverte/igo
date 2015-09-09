@@ -127,9 +127,15 @@ $di->set('crypt', function () use ($config) {
     $crypt->setCipher('blowfish');
     $crypt->setMode('cbc');
 
-    $xmlPath = $config->application->authentification->secretXmlFile;
-
-    if (file_exists($xmlPath)) {
+    if (isset($config->application->authentification['secretXmlFile'])) {
+       $xmlPath = $config->application->authentification->secretXmlFile;
+    }
+    
+    if (empty($xmlPath)) {
+        die("Le paramètre secretXmlFile n'a pas été trouvé dans le config.php");
+    }
+    
+    if (file_exists($xmlPath) && !empty($xmlPath) ) {
         $key = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
     }
 

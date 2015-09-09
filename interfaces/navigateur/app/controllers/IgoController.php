@@ -377,7 +377,7 @@ class IgoController extends ControllerBase {
                 $trustedDom[] = $regex;
             } else if ($regex[0] === "*") {
                 $trustedDom[] = "#(.)+#";
-            } else if (count($regex) === 3 && is_array([$regex])) {
+            } else if (is_array([$regex])) {
                 $trustedDom[] = $regex[0];
             } else {
                 $trustedDom[] = '#' . preg_quote($regex, '#') . '#';
@@ -391,27 +391,26 @@ class IgoController extends ControllerBase {
     //Obtenir la chaine de connexion pour un service
     public function obtenirChaineConnexion($service) {
 
-        $auth = array(
+         $auth = array(
             "url" => "",
             "pass" => "",
             "method" => ""
-        );
-
+           );
+            
         if (isset($this->config['servicesExternes'])) {
             $servicesExternes = $this->config['servicesExternes'];
-        }
-
-        foreach ($servicesExternes['regex'] as $regex) {
-            if (count($regex) === 3 && is_array([$regex])) {
-                if (preg_replace($regex[0], 'true', $service)) {
-                    $auth["url"] = $service;
-                    $auth["pass"] = $regex[1];
-                    $auth["method"] = $regex[2];
-                    break;
+          
+            foreach ($servicesExternes['regex'] as $regex) {
+                if (is_array([$regex]) && isset($regex['connexion']) && isset($regex['methode'])) {     
+                 
+                        $auth["url"] = $service;
+                        $auth["pass"] = $regex['connexion'];
+                        $auth["method"] = $regex['methode'];
+                        break;
                 }
             }
-        }
-        return $auth;
+            return $auth;
+        } 
     }
 
     private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes) {
