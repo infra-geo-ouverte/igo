@@ -84,7 +84,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-       var styles = {defaut: {visible: false}, select: style};
+       var styles = {defaut: style, select: style};
 
         var vecteur = this.creerVecteurRecherche(styles);
         $.each(responseJSON.geocoderReponseListe, function(key, value) {

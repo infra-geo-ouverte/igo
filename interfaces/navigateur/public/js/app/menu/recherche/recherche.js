@@ -341,12 +341,12 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
 
     Recherche.prototype.traiterResultatVecteur = function(vecteur){
         vecteur.garderHistorique = true;
+        vecteur.zoomAuto = true;
+        
         var occurence = vecteur.obtenirOccurences()[0];
         if(!occurence){
             return false;
-        }
-        vecteur.zoomerOccurence(occurence, this.options.zoom);
-        occurence.selectionner();
+        }      
         if(this.options.idResultatTable){
             var nav = Aide.obtenirNavigateur();
             var panneauTable = nav.obtenirPanneauParId(this.options.idResultatTable, -1);
@@ -354,12 +354,24 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             if (panneauTable.obtenirTypeClasse() === 'PanneauTable') {
                 panneauTable.ouvrirTableVecteur(vecteur);
             } else if(panneauTable.obtenirTypeClasse() === 'PanneauOnglet'){
-                var nouvelleTable = new PanneauTable({reductible: false, fermable: true});        
+                var paginer = panneauTable.options.paginer?panneauTable.options.paginer:false;
+                var limite = panneauTable.options.paginer_limite?parseInt(panneauTable.options.paginer_limite):undefined;
+                var debut = panneauTable.options.paginer_debut?parseInt(panneauTable.options.paginer_debut):undefined;              
+                
+                var nouvelleTable = new PanneauTable({reductible: false, fermable: true,
+                                                        paginer : paginer,
+                                                        paginer_debut: debut,
+                                                        paginer_limite: limite,
+                                                        outils_auto:true,
+                                                        outils_contenupage:true
+                                    });        
                 panneauTable.ajouterPanneau(nouvelleTable);
                 nouvelleTable.ouvrirTableVecteur(vecteur);
                 panneauTable.activerPanneau(nouvelleTable);        
             }
         }
+        vecteur.zoomerOccurence(occurence, this.options.zoom);
+        occurence.selectionner();
     }
 
     Recherche.prototype.creerVecteurRecherche = function(styles) {
