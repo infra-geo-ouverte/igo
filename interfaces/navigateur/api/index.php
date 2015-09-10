@@ -20,6 +20,7 @@ try {
     $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {  
 
         $config = $di->getConfig();
+        $debug = $config->application->debug;
         $configArray = explode(".", $configuration);
         $configKey = $configArray[0];
         $encoding = "json";
@@ -36,11 +37,7 @@ try {
         }
 
         if(!file_exists ($xmlPath) && !curl_url_exists($xmlPath)){
-            $app->response->setStatusCode(404, "Not Found");
-            $error = new stdClass();
-            $error->error = "La configuration « {$configuration} » n'existe pas!";
-            $app->response->send();
-            die(htmlspecialchars(json_encode($error)));                        
+            envoyerResponse(404, "Not Found", "La configuration « {$configuration} » n'existe pas!");                    
         }
 
         if($encoding === "json"){
@@ -57,77 +54,74 @@ try {
                 //Gerer le cas des couches seulement avec un Id
                 //Retourner l'info pour creer correctement la couche cote client
                 $result = $element->xpath('//couche[boolean(@idbd)]');
-                $avertissement = null;
-                $debug = $config->application->debug;
+                $avertissements = array();
                 foreach($result as $couche){
                     $coucheId =  $couche->attributes()->idbd->__toString();
-                                      
-                    if(is_numeric($coucheId)){
-                        $coucheBd = IgoVueCouche::findFirst("id={$coucheId}");
-                    }else{
-                        $coucheBd = IgoVueCouche::findFirst("mf_layer_name='{$coucheId}'");
-                    }
+                          
+                    $igoVueCouche = is_numeric($coucheId) 
+                        ? IgoVueCouche::findFirst("id={$coucheId}") 
+                        : IgoVueCouche::findFirst("mf_layer_name='{$coucheId}'");     
+                  
 
-                    if($coucheBd === false){
-                        if(is_numeric($coucheId)){
-                            $avertissement[] = "La couche avec id : « {$coucheId} » n'existe pas!";   
-                            $dom = dom_import_simplexml($couche);
-                            $dom->parentNode->removeChild($dom);
-                            continue;
-                        }else{
-                            $avertissement[] = "La couche avec mf_layer_name : « {$coucheId} » n'existe pas!";
-                            $dom = dom_import_simplexml($couche);
-                            $dom->parentNode->removeChild($dom);
-                            continue;
-                        }         
+                    if(!$igoVueCouche){
+                        
+                        $avertissements[] = is_numeric($coucheId) 
+                            ? "La couche avec id : « {$coucheId} » n'existe pas!"
+                            : "La couche avec mf_layer_name : « {$coucheId} » n'existe pas!";
+                        
+                        $dom = dom_import_simplexml($couche);
+                        $dom->parentNode->removeChild($dom);
+                        continue;
                     }
                     
                     //Vérifier l'access
-                    $permission = obtenirPermission($coucheBd->id);
+                    $permission = obtenirPermission($igoVueCouche->id);
 
                     if($permission != null && $permission->est_lecture){
 
-                        if($coucheBd->connexion_type == 'POSTGIS' || $coucheBd->connexion_type == null){
+                        if($igoVueCouche->connexion_type == 'POSTGIS' || $igoVueCouche->connexion_type == null){
 
                             $mf_map_meta_onlineresource =   $config->mapserver['host'] .
                                                             $config->mapserver['mapserver_path'] .
                                                             $config->mapserver['executable'] .
                                                             $config->mapserver['mapfileCacheDir'] .
                                                             $config->mapserver['couchesCacheDir'] .
-                                                            $coucheBd->mf_layer_name . '.map';
+                                                            $igoVueCouche->mf_layer_name . '.map';
                             $protocole = 'WMS';
-                            //ne pas exposer 
-                            unset($coucheBd->connexion);
+                            
+                            //Ne pas exposer la connexion
+                            unset($igoVueCouche->connexion);
 
                         }else{
-                            $mf_map_meta_onlineresource = $coucheBd->connexion;
-                            $protocole = $coucheBd->connexion_type;
+                            $mf_map_meta_onlineresource = $igoVueCouche->connexion;
+                            $protocole = $igoVueCouche->connexion_type;
 
                         }
 
+                        //Ajouter les attributs au besoin
                         !$couche->attributes()->nom ? $couche->addAttribute("mf_map_meta_onlineresource", $mf_map_meta_onlineresource) : null;
                         !$couche->attributes()->protocole ? $couche->addAttribute("protocole", $protocole) : null;
-                        !$couche->attributes()->nom ? $couche->addAttribute("nom", $coucheBd->mf_layer_name) : null;
-                        !$couche->attributes()->titre ? $couche->addAttribute("titre", $coucheBd->mf_layer_meta_title) : null;
+                        !$couche->attributes()->nom ? $couche->addAttribute("nom", $igoVueCouche->mf_layer_name) : null;
+                        !$couche->attributes()->titre ? $couche->addAttribute("titre", $igoVueCouche->mf_layer_meta_title) : null;
                         !$couche->attributes()->url ? $couche->addAttribute("url", $mf_map_meta_onlineresource) : null;
-                        !$couche->attributes()->fond ? $couche->addAttribute("fond", $coucheBd->est_fond_de_carte) : null;
+                        !$couche->attributes()->fond ? $couche->addAttribute("fond", $igoVueCouche->est_fond_de_carte) : null;
 
-                        foreach($coucheBd as $key => $value){
+                        foreach($igoVueCouche as $key => $value){
                             if(!$couche->attributes()->$key){
                                 $couche->addAttribute($key, $value);
                             }
                         }                        
                     }else{
-                         if (isset($debug) && ($debug > 1 || $debug===true)){
-                            $avertissement[] = "Vous n'avez pas les droits sur la couche {$coucheBd->mf_layer_meta_title} (id : {$coucheBd->id})";
+                         if ($debug){
+                            $avertissements[] = "Vous n'avez pas les droits sur la couche {$igoVueCouche->mf_layer_meta_title} (id : {$igoVueCouche->id})";
                         }                    
                         $dom = dom_import_simplexml($couche);
                         $dom->parentNode->removeChild($dom);       
                     }
                 }
                                 
-                if($avertissement != null){
-                    foreach($avertissement as $value){
+                if(count($avertissements)){
+                    foreach($avertissements as $value){
                         $element->addChild('avertissements', $value);
                     }
                 }
@@ -135,19 +129,10 @@ try {
                 echo json_encode($element);               
             
             }else{
-            
-                $app->response->setStatusCode(404, "Not Found");
-                $error = new stdClass();
-                $error->error = "L'élément racine du fichier de configuration doit se nommer « navigateur »!";
-                $app->response->send();
-                die(htmlspecialchars(json_encode($error)));                                                    
+                envoyerResponse(404, "Not Found", "L'élément racine du fichier de configuration doit se nommer « navigateur »!");
             }                
-        }else{        
-            $app->response->setStatusCode(404, "Not Found");
-            $error = new stdClass();
-            $error->error = "L'encodage «{$encoding} » n'est pas supporté!";
-            $app->response->send();
-            die(htmlspecialchars(json_encode($error)));                                    
+        }else{       
+            envoyerResponse(404, "Not Found", "L'encodage «{$encoding} » n'est pas supporté!");
         }
     });
 
@@ -158,15 +143,11 @@ try {
      */
     function obtenirContexte($contexteId){
         global $app;
-        $contexte = IgoContexte::findFirst("id={$contexteId}");
-        if($contexte === false){
-            $app->response->setStatusCode(404, "Not Found");
-            $error = new stdClass();
-            $error->error = "Le contexte « {$contexteId} » n'existe pas!";
-            $app->response->send();
-            die(htmlspecialchars(json_encode($error)));            
+        $igoContexte = IgoContexte::findFirst("id={$contexteId}");
+        if(!$igoContexte){
+            envoyerResponse(404, "Not Found", "Le contexte « {$contexteId} » n'existe pas!");  
         }
-        return $contexte;
+        return $igoContexte;
     }
 
     /**
@@ -176,15 +157,11 @@ try {
      */
     function obtenirContexteParCode($contexteCode){
         global $app;
-        $contexte = IgoContexte::findFirst("code='{$contexteCode}'");
-        if($contexte === false){
-            $app->response->setStatusCode(404, "Not Found");
-            $error = new stdClass();
-            $error->error = "Le contexte « {$contexteCode} » n'existe pas!";
-            $app->response->send();
-            die(htmlspecialchars(json_encode($error)));            
+        $igoContexte = IgoContexte::findFirst("code='{$contexteCode}'");
+        if(!$igoContexte){
+            envoyerResponse(404, "Not Found", "Le contexte « {$contexteCode} » n'existe pas!");     
         }
-        return $contexte;
+        return $igoContexte;
     }
     
     /**
@@ -193,6 +170,21 @@ try {
      */
     function obtenirProfils($session) {
         return $session->get("info_utilisateur")->profils;
+    }
+
+    /**
+     *
+     * @param int $statusCode
+     * @param string $titre
+     * @param string $msgErreur
+     */
+    function envoyerResponse($statusCode, $titre, $msgErreur){
+        global $app;
+        $app->response->setStatusCode($statusCode, $titre);
+        $error = new stdClass();
+        $error->error = $msgErreur;
+        $app->response->send();
+        die(htmlspecialchars(json_encode($error)));      
     }
 
     /**
@@ -209,11 +201,7 @@ try {
         }
 
         if(!utilisateurActuelEstAuthentifie() && !utilisateurActuelEstAnonyme()){
-            $app->response->setStatusCode(401, "Unauthorized");
-            $error = new stdClass();
-            $error->error = "Vous n'êtes pas authentifié!";
-            $app->response->send();
-            die(htmlspecialchars(json_encode($error)));            
+            envoyerResponse(401, "Unauthorized", "Vous n'êtes pas authentifié!");
         }
         return $authentificationModule;
     }  
@@ -314,16 +302,17 @@ try {
     
     /**
      *
+     * @param string $coucheId
      * @return
      */
     function obtenirGroupeCouche($coucheId){ 
-        $groupes = IgoGroupeCouche::find("couche_id={$coucheId}");
-        // TODO Faire un implode avec ,
-        $in = '';
-        foreach($groupes as $value){
-            $in .= $value->groupe_id . ','; 
+        $igoGroupeCouches = IgoGroupeCouche::find("couche_id={$coucheId}");
+
+        $in = array();
+        foreach($igoGroupeCouches as $igoGroupeCouche){
+            $in[] = $igoGroupeCouche->groupe_id;
         }
-        return  substr($in, 0, strlen($in)-1);
+        return implode(',', $in);
     } 
     
     /**
@@ -337,8 +326,8 @@ try {
         $authentificationModule = obtenirAuthentificationModule();
         $arrayCoucheId = explode(",", $coucheId);
         $couches = array();
-        $avertissements = null;
-        $debug = $app->getDI()->get("config")->application->debug;
+        $avertissements = array();
+        $debug = $config->application->debug;
 
         foreach ($arrayCoucheId as $key => $value) {
             
@@ -362,7 +351,8 @@ try {
                                                         $config->mapserver['couchesCacheDir'] .
                                                         $couche->mf_layer_name . '.map';
                     $couche->protocole = 'WMS';  
-                    //ne pas exposer
+                    
+                    //Ne pas exposer la connexion
                     unset($couche->connexion);
                 
                 }else{
@@ -379,14 +369,14 @@ try {
 
             }else{
 
-                 if (isset($debug) && ($debug > 1 || $debug === true)){
-                    $avertissements[] = 'Vous n\'avez pas les droits sur la couche "'.$couche->mf_layer_meta_title.'" (id:'.$value.').';
+                 if ($debug){
+                    $avertissements[] = "Vous n'avez pas les droits sur la couche \"{$couche->mf_layer_meta_title}\" (id : {$value}).";
                 }
             }
             
         }
         
-        if($avertissements != null){
+        if(count($avertissements)){
             $reponse = array('couches'=>$couches, 'avertissements'=>$avertissements);
         }else{
             $reponse = $couches;
@@ -432,7 +422,7 @@ try {
                 )));        
         $authentificationModule = obtenirAuthentificationModule();
         $array = array();
-        $avertissements = null;
+        $avertissements = array();
         $debug = $app->getDI()->get("config")->application->debug;
         foreach($contexteCouches as $couche){
 
@@ -475,8 +465,8 @@ try {
                         if($test==1&&isset($matches[1]))$couche->wms_timeextent = $matches[1];                               
                     }    
                 }else{
-                    if (isset($debug) && ($debug > 1 || $debug===true)){                 
-                        $avertissements[] = 'Vous n\'avez pas les droits sur la couche "' . $couche->mf_layer_meta_title . '" (id:' . $couche->couche_id . ')';
+                    if ($debug){                 
+                        $avertissements[] = "Vous n'avez pas les droits sur la couche \"{$couche->mf_layer_meta_title}\" (id : {$couche->couche_id})";
                     }
                 }            
             }
@@ -484,7 +474,7 @@ try {
         
         $contexte->couches = $array;
         
-        if($avertissements != null){
+        if(count($avertissements)){
             $contexte->avertissements = array('avertissements'=>$avertissements);    
         }
         
