@@ -245,15 +245,14 @@ class IgoController extends ControllerBase
             $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
             if(isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
                 $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
-                foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
-                    if($value['id']== $idProfil){
-                         $libelleProfil = $value['libelle']; 
-                         break;
+                if(isset($idProfil)){ 
+                    foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
+                        if($value['id']== $idProfil){
+                             $libelleProfil = $value['libelle']; 
+                             break;
+                        }
                     }
                 }
-            }
-            if($libelleProfil === ''){
-                $count = 0;
             }
         }
         $this->view->setVar("profil", $libelleProfil);   

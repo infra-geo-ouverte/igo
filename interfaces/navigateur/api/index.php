@@ -218,10 +218,30 @@ try {
             if((null === $app->getDI()->getSession()->get("info_utilisateur")) || is_null($app->getDI()->getSession()->get("info_utilisateur")->profilActif)){
                 return (string) '0';
             }
-        }
+        }    
 
         if(!is_null($app->getDI()->getSession()->get("info_utilisateur")->profilActif)) {
             $profil = $app->getDI()->getSession()->get("info_utilisateur")->profilActif;
+ 
+            $nomProfilAnonyme = $app->session->get('nomProfilAnonyme');
+            if($nomProfilAnonyme === null){
+                if(isset($app->getDI()->get("config")->application->authentification)){
+                    $nomProfilAnonyme = $app->getDI()->get("config")->application->authentification->nomProfilAnonyme;
+                }      
+            }
+
+            if(isset($nomProfilAnonyme)){
+                $anonymeProfil = IgoProfil::find("nom = '{$nomProfilAnonyme}'");
+                if(isset($anonymeProfil)){
+                    $tAP = $anonymeProfil->toArray();
+                    if(isset($tAP[0]) && isset($tAP[0]['id'])){
+                        $anonymeId = $tAP[0]['id'];
+                        if($anonymeId !== $profil){
+                            return (string) '0,' . $anonymeId . ',' . $profil;    
+                        }                        
+                    }
+                }
+            }
             return (string) '0,'.$profil;
         }else{
             $profils = obtenirProfils($app->getDI()->getSession());

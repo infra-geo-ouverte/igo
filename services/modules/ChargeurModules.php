@@ -141,8 +141,13 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			//Profils
 			if(isset($session['info_utilisateur']->profils)){
 		        foreach ($session['info_utilisateur']->profils as $key => $value) {
-	                $idValue = $value["id"];
-	                $profil = $value["libelle"];
+                    if(is_array($value)){
+                        $idValue = $value["id"];
+                        $profil = $value["libelle"];
+                    } else {
+                        $idValue = $value->id;
+                        $profil = $value->libelle;
+                    }
 		            if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
 		                if(isset($profil) && isset($configGlobal->permissions[$profil])){
 		                    $modules = $configGlobal->permissions[$profil]->modules;

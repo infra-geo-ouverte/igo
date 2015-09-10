@@ -26,7 +26,7 @@ class SecurityPlugin extends Plugin
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $user = $this->session->get("info_utilisateur");
-            $authObligatoire = isset($_GET['auth']) ? $_GET['auth'] : false;
+            $authObligatoire = isset($_GET['force-auth']) ? $_GET['force-auth'] : false;
             
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
             if(isset($this->getDi()->getConfig()->configurations[$configuration])){

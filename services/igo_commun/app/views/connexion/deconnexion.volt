@@ -15,7 +15,7 @@
             <span><a href="{{pageRedirection}}">Retour au navigateur</a></span>
             {% if seConnecter and seConnecter !== "" %}
             <span> | </span>
-            <span><a href="{{pageRedirection}}?auth=true">Se connecter</a></span>
+            <span><a href="{{pageRedirection}}?force-auth=true">Se connecter</a></span>
             {% endif  %}
         </div>
     </div>

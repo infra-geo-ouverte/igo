@@ -98,7 +98,10 @@ class ConnexionController extends Controller{
             $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
 
             if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
-                array_merge($profils, IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->toArray());
+                $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                if(isset($anonymeProfil)){
+                    array_merge($profils, $anonymeProfil->toArray());
+                }
             }
             
             $this->session->get("info_utilisateur")->profils = $profils;
@@ -114,12 +117,14 @@ class ConnexionController extends Controller{
             }
         }
         //L'utilisateur doit sélectionner son rôle
+        $profilObligatoire = isset($_GET['force-profil']) ? $_GET['force-profil'] : false;
         if($this->session->get("info_utilisateur")->estAuthentifie && 
-            $configuration->application->authentification->activerSelectionRole){
+            ($profilObligatoire || $configuration->application->authentification->activerSelectionRole)){
             
             $configuration = $this->getDI()->get("config");
             $this->view->setVar("accesUri", $configuration->application->baseUri. "connexion/acces");
-          
+            $this->view->setVar("accesTotalUri", $configuration->application->baseUri. "connexion/accesTotal");
+
             if(!$this->obtenirPageRedirection()){
                 $this->definirPageRedirection($request->getURI());
             }
@@ -135,7 +140,15 @@ class ConnexionController extends Controller{
            $this->session->get("info_utilisateur")->profilActif = $request->getPost('profil', null);
         }
         return $this->redirigeVersPage();
-    }        
+    }     
+
+    public function accesTotalAction() {
+        $request = new \Phalcon\Http\Request();
+        if ($request->isPost()) {
+           $this->session->get("info_utilisateur")->profilActif = null;
+        }
+        return $this->redirigeVersPage();
+    }          
     
     public function deconnexionAction() {
         $xmlConfig = $this->session->get('configXml');
