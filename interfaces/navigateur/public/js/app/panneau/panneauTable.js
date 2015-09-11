@@ -386,7 +386,11 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             lastOptions: {'params':{'start':debut,'limit':limite}},
             listeners : {
                 //Lors d'un changement de page. Nous devons executer chaque checkbox de la liste
-                datachanged: function(pagingJsonStore){         
+                datachanged: function(pagingJsonStore){ 
+                    if(that.donnees.listeOccurences){
+                        that.donnees.deselectionnerTout();
+                    }
+                    
                     if(that.barreOutils){
                         $.each(that.barreOutils.obtenirOutilsParType("OutilTableSelection",3), function(index , value){
                             if(typeof value._bouton.isXType === "function" && value._bouton.isXType("menucheckitem")){
