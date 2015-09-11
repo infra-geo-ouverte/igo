@@ -73,9 +73,15 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-       var styles = {defaut: {visible: false}, select: style};
+        var styles = {defaut: {visible: false}, select: style};
 
-        var vecteur = this.creerVecteurRecherche(styles);
+        var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
+
+    };
+   
+    RechercheGPS.prototype.ajouterOccurences = function(e) {
+        var vecteur = e.target;
+        var responseJSON = e.options.params.responseJSON;
         var point;
         if (responseJSON.localisation && responseJSON.localisation.point.x && responseJSON.localisation.point.y) {
             point = new Point(responseJSON.localisation.point.x, responseJSON.localisation.point.y);

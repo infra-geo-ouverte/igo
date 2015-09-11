@@ -3,6 +3,7 @@
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 use Phalcon\Mvc\Model\Validator\PresenceOf;
 use Phalcon\Mvc\Model\Validator\Regex;
+use Phalcon\Mvc\Model\Validator\Uniqueness;
 
 class IgoContexte extends \Phalcon\Mvc\Model {
 
@@ -48,11 +49,12 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $description;
 
-        /**
+    /**
      *
      * @var string
      */
     public $ind_ordre_arbre;
+
     /**
      *
      * @var string
@@ -65,7 +67,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $mf_map_projection;
     
-        /**
+    /**
      *
      * @var string
      */
@@ -83,6 +85,10 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $json;
     
+    /**
+     *
+     * @var bool
+     */
     public $generer_onlineresource;
 
     /**
@@ -91,15 +97,22 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $profil_proprietaire_id;
     
-    public function validation(){
+    /**
+     * 
+     * @return bool
+     */
+    function validation(){
         return !$this->validationHasFailed();
     }
    
-    
+    /**
+     * Génère le contenu du mapfile
+     * @return string
+     */
    function getMapFile() {
        
-        $contexteController= new IgoContexteController();
-        $vue=$contexteController->view;
+        $contexteController = new IgoContexteController();
+        $vue = $contexteController->view;
          
         $contexteController->mapfileAction($this->id);
         $vue->preview = false;  
@@ -110,45 +123,110 @@ class IgoContexte extends \Phalcon\Mvc\Model {
         return $contenuMapfile;
     }
 
-    
-    public function save($saveMapFile = true, $data = NULL, $whiteList = NULL){
-        $retour=parent::save($data, $whiteList);
-        if($saveMapFile && $retour){
+    /**
+     * Enregistre le contexte
+     * @param bool $saveMapFile Le mapfile doit être généré
+     * @param array $data Valeurs à assigner au contexte
+     * @param array $whiteList Liste des attributs permis
+     * @return Le contexte est sauvegardé
+     */
+    function save($saveMapFile = true, $data = NULL, $whiteList = NULL){
+        $sauvegardeReussie = parent::save($data, $whiteList);
+        if($saveMapFile && $sauvegardeReussie){
             $this->saveMapFile();            
         } 
-        return $retour;
+        return $sauvegardeReussie;
     }
     
-    public function saveMapFile(){
-        $cacheMapfileDir = $this->getDI()->getConfig()->mapserver->mapfileCacheDir;
-        $contextesCacheDir = $this->getDI()->getConfig()->mapserver->contextesCacheDir;
+    /**
+     * Chemin complet du mapfile
+     * @return string
+     */
+    function getMapfilePath(){
+        $config = $this->getDI()->getConfig();
+        return $this->getMapfileDir(). $this->getMapfileFileName();
+    }
+
+    /**
+     * Répertoire complet du mapfile
+     * @return string
+     */
+    function getMapfileDir(){
+        $config = $this->getDI()->getConfig();
+        return $config['mapserver']['mapfileCacheDir'] . $config['mapserver']['contextesCacheDir'];
+    }
+
+    /**
+     * Nom complet du fichier associé au contexte
+     * @return string
+     */
+    function getMapfileFileName(){
+        return $this->code .".map";
+    }
+
+    /**
+     * Le mapfile du contexte est déjà créé
+     * @return bool
+     */
+    function mapfileExists(){
+        return file_exists($this->getMapfilePath());
+    }
+
+    /**
+     * S'assurer que le mapfile du contexte existe
+     * @return bool Indique si le mapfile a dû être créer
+     */
+    function creerMapfileSiExistePas(){
+
+        if(!$this->mapfileExists()){
+
+            //Générer le mapfile...
+            $this->saveMapFile();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 
+     */
+    function saveMapFile(){
+
         $contenuMapfile = $this->getMapFile();
-        $dir = $cacheMapfileDir . $contextesCacheDir;
-        if (!file_exists($dir) && !is_dir($dir)) {
-            mkdir($dir);         
+        $mapfileDir = $this->getMapfileDir();
+        if (!file_exists($mapfileDir) && !is_dir($mapfileDir)) {
+            mkdir($mapfileDir);         
         } 
         
-        $cle = $dir . $this->code .".map";
-        if(!(is_writable($dir) || (file_exists($cle) && !is_writable($cle)))){
+        $mapfilePath = $mapfileDir . $this->getMapfileFileName();
+        if(!(is_writable($mapfileDir) || (file_exists($mapfilePath) && !is_writable($mapfilePath)))){
             
-            echo("Impossible d'écrire le fichier $cle");
+            echo("Impossible d'écrire le fichier $mapfilePath");
             return;
         }
         
         $contenuMapfile = utf8_decode($contenuMapfile);
-        
-        file_put_contents($cle, $contenuMapfile);
+
+        file_put_contents($mapfilePath, $contenuMapfile);
     }
     
-    
-    public function delete(){
+    /**
+     * Supprime le contexte et ses dépendances
+     * @return bool À été supprimé
+     */
+    function delete(){
         foreach ($this->IgoCoucheContexte as $groupe){
+
+            //TODO Gérer le cas où il y a une erreur lors de la suppression d'un groupe
             $groupe->delete();
         }
         return parent::delete();
     }
     
-    public function initialize() {
+    /**
+     * Initialisation du model, voir Model::initialize()
+     */
+    function initialize() {
         $this->setSchema($this->getDI()->getConfig()->database->schema);
         $this->hasMany("id", "IgoCoucheContexte", "contexte_id",  array(
             'reusable' => true
@@ -176,13 +254,18 @@ class IgoContexte extends \Phalcon\Mvc\Model {
     
 
     /**
-     * This is necessary otherwise phalcon doesn't find the sequence name
+     * Champs "séquence" de la table
+     * @return string
      */
-    public function getSequenceName() {
-        return $this->getDI()->getConfig()->database->schema.'.igo_contexte_id_seq';
+    function getSequenceName() {
+        return $this->getDI()->getConfig()->database->schema . '.igo_contexte_id_seq';
     }
     
-    public function beforeValidation(){
+    /**
+     * Voir Model::beforeValidation()
+     * @return bool Est valide
+     */
+    function beforeValidation(){
 
         $this->validate(new PresenceOf(array(
             'field' => 'nom',
@@ -220,7 +303,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
         
         if($this->code){
               
-            $this->validate(new Phalcon\Mvc\Model\Validator\Uniqueness(array(
+            $this->validate(new Uniqueness(array(
                  "field"   => "code",
                  "message" => "Le code doit être unique."
              )));
@@ -293,24 +376,32 @@ class IgoContexte extends \Phalcon\Mvc\Model {
         return !$this->validationHasFailed();
     }
 
-    
-    public static function remplacerCodeDansOnlineResource($onlineResource, $ancien, $nouveau){
+    /**
+     *
+     * @param string $onlineResource Url du online ressource
+     * @param string $ancien Placeholder à remplacer
+     * @param string $nouveau Remplacement
+     * @return string
+     */
+    static function remplacerCodeDansOnlineResource($onlineResource, $ancien, $nouveau){
+        
         //Trouver où est la dernière occurence
         $position = strpos($onlineResource, $ancien);
         
-        //On n'a pas trouvé
-        if(false === $position){
-            return $onlineResource;
+        //Il faut remplacer
+        if(false !== $position){
+            $onlineResource = substr_replace($onlineResource, $nouveau, $position, strlen($ancien));
+            
         }
         
-        return substr_replace($onlineResource, $nouveau, $position, strlen($ancien));
+        return $onlineResource;
         
     }
     /**
      * Créé une copie d'un contexte et de ses dépendances (igo_couche_contexte)
      * @param int $idContexteCible Id du contexte où va la copie
      */
-    public function dupliquer($idContexteCible){
+    function dupliquer($idContexteCible){
 
         //Créer les associations couche/contexte
         $igoCoucheContextes = $this->IgoCoucheContexte;
