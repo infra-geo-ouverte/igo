@@ -88,7 +88,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
             if(!lancementManuel){
                 this.options.couche.afficheContenuPage = !this._bouton.checked;
             }
-            if(this._bouton.checked){
+            if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
                 this.options.couche.cacherTout();
                 this.options.couche.afficherOccurence(this.options.panneauTable.obtenirOccurences());
             }
