@@ -245,12 +245,20 @@ try {
      */
     function utilisateurActuelProfils(){
         global $app;
-        return $app->getDI()->getSession()->get("info_utilisateur")->profils;
+        $session = $app->getDI()->getSession();
+        if(!$session->has("info_utilisateur")){
+            return null;
+        }
+        return $session->get("info_utilisateur")->profils;
     }
 
     function utilisateurActuelProfilActif(){
         global $app;
-        return $app->getDI()->getSession()->get("info_utilisateur")->profilActif;
+        $session = $app->getDI()->getSession();
+        if(!$session->has("info_utilisateur")){
+            return null;
+        }
+        return $session->get("info_utilisateur")->profilActif;
     }
 
     /**
@@ -259,8 +267,9 @@ try {
      */
     function obtenirUtilisateurProfilsInQuery() {
         global $app;
-
         $profiLActif = utilisateurActuelProfilActif();
+        $profils = utilisateurActuelProfils();
+
         if(!is_null($profiLActif)) { 
             $nomProfilAnonyme = $app->session->get('nomProfilAnonyme');
             if($nomProfilAnonyme === null){
@@ -283,8 +292,7 @@ try {
                 }
             }
             return (string) '0,'.$profiLActif;
-        }else{
-            $profils = utilisateurActuelProfils();
+        }else if(!is_null($profils)){
             $profilsArray = array();
             foreach ($profils as $profil) {
                 array_push($profilsArray, $profil["id"]);
@@ -292,6 +300,8 @@ try {
             array_push($profilsArray, 0); // défaut
             return implode(",", $profilsArray);
         }
+
+        return (string) '0';
     }
     
     /**
@@ -803,13 +813,8 @@ try {
                     $profilActif = $session->info_utilisateur->profilActif;
                     $nbProfils = count($session->info_utilisateur->profils);
                     foreach ($session->info_utilisateur->profils as $key => $value) {
-                        if(is_array($value)){
-                            $idValue = $value["id"];
-                            $profil = $value["libelle"];
-                        } else {
-                            $idValue = $value->id;
-                            $profil = $value->libelle;
-                        }
+                        $idValue = $value["id"];
+                        $profil = $value["libelle"];
                         if($nbProfils === 1 || $idValue == $profilActif){
                             if(isset($profil) && isset($config->permissions[$profil]["cles"])){
                                 $clesProfil = $config->permissions[$profil]["cles"];

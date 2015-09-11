@@ -55,7 +55,7 @@ class SecurityPlugin extends Plugin
                             $this->session->get("info_utilisateur")->profilActif = $this->session->get("info_utilisateur")->profils[0]['id'];
                         }
                     } else if(isset($configuration->application->authentification->nomProfilAnonyme)){
-                        $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                        $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'")->toArray();
                     } 
                 }
                 $this->session->get("info_utilisateur")->estAnonyme = true;

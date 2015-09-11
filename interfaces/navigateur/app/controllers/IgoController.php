@@ -351,13 +351,8 @@ class IgoController extends ControllerBase
             if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
                 $test = false;
                 foreach ($session->info_utilisateur->profils as $key => $value) {
-                    if(is_array($value)){
-                        $idValue = $value["id"];
-                        $profil = $value["libelle"];
-                    } else {
-                        $idValue = $value->id;
-                        $profil = $value->libelle;
-                    }
+                    $idValue = $value["id"];
+                    $profil = $value["libelle"];
                     if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
                         if(isset($profil) && isset($this->config->permissions[$profil]) && isset($this->config->permissions[$profil]->servicesExternes)){
                             $serviceExtProfil = $this->config->permissions[$profil]->servicesExternes;
