@@ -389,28 +389,32 @@ class IgoController extends ControllerBase {
     }
 
     //Obtenir la chaine de connexion pour un service
-    public function obtenirChaineConnexion($service) {
+    public function obtenirChaineConnexion ($service) {
 
-         $auth = array(
+        $auth = array (
             "url" => "",
             "pass" => "",
             "method" => ""
-           );
-            
-        if (isset($this->config['servicesExternes'])) {
+        );
+
+        if (isset ($this->config['servicesExternes'])) {
             $servicesExternes = $this->config['servicesExternes'];
-          
+
             foreach ($servicesExternes['regex'] as $regex) {
-                if (is_array([$regex]) && isset($regex['connexion']) && isset($regex['methode'])) {     
-                 
-                        $auth["url"] = $service;
-                        $auth["pass"] = $regex['connexion'];
-                        $auth["method"] = $regex['methode'];
-                        break;
+                if (is_array ([$regex]) && isset ($regex['connexion']) && isset ($regex['methode']) && preg_replace ($regex[0], 'true', $service) === 'true') {
+
+                    $auth["url"] = $service;
+                    $auth["pass"] = $regex['connexion'];
+                    $auth["method"] = $regex['methode'];
+                    break;
                 }
             }
+
+            if ($auth["url"] !== $service) {
+                return false;
+            }
             return $auth;
-        } 
+        }
     }
 
     private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes) {
