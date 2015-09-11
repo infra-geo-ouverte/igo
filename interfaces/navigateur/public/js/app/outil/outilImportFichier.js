@@ -152,8 +152,8 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             var extension = fileInput.split(".")[fileInput.split(".").length-1].toLowerCase();
                             
                             var formatSupporte = false;
-                            $.each(that.options.format, function(index, value){
-                                if(value.indexOf(extension.toUpperCase())>-1){
+                            $.each(that.options.formatSupporte, function(index, value){
+                                if(value.indexOf(extension)>-1){
                                     formatSupporte = true;
                                     return true;
                                 }
@@ -386,8 +386,14 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     var coordPrec = "";
                     var coordIndexToPop = new Array();
                     $.each(feat.geometry.coordinates, function(ind, coord){                   
+                    //Si égale à la coordonnée précédente
                         if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
                             coordIndexToPop.push(ind);
+                    }else{
+                        //Sinon si coordonnée à 3dimensions, on retire la dimension "z"
+                        if(coord.length === 3) {
+                            coord.pop();
+                        }
                         }                 
                         coordPrec = coord;    
                     });
