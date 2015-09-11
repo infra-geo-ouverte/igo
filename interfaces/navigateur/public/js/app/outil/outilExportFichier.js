@@ -20,35 +20,41 @@
  * TIGER	-	at least an .rt1	
  * VRT
  */
+require.ajouterConfig({
+    paths: {
+            togpx: '[librairies]/togpx/togpx'
+    }
+});
 
-define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, AnalyseurGeoJSON, Vecteur) {
+define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, AnalyseurGeoJSON, togpx) {
     function OutilExportFichier(options){
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: Aide.obtenirCheminRacine()+'images/toolbar/gps_up.png',
-            infobulle: "Exporter la sélection en fichier géométrique"
+            infobulle: "Exporter la sélection en fichier géométrique",
+            format: [
+                        ['csv', 'CSV', 'csv'],
+                        //['DGN', 'dgn'],
+                        //['DXF', 'dxf'],
+                        ['ESRI Shapefile', 'ESRI Shapefile', 'zip'],
+                        //['GEOCONCEPT', 'Geoconcept'],
+                        ['geojson', 'GeoJSON', 'geojson'],
+                        ['georss', 'GeoRSS', 'georss'],
+                        ['gml', 'GML', 'gml'],
+                       // ['GMT', 'GMT'],
+                        ['gpx', 'GPX', 'gpx'],
+                        ['kml', 'KML', 'kml'],
+                        //['MapInfo File', 'MapInfo File'],
+                       // ['TIGER', 'TIGER'],
+                        ['pgdump', 'PGDump', 'sql']
+                        //['VRT', 'VRT']       
+                        ]
         });
         
-        this.oOutputInputFormatStore = new Ext.data.SimpleStore({
-            fields: ['value', 'text'],
-            data : [['BNA', 'bna'],
-                    ['CSV', 'csv'],
-                    //['DGN', 'dgn'],
-                    //['DXF', 'dxf'],
-                    ['ESRI Shapefile', 'ESRI Shapefile'],
-                    //['GEOCONCEPT', 'Geoconcept'],
-                    ['GEOJSON', 'GeoJSON'],
-                    ['GEORSS', 'GeoRSS'],
-                    ['GML', 'GML'],
-                   // ['GMT', 'GMT'],
-                    ['GPX', 'GPX'],
-                    ['KML', 'KML'],
-                    //['MapInfo File', 'MapInfo File'],
-                   // ['TIGER', 'TIGER'],
-                    ['PGDUMP', 'PGDump'],
-                    //['VRT', 'VRT']                   
-                    ]
-        });
+        this.oOutputFormatStore = new Ext.data.SimpleStore({
+            fields: ['value', 'text', 'extension'],
+            data : this.defautOptions.format
+        });        
         
         this.oEPSGStore = new Ext.data.SimpleStore({
             fields: ['value', 'text', 'exemple'],
@@ -86,8 +92,6 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
                 ['SPACE', '*espace*']                
             ]
         });
-        
-       
     };
 
     OutilExportFichier.prototype = new Outil();
@@ -115,6 +119,19 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
                Aide.afficherMessage("Erreur", "Le service de conversion n'est pas disponible.");
             }
         });
+            
+        if(this.options.formatSupporte){
+            var records = [];
+            for(i=0;i<this.oOutputFormatStore.getTotalCount();i++){
+                var record = this.oOutputFormatStore.getAt(i);
+                if(this.options.formatSupporte.indexOf(record.data.value)===-1){
+                    records.push(record);
+                }
+            }
+            this.oOutputFormatStore.remove(records);
+        }
+        
+        
         
     };
     
@@ -126,9 +143,6 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
     OutilExportFichier.prototype.exporter = function(){
                 
         var that = this;     
-        this.nomCouche = "coucheFichier";
-        this.listeFichierLatLon = ["gpx"];
-        this.projection = this.carte.obtenirProjection();
        
         var myuploadform= new Ext.FormPanel({
                 id: "idFormExport",
@@ -169,14 +183,12 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         myWin.show();   
         
         this.myWin = myWin;
-                   
     };  
-    
     
     /**
      * Obtenir et exporter la sélection
      * @method
-     * @name OutilExportSHP#exporter
+     * @name OutilExport#exporter
      * @returns {Boolean}
      */
     OutilExportFichier.prototype.lancerExport = function(){    
@@ -189,14 +201,42 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
         var nbFichier=0;
         var couchesOccurencesSelect = this.carte.gestionCouches.obtenirOccurencesSelectionnees();
         this.tabMethod = new Array();
+        var combo = this.myWin.getComponent('idFormExport').getComponent('exportOutputFormat');
+        var extension = combo.findRecord(combo.valueField||combo.displayField, combo.getValue()).data.extension;
         
+        //Pour GPX seulement (groupe en un seul fichier toutes les couches) et ne fonctionne pas bien sinon avec le module de conversion
+        if(this.obtenirValeursSaisie()['exportOutputFormat'] == "gpx"){
+            var occurencesSelect = this.carte.gestionCouches.obtenirOccurencesSelectionnees();
+        
+            $.each(occurencesSelect, function(index, occurrences) {    
+                $.each(occurrences, function(ind, occu) {                     
+                    that.tabOccu.push(occu.projeter("EPSG:4326"));
+                });            
+            });
+
+            if(this.tabOccu.length == 0){
+                Aide.afficherMessage("Aucune sélection", "Vous devez sélectionner au moins un élément avant de pouvoir l’exporter.");
+                return false;
+            }
+
+            geojson = JSON.parse(analyseur.ecrire(that.tabOccu));        
+            result = togpx(geojson); 
+
+            var lien = document.createElement('a');
+            document.body.appendChild(lien); //Nécessaire pour Firefox
+            var data = 'data:application/javascript;charset=utf-8,' + encodeURIComponent(result);
+            lien.setAttribute('href', data);
+            lien.setAttribute('download', "fichier.gpx");
+            lien.click();
+        }
+        else{       
         //Pour chaque couches dans la carte 
         $.each(couchesOccurencesSelect, function(index, couche) {             
             that.tabOccu = new Array(); 
             
             //Pour chaque occurence de la couche
             $.each(couche, function(ind, occu) {
-                //convertir les occurence en 4326 pour le shapeFile
+                    //convertir les occurence en 4326
                 that.tabOccu.push(occu.projeter("EPSG:4326"));
             }); 
             
@@ -206,7 +246,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             if(that.tabOccu.length !== 0){
                 geojson = JSON.parse(analyseur.ecrire(that.tabOccu));
                 //that.download("http://ogre.adc4gis.com/convertJson", "post", JSON.stringify(geojson), index);
-                that.appelerService(that.options.urlService, JSON.stringify(geojson), index, nbFichier);
+                that.appelerService(that.options.urlService, JSON.stringify(geojson), index+"."+extension, nbFichier);
                 nbFichier++;
             }
         });
@@ -216,15 +256,15 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             Aide.afficherMessage("Aucune sélection", "Vous devez sélectionner au moins un élément avant de pouvoir l’exporter.");
             return false;
         }             
+        }
     };  
       
-      
       /**
-     * Appeler le service qui retournera le fichier zip de shapeFile selon les géométries sélectionnés de la couche
+     * Appeler le service qui retournera les géométries sélectionnés de la couche dans un fichier selon le format sélectionné
      * @method
-     * @name OutilExportSHP#appelerService
-     * @param {string} url URL du service à de conversion shapeFile
-     * @param {json} json contenant les géométries à convertir en shapeFile
+     * @name OutilExport#appelerService
+     * @param {string} url URL du service à de conversion 
+     * @param {json} json contenant les géométries à convertir
      * @param {string} outputName le nom du fichier de sortie
      * @returns {file} Retour le fichier selon outputName + shape.zip
      */
@@ -239,37 +279,35 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
                 };
             })(iframe), 4000);
              */
-            if($("#iframeExportShp"+nbFichier-1)){
-                $("#iframeExportShp"+nbFichier-1).remove();
+            if($("#iframeExport"+nbFichier-1)){
+                $("#iframeExport"+nbFichier-1).remove();
             }
             
             /*Créer un iframe qui contiendra le form qui servira à soumettre les paramètres aux services de conversion
              * On doit faire ainsi afin de nous permettre de retourner plusieurs fichiers.
              */
-            var iframe = $('<iframe id="iframeExportShp"'+nbFichier+ ' style="visibility: collapse;"></iframe>');
+            var iframe = $('<iframe id="iframeExport"'+nbFichier+ ' style="visibility: collapse;"></iframe>');
             $('body').append(iframe);
             var content = iframe[0].contentDocument;
                  
             var inputs = '';
             
             inputs+='<textarea id="json" class="form-control" type="hidden" name="json">'+ json +'</textarea>';
-            if(this.obtenirValeursRecherche()['exportOutputFormat'])
-                inputs+='<textarea id="formatOutput" class="form-control" type="hidden" name="formatOutput">'+ this.obtenirValeursRecherche()['exportOutputFormat'] +'</textarea>';
+            if(this.obtenirValeursSaisie()['exportOutputFormat'])
+                inputs+='<textarea id="formatOutput" class="form-control" type="hidden" name="formatOutput">'+ this.obtenirValeursSaisie()['exportOutputFormat'] +'</textarea>';
             
-            if(this.obtenirValeursRecherche()['exportEPSGOutput'])
-                inputs+='<textarea id="targetSrs" class="form-control" type="hidden" name="targetSrs">'+ this.obtenirValeursRecherche()['exportEPSGOutput'] +'</textarea>';
+            if(this.obtenirValeursSaisie()['exportEPSGOutput'] && this.convertSrs === true)
+                inputs+='<textarea id="targetSrs" class="form-control" type="hidden" name="targetSrs">'+ this.obtenirValeursSaisie()['exportEPSGOutput'] +'</textarea>';
             
-            if(this.obtenirValeursRecherche()['exportEPSGInput'])
-                inputs+='<textarea id="sourceSrs" class="form-control" type="hidden" name="sourceSrs">'+ this.obtenirValeursRecherche()['exportEPSGInput'] +'</textarea>';
+            if(this.srsSource && this.convertSrs === true)
+                inputs+='<textarea id="sourceSrs" class="form-control" type="hidden" name="sourceSrs">'+ this.srsSource +'</textarea>';
             
             if(outputName){
-                inputs+='<input id="name" name="outputName" value="' + outputName +  '" class="form-control">';
+                inputs+='<input id="name" name="outputName" value="' + outputName + '" class="form-control">';
             }
             
-            if(this.obtenirValeursRecherche()['exportSeparateurId'])
-                inputs+='<textarea id="separateurOutput" class="form-control" type="hidden" name="separateurOutput">'+ this.obtenirValeursRecherche()['exportSeparateurId'] +'</textarea>';
-            
-            
+            if(this.obtenirValeursSaisie()['exportSeparateurId'])
+                inputs+='<textarea id="separateurOutput" class="form-control" type="hidden" name="separateurOutput">'+ this.obtenirValeursSaisie()['exportSeparateurId'] +'</textarea>';
             
             var form = '<form name=' + outputName + ' action="'+ url +'" method="post">'+inputs+'</form>';
             content.write(form);
@@ -280,64 +318,6 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
                 };
             })(iframe), 4000);*/
         };
-    };
-    
-    /**
-     * Importer le GeoJson converti du fichier dans la carte
-     * @method
-     * @name OutilExportFichier#importerJson
-     * @param {json} geoJson données des géométries du fichier converti
-     */
-    OutilExportFichier.prototype.importerJson = function(geoJson, filename){       
-        //Boucle de nettoyage des anomalies des géométries
-        //TODO si d'autres ajouts, mettre dans une fonction
-        $.each(geoJson.features, function(index, feat) {
-            //Si un point, éliminer la dimension z d'une géométrie point si définie (Igo ne supporte pas cette dimension)
-            if(feat.geometry.type == "Point" && feat.geometry.coordinates.length == 3) {
-                feat.geometry.coordinates.pop();
-            }
-            
-            //Illiminé les doublons de coordonnées pour chaque géométrie de type ligne
-            if(feat.geometry.type === "Line" || feat.geometry.type === "LineString"){
-                var coordPrec = "";
-                var coordIndexToPop = new Array();
-                $.each(feat.geometry.coordinates, function(ind, coord){                   
-                    if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
-                        coordIndexToPop.push(ind);
-                    }                 
-                    coordPrec = coord;    
-                });
-                if (coordIndexToPop.length > 0) {
-                    $.each(coordIndexToPop, function(ind, indToPop){
-                        //Car la position diminue de 1 à chaque fois qu'on retire un élément
-                        var posToPop = indToPop-(ind*1);
-                        feat.geometry.coordinates.splice(posToPop, 1);
-                    });         
-                }
-            }
-        });
-            
-        //Si le service retourne le crs, l'écraser car le format CRS84 n'est pas celui de nos projections du fichier proj4.js
-        //Par défaut on paramètre le service avec "targetSrs": "EPSG:4326" pour la projection de sortie. compatible avec l'analyseurGeoJson
-        if(geoJson.crs){
-            geoJson.crs = undefined;
-        }
-       
-        var gestionCouche = this.carte.gestionCouches;
-        
-        var analyseur = new AnalyseurGeoJSON({
-        projectionCarte: this.carte.obtenirProjection()}); 
-  
-        var coucheImportFichier = gestionCouche.obtenirCoucheParId(this.nomCouche + filename);
-        
-        if(coucheImportFichier === undefined){
-            coucheImportFichier = new Vecteur({titre: this.nomCouche + filename, id:this.nomCouche + filename, active:true, visible:true, suppressionPermise:true});
-            gestionCouche.ajouterCouche(coucheImportFichier);
-        }
-        
-        var occurences = analyseur.lire(geoJson);        
-        coucheImportFichier.ajouterOccurences(occurences);
-        coucheImportFichier.zoomerOccurences();        
     };
     
     /**
@@ -360,18 +340,20 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
     };
   
     /** 
-     * Obtenir l'aide en format HTML
+     * Obtenir les items du panneau
      * @method 
-     * @name RechercheAdresse#obtenirAideHTML
-     * @returns {String} Aide
+     * @name OutilExportFichier#obtenirItemsForm
+     * @returns {array} 
     */
     OutilExportFichier.prototype.obtenirItemsForm = function() {
     
-        var szDefaultOutputFormat = this.oOutputInputFormatStore.data.items[0].data.value;
+        var that = this
+        
+        var szDefaultOutputFormat = this.oOutputFormatStore.data.items[0].data.value;
         var oOutputFormatComboBox = new Ext.form.ComboBox({
             id : 'exportOutputFormat',
             fieldLabel: 'Format Output',
-            store: this.oOutputInputFormatStore,
+            store: this.oOutputFormatStore,
             valueField: 'value',
             value: szDefaultOutputFormat,
             displayField:'text',
@@ -383,31 +365,29 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             listWidth: 125
         });
         
+        this.convertSrs = true;
+        
         oOutputFormatComboBox.on( 'select', function(combo, record, index ) {   
             
-            if(record.data.value === "GEORSS" || record.data.value === "KML" || 
-                record.data.value === "GPX" ){
+            that.convertSrs = true;
+            
+            if(record.data.extension === "georss" || record.data.extension === "kml" || 
+                record.data.extension === "gpx" ){
                 this.ownerCt.getComponent("exportEPSGOutput").setDisabled(true);
                 this.ownerCt.getComponent("exportEPSGOutput").setValue("EPSG:4326");        
+                that.convertSrs = false;
+                
             }else{
                 this.ownerCt.getComponent("exportEPSGOutput").setDisabled(false);
             }
                 
-            if(record.data.value === "CSV"){
+            if(record.data.extension === "csv"){
                 this.ownerCt.getComponent("exportSeparateurId").setVisible(true);
             }else{
                 this.ownerCt.getComponent("exportSeparateurId").setVisible(false);
             }
             
         });
-        
-        var oNomFichier = {
-            xtype: 'textarea',
-            fieldLabel: 'Préfixe du nom du fichier',
-            id: 'exportTitle',
-            maxLength: 50,
-            width : 75
-        };
         
         var szDefaultEPSG = this.oEPSGStore.data.items[0].data.value;
         var oEPSGComboBox = new Ext.form.ComboBox({
@@ -446,24 +426,16 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur'], function(Outil, Aide, A
             hidden : true
         });
         
-        var oSkipFailure =
-        {
-           xtype: 'checkbox',
-           id : 'skipfailureCheckBox',
-           fieldLabel : ' Ne pas prendre en compte les erreurs.'
-       } ;     
-             
-            
          return [oOutputFormatComboBox, oEPSGComboBox, separateurComboBox];
     };
     
     /** 
-     * Obtenir les valeurs des champs de recherche.
+     * Obtenir les valeurs des champs de saisie.
      * @method 
-     * @name Recherche#obtenirValeursRecherche
-     * @returns {array} Tableau des valeurs de recherche
+     * @name OutilExportFichier#obtenirValeursSaisie
+     * @returns {array} Tableau des valeurs de saisie
      */
-    OutilExportFichier.prototype.obtenirValeursRecherche = function() {
+    OutilExportFichier.prototype.obtenirValeursSaisie = function() {
         //Retourner la valeur des éléments contenus dans le formulaire
         return  this.myWin.getComponent("idFormExport").getForm().getFieldValues();
     };
