@@ -100,7 +100,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         }else{
             formatSupporte = this.defautOptions.format;
         }
-        this.options.formatSupporte = formatSupporte;
+        this.options.format = formatSupporte;
         
         this.ouiNonStore = new Ext.data.SimpleStore({
             fields: ['value', 'text'],
@@ -152,7 +152,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             var extension = fileInput.split(".")[fileInput.split(".").length-1].toLowerCase();
                             
                             var formatSupporte = false;
-                            $.each(that.options.formatSupporte, function(index, value){
+                            $.each(that.options.format, function(index, value){
                                 if(value.indexOf(extension.toUpperCase())>-1){
                                     formatSupporte = true;
                                     return true;
