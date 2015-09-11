@@ -59,7 +59,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     this.ouvrirTableVecteur();
                 }                    
     };
-    
   
     PanneauTable.prototype._initEvent = function(){
         var that=this;
@@ -78,10 +77,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
     
     PanneauTable.prototype._obtenirToolbar = function(){
-        var that=this;
-        this.barreOutils = new BarreOutils(this.carte);
-    
+        
+        this.barreOutils = new BarreOutils(this.carte);    
         return this.barreOutils._getToolbar();
+    
     };
     
     PanneauTable.prototype._obtenirPaginationBarre = function(config){
@@ -99,9 +98,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         }
        
     };
-    
-    
-   
     
     PanneauTable.prototype.chargerDonnees = function(donnees, garderDonnees){
         var that=this;
@@ -389,6 +385,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             root: this.template.base,
             lastOptions: {'params':{'start':debut,'limit':limite}},
             listeners : {
+                //Lors d'un changement de page. Nous devons executer chaque checkbox de la liste
                 datachanged: function(pagingJsonStore){         
                     if(that.barreOutils){
                         $.each(that.barreOutils.obtenirOutilsParType("OutilTableSelection",3), function(index , value){
@@ -400,8 +397,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 }
             }
         });
-                
-                
+               
         try {
             store.loadData(that.donnees);
         } catch(e){
@@ -430,7 +426,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             }
         }
     };
-    
     
     PanneauTable.prototype.reconfigurerBarreOutils = function(){
         var that=this;

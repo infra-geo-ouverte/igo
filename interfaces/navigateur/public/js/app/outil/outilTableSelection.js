@@ -85,7 +85,9 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 this.options.couche.zoomAuto = !this._bouton.checked;
             }
         }  else if (this.options.type === 'contenupage'){
-           
+            if(!lancementManuel){
+                this.options.couche.afficheContenuPage = !this._bouton.checked;
+            }
             if(this._bouton.checked){
                 this.options.couche.cacherTout();
                 this.options.couche.afficherOccurence(this.options.panneauTable.obtenirOccurences());
