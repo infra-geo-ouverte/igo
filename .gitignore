@@ -9,15 +9,15 @@
 *.vagrant
 
 nbproject/
-doc/interfaces/navigateur/
-puppet/externalmodules/
-modules/
-node_modules/
-librairie/
-pilotage/
+/doc/interfaces/navigateur/
+/puppet/externalmodules/
+/modules/
+/node_modules/
+/librairie/
+/pilotage/
 
-configGrunt.json
-modules.json
-config/config.php
-services/config.php
+/configGrunt.json
+/modules.json
+/config/config.php
+/services/config.php
 
