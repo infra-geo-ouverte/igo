@@ -11,12 +11,12 @@ $loader->registerDirs(
         $config->application->pilotage->controllersDir,
         $config->application->pilotage->controllersDir."CRUD/",
         $config->application->pilotage->pluginsDir,
-       // $config->application->viewsDir."CRUD/",
         $config->application->pilotage->modelsDir,
         $config->application->pilotage->helpersDir,
         $config->application->pilotage->formsDir,
         $config->application->pilotage->validatorsDir,
         $config->application->services->controllersDir,
+        $config->application->navigateur->libraryDir,
         $config->application->services->viewsDir
     )
 )->register();

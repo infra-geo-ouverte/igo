@@ -49,7 +49,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $description;
 
-    /**
+        /**
      *
      * @var string
      */
@@ -67,7 +67,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     public $mf_map_projection;
     
-    /**
+        /**
      *
      * @var string
      */
@@ -110,15 +110,22 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      * @return string
      */
    function getMapFile() {
-       
+        $config = $this->getDI()->getConfig();
         $contexteController = new IgoContexteController();
         $vue = $contexteController->view;
-         
+  
         $contexteController->mapfileAction($this->id);
         $vue->preview = false;  
+
+        $vue->setRenderLevel(Phalcon\Mvc\View::LEVEL_ACTION_VIEW);
+
+        $vue->setViewsDir($config['application']['pilotage']['viewsDir']);
         $contenuMapfile = $vue->getRender('igo_contexte', 'mapfile', null, function($view) {
+
             $view->setRenderLevel(Phalcon\Mvc\View::LEVEL_ACTION_VIEW);
+
         });
+
         $vue->setRenderLevel(Phalcon\Mvc\View::LEVEL_MAIN_LAYOUT);    
         return $contenuMapfile;
     }
@@ -216,7 +223,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      */
     function delete(){
         foreach ($this->IgoCoucheContexte as $groupe){
-
+    
             //TODO Gérer le cas où il y a une erreur lors de la suppression d'un groupe
             $groupe->delete();
         }
@@ -258,7 +265,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      * @return string
      */
     function getSequenceName() {
-        return $this->getDI()->getConfig()->database->schema . '.igo_contexte_id_seq';
+        return $this->getDI()->getConfig()->database->schema.'.igo_contexte_id_seq';
     }
     
     /**
@@ -384,7 +391,7 @@ class IgoContexte extends \Phalcon\Mvc\Model {
      * @return string
      */
     static function remplacerCodeDansOnlineResource($onlineResource, $ancien, $nouveau){
-        
+    
         //Trouver où est la dernière occurence
         $position = strpos($onlineResource, $ancien);
         

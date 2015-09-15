@@ -1,5 +1,5 @@
 {{ content() }}
-{% if preview%}<pre  ID="copytext" style="text-align: left;">{% endif %}
+{% if preview%}<pre  id="copytext" style="text-align: left;">{% endif %}
 #DEBUG 5
 MAP
     #INCLUDE "../include/ec/ec_map.map"
@@ -18,7 +18,11 @@ MAP
         END
     END
     PROJECTION
-                {% if 'proj=' in (couche['mf_layer_projection']| trim) %}{{couche['mf_layer_projection']}}{% else %}"init=epsg:{{couche['mf_layer_projection']}}"{% endif %}
+        {% if 'proj=' in (couche['mf_layer_projection']| trim) %}
+            {{couche['mf_layer_projection']}}
+        {% else %}
+            "init=epsg:{{couche['mf_layer_projection']}}"
+        {% endif %}
 
     END
 

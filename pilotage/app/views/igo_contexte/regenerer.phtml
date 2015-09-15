@@ -1,0 +1,25 @@
+
+<?php echo $this->getContent(); ?>
+
+<?php echo $this->tag->form("$controller/$action") ?>
+
+<div class="row">
+    <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-xs-12 text-left">
+    <h3>Regénérer les contextes</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-xs-12 text-left">
+        <div class="alert alert-warning" role="alert"><b>Attention!</b> Tous les fichiers Mapfile de contexte seront regénérés en fonction des fichiers include .map et des informations stockées dans la base de données.</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-xs-12 text-left">
+        <?php echo $this->tag->submitButton(array("Regénérer", "class" => "btn btn-primary")) ?>
+    </div>
+</div>
+
+<input type='hidden' name="renegerer" value="1"/>
+</form>
