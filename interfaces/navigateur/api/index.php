@@ -718,7 +718,7 @@ try {
      *
      * @return
      */
-    function proxyNavigateur() {
+    function proxyNavigateur($service) {
         //todo: http://php.net/manual/en/function.curl-setopt.php
         global $app;
         $config = $app->getDI()->get("config");

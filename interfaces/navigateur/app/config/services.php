@@ -40,14 +40,8 @@ $di->set('view', function () use ($config) {
 
     $view = new igoView();
     $view->config = $config;
-    
-    //$view->host=$config->igo->host;
-    if(isset($config->application->pilotage)){
-        //vraiment utile?
-        $view->metadonneesViewsDir=$config->application->pilotage->viewsDir;
-    }
+
     $view->viewsDir=$config->application->navigateur->viewsDir;
-   // $view->mapserver_path=$config->mapserver->url;
     
     $view->setViewsDir($config->application->navigateur->viewsDir);
 
