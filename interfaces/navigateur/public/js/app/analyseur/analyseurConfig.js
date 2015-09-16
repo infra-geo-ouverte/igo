@@ -9,7 +9,7 @@
  * @version 1.0
  */
 
-define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, Navigateur, Carte, Contexte, Evenement) {
+define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], function(Aide, Navigateur, Carte, Contexte, Evenement, Serveur) {
     /** 
      * Création de l'object AnalyseurConfig.
      * @constructor
@@ -64,6 +64,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
             var url = Aide.obtenirConfig('uri.api')+"configuration/" + this.options.configuration;
             $.ajax({
                 url: url,
+                data: {
+                    mode: Aide.obtenirParametreURL('mode')
+                },
                 context: this,
                 success: function(data){
                     this._chargementConfigSuccess(data);
@@ -166,6 +169,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
             this.igo.nav = new Navigateur(new Carte(this.contexteAttributs), Aide.obtenirConfigXML("attributs"));
             this.igo.nav.analyseur = this;
             this.igo.nav.evenements = new Evenement();
+            if(Aide.obtenirConfigXML('client')){
+                new Serveur();
+            }
             this._analyserCouches(groupeCouches);
         } else {
             Aide.afficherMessageChargement({titre: "Chargement des couches"});
@@ -310,7 +316,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         var that = this;
         var parent = panneauOccurence || this.igo.nav;
         var tagPermis = ['panneau', 'element-accordeon', 'element'];
-        var modulesReq = ['panneau'];
+        var modulesReq = ['panneau', 'panneauCarte'];
         modulesReq = this._analyserRequire(json, modulesReq);
 
         require(modulesReq, function() {
@@ -331,22 +337,27 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                             if (!options.centre) {
                                 options.centre = that.contexteAttributs.centre;
                             };
-                            
                             if (!options.zoom) {
                                 options.zoom = that.contexteAttributs.zoom;
                             };
                         };
 
-                        var panneauOccurence = new Igo.Panneaux[classe](options);
-                        parent.ajouterPanneau(panneauOccurence);
+                        var panneauOccurenceT = new Igo.Panneaux[classe](options);
+                        parent.ajouterPanneau(panneauOccurenceT);
 
                         if (panneau.element || panneau["element-accordeon"]) {
-                            that._analyserPanneaux(panneau, panneauOccurence);
+                            that._analyserPanneaux(panneau, panneauOccurenceT);
                         }
                     });
                 });
             }
             if (!panneauOccurence) {
+                if(!parent.obtenirPanneauxParType("PanneauCarte").length){
+                    parent.ajouterPanneau(new Igo.Panneaux.PanneauxCarte({
+                        centre: that.contexteAttributs.centre,
+                        zoom: that.contexteAttributs.zoom
+                    }));
+                }
                 that.igo.nav.init(function() {
                     that.fin.panneaux = true;
                     that._analyserContexte();
@@ -632,11 +643,22 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
         var that = this;
         var listCouches = [];
         var couches = $.isArray(data) ? data : data.couches || [];
+        var layernamePermis = Aide.obtenirParametreURL("layername");
+        if(layernamePermis){
+            layernamePermis = layernamePermis.split(',');
+        }
         $.each(couches, function(key, couche) {
+            var layername = couche.mf_layer_name || couche.mf_layer_meta_name;
+            if(layernamePermis){
+                if(layernamePermis.indexOf(layername) === -1){
+                    return true;
+                }
+                couche.est_active = true;
+            }
             var options = {
                 id: couche.couche_id,
                 url: couche.mf_map_meta_onlineresource || data.mf_map_meta_onlineresource,
-                nom: couche.mf_layer_name || couche.mf_layer_meta_name,
+                nom: layername,
                 titre: couche.mf_layer_meta_title,
                 active: couche.est_active,
                 visible: couche.est_visible,
@@ -657,8 +679,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement'], function(Aide, 
                 wms_timeextent: couche.wms_timeextent,
                 msp_wmst_multiplevalues: couche.msp_wmst_multiplevalues,
                 wms_timeformat: couche.wms_timeformat
-                
             };
+
             if(Aide.obtenirConfig("uri.mapserver")){
                 if(Aide.obtenirConfig("uri.mapserver") !== true){
                     options.url = Aide.obtenirConfig("uri.mapserver") + options.url;

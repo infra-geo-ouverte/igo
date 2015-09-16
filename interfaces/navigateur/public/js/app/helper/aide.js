@@ -75,11 +75,6 @@ define([], function() {
         return hote+ "/";
     };
     
-    Aide.obtenirUrlServices = function(){
-        return this.obtenirConfig("uri.services");
-    };
-
-
     Aide.obtenirConfig = function(param){
         if (this.config && param){            
             var obj = this.config;
@@ -175,8 +170,8 @@ define([], function() {
 
         if(adresse[0] === '[' && adresse[adresse.length-1] === ']'){
             adresse = adresse.substr(1, adresse.length-2);
-            urlC = params ? adresse + '&' + params : adresse;
-            return this.obtenirProxy(true) + encodeURI(urlC);
+            urlC = params ? '?' + params : "";
+            return this.obtenirProxy() + adresse + encodeURI(urlC);
         }
         if(toujoursUtiliser){
             if(!r.test(adresse)) {
@@ -236,9 +231,10 @@ define([], function() {
      * @name helper.Aide#obtenirParametreURL
      * @param {String} sParam Paramètre voulu
      * @param {String} [url] Si absent, url du navigateur.
+     * @param {Boolean} [array] Retourne un array
      * @returns {String} Valeur du paramètre
     */
-    Aide.obtenirParametreURL = function(sParam, url) {
+    Aide.obtenirParametreURL = function(sParam, url, array) {
         if(url){
             var urlArray = url.split('?');
             if (urlArray.length===2){
@@ -247,12 +243,18 @@ define([], function() {
         }
         var sPageURL = url || window.location.search.substring(1);
         var sURLVariables = sPageURL.split('&');
+        var arrayValue = [];
         for (var i = 0; i < sURLVariables.length; i++) {
             var sParameterName = sURLVariables[i].split('=');
             if (sParameterName[0] == sParam) {
-                return decodeURIComponent(sParameterName[1]);
+                if(array){
+                    arrayValue.push(decodeURIComponent(sParameterName[1]));
+                } else {
+                    return decodeURIComponent(sParameterName[1]);
+                }
             };
-        };        
+        };    
+        return array ? arrayValue : undefined;    
     };
     
     /** 

@@ -40,14 +40,8 @@ $di->set('view', function () use ($config) {
 
     $view = new igoView();
     $view->config = $config;
-    
-    //$view->host=$config->igo->host;
-    if(isset($config->application->pilotage)){
-        //vraiment utile?
-        $view->metadonneesViewsDir=$config->application->pilotage->viewsDir;
-    }
+
     $view->viewsDir=$config->application->navigateur->viewsDir;
-   // $view->mapserver_path=$config->mapserver->url;
     
     $view->setViewsDir($config->application->navigateur->viewsDir);
 
@@ -205,6 +199,14 @@ $di->set('router', function(){
     $router = new \Phalcon\Mvc\Router();
     //Define a route
     $router->add(
+        "#^/([a-zA-Z0-9_-]++)#",
+        array(
+            "controller" => "error",
+            "action" => "error404"
+        )
+    );
+
+    $router->add(
         "/contexte/{contexte}",
         array(
             "controller" => "igo",
@@ -234,6 +236,14 @@ $di->set('router', function(){
             "controller" => "igo",
             "action"     => "groupe",
             "coucheid" => 1
+        )
+    );
+
+    $router->add(
+        "/connexion/{action}",
+        array(
+            "controller" => "connexion",
+            "action" => 1
         )
     );
        
@@ -290,39 +300,5 @@ class igoView extends Phalcon\Mvc\View {
     
     public function ajouterBaseUri(){
         print($this->config->application->baseUri);
-    }
-    
-    /**
-     * Ajoute tous les scripts Javascript requis pour chacun des modules.
-     * 
-     * @return void
-     */
-    public function ajouterJavascriptModules() {
-        $chargeurModules = $this->getDi()->get('chargeurModules');
-        $librairies = $chargeurModules->obtenirLibrairiesJavascript();
-
-        foreach($librairies as $url) {
-            print('<script src="' . $url . '" type="text/javascript"></script>' . PHP_EOL);
-        }
-    }
-
-    /**
-     * Ajoute un module RequireJS qui expose des configurations
-     * spécifiées dans le fichier de configuration IGO.
-     * 
-     * @return string Un contenu text définissant le module de configuration.
-     */
-    public function ajouterModuleConfigurations() {
-        $config = $this->getDi()->get('config');
-        
-        echo '
-        <script type="text/javascript">
-            define("Configuration", [], function() {
-                return {
-                    uri: ' . json_encode($config->get('uri')) . '
-                };
-            })
-        </script>
-        ';
     }
 }

@@ -22,11 +22,15 @@ define(['outil', 'outilMenu', 'aide'], function(Outil, OutilMenu, Aide) {
 
         var outils=[];
         if(this.options.nbProfils > 1){
+            var titreProfil = 'Changer de profil';
+            if(this.options.profil === ""){
+                titreProfil = "Voir en tant que ...";
+            }
             outils.push(new Outil({
-                titre:'Changer de profil', 
+                titre: titreProfil, 
                 action: function(){
                     var url = Aide.utiliserBaseUri("connexion/role");
-                    window.location.replace(url);
+                    window.location.replace(url + "?force-profil=true");
                 }
             }));
         }

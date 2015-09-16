@@ -9,8 +9,15 @@ and open the template in the editor.
         <title>{{titre}}</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
     </head>
     <body>  
     {{ content() }}
+
+	{% for module in modulesVues %}
+
+	        <?php include($module); ?>
+
+	{% endfor  %}
     </body>
 </html>

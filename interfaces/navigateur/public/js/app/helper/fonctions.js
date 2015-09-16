@@ -121,19 +121,22 @@ define([], function() {
 
             var oResultWindow = Ext.getCmp("occurencesResultatsWindow");
             if(!Ext.get("occurencesResultatsWindow")){
+                var height = $(window).height()/2;
+                var width = $(window).width()/2.5;
+                height = height < 215 ? 215 : height;
+                width = width < 350 ? 350 : width;
                 var tabs = new Ext.TabPanel({
                     activeTab: 0,
                     enableTabScroll: true,
-                    height :490
+                    height : height
                 });
                 oResultWindow = new Ext.Window({
                     id: 'occurencesResultatsWindow',
                     title    : 'Résultats de la requête',
-                    width    : 700,
-                    minWidth: 450,
+                    width    : width,
+                    minWidth: 350,
                     minHeight: 300,
-                    maxHeight: 700,
-                    height   : 575,
+                    height   : height+85,
                     border : false,
                     modal: true,
                     plain    : true,

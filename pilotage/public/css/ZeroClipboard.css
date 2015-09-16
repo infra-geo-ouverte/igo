@@ -1,5 +1,0 @@
-body { font-family:arial,sans-serif; font-size:9pt; }
-
-.my_clip_button { width:150px; text-align:center; border:1px solid black; background-color:#ccc; margin:10px; padding:10px; cursor:default; font-size:9pt; }
-.my_clip_button.hover { background-color:#eee; }
-.my_clip_button.active { background-color:#aaa; }

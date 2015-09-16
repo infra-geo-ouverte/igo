@@ -3,35 +3,131 @@ class IgoController extends ControllerBase
 {
     public function indexAction() {
         $this->definirVariablesCommunes();
-        $this->view->setVar("titre", "Navigateur");
-        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
-            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
-        } else {
-            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
-        }
-        $filemtime = filemtime ($xmlPath);        
-        $this->view->setVar("configuration", "defaut?v={$filemtime}");
-        $this->view->setVar("contexteId", "null");
-        $this->view->setVar("contexteCode", "null");
-        $this->view->setVar("couche", "null");
+        $this->traiterXml('defaut');
     }
     
     public function configurationAction($configuration) {
         $this->definirVariablesCommunes();
-
-        if(isset($this->getDi()->getConfig()->configurations[$configuration])){
-            $xmlPath = $this->getDi()->getConfig()->configurations[$configuration];
+        $this->traiterXml($configuration);    
+    }
+    
+    public function contexteAction($code) {
+        $this->definirVariablesCommunes();
+        $this->traiterXml('defaut');
+        
+        if(!is_numeric($code)){
+            $type = "code";      
+            $contexte = IgoContexte::findFirst("$type='$code'");
         } else {
-            $xmlPath = $this->getDi()->getConfig()->configurationsDir . $configuration . '.xml';
+            $type = "id";
+            $contexte = IgoContexte::findFirst("$type=$code");
+        }
+
+        $this->view->setVar("contexteCode", "null");
+        $this->view->setVar("contexteId", "null");
+        if($contexte){
+            $this->view->setVar("contexte".ucfirst($type), $code . "?v=" . md5($contexte->date_modif));
+        }else {
+            $this->view->setVar("avertissement", "Le contexte avec le $type:$code n'existe pas");
+        }
+    }
+
+    public function coucheAction($id) {  
+        $this->definirVariablesCommunes();
+        $this->traiterXml('defaut');
+        
+        $filterArray = function ($value){
+            if(is_numeric($value)){
+                return $value;
+            }
+        };
+                
+        $arrayCoucheId = array_filter(explode(",",$id), $filterArray);    
+            
+        $couches = array();
+        foreach ($arrayCoucheId as $key => $value) {
+            $couche = IgoCouche::findFirst("id=$value");
+           
+            if($couche === false){
+                continue;
+            }
+           
+            $couches[] = $couche;
+        }
+
+        if(count($couches)>=1){
+            $this->view->setVar("couche", implode(',', $arrayCoucheId) . "?v=" . md5(rand(1000, 9999999)));
+        }else {
+            $this->view->setVar("avertissement", "Aucune couche n'a été trouvée avec le(s) id(s) suivant :".implode(";", $arrayCoucheId));
+            $this->view->setVar("couche", "null"); 
+        }
+        $this->ajouterModules();
+    }
+    
+     public function groupeAction($id) {
+        $this->definirVariablesCommunes();
+        $this->traiterXml('defaut');
+
+        $filterArray = function ($value){
+            if(is_numeric($value)){
+                return $value;
+            }
+        };
+                  
+        $arrayGroupeCoucheId = array_filter(explode(",",$id), $filterArray);    
+        
+        $couches = array();
+        foreach ($arrayGroupeCoucheId as $key => $value) {
+            $couche = IgoGroupeCouche::find("groupe_id=$value");
+           
+            if(count($couche)==0){
+                continue;
+            }
+         
+            foreach($couche as $value){
+                if(is_numeric($value->couche_id)){
+                    $couches[] = $value->couche_id;
+                }
+                else{
+                    $this->dispatcher->forward(array(
+                        "controller" => "error",
+                        "action" => "error404"
+                    ));
+                    return;
+                }                                
+            }
+        }
+
+        if(count($couches)>=1){
+            $this->view->setVar("couche", implode(',', $couches) . "?v=" . md5(rand(1000, 9999999)));
+        }else {
+            $this->view->setVar("avertissement", "Aucun groupe n'a été trouvé avec le(s) id(s) suivant :".implode(";", $arrayGroupeCoucheId));
+            $this->view->setVar("couche", "null"); 
+        }
+        $this->ajouterModules();
+    }
+    
+    private function traiterXml($nomXml){
+        if(isset($this->getDi()->getConfig()->configurations[$nomXml])){
+            $xmlPath = $this->getDi()->getConfig()->configurations[$nomXml];
+        } else {
+            $xmlPath = $this->getDi()->getConfig()->configurationsDir . $nomXml . '.xml';
         }
 
         if(file_exists($xmlPath)){
+            $externe = false;
             $element = simplexml_load_file($xmlPath);            
         } else { //url externe
+            $externe = true;
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }
-        if(isset($element->attributes()->titre)){
-            $titre = $element->attributes()->titre;
+        $elAttributes = $element->attributes();
+        if(isset($_GET['mode'])){
+            $element = $element->mode;
+        }
+
+        if(isset($elAttributes->titre)){
+            $titre = $elAttributes->titre;
         }else{
             $titre = "Navigateur";
         }
@@ -47,7 +143,7 @@ class IgoController extends ControllerBase
             $timestamp = curl_getinfo($curl, CURLINFO_FILETIME);
             $filemtime = $timestamp;
         }
-        $this->view->setVar("configuration", $configuration . "?v={$filemtime}");
+        $this->view->setVar("configuration", $nomXml . "?v={$filemtime}");
         
         $contexteArrayId = array();
         $contexteArrayCode = array();
@@ -77,145 +173,57 @@ class IgoController extends ControllerBase
         }
         $this->view->setVar("contexteCode", $contexteArrayCode);
         $this->view->setVar("contexteId", $contexteArrayId);
-                
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->libUri)){
-            $this->config->uri->librairies = $element->attributes()->baseUri . $element->attributes()->libUri;
-        }
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->serviceUri)){
-            $this->config->uri->services = $element->attributes()->baseUri . $element->attributes()->serviceUri;
-        }
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->apiUri)){
-            $this->config->uri->api = $element->attributes()->baseUri . $element->attributes()->apiUri;
-        }        
-        if(isset($element->attributes()->baseUri) && isset($element->attributes()->mapserver)){
-            $this->config->uri->mapserver = $element->attributes()->mapserver;
-        }
-        $this->getDi()->getView()->config = $this->config;
-        
-        if(isset($element->attributes()->baseUri)){
-            $this->config->uri->navigateur = $element->attributes()->baseUri;
+          
+        if(isset($elAttributes->aliasUri)){
+            $this->config->uri->librairies = $elAttributes->aliasUri . 'librairie/';
+            $this->config->uri->services = $elAttributes->aliasUri . 'services/';
+            $this->config->uri->api = $elAttributes->aliasUri . 'api/';
+            $this->config->uri->modules = $elAttributes->aliasUri . 'modules/';
+
+            $this->config->uri->navigateur = $elAttributes->aliasUri . 'public/';
             $this->config->application->baseUri = $this->config->uri->navigateur;
-        }                
-    }
-    
-    public function contexteAction($code) {
-        $this->definirVariablesCommunes();
-        $this->view->setVar("titre", "Navigateur");
-        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
-            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
-        } else {
-            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
-        }
-        $filemtime = filemtime ($xmlPath);
-        $this->view->setVar("configuration", "defaut?v={$filemtime}");
-        $this->view->setVar("couche", "null");
-        
-        $type = "id";
-        if(!is_numeric($code)){
-            $type = "code";      
-            $contexte = IgoContexte::findFirst("$type='$code'");
-        } else {
-            $contexte = IgoContexte::findFirst("$type=$code");
+        } else if(isset($elAttributes->baseUri)){
+            if(isset($elAttributes->libUri)){
+                $this->config->uri->librairies = $elAttributes->baseUri . $elAttributes->libUri;
+            }
+            if(isset($elAttributes->serviceUri)){
+                $this->config->uri->services = $elAttributes->baseUri . $elAttributes->serviceUri;
+            }
+            if(isset($elAttributes->apiUri)){
+                $this->config->uri->api = $elAttributes->baseUri . $elAttributes->apiUri;
+            }
+            if(isset($elAttributes->modulesUri)){
+                $this->config->uri->modules = $elAttributes->modulesUri;
+            }        
+
+            $this->config->uri->navigateur = $elAttributes->baseUri;
+            $this->config->application->baseUri = $this->config->uri->navigateur;
         }
 
-        $this->view->setVar("contexteCode", "null");
-        $this->view->setVar("contexteId", "null");
-        if($contexte){
-            $this->view->setVar("contexte".ucfirst($type), $code . "?v=" . md5($contexte->date_modif));
-        }else {
-            $this->view->setVar("avertissement", "Le contexte avec le $type:$code n'existe pas");
-        }
-    }
-
-    public function coucheAction($id) {  
-         
-        $filterArray = function ($value){
-            if(is_numeric($value)){
-                return $value;
-            }
-        };
-                
-        $this->definirVariablesCommunes();
-        $this->view->setVar("titre", "Navigateur");
-        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
-            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
-        } else {
-            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
-        }
-        $filemtime = filemtime ($xmlPath);        
-        $this->view->setVar("configuration", "defaut?v={$filemtime}");
-        $arrayCoucheId = array_filter(explode(",",$id), $filterArray);    
-            
-        $couches = array();
-        foreach ($arrayCoucheId as $key => $value) {
-            $couche = IgoCouche::findFirst("id=$value");
-           
-            if($couche === false){
-                continue;
-            }
-           
-            $couches[] = $couche;
+        if(isset($elAttributes->mapserver)){
+            $this->config->uri->mapserver = $elAttributes->mapserver;
         }
 
-        if(count($couches)>=1){
-            $this->view->setVar("couche", implode(',', $arrayCoucheId) . "?v=" . md5(rand(1000, 9999999)));
-        }else {
-            $this->view->setVar("avertissement", "Aucune couche n'a été trouvée avec le(s) id(s) suivant :".implode(";", $arrayCoucheId));
-            $this->view->setVar("couche", "null"); 
-        }
-    }
-    
-     public function groupeAction($id) {
-         
-        $filterArray = function ($value){
-            if(is_numeric($value)){
-                return $value;
-            }
-        };
-                  
-        $this->definirVariablesCommunes();
-        $this->view->setVar("titre", "Navigateur");
-        if(isset($this->getDi()->getConfig()->configurations["defaut"])){
-            $xmlPath = $this->getDi()->getConfig()->configurations["defaut"];
-        } else {
-            $xmlPath = $this->getDi()->getConfig()->configurationsDir . "defaut" . '.xml';
-        }
-        $filemtime = filemtime ($xmlPath);        
-        $this->view->setVar("configuration", "defaut?v={$filemtime}");
-        $arrayGroupeCoucheId = array_filter(explode(",",$id), $filterArray);    
-        
-        $couches = array();
-        foreach ($arrayGroupeCoucheId as $key => $value) {
+        $this->getDi()->getView()->config = $this->config;
+        $this->getDi()->getView()->configXml = $element;
 
-            $couche = IgoGroupeCouche::find("groupe_id=$value");
-           
-            if(count($couche)==0){
-                continue;
-            }
-         
-            foreach($couche as $value){
-                if(is_numeric($value->couche_id)){
-                    $couches[] = $value->couche_id;
+        global $application;
+        $configServeurXml = array();
+        if($externe === false){
+            if(isset($element->serveur)){
+                if(isset($element->serveur->authentification)) {
+                    $configServeurXml['authentification'] = array();
+                    foreach ($element->serveur->authentification->attributes() as $key=>$attr) {
+                       $configServeurXml['authentification'][$key] = (String) $attr;
+                    }
                 }
-                else{
-                    $this->dispatcher->forward(array(
-                        "controller" => "error",
-                        "action" => "error404"
-                    ));
-                    return;
-                }                                
             }
         }
-                    
-        if(count($couches)>=1){
-            $this->view->setVar("couche", implode(',', $couches) . "?v=" . md5(rand(1000, 9999999)));
-        }else {
-            $this->view->setVar("avertissement", "Aucun groupe n'a été trouvé avec le(s) id(s) suivant :".implode(";", $arrayGroupeCoucheId));
-            $this->view->setVar("couche", "null"); 
-        }
+        $application->getDI()->getSession()->set('configXml', $configServeurXml);
+
+        $this->ajouterModules();                 
     }
-    
-    
+
     private function definirVariablesCommunes(){
         $this->view->setVar("version", $this->config->application->version);
         $this->view->setVar("apps", "js/app");
@@ -233,18 +241,17 @@ class IgoController extends ControllerBase
         if($application->getDI()->getSession()->has("info_utilisateur")){
             if($application->getDI()->getSession()->get("info_utilisateur")->identifiant){
                 $user = $application->getDI()->getSession()->get("info_utilisateur")->identifiant;
-                $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
-                if(isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
-                    $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
+            }
+            $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
+            if(isset($application->getDI()->getSession()->get("info_utilisateur")->profils)){
+                $count = count($application->getDI()->getSession()->get("info_utilisateur")->profils);
+                if(isset($idProfil)){ 
                     foreach($application->getDI()->getSession()->get("info_utilisateur")->profils as $value){
                         if($value['id']== $idProfil){
                              $libelleProfil = $value['libelle']; 
                              break;
                         }
                     }
-                }
-                if($libelleProfil === ''){
-                    $count = 0;
                 }
             }
         }
@@ -294,14 +301,36 @@ class IgoController extends ControllerBase
         else{
             $this->view->setVar("callbackInitIGO", 'null');
         }
+    }    
+
+    /**
+     * Ajoute tous les scripts Javascript requis pour chacun des modules.
+     * 
+     * @return void
+     */
+    private function ajouterModules() {
+        $chargeurModules = $this->getDi()->get('chargeurModules');
+
+        $modulesJS = $chargeurModules->obtenirJavascript();
+        $this->view->setVar("modulesJS", $modulesJS);
+
+        $modulesVues = $chargeurModules->obtenirVues();
+        $this->view->setVar("modulesVues", $modulesVues);
+
+        $config = $this->getDi()->getView()->config;
+        $configXml = $this->getDi()->getView()->configXml;
+        $modulesFonctions = $chargeurModules->obtenirFonctions();
+        foreach ($modulesFonctions as $fct) {
+            include($fct);    
+        }
     }
     
     /*
      * vérifie si URL ou nom du service est permis selon config.php.
      * retour false ou l'url permis
      */
-    public function verifierPermis($szUrl){
-        
+    public function verifierPermis($szUrl, $restService=false){
+       
         //vérifier URL 
         //Services
         $url = "";
@@ -311,29 +340,23 @@ class IgoController extends ControllerBase
         );
         $session = $this->getDI()->getSession();
         
-        if($session->has("info_utilisateur") && isset($this->config['profilsDroit'])) {
+        if($session->has("info_utilisateur") && isset($this->config['permissions'])) {
             //utilisateur
-            if(($session->info_utilisateur->identifiant) && isset($this->config->profilsDroit[$session->info_utilisateur->identifiant])){
-                $serviceExtUser = $this->config->profilsDroit[$session->info_utilisateur->identifiant];
-                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser);
+            if(($session->info_utilisateur->identifiant) && isset($this->config->permissions[$session->info_utilisateur->identifiant]) && isset($this->config->permissions[$session->info_utilisateur->identifiant]->servicesExternes)){
+                $serviceExtUser = $this->config->permissions[$session->info_utilisateur->identifiant]->servicesExternes;
+                $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
             }
                
             //profils
             if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
-           
                 $test = false;
                 foreach ($session->info_utilisateur->profils as $key => $value) {
-                    if(is_array($value)){
-                        $idValue = $value["id"];
-                        $profil = $value["libelle"];
-                    } else {
-                        $idValue = $value->id;
-                        $profil = $value->libelle;
-                    }
+                    $idValue = $value["id"];
+                    $profil = $value["libelle"];
                     if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
-                        if(isset($profil) && isset($config->profilsDroit[$profil])){
-                            $serviceExtProfil = $this->config->profilsDroit[$profil];
-                            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil);
+                        if(isset($profil) && isset($this->config->permissions[$profil]) && isset($this->config->permissions[$profil]->servicesExternes)){
+                            $serviceExtProfil = $this->config->permissions[$profil]->servicesExternes;
+                            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil, $restService);
                             if($serviceRep["test"] !== false){                        
                                 $test = true;
                                 if($serviceRep["url"] !== false){
@@ -343,6 +366,7 @@ class IgoController extends ControllerBase
                         }
                     }
                 }
+                 
                 $serviceRep["test"] = $test;
             }
         } else if(!$session->has("info_utilisateur")){
@@ -352,7 +376,7 @@ class IgoController extends ControllerBase
         //general
         if(($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
             $servicesExternes = $this->config['servicesExternes'];
-            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes);
+            $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes, $restService);
         }
         
         if(($serviceRep["url"] === false)||($serviceRep["test"]===false)){
@@ -384,8 +408,9 @@ class IgoController extends ControllerBase
         return $test==="ok";
     }
     
-    private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes){
+    private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes, $restService){
         if(isset($arrayServicesExternes[$service])){
+            if($restService == false){return $serviceRep;}
             $serviceRep["url"] = $arrayServicesExternes[$service];
             $serviceRep["test"] = true;
         } else {

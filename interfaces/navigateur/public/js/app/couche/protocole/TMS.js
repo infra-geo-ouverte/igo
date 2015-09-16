@@ -31,7 +31,8 @@ define(['couche', 'aide'], function(Couche, Aide) {
             layername: options.nom, 
             type: options.format==null?"png":options.format,
             maxZoomLevel: options.zoomMax==null?null:Number(options.zoomMax),
-            minZoomLevel: options.zoomMin==null?null:Number(options.zoomMin)
+            limiteEtendue: options.limiteEtendue==null?null:new OpenLayers.Bounds(options.limiteEtendue.split(","))
+            //minZoomLevel: options.zoomMin==null?null:Number(options.zoomMin)  
         };
         
         if(Aide.toBoolean(this.options.utiliserProxy)){
@@ -53,10 +54,6 @@ define(['couche', 'aide'], function(Couche, Aide) {
     */
     TMS.prototype._init = function(){
         Couche.prototype._init.call(this);
-        //TODO: voir pour bien gérer inclure tous les traitements de tuile.js
-        //selon le host, appeler les bonnes tuiles... voir Tuiles.getURLs_MapCache()
-        //mettre une variable d'environnement qui pointe vers le bon serveur de tuile.
-        //et pour les printOptions....
         this._layer = new OpenLayers.Layer.TMS(
             this.options.titre,
             this.options.url,
@@ -64,6 +61,17 @@ define(['couche', 'aide'], function(Couche, Aide) {
         );
     };
     
+    TMS.prototype._ajoutCallback = function(target, callback, optCallback){
+        var that = this;  
+        Couche.prototype._ajoutCallback.call(this,target, callback, optCallback);     
+        this.carte._carteOL.events.register("zoomend", this.carte._carteOL, function(e){
+            if(that.estActive() && that.estFond() && that.options.zoomMin && (e.object.zoom -1) < that.options.zoomMin){
+                that.carte.zoomer(that.options.zoomMin);
+            }
+        });
+        
+    };
+
     return TMS;
     
 });

@@ -1,18 +1,23 @@
+#ignorer
 *.pyc
 */cache/
-.svn
 *.old
 *.old.*
 *.bak
-/nbproject/
-*/nbproject/
-librairie/
-config/config.php
-services/config.php
+*.log
+*.svn
+*.vagrant
 
-node_modules/
-npm-debug.log
-doc/interfaces/navigateur/
+nbproject/
+/doc/interfaces/navigateur/
+/puppet/externalmodules/
+/modules/
+/node_modules/
+/librairie/
+/pilotage/
 
-.vagrant
-puppet/externalmodules
+/configGrunt.json
+/modules.json
+/config/config.php
+/services/config.php
+
