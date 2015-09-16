@@ -6,7 +6,7 @@
         </a>
     <ul class="dropdown-menu">
         <li class="enabled">{{ link_to("igo_contexte/search","Contextes" )}}</li> 
-        <li class="enabled">{{ link_to("igo_contexte/regenerer","Regénérer les contextes" )}}</li> 
+        <li class="enabled">{{ link_to("igo_contexte/formulaireRegenerer","Regénérer les contextes" )}}</li> 
         <!--li class="enabled">{{ link_to("igo_couche_contexte/search","Liste des associations contextes/couches" )}}</li--> 
     </ul>
     </li>

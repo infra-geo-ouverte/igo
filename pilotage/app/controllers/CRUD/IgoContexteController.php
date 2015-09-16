@@ -4,7 +4,7 @@ use Phalcon\Mvc\View;
 use Phalcon\Text;
 use Phalcon\Mvc\Model\Resultset\Simple as Resultset;
 use Phalcon\Http\Request;
-
+use Phalcon\Http\Response;
 
 class IgoContexteController extends ControllerBase {
     
@@ -353,32 +353,73 @@ class IgoContexteController extends ControllerBase {
         return false;
     }
 
-    function regenererAction(){
 
-        $request = new Request();
-        if($request->isPost()){
+    function formulaireRegenererAction(){
 
-            //Faire le stock!
-            $this->supprimerMapfileDeTousLesContextes();
 
-            $this->flash->success("Les mapfiles de contextes ont bien été supprimés. Chaque mapfile sera regénéré lors de l'accès à son contexte.");
+        $this->assets->addJs('js/formulaireRegenererIgoContexte.js');
 
-        }
+        $igoContextes = IgoContexte::find();
+        $this->view->setVar('igoContextes', $igoContextes);
     }
 
     /**
-    * Supprime les mapfiles de tous les contextes
+    * Fait regénérer un mapfile de contexte. 
     */
-    private function supprimerMapfileDeTousLesContextes(){
+    function regenererAction(){
 
-        //récupérer les mapfiles
-        $igoContextes = IgoContexte::find();
+        $request = new Request();
 
-        foreach($igoContextes as $igoContexte){
+        //Appel en get
+        if(!$request->isPost()){
 
-            $this->supprimerMapfile($igoContexte->id);
-
+            $response = new Phalcon\Http\Response();
+            $response->setStatusCode(500, "Error");
+            $response->setHeader("Content-Type", "application/json");
+            $erreur = new stdClass();
+            $erreur->erreur = "Cette requête doit être faite en post.";
+            $response->setContent(json_encode($erreur));
+            return $response;
         }
+
+        $contexteId = $request->get('id');
+
+        $igoContexte = IgoContexte::findFirstById($contexteId);
+
+        //Le contexte n'existe pas
+        if(!$igoContexte){
+            $response = new Response();
+            $response->setStatusCode(500, "Error");
+            $response->setHeader("Content-Type", "application/json");
+            $erreur = new stdClass();
+            $erreur->erreur = "Contexte non trouvé.";
+            $response->setContent(json_encode($erreur));
+            return $response;
+        }
+
+        //Erreur lors de la sauvegarde
+        if(!$igoContexte->save()){
+            $msgErreur = '';
+            foreach ($igoContexte->getMessages() as $erreur) {
+                $msgErreur .= $erreur->getMessage();
+            }
+
+            $response = new Response();
+            $response->setStatusCode(500, "Error");
+            $response->setHeader("Content-Type", "application/json");
+            $erreur = new stdClass();
+            $erreur->erreur = $msgErreur;
+            $response->setContent(json_encode($erreur));
+            return $response;
+        } 
+
+        $response = new Response();
+        $response->setStatusCode(200, "OK");
+        $response->setHeader("Content-Type", "application/json");
+        $ok = new stdClass();
+        $ok->date_maj = $igoContexte->date_modif;
+        $response->setContent(json_encode($ok));
+        return $response;
 
     }
 
