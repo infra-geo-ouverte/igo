@@ -8,6 +8,9 @@ use Phalcon\Http\Response;
 
 class IgoContexteController extends ControllerBase {
     
+    /**
+    * Affichage de la page de création d'un contexte
+    */
     function newAction($r_controller = null, $r_action = null, $r_id = null) {
       
         $mapserverConfiguration = $this->getDI()->getConfig()->mapserver;
@@ -34,7 +37,9 @@ class IgoContexteController extends ControllerBase {
         $this->tag->setDefault("generer_onlineresource", true);
     }
     
-    
+    /**
+     * Création d'un contexte
+     */
     function createAction($r_controller = null, $r_action = null, $r_id = null) {
       
         $mapServerConfig = $this->getDI()->getConfig()->mapserver;
@@ -170,10 +175,15 @@ class IgoContexteController extends ControllerBase {
         
     }
     
-    function mapfileAction($contexte_id, $profil_id = null, $utilisateur_id = null) {
+    /**
+     * Affichage de la page de création d'un mapfile
+     * @param int|strint $idContexte Id du contexte
+     * @return array
+     */
+    function mapfileAction($idContexte) {
 
-        $igo_contexte = IgoContexte::findFirstByid($contexte_id);
-        if (!$igo_contexte) {
+        $igoContexte = IgoContexte::findFirstByid($idContexte);
+        if (!$igoContexte) {
             $this->flash->error("Contexte non-trouvé");
 
             return $this->dispatcher->forward(array(
@@ -182,15 +192,15 @@ class IgoContexteController extends ControllerBase {
             ));
         }
         
-        $contexte = $igo_contexte->toArray();
+        $contexte = $igoContexte->toArray();
         $couches = array();
 
-        $contexte["wms_onlineresource"] = $this->view->host . $igo_contexte->mf_map_meta_onlineresource;
+        $contexte["wms_onlineresource"] = $this->view->host . $igoContexte->mf_map_meta_onlineresource;
 
-        if (is_numeric($igo_contexte->mf_map_projection)) {
-            $contexte["mf_map_projection"] = "\"init=epsg:{$igo_contexte->mf_map_projection}\"";
+        if (is_numeric($igoContexte->mf_map_projection)) {
+            $contexte["mf_map_projection"] = "\"init=epsg:{$igoContexte->mf_map_projection}\"";
         } else if (trim($igo_contexte->mf_map_projection) != '') {
-            $contexte["mf_map_projection"] = $igo_contexte->mf_map_projection;
+            $contexte["mf_map_projection"] = $igoContexte->mf_map_projection;
             if ($contexte["mf_map_projection"] <> "") {
                 $contexte["mf_map_projection"] = str_replace('"', "\t\t\t", str_replace('" ', '\n ', $contexte["mf_map_projection"]));
             }
@@ -198,7 +208,7 @@ class IgoContexteController extends ControllerBase {
         
         $contexteCouches = IgoVueContexteCoucheNavigateur::find(
             array(
-                "conditions"=>"contexte_id=$contexte_id",
+                "conditions"=>"contexte_id=$idContexte",
                 "order"=>array("mf_layer_meta_group_title", "mf_layer_meta_title")                
             ));
         
@@ -234,14 +244,21 @@ class IgoContexteController extends ControllerBase {
         return array($contexte, $couches);
     }
 
-    function saveMapFile($contexte_id) {
-        $contexte = IgoContexte::findFirstById($contexte_id);
-        if (!$contexte) {
+    /**
+     * Création d'un mapfile de contexte
+     * @param int|string $idContexte 
+     */
+    function saveMapFile($idContexte) {
+        $igoContexte = IgoContexte::findFirstById($idContexte);
+        if (!$igoContexte) {
             throw new Exception("Contexte inexistant");
         }
-        $contexte->save(); 
+        $igoContexte->save(); 
      }
      
+     /**
+      * Sauvegarde d'un contexte
+      */
      function saveAction($r_controller = null, $r_action = null, $r_id = null) { 
         $this->traiterCodeOnlineRessource();
         
@@ -262,6 +279,10 @@ class IgoContexteController extends ControllerBase {
          
      }
      
+     /**
+      * Supprimer un contexte
+      * @param int!string $id Id du contexte
+      */
      function deleteAction($id, $r_controller = null, $r_action = null, $r_id = null) {
 
         $this->supprimerMapfile($id);
@@ -309,7 +330,7 @@ class IgoContexteController extends ControllerBase {
      * @return igoContexte[]
      */
     private function igoContextesQuilPossede(){
-        $sql = '';
+        $conditionSQL = '';
         if(!$this->getDI()->get('session')->get('info_utilisateur')->estAdmin){
             
             //Récupérer les profils de l'utilisateurs
@@ -326,10 +347,10 @@ class IgoContexteController extends ControllerBase {
             $idsProfils = implode(',', $idsProfils);
             
             //Récupérer les contextes auquels ces profils donne droit
-            $sql = "profil_proprietaire_id IN ($idsProfils)";
+            $conditionSQL .= "profil_proprietaire_id IN ($idsProfils)";
         }
         
-        return IgoContexte::find($sql);
+        return IgoContexte::find($conditionSQL);
     }
     
     /**
@@ -346,16 +367,16 @@ class IgoContexteController extends ControllerBase {
         $contextes = $this->igoContextesQuilPossede();
         foreach($contextes as $contexte){
             if($contexte->id == $idContexte){
-                die("$contexte->id == $idContexte");
                 return true;
             }
         }
         return false;
     }
 
-
+    /**
+     * Affichage de la page permettant de regénérer les contextes (mapfile)
+     */
     function formulaireRegenererAction(){
-
 
         $this->assets->addJs('js/formulaireRegenererIgoContexte.js');
 
