@@ -63,11 +63,7 @@ CREATE OR REPLACE VIEW igo_vue_contexte_couche_navigateur AS
             cgr.parent_groupe_id,
             cc.est_active,
             igo_couche.est_fond_de_carte,
-                CASE
-                    WHEN igo_couche.est_fond_de_carte THEN igo_couche.mf_layer_name::text
-                    WHEN cgr.parent_groupe_id IS NULL THEN igo_couche.mf_layer_name::text
-                    ELSE concat(igo_couche.mf_layer_name, '_', cgr.parent_groupe_id)
-                END AS mf_layer_name,
+            igo_couche.mf_layer_name,
             igo_couche.mf_layer_name AS mf_layer_name_igo,
             COALESCE(cc.mf_layer_meta_name, igo_couche.mf_layer_meta_name) AS mf_layer_meta_name2,
             igo_couche.mf_layer_meta_name,

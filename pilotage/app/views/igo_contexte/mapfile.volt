@@ -75,7 +75,7 @@ MAP
             {% endif  %}
 
             METADATA
-                "layer_name_igo" "{{ couche.mf_layer_name_igo}}"
+                {% if couche.mf_layer_name_igo|trim<>couche.mf_layer_name|trim %}layer_name_igo  {{ couche.mf_layer_name_igo}}{% endif %}
                 "wms_group_title"      "{{ couche.mf_layer_meta_group_title}}"
                 "wms_name"             "{{ couche.mf_layer_meta_name}}"
                 "wms_title"            "{{ couche.mf_layer_meta_title}}"
