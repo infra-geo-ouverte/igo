@@ -1140,7 +1140,7 @@ CREATE OR REPLACE VIEW igo_vue_contexte_couche_navigateur AS
             cgr.parent_groupe_id,
             cc.est_active,
             igo_couche.est_fond_de_carte,
-            igo_couche.mf_layer_name,
+            igo_couche.mf_layer_name::text,
             igo_couche.mf_layer_name AS mf_layer_name_igo,
             COALESCE(cc.mf_layer_meta_name, igo_couche.mf_layer_meta_name) AS mf_layer_meta_name2,
             igo_couche.mf_layer_meta_name,
