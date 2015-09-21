@@ -327,8 +327,8 @@ igo.initConfigs = function(grunt){
     });
 }
 
-igo.includeModules = function(grunt){
-    var modules = grunt.config.get("modules");
+igo.includeModules = function(grunt, modules){
+    modules = modules || grunt.config.get("modules");
     if(!modules){
         return false;
     }
@@ -365,7 +365,7 @@ igo.initTasks = function(grunt){
     //grunt-contrib-less
 
     grunt.registerTask('default', ['build', 'cache']);
-    grunt.registerTask('init', ['default', 'modules:get']);
+    grunt.registerTask('init', ['default', 'modules:get', 'modules:init']);
     grunt.registerTask('build', ['buildIgo', 'buildLibs']);
     grunt.registerTask('buildIgo', ['requirejs']);
     grunt.registerTask('buildLibs', ['shell:buildOpenLayers', 'uglify:LayerTreeBuilder', 'uglify:WMSBrowser', 'uglify:GeoExt', 'uglify:GeoExtDebug']);
@@ -377,13 +377,13 @@ igo.initTasks = function(grunt){
     grunt.registerTask('surveiller', ['watch:scripts']);
     //jsbeautifier et //jshint
 
-    grunt.task.registerTask('modules', 'Gérer les modules', igo.modulesTask);
+    grunt.task.registerTask('modules', 'Gérer les modules', this.modulesTask);
 
     grunt.task.run('notify_hooks');
 }
 
 igo.modulesTask = function(commande, nomModule, param3, modules){
-    var grunt = igo.globalGrunt;
+    var grunt = this.globalGrunt;
 
     modules = modules || grunt.config.get("modules");
     if(!modules){
@@ -401,19 +401,21 @@ igo.modulesTask = function(commande, nomModule, param3, modules){
     }
 
     if(commande === 'get'){
-        igo.modulesGetTask(grunt, modules);
+        this.modulesGetTask(grunt, modules);
+    } else if (commande === 'init'){
+        this.modulesInitTask(grunt, modules);
     } else if (commande === 'update'){
-        igo.modulesUpdateTask(grunt, modules);
+        this.modulesUpdateTask(grunt, modules);
     } else if (commande === 'clean'){
-        igo.modulesCleanTask(grunt, modules);
+        this.modulesCleanTask(grunt, modules);
     } else if (commande === 'reset') {
-        igo.modulesResetTask(grunt, modules);
+        this.modulesResetTask(grunt, modules);
     } else if (commande === 'status') {
-        igo.modulesStatusTask(grunt, modules);
+        this.modulesStatusTask(grunt, modules);
     } else if (commande === 'statusC') {
-        igo.modulesStatusTask(grunt, modules, true);
+        this.modulesStatusTask(grunt, modules, true);
     } else if (commande === 'checkout') {
-        igo.modulesCheckoutTask(grunt, modules, param3);
+        this.modulesCheckoutTask(grunt, modules, param3);
     } else if (commande === '') {
         grunt.log.error("Une commande est requise.");
     } else {
@@ -427,8 +429,7 @@ igo.modulesGetTask = function(grunt, modules){
     var iE = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!mod.options){
-            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        if(!this.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -446,14 +447,30 @@ igo.modulesGetTask = function(grunt, modules){
     }
 }
 
+igo.modulesInitTask = function(grunt, modules){   
+   this.includeModules(grunt, modules);
+   var i = 0;
+   for (var key in modules) {
+        var mod = modules[key];
+        console.log(this);
+        if(!this.verifierModuleConfig(grunt, mod)){
+            continue;
+        }
+        if (grunt.task.exists(key + ':init')){
+            grunt.task.run(key + ':init');
+            i++;
+        }    
+    };
+    grunt.log.writeln(i + " modules à initier.");
+}
+
 igo.modulesUpdateTask = function(grunt, modules){
     var iC = 0;
     var iM = 0;
     var iG = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!mod.options){
-            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        if(!this.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -482,8 +499,7 @@ igo.modulesCleanTask = function(grunt, modules){
     var i = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!mod.options){
-            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        if(!this.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -495,8 +511,8 @@ igo.modulesCleanTask = function(grunt, modules){
 }
 
 igo.modulesResetTask = function(grunt, modules){
-    igo.modulesCleanTask(grunt, modules);
-    igo.modulesGetTask(grunt, modules);
+    this.modulesCleanTask(grunt, modules);
+    this.modulesGetTask(grunt, modules);
 }
 
 igo.modulesStatusTask = function(grunt, modules, gitstatuscomplet){
@@ -504,8 +520,7 @@ igo.modulesStatusTask = function(grunt, modules, gitstatuscomplet){
     var iG = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!mod.options){
-            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        if(!this.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -534,8 +549,7 @@ igo.modulesCheckoutTask = function(grunt, modules, branche){
     var iG = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!mod.options){
-            grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        if(!this.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -553,4 +567,12 @@ igo.modulesCheckoutTask = function(grunt, modules, branche){
     if(iG){
         grunt.log.writeln(iG + " modules absents de git.");
     }
+}
+
+igo.verifierModuleConfig = function(grunt, mod){
+    if(!mod.options){
+        grunt.log.warn("Le module '" + key + "' n'est pas configuré correctement.");
+        return false;
+    }
+    return true;
 }
