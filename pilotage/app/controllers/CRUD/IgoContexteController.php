@@ -380,7 +380,7 @@ class IgoContexteController extends ControllerBase {
 
         $this->assets->addJs('js/formulaireRegenererIgoContexte.js');
 
-        $igoContextes = IgoContexte::find();
+        $igoContextes = IgoContexte::find(array('order'=>'date_modif'));
         $this->view->setVar('igoContextes', $igoContextes);
     }
 

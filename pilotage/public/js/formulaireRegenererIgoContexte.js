@@ -7,6 +7,7 @@ jQuery(document).ready(function($){
 
     var nbContextes = $('tr[data-igoContexte-id]').length;
     var nbContextexRegeneres;
+    var traitementEnCours = false;
 
     function regenerer(){
 
@@ -56,9 +57,12 @@ jQuery(document).ready(function($){
             //Afficher les messages de fin
             majStatutGlobal('<div class="alert alert-success"><span class="glyphicon glyphicon-ok color-green"></span> Traitement terminé.</div>');
             $('#btn-regenerer').removeAttr('disabled');
+            traitementEnCours = false;
             return;
         }
         
+        traitementEnCours = true;
+
         //Récupérer le contexte à regénérer
         var contexte = contextes[0];
         contexte = $(contexte);
@@ -102,5 +106,14 @@ jQuery(document).ready(function($){
 
     $('#btn-regenerer').click(regenerer);
 
-});
+    $(window).on('beforeunload', function(){
 
+        if(traitementEnCours){
+            return 'La regénération des contextes est en cours. Si vous quittez cette page, l\'opération sera pas complétée.';
+
+        }
+
+    });
+
+
+});
