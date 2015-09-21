@@ -1,17 +1,13 @@
-/*{
-    "urlTestUnit": "igo/navigateur/testUnit/",
-    "pathModules": "modules.json"
-}
-*/
-
 module.exports = function(grunt) {
-    globalGrunt = grunt;
-    initTasks(grunt);
-    initConfigs(grunt);
-    includeModules(grunt);
+    igo.globalGrunt = grunt;
+    igo.initTasks(grunt);
+    igo.initConfigs(grunt);
+    igo.includeModules(grunt);
 }
 
-function initConfigs(grunt){
+igo = {};
+
+igo.initConfigs = function(grunt){
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         config: grunt.config.set('config', grunt.file.readJSON('configGrunt.json')),
@@ -331,7 +327,7 @@ function initConfigs(grunt){
     });
 }
 
-function includeModules(grunt){
+igo.includeModules = function(grunt){
     var modules = grunt.config.get("modules");
     if(!modules){
         return false;
@@ -348,7 +344,7 @@ function includeModules(grunt){
     }; 
 }
 
-function initTasks(grunt){
+igo.initTasks = function(grunt){
     //grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -364,10 +360,12 @@ function initTasks(grunt){
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks("grunt-jsbeautifier");
     grunt.loadNpmTasks('grunt-git');
-//grunt-uncss
-//grunt-contrib-less
+    grunt.loadNpmTasks("grunt-then");
+    //grunt-uncss
+    //grunt-contrib-less
 
-    grunt.registerTask('default', ['telechargerLibs', 'build', 'cache', 'doc', 'qUnit', 'notify:watch']);
+    grunt.registerTask('default', ['build', 'cache']);
+    grunt.registerTask('init', ['default', 'modules:get']);
     grunt.registerTask('build', ['buildIgo', 'buildLibs']);
     grunt.registerTask('buildIgo', ['requirejs']);
     grunt.registerTask('buildLibs', ['shell:buildOpenLayers', 'uglify:LayerTreeBuilder', 'uglify:WMSBrowser', 'uglify:GeoExt', 'uglify:GeoExtDebug']);
@@ -375,21 +373,19 @@ function initTasks(grunt){
     grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('qUnit', ['shell:qUnit']);
-    //grunt.registerTask('cloneModules', ['gitclone']);
-    //grunt.registerTask('pullModules', ['gitpull']);
-    //grunt.registerTask('cleanModules', ['clean:modules']);
+    grunt.registerTask('notify', ['notify:watch']);
+    grunt.registerTask('surveiller', ['watch:scripts']);
     //jsbeautifier et //jshint
 
-    grunt.task.registerTask('modules', 'Gérer les modules', modulesTask);
+    grunt.task.registerTask('modules', 'Gérer les modules', igo.modulesTask);
 
     grunt.task.run('notify_hooks');
 }
 
+igo.modulesTask = function(commande, nomModule, param3, modules){
+    var grunt = igo.globalGrunt;
 
-function modulesTask(commande, nomModule, param3){
-    var grunt = globalGrunt;
-
-    var modules = grunt.config.get("modules");
+    modules = modules || grunt.config.get("modules");
     if(!modules){
         grunt.log.error("La liste des modules n'est pas définie");
         return false;
@@ -404,32 +400,29 @@ function modulesTask(commande, nomModule, param3){
         modules[nomModule] = moduleTrouve;
     }
 
-    if(commande === 'obtenir'){
-        modulesObtenirTask(grunt, modules);
-    } else if (commande === 'maj'){
-        modulesMajTask(grunt, modules);
+    if(commande === 'get'){
+        igo.modulesGetTask(grunt, modules);
+    } else if (commande === 'update'){
+        igo.modulesUpdateTask(grunt, modules);
     } else if (commande === 'clean'){
-        modulesCleanTask(grunt, modules);
+        igo.modulesCleanTask(grunt, modules);
     } else if (commande === 'reset') {
-        modulesResetTask(grunt, modules);
+        igo.modulesResetTask(grunt, modules);
     } else if (commande === 'status') {
-        modulesStatusTask(grunt, modules);
-    } else if (commande === 'statusD') {
-        modulesStatusTask(grunt, modules, true);
+        igo.modulesStatusTask(grunt, modules);
+    } else if (commande === 'statusC') {
+        igo.modulesStatusTask(grunt, modules, true);
     } else if (commande === 'checkout') {
-        modulesCheckoutTask(grunt, modules, param3);
+        igo.modulesCheckoutTask(grunt, modules, param3);
     } else if (commande === '') {
         grunt.log.error("Une commande est requise.");
     } else {
         grunt.log.error("Commande introuvable.");
     }
-
-
-  //  console.log(modules);
 }
 
 
-function modulesObtenirTask(grunt, modules){
+igo.modulesGetTask = function(grunt, modules){
     var i = 0;
     var iE = 0;
     for (var key in modules) {
@@ -453,7 +446,7 @@ function modulesObtenirTask(grunt, modules){
     }
 }
 
-function modulesMajTask(grunt, modules){
+igo.modulesUpdateTask = function(grunt, modules){
     var iC = 0;
     var iM = 0;
     var iG = 0;
@@ -485,7 +478,7 @@ function modulesMajTask(grunt, modules){
     }
 }
 
-function modulesCleanTask(grunt, modules){
+igo.modulesCleanTask = function(grunt, modules){
     var i = 0;
     for (var key in modules) {
         var mod = modules[key];
@@ -501,12 +494,12 @@ function modulesCleanTask(grunt, modules){
     grunt.log.writeln(i + " modules à supprimer.");
 }
 
-function modulesResetTask(grunt, modules){
-    modulesCleanTask(grunt, modules);
-    modulesObtenirTask(grunt, modules);
+igo.modulesResetTask = function(grunt, modules){
+    igo.modulesCleanTask(grunt, modules);
+    igo.modulesGetTask(grunt, modules);
 }
 
-function modulesStatusTask(grunt, modules, gitstatuscomplet){
+igo.modulesStatusTask = function(grunt, modules, gitstatuscomplet){
     var i = 0;
     var iG = 0;
     for (var key in modules) {
@@ -535,7 +528,7 @@ function modulesStatusTask(grunt, modules, gitstatuscomplet){
     }
 }
 
-function modulesCheckoutTask(grunt, modules, branche){
+igo.modulesCheckoutTask = function(grunt, modules, branche){
     branche = branche || 'master';
     var i = 0;
     var iG = 0;
