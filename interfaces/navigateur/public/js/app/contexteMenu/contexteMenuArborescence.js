@@ -4,7 +4,7 @@ require.ajouterConfig({
     }
 });
 
-define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable, DateTimeIntervalPicker) {
+define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, PanneauTable, DateTimeIntervalPicker) {
   
     function ContexteMenuArborescence(options){
         this.options = options || {};   
@@ -16,8 +16,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             bringToText: "Mettre en",
             frontText : "avant",
             backText : "arrière",
-            closeText : "Fermer",
-            mspMetadataText : "Informations sur la couche"
+            closeText : "Fermer"
         };
         this.init();
     };
@@ -35,7 +34,6 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
         this.ajouterFonctionsConstruction(this.initSelectionnerTout);
         this.ajouterFonctionsConstruction(this.initActiverImportationSubmenu);
         this.ajouterFonctionsConstruction(this.initWMStime);
-        this.ajouterFonctionsConstruction(this.initMetadonneeSubmenu);
         this.ajouterFonctionsConstruction(this.initSupprimerVecteurSubmenu);
         this.ajouterFonctionsConstruction(this.initFermerSubmenu);
         
@@ -259,20 +257,6 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             };
         }
     };
-
-    ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
-        var that=args.scope;
-        if (args.couche.options.metadonnee) {
-             return {
-                id: 'arborescenceMetadonnee',
-                text : that.locale.mspMetadataText,
-                handler : function() {
-                    Metadonnee.getLayerCapabilities(args.couche);
-                }
-             };
-        }
-    };
-        
         
     ContexteMenuArborescence.prototype.initActiverImportationSubmenu = function(args){ 
         if (args.couche.options.importationWFS) {

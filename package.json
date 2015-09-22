@@ -18,6 +18,7 @@
     "grunt-load-gruntfile": "0.0.2",
     "grunt-notify": "^0.4.1",
     "grunt-shell": "^1.1.2",
+    "grunt-then": "^1.0.0",
     "rjs-build-analysis": "0.0.3"
   }
 }
