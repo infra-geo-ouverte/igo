@@ -86,10 +86,10 @@ class ConnexionController extends Controller{
             $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();
 
             //L'utilisateur tente d'accéder au pilotage et il n'a pas le droit
-            //TODO Remplacer /pilotage/ par la variable de config correspondante. En ce moment elle est dans /igo/pilogate...config.php
             if (!$this->session->get("info_utilisateur")->estAdmin &&
                     !$this->session->get("info_utilisateur")->estPilote &&
-                    $configuration->application->baseUri === "/pilotage/") {
+                    isset($configuration->application->estPilotage) && 
+                    $configuration->application->estPilotage === true) {
                 $this->session->remove("info_utilisateur");
                 $this->session->set("erreur", "Droits insuffisants");
                 return $this->redirigeVersPage();
@@ -177,6 +177,9 @@ class ConnexionController extends Controller{
         $this->session->destroy();
         $this->getDI()->get("authentificationModule")->deconnexion();
         $this->view->setVar("titre", "Déconnexion");
+        if(isset($configuration->application->estPilotage) && $configuration->application->estPilotage === true){
+            $pageRedirection = "";
+        }
         $this->view->setVar("pageRedirection", $pageRedirection);
         $this->view->setVar("seConnecter", $seConnecter);
         $this->view->setVar("pageAccueil", $pageAccueil);
