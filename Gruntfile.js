@@ -377,13 +377,13 @@ igo.initTasks = function(grunt){
     grunt.registerTask('surveiller', ['watch:scripts']);
     //jsbeautifier et //jshint
 
-    grunt.task.registerTask('modules', 'Gérer les modules', this.modulesTask);
+    grunt.task.registerTask('modules', 'Gérer les modules', igo.modulesTask);
 
     grunt.task.run('notify_hooks');
 }
 
 igo.modulesTask = function(commande, nomModule, param3, modules){
-    var grunt = this.globalGrunt;
+    var grunt = igo.globalGrunt;
 
     modules = modules || grunt.config.get("modules");
     if(!modules){
@@ -401,21 +401,21 @@ igo.modulesTask = function(commande, nomModule, param3, modules){
     }
 
     if(commande === 'get'){
-        this.modulesGetTask(grunt, modules);
+        igo.modulesGetTask(grunt, modules);
     } else if (commande === 'init'){
-        this.modulesInitTask(grunt, modules);
+        igo.modulesInitTask(grunt, modules);
     } else if (commande === 'update'){
-        this.modulesUpdateTask(grunt, modules);
+        igo.modulesUpdateTask(grunt, modules);
     } else if (commande === 'clean'){
-        this.modulesCleanTask(grunt, modules);
+        igo.modulesCleanTask(grunt, modules);
     } else if (commande === 'reset') {
-        this.modulesResetTask(grunt, modules);
+        igo.modulesResetTask(grunt, modules);
     } else if (commande === 'status') {
-        this.modulesStatusTask(grunt, modules);
+        igo.modulesStatusTask(grunt, modules);
     } else if (commande === 'statusC') {
-        this.modulesStatusTask(grunt, modules, true);
+        igo.modulesStatusTask(grunt, modules, true);
     } else if (commande === 'checkout') {
-        this.modulesCheckoutTask(grunt, modules, param3);
+        igo.modulesCheckoutTask(grunt, modules, param3);
     } else if (commande === '') {
         grunt.log.error("Une commande est requise.");
     } else {
@@ -429,7 +429,7 @@ igo.modulesGetTask = function(grunt, modules){
     var iE = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!this.verifierModuleConfig(grunt, mod)){
+        if(!igo.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -448,12 +448,11 @@ igo.modulesGetTask = function(grunt, modules){
 }
 
 igo.modulesInitTask = function(grunt, modules){   
-   this.includeModules(grunt, modules);
+   igo.includeModules(grunt, modules);
    var i = 0;
    for (var key in modules) {
         var mod = modules[key];
-        console.log(this);
-        if(!this.verifierModuleConfig(grunt, mod)){
+        if(!igo.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if (grunt.task.exists(key + ':init')){
@@ -470,7 +469,7 @@ igo.modulesUpdateTask = function(grunt, modules){
     var iG = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!this.verifierModuleConfig(grunt, mod)){
+        if(!igo.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -499,7 +498,7 @@ igo.modulesCleanTask = function(grunt, modules){
     var i = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!this.verifierModuleConfig(grunt, mod)){
+        if(!igo.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -511,8 +510,8 @@ igo.modulesCleanTask = function(grunt, modules){
 }
 
 igo.modulesResetTask = function(grunt, modules){
-    this.modulesCleanTask(grunt, modules);
-    this.modulesGetTask(grunt, modules);
+    igo.modulesCleanTask(grunt, modules);
+    igo.modulesGetTask(grunt, modules);
 }
 
 igo.modulesStatusTask = function(grunt, modules, gitstatuscomplet){
@@ -520,7 +519,7 @@ igo.modulesStatusTask = function(grunt, modules, gitstatuscomplet){
     var iG = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!this.verifierModuleConfig(grunt, mod)){
+        if(!igo.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
@@ -549,7 +548,7 @@ igo.modulesCheckoutTask = function(grunt, modules, branche){
     var iG = 0;
     for (var key in modules) {
         var mod = modules[key];
-        if(!this.verifierModuleConfig(grunt, mod)){
+        if(!igo.verifierModuleConfig(grunt, mod)){
             continue;
         }
         if(grunt.file.isDir(mod.options.directory)){
