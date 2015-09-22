@@ -407,8 +407,9 @@ igo.init = function(serveur, repertoire){
         var modulesStr = grunt.file.read(modulesPath);
         var find = modulesStr.indexOf('[git]');
         if(find !== -1){
-            grunt.log.error("Le répertoire git dans "+modulesPath+" n'est pas défini.");
-             return false;
+            grunt.log.writeln("Aucun module de défini");
+            grunt.task.run(['default']);
+            return false;
         }
     }
     

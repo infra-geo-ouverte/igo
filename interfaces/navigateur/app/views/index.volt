@@ -10,6 +10,7 @@ and open the template in the editor.
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width"> 
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="icon" href="{{ view.ajouterBaseUri() }}images/quebec/favicon.ico" />
     </head>
     <body>  
     {{ content() }}
