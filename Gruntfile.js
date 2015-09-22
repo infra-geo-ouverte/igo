@@ -8,6 +8,13 @@ module.exports = function(grunt) {
 igo = {};
 
 igo.initConfigs = function(grunt){
+    if(!grunt.file.exists("configGrunt.json")) {
+        grunt.file.copy("configGrunt.exemple.json", "configGrunt.json");
+    } 
+    if(!grunt.file.exists("modules.json")) {
+        grunt.file.copy("modules.exemple.json", "modules.json");
+    } 
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         config: grunt.config.set('config', grunt.file.readJSON('configGrunt.json')),
@@ -364,28 +371,55 @@ igo.initTasks = function(grunt){
     //grunt-uncss
     //grunt-contrib-less
 
-    grunt.registerTask('default', ['build', 'cache']);
-    grunt.registerTask('init', ['default', 'modules:get', 'modules:init']);
+    grunt.registerTask('default', ['libs', 'build', 'cache']);
     grunt.registerTask('build', ['buildIgo', 'buildLibs']);
     grunt.registerTask('buildIgo', ['requirejs']);
     grunt.registerTask('buildLibs', ['shell:buildOpenLayers', 'uglify:LayerTreeBuilder', 'uglify:WMSBrowser', 'uglify:GeoExt', 'uglify:GeoExtDebug']);
     grunt.registerTask('cache', ['clean:cache', 'chmod:cacheDossier', 'chmod:cacheFichier']);
-    grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
+    grunt.registerTask('libs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('qUnit', ['shell:qUnit']);
     grunt.registerTask('notify', ['notify:watch']);
     grunt.registerTask('surveiller', ['watch:scripts']);
+    grunt.registerTask('gruntConfig', ['copy:gruntConfig']);
     //jsbeautifier et //jshint
 
     grunt.task.registerTask('modules', 'Gérer les modules', igo.modulesTask);
+    grunt.task.registerTask('init', 'Init igo', igo.init);
 
     grunt.task.run('notify_hooks');
 }
 
-igo.modulesTask = function(commande, nomModule, param3, modules){
+igo.init = function(serveur, repertoire){
+    var grunt = igo.globalGrunt;
+    var modulesPath = grunt.config.get('config').pathModules;
+
+    if(serveur){
+        var gitStr = serveur;
+        gitStr += repertoire ? ':' + repertoire : "";
+
+        var modulesStr = grunt.file.read(modulesPath);
+        modulesStr = modulesStr.replace('[git]' , gitStr);
+        grunt.file.write(modulesPath, modulesStr);
+
+        igo.initConfigs(grunt);
+    } else {
+        var modulesStr = grunt.file.read(modulesPath);
+        var find = modulesStr.indexOf('[git]');
+        if(find !== -1){
+            grunt.log.error("Le répertoire git dans "+modulesPath+" n'est pas défini.");
+             return false;
+        }
+    }
+    
+    grunt.task.run(['default', 'modules:get', 'modules:init']);
+} 
+
+
+igo.modulesTask = function(commande, nomModule, param3){
     var grunt = igo.globalGrunt;
 
-    modules = modules || grunt.config.get("modules");
+    var modules = grunt.config.get("modules");
     if(!modules){
         grunt.log.error("La liste des modules n'est pas définie");
         return false;
@@ -450,6 +484,7 @@ igo.modulesGetTask = function(grunt, modules){
 igo.modulesInitTask = function(grunt, modules){   
    igo.includeModules(grunt, modules);
    var i = 0;
+
    for (var key in modules) {
         var mod = modules[key];
         if(!igo.verifierModuleConfig(grunt, mod)){
