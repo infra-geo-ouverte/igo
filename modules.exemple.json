@@ -1,7 +1,7 @@
 {
 	"specifique": {
 	    "options": {
-			"repository": "", //.git
+			"repository": "[git]",
 			"branch": "master",
 			"directory": "modules/specifique/"
 	    }
