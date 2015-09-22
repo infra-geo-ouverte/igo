@@ -371,12 +371,12 @@ igo.initTasks = function(grunt){
     //grunt-uncss
     //grunt-contrib-less
 
-    grunt.registerTask('default', ['build', 'cache']);
+    grunt.registerTask('default', ['libs', 'build', 'cache']);
     grunt.registerTask('build', ['buildIgo', 'buildLibs']);
     grunt.registerTask('buildIgo', ['requirejs']);
     grunt.registerTask('buildLibs', ['shell:buildOpenLayers', 'uglify:LayerTreeBuilder', 'uglify:WMSBrowser', 'uglify:GeoExt', 'uglify:GeoExtDebug']);
     grunt.registerTask('cache', ['clean:cache', 'chmod:cacheDossier', 'chmod:cacheFichier']);
-    grunt.registerTask('telechargerLibs', ['shell:bowerinstall']);
+    grunt.registerTask('libs', ['shell:bowerinstall']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('qUnit', ['shell:qUnit']);
     grunt.registerTask('notify', ['notify:watch']);
