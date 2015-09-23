@@ -513,7 +513,7 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
     for (var i = 0, len = layers.length; i < len; i++) {
         var coucheIGO = layers[i];
         if (!coucheIGO._layer.printOptions) {
-            if (coucheIGO.options.visible && (coucheIGO.obtenirTypeClasse()==="Google" || coucheIGO.obtenirTypeClasse()==="OSM")){
+            if (coucheIGO.estActive() && (coucheIGO.obtenirTypeClasse()==="Google" || coucheIGO.obtenirTypeClasse()==="OSM")){
                 Aide.afficherMessage("Impression", 
                                     "Les couches Google et OpenStreetMap, ne sont pas disponible à l'impression pour des raisons de  droits d'utilisation.", 
                                     "OK", 
