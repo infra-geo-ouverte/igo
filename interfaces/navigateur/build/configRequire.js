@@ -19,6 +19,7 @@ require.config({
                 vecteurCluster: 'js/app/couche/protocole/vecteurCluster',
                 ligne: 'js/app/occurence/geometrie/ligne',
                 limites: 'js/app/occurence/geometrie/limites',
+                collection: 'js/app/occurence/geometrie/collection',
                 multiPoint: 'js/app/occurence/geometrie/multiPoint',
                 multiLigne: 'js/app/occurence/geometrie/multiLigne',
                 multiPolygone: 'js/app/occurence/geometrie/multiPolygone',
