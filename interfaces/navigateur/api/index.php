@@ -653,10 +653,10 @@ try {
         }
         
         $urlParse = parse_url($url);
-        if (!isset($urlParse['scheme']) || $urlParse['scheme']."://" != $protocole) { 
-            http_response_code(403);
-            die('Seul le protocole ('.$protocole.') est valide');
-        }
+        //if (!isset($urlParse['scheme']) || $urlParse['scheme']."://" != $protocole) { 
+        //    http_response_code(403);
+        //    die('Seul le protocole ('.$protocole.') est valide');
+        //}
 
         $encodage = isset($paramsPost['_encodage']) ? $paramsPost['_encodage'] : (isset($paramsGet['_encodage']) ? $paramsGet['_encodage'] : NULL); 
         if($encodage != NULL){
