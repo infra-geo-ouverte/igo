@@ -13,7 +13,7 @@
  * @requires aide
  * @requires evenement
  */
-define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLigne', 'multiPolygone', 'aide', 'evenement'], function(Limites, Style, Point, Ligne, Polygone, MultiPoint, MultiLigne, MultiPolygone, Aide, Evenement) {
+define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLigne', 'multiPolygone', 'collection', 'aide', 'evenement'], function(Limites, Style, Point, Ligne, Polygone, MultiPoint, MultiLigne, MultiPolygone, Collection, Aide, Evenement) {
     /** 
      * Création de l'object Occurence.
      * @constructor
@@ -677,6 +677,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         delete this.points;
         delete this.lignes;
         delete this.polygones;
+        delete this.geometries;
         delete this.gauche;
         delete this.droite;
         delete this.haut;
@@ -712,7 +713,10 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             } else if (geometrie.CLASS_NAME === "OpenLayers.Geometry.LineString" || geometrie.CLASS_NAME === "OpenLayers.Geometry.LinearRing") {
                 this.type = "Ligne";
                 geometrie = new Ligne(geometrie);
-            }
+            } else if (geometrie.CLASS_NAME === "OpenLayers.Geometry.Collection"){
+                this.type = "Collection";
+                geometrie = new Collection(geometrie);
+            } 
         } else if (geometrie._obtenirGeomOL) {
             var geomOL = geometrie._obtenirGeomOL();
             this._feature = new OpenLayers.Feature.Vector(geomOL);
@@ -755,6 +759,12 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
                 return new Polygone(this.lignes, this.obtenirProjection());
             case "MultiPolygone":
                 return new MultiPolygone(this.polygones, this.obtenirProjection());
+            case "MultiLignes":
+                return new MultiLignes(this.lignes, this.obtenirProjection());
+            case "MultiPoints":
+                return new MultiPoints(this.points, this.obtenirProjection());
+            case "Collection":
+                return new Collection(this.geometries, this.obtenirProjection());
             case "Limites":
                 return new Limites(this.gauche, this.bas, this.droite, this.haut);
             default:
