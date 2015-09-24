@@ -23,7 +23,10 @@ jQuery(document).ready(function($){
     }
 
     function majTooltip(){
-        $('section table [data-toggle="tooltip"]').tooltip({placement:'right'});
+        $('section table [data-toggle="tooltip"]').tooltip({
+            placement:'right',
+            html:true
+        });
     }
 
     function majTexteNbContextesRegeneres(){

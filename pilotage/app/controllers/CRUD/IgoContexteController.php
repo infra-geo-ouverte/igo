@@ -389,18 +389,19 @@ class IgoContexteController extends ControllerBase {
     */
     function regenererAction(){
 
-        $request = new Request();
+        $request = $this->getDI()->get('request');
+        $response = $this->getDI()->get('response');
+
+        $response->setHeader("Content-Type", "application/json");
+        $response->setContentType('text/plain', 'UTF-8');
 
         //Appel en get
         if(!$request->isPost()){
-
-            $response = new Phalcon\Http\Response();
             $response->setStatusCode(500, "Error");
-            $response->setHeader("Content-Type", "application/json");
             $erreur = new stdClass();
             $erreur->erreur = "Cette requête doit être faite en post.";
-            $response->setContent(json_encode($erreur));
-            return $response;
+            $response->setJsonContent($erreur);
+            return $response->send();
         }
 
         $contexteId = $request->get('id');
@@ -409,38 +410,33 @@ class IgoContexteController extends ControllerBase {
 
         //Le contexte n'existe pas
         if(!$igoContexte){
-            $response = new Response();
             $response->setStatusCode(500, "Error");
-            $response->setHeader("Content-Type", "application/json");
             $erreur = new stdClass();
             $erreur->erreur = "Contexte non trouvé.";
-            $response->setContent(json_encode($erreur));
-            return $response;
+            $response->setJsonContent($erreur);
+            return $response->send();
         }
 
         //Erreur lors de la sauvegarde
         if(!$igoContexte->save()){
-            $msgErreur = '';
+            $msgErreurs = array();
+           
             foreach ($igoContexte->getMessages() as $erreur) {
-                $msgErreur .= $erreur->getMessage();
+                $msgErreurs[] = $erreur->getMessage();
             }
 
-            $response = new Response();
             $response->setStatusCode(500, "Error");
-            $response->setHeader("Content-Type", "application/json");
             $erreur = new stdClass();
-            $erreur->erreur = $msgErreur;
-            $response->setContent(json_encode($erreur));
-            return $response;
+            $erreur->erreur = implode('<br>', $msgErreurs);
+            $response->setJsonContent($erreur);
+            return $response->send();
         } 
 
-        $response = new Response();
         $response->setStatusCode(200, "OK");
-        $response->setHeader("Content-Type", "application/json");
         $ok = new stdClass();
         $ok->date_maj = $igoContexte->date_modif;
-        $response->setContent(json_encode($ok));
-        return $response;
+        $response->setJsonContent($ok);
+        return $response->send();
 
     }
 
