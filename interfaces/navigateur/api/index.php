@@ -547,6 +547,7 @@ try {
             $igoContexte = IgoContexte::findFirstById($contexteId);
 
             //TODO S'assurer que le mapfile du contexte existe
+            $igoContexte->creerMapfileSiExistePas();
 
             $method = $httprequest->getMethod();
             $data = $httprequest->get();
@@ -724,6 +725,7 @@ try {
         $config = $app->getDI()->get("config");
 
         $method = $_SERVER['REQUEST_METHOD'];
+
         if($method !== "GET" && $method !== "POST"){
             http_response_code(405);
             die("Seules les méthodes POST ou GET sont autorisées");
@@ -764,12 +766,9 @@ try {
             die("Vous n'avez pas les droits pour ce service.");
         }     
 
-        $protocole = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://';
         if(isset($url) && is_string($url) && $url !== ""){
-            
             if(substr($url, 0, 1) === "/"){
-                
-                $url = $protocole."localhost".$url;
+                $url = "http://localhost".$url;
             }
         } else {
             http_response_code(403);
@@ -777,9 +776,9 @@ try {
         }
 
         $urlParse = parse_url($url);
-        if (!isset($urlParse['scheme']) || $urlParse['scheme']."://" != $protocole) {
+        if (!isset($urlParse['scheme']) || ($urlParse['scheme'] !== 'http' && $urlParse['scheme'] !== 'https')) {
             http_response_code(403);
-            die('Seul le protocole ('.$protocole.') est valide');
+            die('Seuls les protocole http et https sont valides');
         }
 
         $encodage = isset($paramsPost['_encodage']) ? $paramsPost['_encodage'] : (isset($paramsGet['_encodage']) ? $paramsGet['_encodage'] : NULL);

@@ -41,6 +41,10 @@ $di->set('view', function () use ($config) {
     $view = new igoView();
     $view->config = $config;
 
+    if(isset($config->mapserver) && isset($config->mapserver->host)){
+        $view->host = $config->mapserver->host;
+    }
+
     $view->viewsDir=$config->application->navigateur->viewsDir;
     
     $view->setViewsDir($config->application->navigateur->viewsDir);
