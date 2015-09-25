@@ -40,10 +40,27 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: Aide.obtenirCheminRacine()+'images/toolbar/gps_down.png',
-            infobulle: "Importer un fichier géométrique"
+            infobulle: "Importer un fichier géométrique",
+            format :[
+                        ['csv', 'CSV', 'csv'],
+                        //['DGN', 'dgn'],
+                        //['DXF', 'dxf'],
+                        ['ESRI Shapefile', 'ESRI Shapefile', 'zip'],
+                        //['GEOCONCEPT', 'Geoconcept'],
+                        ['geojson', 'GeoJSON', 'geojson'],
+                        ['georss', 'GeoRSS', 'georss'],
+                        ['gml', 'GML', 'gml'],
+                       // ['GMT', 'GMT'],
+                        ['gpx', 'GPX', 'gpx'],
+                        ['kml', 'KML', 'kml'],
+                        //['MapInfo File', 'MapInfo File'],
+                       // ['TIGER', 'TIGER'],
+                        ['pgdump', 'PGDump', 'sql']
+                        //['VRT', 'VRT']       
+                        ]
         });
     };
-
+     
     OutilImportFichier.prototype = new Outil();
     OutilImportFichier.prototype.constructor = OutilImportFichier;
     
@@ -69,6 +86,21 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                Aide.afficherMessage("Erreur", "Le service de conversion n'est pas disponible.");
             }
         });
+        
+        var formatSupporte = new Array();
+        
+        if(this.options.formatSupporte){
+            $.each(this.options.formatSupporte, function (index, value) {
+                $.each(that.defautOptions.format, function (index2, value2){
+                    if(value2.indexOf(value)>-1){
+                        formatSupporte.push(value2);
+                    }
+                });
+            });
+        }else{
+            formatSupporte = this.defautOptions.format;
+        }
+        this.options.format = formatSupporte;
         
         this.ouiNonStore = new Ext.data.SimpleStore({
             fields: ['value', 'text'],
@@ -119,6 +151,18 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             
                             var extension = fileInput.split(".")[fileInput.split(".").length-1].toLowerCase();
                             
+                            var formatSupporte = false;
+                            $.each(that.options.formatSupporte, function(index, value){
+                                if(value.indexOf(extension)>-1){
+                                    formatSupporte = true;
+                                    return true;
+                                }
+                            });
+                            if(!formatSupporte){
+                                Aide.afficherMessage("Erreur", "Le service ne supporte pas ce type de format.");
+                                return false;
+                            }
+                                                   
                             if(that.listeFichierLatLon.indexOf(extension) === -1){
                                 this.ownerCt.form.findField("sourceSrs").show();
                             }
@@ -256,7 +300,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                //Projection de la carte
                                 //data.append("targetSrs", that.projection);
                                 data.append("targetSrs", "EPSG:4326");
-                                
+                                                               
                                 //type de ficheir voulu
                                 data.append("formatOutput", "GEOJSON");
                                 
@@ -341,8 +385,14 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     var coordPrec = "";
                     var coordIndexToPop = new Array();
                     $.each(feat.geometry.coordinates, function(ind, coord){                   
+                    //Si égale à la coordonnée précédente
                         if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
                             coordIndexToPop.push(ind);
+                    }else{
+                        //Sinon si coordonnée à 3dimensions, on retire la dimension "z"
+                        if(coord.length === 3) {
+                            coord.pop();
+                        }
                         }                 
                         coordPrec = coord;    
                     });
