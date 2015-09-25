@@ -409,7 +409,7 @@ igo.init = function(serveur, repertoire){
         if(find !== -1){
             grunt.log.writeln("Aucun module de défini");
             grunt.task.run(['default']);
-            return false;
+            return true;
         }
     }
     
