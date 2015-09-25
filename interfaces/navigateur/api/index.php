@@ -189,7 +189,7 @@ try {
         $error = new stdClass();
         $error->error = $msgErreur;
         $app->response->send();
-        die(htmlspecialchars(json_encode($error)));      
+        die(json_encode($error));      
     }
 
     /**
