@@ -1,16 +1,17 @@
 <?php
-class IgoController extends ControllerBase
-{
+
+class IgoController extends ControllerBase {
+
     public function indexAction() {
         $this->definirVariablesCommunes();
         $this->traiterXml('defaut');
     }
-    
+
     public function configurationAction($configuration) {
         $this->definirVariablesCommunes();
         $this->traiterXml($configuration);    
     }
-    
+
     public function contexteAction($code) {
         $this->definirVariablesCommunes();
         $this->traiterXml('defaut');
@@ -25,9 +26,9 @@ class IgoController extends ControllerBase
 
         $this->view->setVar("contexteCode", "null");
         $this->view->setVar("contexteId", "null");
-        if($contexte){
-            $this->view->setVar("contexte".ucfirst($type), $code . "?v=" . md5($contexte->date_modif));
-        }else {
+        if ($contexte) {
+            $this->view->setVar("contexte" . ucfirst($type), $code . "?v=" . md5($contexte->date_modif));
+        } else {
             $this->view->setVar("avertissement", "Le contexte avec le $type:$code n'existe pas");
         }
     }
@@ -43,28 +44,28 @@ class IgoController extends ControllerBase
         };
                 
         $arrayCoucheId = array_filter(explode(",",$id), $filterArray);    
-            
+
         $couches = array();
         foreach ($arrayCoucheId as $key => $value) {
             $couche = IgoCouche::findFirst("id=$value");
-           
-            if($couche === false){
+
+            if ($couche === false) {
                 continue;
             }
-           
+
             $couches[] = $couche;
         }
 
-        if(count($couches)>=1){
+        if (count($couches) >= 1) {
             $this->view->setVar("couche", implode(',', $arrayCoucheId) . "?v=" . md5(rand(1000, 9999999)));
-        }else {
-            $this->view->setVar("avertissement", "Aucune couche n'a été trouvée avec le(s) id(s) suivant :".implode(";", $arrayCoucheId));
-            $this->view->setVar("couche", "null"); 
+        } else {
+            $this->view->setVar("avertissement", "Aucune couche n'a été trouvée avec le(s) id(s) suivant :" . implode(";", $arrayCoucheId));
+            $this->view->setVar("couche", "null");
         }
         $this->ajouterModules();
     }
     
-     public function groupeAction($id) {
+    public function groupeAction($id) {
         $this->definirVariablesCommunes();
         $this->traiterXml('defaut');
 
@@ -79,34 +80,33 @@ class IgoController extends ControllerBase
         $couches = array();
         foreach ($arrayGroupeCoucheId as $key => $value) {
             $couche = IgoGroupeCouche::find("groupe_id=$value");
-           
-            if(count($couche)==0){
+
+            if (count($couche) == 0) {
                 continue;
             }
-         
-            foreach($couche as $value){
-                if(is_numeric($value->couche_id)){
+
+            foreach ($couche as $value) {
+                if (is_numeric($value->couche_id)) {
                     $couches[] = $value->couche_id;
-                }
-                else{
+                } else {
                     $this->dispatcher->forward(array(
                         "controller" => "error",
                         "action" => "error404"
                     ));
                     return;
-                }                                
+                }
             }
         }
 
         if(count($couches)>=1){
             $this->view->setVar("couche", implode(',', $couches) . "?v=" . md5(rand(1000, 9999999)));
-        }else {
-            $this->view->setVar("avertissement", "Aucun groupe n'a été trouvé avec le(s) id(s) suivant :".implode(";", $arrayGroupeCoucheId));
-            $this->view->setVar("couche", "null"); 
+        } else {
+            $this->view->setVar("avertissement", "Aucun groupe n'a été trouvé avec le(s) id(s) suivant :" . implode(";", $arrayGroupeCoucheId));
+            $this->view->setVar("couche", "null");
         }
         $this->ajouterModules();
     }
-    
+  
     private function traiterXml($nomXml){
         if(isset($this->getDi()->getConfig()->configurations[$nomXml])){
             $xmlPath = $this->getDi()->getConfig()->configurations[$nomXml];
@@ -227,19 +227,19 @@ class IgoController extends ControllerBase
     private function definirVariablesCommunes(){
         $this->view->setVar("version", $this->config->application->version);
         $this->view->setVar("apps", "js/app");
-        $this->view->setVar("widgets", "js/widgets");    
+        $this->view->setVar("widgets", "js/widgets");
         $configClient = $this->config->navigateur;
         $configClient->uri = $this->config->uri;
         $this->view->setVar("configClient", $configClient);
-        
+
         global $application;
         $libelleProfil = '';
         $user = '';
         $count = 0;
-        $application->getDI()->getSession()->set('page','../'.$application->getDi()['router']->getRewriteUri());
+        $application->getDI()->getSession()->set('page', '../' . $application->getDi()['router']->getRewriteUri());
 
-        if($application->getDI()->getSession()->has("info_utilisateur")){
-            if($application->getDI()->getSession()->get("info_utilisateur")->identifiant){
+        if ($application->getDI()->getSession()->has("info_utilisateur")) {
+            if ($application->getDI()->getSession()->get("info_utilisateur")->identifiant) {
                 $user = $application->getDI()->getSession()->get("info_utilisateur")->identifiant;
             }
             $idProfil = $application->getDI()->getSession()->get("info_utilisateur")->profilActif;
@@ -255,35 +255,34 @@ class IgoController extends ControllerBase
                 }
             }
         }
-        $this->view->setVar("profil", $libelleProfil);   
-        $this->view->setVar("utilisateur", $user);   
-        $this->view->setVar("nbProfil", $count);   
-        
-        if(($this->request->get('url')||$this->request->get('URL'))){
-                       
+        $this->view->setVar("profil", $libelleProfil);
+        $this->view->setVar("utilisateur", $user);
+        $this->view->setVar("nbProfil", $count);
+
+        if (($this->request->get('url') || $this->request->get('URL'))) {
+
             $filter = new \Phalcon\Filter();
             $filter->add('url', function($value) {
                 filter_var($value, FILTER_SANITIZE_URL);
             });
-            
-            $url = $this->request->get('url')?$this->request->get('url'):$this->request->get('URL');
-            $layers = $this->request->get('layers')?$this->request->get('layers','string'):$this->request->get('LAYERS','string');
-            
-            if($layers==null && strrpos($url, 'layers')!==false ){
-                $layers = substr($url, strrpos($url, 'layers')+7);
-                $url = substr($url,0, strrpos($url, 'layers')); 
+
+            $url = $this->request->get('url') ? $this->request->get('url') : $this->request->get('URL');
+            $layers = $this->request->get('layers') ? $this->request->get('layers', 'string') : $this->request->get('LAYERS', 'string');
+
+            if ($layers == null && strrpos($url, 'layers') !== false) {
+                $layers = substr($url, strrpos($url, 'layers') + 7);
+                $url = substr($url, 0, strrpos($url, 'layers'));
             }
-            
-            if($layers==null && strrpos($url, 'LAYERS')!==false){
-                $layers = substr($url, strrpos($url, 'LAYERS')+7);
-                $url = substr($url,0, strrpos($url, 'LAYERS'));
+
+            if ($layers == null && strrpos($url, 'LAYERS') !== false) {
+                $layers = substr($url, strrpos($url, 'LAYERS') + 7);
+                $url = substr($url, 0, strrpos($url, 'LAYERS'));
             }
-            
-            $filter->sanitize($url,'url');
-            $active = $layers==null?'false':'true';
-                        
-            $fonctionCallback = 
-                "function(e){
+
+            $filter->sanitize($url, 'url');
+            $active = $layers == null ? 'false' : 'true';
+
+            $fonctionCallback = "function(e){
                     var coucheWMS = new Igo.Couches.WMS(
                         {
                             url:'{$url}', 
@@ -295,10 +294,9 @@ class IgoController extends ControllerBase
                     );
                     Igo.nav.carte.gestionCouches.ajouterCouche(coucheWMS);
                 };";
-        
+
             $this->view->setVar("callbackInitIGO", $fonctionCallback);
-        }   
-        else{
+        } else {
             $this->view->setVar("callbackInitIGO", 'null');
         }
     }    
@@ -324,20 +322,24 @@ class IgoController extends ControllerBase
             include($fct);    
         }
     }
-    
+
     /*
      * vérifie si URL ou nom du service est permis selon config.php.
-     * retour false ou l'url permis
      */
     public function verifierPermis($szUrl, $restService=false){
-       
+        return obtenirPermisUrl($szUrl, $restService) !== false;
+    }
+
+    public function obtenirPermisUrl($szUrl, $restService=false){
         //vérifier URL 
         //Services
         $url = "";
+
         $serviceRep = array(
-            "url"  => "",
+            "url" => "",
             "test" => false
         );
+
         $session = $this->getDI()->getSession();
         
         if($session->has("info_utilisateur") && isset($this->config['permissions'])) {
@@ -346,7 +348,7 @@ class IgoController extends ControllerBase
                 $serviceExtUser = $this->config->permissions[$session->info_utilisateur->identifiant]->servicesExternes;
                 $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtUser, $restService);
             }
-               
+
             //profils
             if($serviceRep["test"] === false && isset($session->info_utilisateur->profils)){
                 $test = false;
@@ -359,7 +361,7 @@ class IgoController extends ControllerBase
                             $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $serviceExtProfil, $restService);
                             if($serviceRep["test"] !== false){                        
                                 $test = true;
-                                if($serviceRep["url"] !== false){
+                                if ($serviceRep["url"] !== false) {
                                     break;
                                 }
                             }
@@ -369,43 +371,61 @@ class IgoController extends ControllerBase
                  
                 $serviceRep["test"] = $test;
             }
-        } else if(!$session->has("info_utilisateur")){
+        } else if (!$session->has("info_utilisateur")) {
             return false;
         }
-       
+
         //general
-        if(($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
+        if (($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
             $servicesExternes = $this->config['servicesExternes'];
             $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes, $restService);
         }
-        
-        if(($serviceRep["url"] === false)||($serviceRep["test"]===false)){
+
+        if (($serviceRep["url"] === false) || ($serviceRep["test"] === false)) {
             return false;
         }
 
-        if ($serviceRep["test"] === true && $serviceRep["url"] === ""){
-            $szUrl = $szUrl;
-        } else {
-            $szUrl = $serviceRep["url"];
-        }
-        
-        return $szUrl;
-    }
-    
-    private function verifieDomaineRegexFunc($service, $arrayRegex) {
-        $trustedDom = array();
-        foreach ($arrayRegex as $regex){
-            if($regex[0] === '#' || $regex[0] === '/') {
-                $trustedDom[] = $regex;
-            } else if($regex[0] === "*"){
-                $trustedDom[] = "#(.)+#";
+        if ($serviceRep["test"] === true && $serviceRep["url"] === "") {
+            if(is_object($serviceRep["regex"])){
+                $serviceRep["regex"]["url"] = $szUrl;
+                $szUrl = (array) $serviceRep["regex"];
             } else {
-                $trustedDom[] = '#'.preg_quote($regex, '#').'#';
+                $szUrl = array("url" => $szUrl);
+            }
+        } else {
+            if(is_object($serviceRep["url"])){
+                $szUrl = (array) $serviceRep["url"];  
+                if(!isset($szUrl['url'])){
+                    $szUrl['url'] = $szUrl[0];
+                }  
+            } else {
+                $szUrl = array("url" => $serviceRep["url"]);    
             }
         }
-        $test = preg_replace($trustedDom, 'ok', $service);
 
-        return $test==="ok";
+        return $szUrl;
+    }
+
+    private function verifieDomaineRegexFunc($service, $arrayRegex) {
+        foreach ($arrayRegex as $regex) {
+            if ($regex[0] === '#' || $regex[0] === '/') {
+                $trustedDom = $regex;
+            } else if ($regex[0] === "*") {
+                $trustedDom = "#(.)+#";
+            } else if (is_array([$regex])) {
+                if(!isset($regex['url'])){
+                    $regex['url'] = $regex[0];
+                }
+                $trustedDom = $regex['url'];
+            } else {
+                $trustedDom = '#' . preg_quote($regex, '#') . '#';
+            }
+            if(preg_replace($trustedDom, 'ok', $service) === "ok"){
+                return $regex;
+            }
+        }
+
+        return false;
     }
     
     private function verifieDomaineFunc($serviceRep, $service, $arrayServicesExternes, $restService){
@@ -415,16 +435,19 @@ class IgoController extends ControllerBase
             $serviceRep["test"] = true;
         } else {
             $serviceArray = explode("?", $service);
-            $serviceSplit = $serviceArray[0];   
-            if(isset($arrayServicesExternes['regexInterdits'])){
-                $serviceRep["test"] = self::verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regexInterdits']);
+            $serviceSplit = $serviceArray[0];
+            if (isset($arrayServicesExternes['regexInterdits'])) {
+                $serviceRep["test"] = self::verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regexInterdits']) !== false;
             }
-            if($serviceRep["test"] === true){
+            if ($serviceRep["test"] === true) {
                 $serviceRep["url"] = false;
-            } else if(isset($arrayServicesExternes['regex']) && (strpos($serviceSplit,'/') !== false)) {
-                $serviceRep["test"] = self::verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regex']);
+            } else if (isset($arrayServicesExternes['regex']) && (strpos($serviceSplit, '/') !== false)) {
+                $serviceRep['regex'] = self::verifieDomaineRegexFunc($serviceSplit, $arrayServicesExternes['regex']);
+                $serviceRep["test"] = $serviceRep['regex'] !== false;
             }
-        } 
+        }
+
         return $serviceRep;
     }
+
 }
