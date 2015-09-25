@@ -7,7 +7,7 @@ try {
     include __DIR__ . "/../app/config/services.php";
 
     include $config->application->services->dir . "fonctions.php";
-    
+
     $app = new \Phalcon\Mvc\Micro();
     $app->setDI($di);
 
@@ -727,6 +727,7 @@ try {
         $method = $_SERVER['REQUEST_METHOD'];
 
         if($method !== "GET" && $method !== "POST"){
+            header('Content-Type: text/html; charset=utf-8');
             http_response_code(405);
             die("Seules les méthodes POST ou GET sont autorisées");
         }
@@ -754,17 +755,51 @@ try {
         //Session
         $session = $app->getDI()->getSession();
         if(!$session->has("info_utilisateur")){
+            header('Content-Type: text/html; charset=utf-8');
             http_response_code(401);
             die("Vous devez être connecté pour utiliser ce service");
         }
         
         //Services       
         $igoController = new IgoController();
-        $url = $igoController->verifierPermis($service, $restService);
-        if($url === false){
+
+        $permisUrl = $igoController->obtenirPermisUrl($service, $restService);
+        
+        if($permisUrl === false){
             http_response_code(403);
             die("Vous n'avez pas les droits pour ce service.");
-        }     
+        } 
+
+        $url = $permisUrl['url'];
+
+       //Decrypter la chaine de connexion
+        if (!empty($permisUrl['connexion']) || !empty($permisUrl['user'])) {
+            $auth = array();
+            if(!empty($permisUrl['user'])) {
+                $auth['user'] = $permisUrl['user']; 
+            }
+            if(!empty($permisUrl['pass'])) {
+                $auth['pass'] = $permisUrl['pass']; 
+            }
+            if(!empty($permisUrl['methode'])) {
+                $auth['method'] = $permisUrl['methode']; 
+            }
+
+            if(!empty($permisUrl['connexion'])){
+                $crypt = $app->getDI()->get("crypt");
+                $chaine = explode(",", $crypt->decryptBase64(urldecode($permisUrl['connexion'])));
+                $auth['user'] = ltrim($chaine[0], " user:");
+                $auth['pass'] = ltrim($chaine[1], " pass:");
+                if (empty($auth['pass'])) {
+                    header('Content-Type: text/html; charset=utf-8');
+                    http_response_code(401);
+                    die("Votre clé n'est pas décryptée correctement.");
+                }
+            }
+
+            $authtmp['auth'] = $auth;
+            $options = array_merge($options, $authtmp);
+        }
 
         if(isset($url) && is_string($url) && $url !== ""){
             if(substr($url, 0, 1) === "/"){
@@ -907,9 +942,47 @@ try {
 
         }
 
+        if (($method === 'POST') && isset($_SERVER['HTTP_SOAPACTION']) && isset($_SERVER['CONTENT_TYPE'])) {
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $GLOBALS['HTTP_RAW_POST_DATA']);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:' . $_SERVER['CONTENT_TYPE'],
+                'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
+        }
+
+        if (!empty($options['auth'])) {
+            $auth = $options['auth'];
+            if (isset($auth['method']) && isset($auth['user']) && isset($auth['pass'])) {
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+                switch ($auth['method']) {
+                    case "BASIC":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                        break;
+                    case "NTLM":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
+                        break;
+                    case "GSSNEGOTIATE":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);
+                        break;
+                    case "DIGEST":
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
+                        break;
+                    default:
+                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+                        break;
+                }
+
+                curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ':' . $auth['pass']);
+            }
+        }
+
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+     
         curl_close ($ch);
 
        if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)){
