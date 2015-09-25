@@ -1,5 +1,5 @@
 {{ content() }}
-{% if preview%}<pre  ID="copytext" style="text-align: left;">{% endif %}
+{% if preview%}<pre  id="copytext" style="text-align: left;">{% endif %}
 MAP
     #DEBUG 5
     #INCLUDE "../include/ec/ec_map.map"  
@@ -15,7 +15,7 @@ MAP
            "wms_abstract"               ""
            "wms_description"            "{{ contexte['description'] }}"
            "wms_keywordlist"            ""
-            {% if contexte['generer_onlineresource'] == true %}
+           {% if contexte['generer_onlineresource'] == true %}
            "wms_onlineresource"         "{{ contexte['wms_onlineresource'] }}"
            {% endif %}
         END
@@ -39,7 +39,7 @@ MAP
 			ANTIALIAS TRUE
 		END
     END
-    		{{ contexte['mf_map_def']}} 
+    {{ contexte['mf_map_def']}} 
 
 {% for couche in contexteCouches %}
     

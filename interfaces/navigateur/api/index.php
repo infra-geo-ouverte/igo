@@ -520,6 +520,7 @@ try {
             $igoContexte = IgoContexte::findFirstById($contexteId);
 
             //TODO S'assurer que le mapfile du contexte existe
+            $igoContexte->creerMapfileSiExistePas();
 
             $method = $httprequest->getMethod();
             $data = $httprequest->get();
@@ -698,6 +699,7 @@ try {
         $config = $app->getDI()->get("config");
 
         $method = $_SERVER['REQUEST_METHOD'];
+
         if($method !== "GET" && $method !== "POST"){
             http_response_code(405);
             die("Seules les méthodes POST ou GET sont autorisées");

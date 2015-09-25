@@ -2,6 +2,7 @@
 <html>
     <head>
 
+        <!-- todo utiliser le gestionnaire de "assets" de Phalcon -->
         {{ javascript_include("js/jquery-1.11.0.js") }}
         {{ javascript_include("/igo/librairie/jquery-ui/jquery-ui.min.js", false) }}
         {{ javascript_include("js/bootstrap.js") }}
@@ -20,6 +21,7 @@
         {{ stylesheet_link("css/arborescence/tree.css") }}
         {{ stylesheet_link("css/datepicker.css") }}
 
+        <?php $this->assets->outputJs(); ?>
         <title> IGO - Gestion des métadonnées</title>
     </head>
     <body class="action-<?php echo $this->dispatcher->getActionName();?> <?php echo $this->view->getControllerName();?>">
