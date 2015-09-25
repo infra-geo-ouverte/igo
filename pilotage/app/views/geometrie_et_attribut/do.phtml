@@ -1,0 +1,6 @@
+  <?php echo $this->getContent(); ?>
+
+<?php  echo $this->view->includeCTL("igo_classe_entite","search?id=".$classe_entite_id); ?>
+<?php  echo $this->view->includeCTL("igo_geometrie","search?id=".$id); ?>
+<?php  echo $this->view->includeFrame($baseUri."/igo_attribut","search?geometrie_id=".$id); ?>
+
