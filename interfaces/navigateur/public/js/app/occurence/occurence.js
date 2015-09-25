@@ -759,28 +759,32 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @returns {Geometrie} Géométrie de l'occurence
      */
     Occurence.prototype._obtenirGeometrie = function() {
-        switch (this.obtenirTypeGeometrie()) {
-            case "Point":
-                return new Point(this.x, this.y, this.obtenirProjection());
-            case "Ligne":
-                return new Ligne(this.points, this.obtenirProjection());
-            case "Polygone":
-                return new Polygone(this.lignes, this.obtenirProjection());
-            case "MultiPolygone":
-                return new MultiPolygone(this.polygones, this.obtenirProjection());
-            case "MultiLignes":
-                return new MultiLignes(this.lignes, this.obtenirProjection());
-            case "MultiPoints":
-                return new MultiPoints(this.points, this.obtenirProjection());
-            case "Collection":
-                return new Collection(this.geometries, this.obtenirProjection());
-            case "Limites":
-                return new Limites(this.gauche, this.bas, this.droite, this.haut);
-            default:
-                return undefined;
+        try {
+            switch (this.obtenirTypeGeometrie()) {
+                case "Point":
+                    return new Point(this.x, this.y, this.obtenirProjection());
+                case "Ligne":
+                    return new Ligne(this.points, this.obtenirProjection());
+                case "Polygone":
+                    return new Polygone(this.lignes, this.obtenirProjection());
+                case "MultiPolygone":
+                    return new MultiPolygone(this.polygones, this.obtenirProjection());
+                case "MultiLignes":
+                    return new MultiLignes(this.lignes, this.obtenirProjection());
+                case "MultiPoints":
+                    return new MultiPoints(this.points, this.obtenirProjection());
+                case "Collection":
+                    return new Collection(this.geometries, this.obtenirProjection());
+                case "Limites":
+                    return new Limites(this.gauche, this.bas, this.droite, this.haut);
+                default:
+                    return undefined;
+            }
+        } catch(e){
+            return undefined;
         }
     };
-
+    
     /** 
      * Mise à jour de la géométrie de l'occurence
      * @method
