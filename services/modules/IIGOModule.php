@@ -59,9 +59,10 @@ interface IIGOModule {
 	public function obtenirConfiguration();
 
     /**
-	 * Retour la liste de tous les services inclus par le module avec le type défini.
+	 * Retour la liste de tous les services inclus par le module qui implémente l'interface spécifiée
 	 *
+	 * @param  string $interface L'interface dont doit implémenter les classes de services à être obtenue
 	 * @return array
 	 */
-	public function obtenirServices($type);
+	public function obtenirServices($interface);
 }
