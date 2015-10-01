@@ -37,7 +37,7 @@ try {
         }
 
         if(!file_exists ($xmlPath) && !curl_url_exists($xmlPath)){
-            envoyerResponse(404, "Not Found", "La configuration '{$configuration}' n'existe pas!");                    
+            return envoyerResponse(404, "Not Found", "La configuration '{$configuration}' n'existe pas!");                    
         }
 
         if($encoding === "json"){
@@ -134,10 +134,10 @@ try {
                 echo json_encode($element);               
             
             }else{
-                envoyerResponse(404, "Not Found", "L'élément racine du fichier de configuration doit se nommer 'navigateur' !");
+                return envoyerResponse(404, "Not Found", "L'élément racine du fichier de configuration doit se nommer 'navigateur' !");
             }                
         }else{       
-            envoyerResponse(404, "Not Found", "L'encodage '{$encoding}' n'est pas supporté!");
+            return envoyerResponse(404, "Not Found", "L'encodage '{$encoding}' n'est pas supporté!");
         }
     });
 
@@ -150,7 +150,7 @@ try {
         global $app;
         $igoContexte = IgoContexte::findFirst("id={$contexteId}");
         if(!$igoContexte){
-            envoyerResponse(404, "Not Found", "Le contexte '{$contexteId}' n'existe pas!");  
+            return envoyerResponse(404, "Not Found", "Le contexte '{$contexteId}' n'existe pas!");  
         }
         return $igoContexte;
     }
@@ -164,7 +164,7 @@ try {
         global $app;
         $igoContexte = IgoContexte::findFirst("code='{$contexteCode}'");
         if(!$igoContexte){
-            envoyerResponse(404, "Not Found", "Le contexte '{$contexteCode}' n'existe pas!");     
+            return envoyerResponse(404, "Not Found", "Le contexte '{$contexteCode}' n'existe pas!");     
         }
         return $igoContexte;
     }
@@ -188,8 +188,11 @@ try {
         $app->response->setStatusCode($statusCode, $titre);
         $error = new stdClass();
         $error->error = $msgErreur;
-        $app->response->send();
-        die(json_encode($error));      
+
+        $app->response->setContentType('application/json', 'UTF-8');
+        $app->response->setContent(json_encode($error));
+
+        return $app->response->send();    
     }
 
     /**
@@ -206,7 +209,7 @@ try {
         }
 
         if(!utilisateurActuelEstAuthentifie() && !utilisateurActuelEstAnonyme()){
-            envoyerResponse(401, "Unauthorized", "Vous n'êtes pas authentifié!");
+            return envoyerResponse(401, "Unauthorized", "Vous n'êtes pas authentifié!");
         }
         return $authentificationModule;
     }  
@@ -1014,11 +1017,7 @@ try {
     }
 
     $app->notFound(function () use ($app) {
-        $app->response->setStatusCode(404, "Not Found");
-        $errorNotFound = new stdClass();
-        $errorNotFound->error = "Not Found";
-        $errorNotFound->errorCode = "404";
-        die(json_encode($errorNotFound));
+        return envoyerResponse(404, "Not Found", "Not Found");
     });
 
     $app->handle();
