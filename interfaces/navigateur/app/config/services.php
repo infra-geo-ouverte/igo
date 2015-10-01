@@ -45,6 +45,7 @@ $di->set('view', function () use ($config) {
     if(isset($config->application->pilotage)){
         //vraiment utile?
         $view->metadonneesViewsDir=$config->application->pilotage->viewsDir;
+        $view->host = $config->mapserver->host;
     }
     $view->viewsDir=$config->application->navigateur->viewsDir;
    // $view->mapserver_path=$config->mapserver->url;

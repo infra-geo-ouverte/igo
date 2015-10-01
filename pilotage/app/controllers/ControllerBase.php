@@ -27,7 +27,7 @@ class ControllerBase extends Controller {
         $this->r_parameters =  (isset($_POST['r_parameters'])) ? $_POST['r_parameters'] : $r_parameters;
     }
 
-    public function indexAction($r_controller = null, $r_action = null, $r_id = null) {
+    function indexAction($r_controller = null, $r_action = null, $r_id = null) {
         $parameters = $this->persistent->parameters;
         if (is_array($parameters)) {
             foreach ($parameters as $parameter => $val) {
@@ -47,14 +47,14 @@ class ControllerBase extends Controller {
         $this->view->setVar("retour", $retour);
     }
 
-    public function searchAllAction($parameters = null) {
+    function searchAllAction($parameters = null) {
         $this->persistent->parameters = null;
         $this->searchAction($parameters);
 
         $this->view->pick($this->ctlName . "/search");
     }
 
-    public function searchAction($parameters = null) {
+    function searchAction($parameters = null) {
 
         $this->view->setVar("filter", $parameters);
 
@@ -132,7 +132,7 @@ class ControllerBase extends Controller {
 
     }
 
-    public function getSearchParameters($parameters, $className) {
+    function getSearchParameters($parameters, $className) {
         if (is_null($parameters) || (!is_array($parameters) && is_callable($parameters))) {
             $criteres = array();
             foreach (get_class_vars($className) as $prop => $val) {
@@ -181,7 +181,7 @@ class ControllerBase extends Controller {
         return $parameters;
     }
 
-    public function newAction($r_controller = null, $r_action = null, $r_id = null) {
+    function newAction($r_controller = null, $r_action = null, $r_id = null) {
         $retour = "";
         if (!is_null($r_action)) {
             $retour = $r_controller . "/" . $r_action . "/" . $r_id;
@@ -200,7 +200,7 @@ class ControllerBase extends Controller {
         $this->view->setVar("retour", $retour);
     }
 
-    public function editAction($id, $r_controller = null, $r_action = null, $r_id = null) {                    
+    function editAction($id, $r_controller = null, $r_action = null, $r_id = null) {                    
         $retour = "";
         if (!is_null($r_action)) {
             $retour = $r_controller . "/" . $r_action . "/" . $r_id . $this->r_parameters;
@@ -225,7 +225,7 @@ class ControllerBase extends Controller {
         }
     }
 
-    public function createAction($r_controller = null, $r_action = null, $r_id = null) {
+    function createAction($r_controller = null, $r_action = null, $r_id = null) {
         if (!$this->request->isPost()) {
             return $this->dispatcher->forward(array(
                         "controller" => $this->ctlName,
@@ -285,7 +285,7 @@ class ControllerBase extends Controller {
      * Saves a igo_couche edited
      *
      */
-    public function saveAction($r_controller = null, $r_action = null, $r_id = null) {
+    function saveAction($r_controller = null, $r_action = null, $r_id = null) {
 
         // $this->ctlName = Text::uncamelize(str_replace("Controller", "", get_class($this)));
         // $this->classe = Text::camelize($this->ctlName);
@@ -344,7 +344,7 @@ class ControllerBase extends Controller {
         ));
     }
 
-    public function deleteAction($id, $r_controller = null, $r_action = null, $r_id = null) {
+    function deleteAction($id, $r_controller = null, $r_action = null, $r_id = null) {
 
         $classe = $this->classe;
         $objet = $classe::findFirstByid($id);
@@ -432,13 +432,14 @@ class ControllerBase extends Controller {
         return ltrim($parameters, "/");
     }
 
-    public function NullAsFalse($arg) {
+    function NullAsFalse($arg) {
         return intval($arg) == null ? false : $arg;
     }
     
-    public function zeroAsNull($arg) {
+    function zeroAsNull($arg) {
         return intval($arg) == 0 ? null : $arg;
     }
+
     function assigneFromPost($objet) {
         $metaData = $objet->getModelsMetaData();
         $dataTypes = $metaData->getDataTypes($objet);
@@ -452,6 +453,7 @@ class ControllerBase extends Controller {
             }
         }
     }
+
     function fopen_file_get_contents($cheminFichier) {
         $contenu = '';
         $handle = fopen($cheminFichier, 'r');
@@ -478,8 +480,7 @@ class ControllerBase extends Controller {
 
         $contenu = curl_exec($curl);
 
-        if($contenu === false)
-        {
+        if($contenu === false){
             error_log("error in curl_file_get_contents");
             error_log(curl_error($curl));
             return 'Erreur Curl : ' . curl_error($curl);
