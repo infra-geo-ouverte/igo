@@ -331,9 +331,7 @@ try {
         $igoController = new IgoController();
              
         $szUrl = $igoController->verifierPermis($szURL);  
-        var_dump($szUrl);
-        if($szUrl===false){
-           
+        if($szUrl===false){   
             $erreurs[] = array('message'=>"L'Url $szURL n'est pas permis.", 'niveau'=>'eleve');
             continue;
         }
