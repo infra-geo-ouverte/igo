@@ -16,7 +16,9 @@
         </div>    
         <div class="row">
             <div class="col-xs-12 col-md-12 text-center">
-                <input class="btn btn-primary" type="submit" formaction="{{accesTotalUri}}" value="Tous les profils" />
+                {% if accesTotalUri and accesTotalUri !== "" %}
+                    <input class="btn btn-primary" type="submit" formaction="{{accesTotalUri}}" value="Tous les profils" />
+                {% endif  %}
                 <input class="btn btn-primary" type="submit" value="Se connecter" />
             </div>
         </div>    

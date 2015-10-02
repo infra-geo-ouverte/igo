@@ -24,10 +24,10 @@ class DefaultModule extends IGOModule {
             )
         );
 
-        if(file_exists($this->configuration->get('cheminRacine') . '/logging/Logger.php') && isset($configGlobale->application->logsDir)){
+        if(file_exists($this->configuration->get('cheminRacine') . '/logging/Logger.php') && isset($configGlobale->repertoireLogs)){
             $di->set($this->obtenirNom().'Logger', function () use ($configGlobale) {
                 $clsname = $this->obtenirNom(true).'\Logging\Logger';
-                $pathLogFile = $configGlobale->application->logsDir . $this->obtenirNom() . ".log";
+                $pathLogFile = $configGlobale->repertoireLogs . $this->obtenirNom() . ".log";
                 return new $clsname($pathLogFile, $configGlobale->application->debug);
             });
         }

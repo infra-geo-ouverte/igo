@@ -630,7 +630,7 @@ define([], function() {
         var $divInfobulle = $('#divInfobulle');
         // Si l'infobulle n'est pas déjà créée, en faire la création
         if ($divInfobulle.length == 0){
-            $('<div />').attr('id', 'divInfobulle').css({ 'position': 'absolute', 'height': 'auto', 'width': 'auto', 'z-index': '99999', 'display': 'none' }).appendTo(document.body);
+            $('<div />').attr('id', 'divInfobulle').css({ 'position': 'absolute', 'height': 'auto', 'width': 'auto', 'z-index': '9000', 'display': 'none' }).appendTo(document.body);
             $divInfobulle = $('#divInfobulle');
         }
         
