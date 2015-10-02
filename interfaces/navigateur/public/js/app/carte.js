@@ -183,10 +183,23 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 if (!occurence && couche.obtenirTypeClasse() === "VecteurCluster") {
                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
+                if (!occurence) {
+                    return false;
+                }
+
+                var dessus = false;
+                var occSurvolArray = that.gestionCouches.obtenirListeOccurencesSurvols();
+                if(occSurvolArray.length){
+                    var lastOccSurvol = occSurvolArray[occSurvolArray.length-1];
+                    if(lastOccSurvol.id === occurence.id){
+                        dessus = true;
+                    }
+                }        
                 couche.declencher({
                     type: "occurenceClique",
-                    occurence: occurence
-                });
+                    occurence: occurence,
+                    dessus: dessus
+                }); 
             },
             moveend: function() {
                 that.declencher({

@@ -117,7 +117,7 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function obtenirServices($type) {
+	public function obtenirServices($interface) {
 		$services = array();
 
 		if($this->configuration->get('services')) {
@@ -127,7 +127,8 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 				throw new \Exception('Le répertoire de services `' . $dossierServices . '` n\'existe pas ou n\'est pas un répertoire valide.');
 			}
 
-			$classeServices = $this->chargerServices($dossierServices);
+			$moduleServices = $this->chargerServices($interface, $dossierServices);
+			$services = array_merge($services, $moduleServices);
 		}
 
 		return $services;
@@ -136,19 +137,26 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	/**
 	 * Obtient tous les instances des services définit par le module.
 	 *
-	 * @param  string $dossierServices Dossier dans lequel sont contenues les classes de service.
+	 * @param string $interface L'interface dont doit implémenté les services.
+	 * @param string $dossierServices Dossier dans lequel sont contenues les classes de service.
 	 * @return void
 	 */
-	protected function chargerServices($dossierServices) {
+	protected function chargerServices($interface, $dossierServices) {
 		$services = array();
 		$fichiers = scandir($dossierServices);
 
 		foreach($fichiers as $fichier) {
-			$fichierServicePotentiel = $dossierServices . '/' . $fichiers;
-			if($fichier{0} !== '.' && is_file($fichier) && pathinfo($fichier)['extension'] === 'php') {
-		        $definitionClasse = include $fichierServicePotentiel;
+			$fichierServicePotentiel = $dossierServices . '/' . $fichier;
+			$informationFichier = pathinfo($fichier);
 
-		        var_dump($definitionClasse); die;
+			if($fichier{0} !== '.' && $informationFichier['extension'] === 'php') {
+		        $definitionClasse = include_once $fichierServicePotentiel;
+
+		        $nomClasse = '\\' . $this->configuration->get('espaceDeNoms') . '\\Services\\' . $informationFichier['filename'];
+
+		        if(is_subclass_of($nomClasse, $interface)) {
+		        	array_push($services, $nomClasse);
+				}
 	        }
 	    }
 
