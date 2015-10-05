@@ -37,6 +37,8 @@ define(['couche', 'aide'], function(Couche, Aide) {
         
         if(Aide.toBoolean(this.options.utiliserProxy)){
             this.options.url=Aide.utiliserProxy(this.options.url, true);
+        } else {
+            this.options.url = this.options.url.replace(' ','').split(',');
         }
         
         this._init();
