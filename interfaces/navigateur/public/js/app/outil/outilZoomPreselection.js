@@ -303,23 +303,32 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                 couche.enleverTout();
                 couche.definirStyle(regle);
                 couche.definirStyle(regleSelectionnee, 'select');
+                this.ajouterOccurence(couche, occurence);
             }
             else{
+                var that = this;
                 var couche = new Vecteur({active: true, suppressionPermise: true, titre:'Géométrie - Outil Zoom',
                                                         styles:{defaut:regle, select: regleSelectionnee}});   
+
                 this.carte.gestionCouches.ajouterCouche(couche);
+                that.ajouterOccurence(couche, occurence);
+                //this.carte.gestionCouches.ajouterCouche(couche, {callback: function(){that.ajouterOccurence(couche, occurence)}});
             }
             
-            couche.ajouterOccurence(occurence);
-            occurence.afficher();
-            couche.zoomerOccurences();
+
            
         }else{
             alert(data["errors"]);
         }
     };
     
-     return OutilZoomPreselection;
+    OutilZoomPreselection.prototype.ajouterOccurence= function(couche, occurence){
+        couche.ajouterOccurence(occurence);
+        occurence.afficher();
+        couche.zoomerOccurences();
+    }
+
+    return OutilZoomPreselection;
 
 });
 

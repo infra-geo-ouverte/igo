@@ -34,7 +34,6 @@ require.config({
     	contexte: 'js/app/helper/contexte',
         evenement: 'js/app/helper/evenement',
         fonctions: 'js/app/helper/fonctions',
-        metadonnee: 'js/app/helper/metadonnee',
         requireAide: 'js/app/helper/requireAide',      
         arborescence: 'js/app/menu/arborescence',    
         googleItineraire: 'js/app/menu/googleItineraire',   

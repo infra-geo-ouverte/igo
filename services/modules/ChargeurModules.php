@@ -9,7 +9,7 @@ use Phalcon\Loader;
 * Charge les modules contenus dans le répertoire définit dans la configuration
 * 'modules' du fichier de configuration.
 *
-* Chaque module doit contenir un fichier de configuration 'app/config/config.php'.
+* Chaque module doit contenir un fichier de configuration 'config/config.php'.
 * Voici un exemple de fichier de configuration de module contenant les propriétés
 * minimales à définir.
 *

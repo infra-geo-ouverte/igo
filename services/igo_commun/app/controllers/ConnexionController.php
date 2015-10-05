@@ -118,12 +118,16 @@ class ConnexionController extends Controller{
         }
         //L'utilisateur doit sélectionner son rôle
         $profilObligatoire = isset($_GET['force-profil']) ? $_GET['force-profil'] : false;
-        if($this->session->get("info_utilisateur")->estAuthentifie && 
+        if(isset($this->session->get("info_utilisateur")->estAuthentifie) && $this->session->get("info_utilisateur")->estAuthentifie && 
             ($profilObligatoire || $configuration->application->authentification->activerSelectionRole)){
             
             $configuration = $this->getDI()->get("config");
+            $accessTotalUri = "";
+            if($configuration->application->authentification->activerSelectionRole === false){
+                $accessTotalUri = $configuration->application->baseUri. "connexion/accesTotal";
+            }
             $this->view->setVar("accesUri", $configuration->application->baseUri. "connexion/acces");
-            $this->view->setVar("accesTotalUri", $configuration->application->baseUri. "connexion/accesTotal");
+            $this->view->setVar("accesTotalUri", $accessTotalUri);
 
             if(!$this->obtenirPageRedirection()){
                 $this->definirPageRedirection($request->getURI());
@@ -160,9 +164,9 @@ class ConnexionController extends Controller{
 
         $pageRedirection = '';
         $seConnecter = false;
-        if((isset($xmlAuth->aDeconnectionRetourNav) && $xmlAuth->aDeconnectionRetourNav !== 'false') || (!isset($xmlAuth->aDeconnectionRetourNav) && $configuration->application->authentification->aDeconnectionRetourNav !== false)){
+        if((isset($xmlAuth->aDeconnectionRetourNav) && $xmlAuth->aDeconnectionRetourNav !== 'false') || (!isset($xmlAuth->aDeconnectionRetourNav) && (!isset($configuration->application->authentification->aDeconnectionRetourNav) || $configuration->application->authentification->aDeconnectionRetourNav !== false))){
             $pageRedirection = $this->obtenirPageRedirection();
-            if((isset($xmlAuth->aDeconnectionSeConnecter) && $xmlAuth->aDeconnectionSeConnecter === 'true') || (!isset($xmlAuth->aDeconnectionSeConnecter) && $configuration->application->authentification->aDeconnectionSeConnecter == true)){
+            if((isset($xmlAuth->aDeconnectionSeConnecter) && $xmlAuth->aDeconnectionSeConnecter === 'true') || (!isset($xmlAuth->aDeconnectionSeConnecter) && isset($configuration->application->authentification->aDeconnectionSeConnecter) && $configuration->application->authentification->aDeconnectionSeConnecter == true)){
                 $seConnecter = true;
             }
         }

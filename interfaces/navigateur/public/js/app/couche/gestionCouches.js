@@ -74,20 +74,28 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         opt = opt || {};
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            setTimeout(function() {
-                that.carte._carteOL.addLayer(couche._getLayer());
-                couche.definirOrdreAffichage();
-                if (couche.estFond()){
-                    couche.desactiver(!Aide.toBoolean(couche.options.active));
-                }
-                if(opt.callback){
-                    var scopeCallback = opt.scopeCallback || couche;
-                    opt.callback.call(scopeCallback);
-                }
-                that.declencher({ type: "ajouterCouche", couche: couche }); 
-                couche.declencher({ type: "coucheAjoutee" }); 
-            }, 1);
+            if(couche.obtenirTypeClasse() === "WMS"){
+                setTimeout(function() {
+                    that._ajouterCoucheCallbackEnd(couche, opt);
+                }, 1)
+            } else {
+                this._ajouterCoucheCallbackEnd(couche, opt);
+            }
         };
+    };
+
+    GestionCouches.prototype._ajouterCoucheCallbackEnd = function(couche, opt) {
+        this.carte._carteOL.addLayer(couche._getLayer());
+        couche.definirOrdreAffichage();
+        if (couche.estFond()){
+            couche.desactiver(!Aide.toBoolean(couche.options.active));
+        }
+        if(opt.callback){
+            var scopeCallback = opt.scopeCallback || couche;
+            opt.callback.call(scopeCallback);
+        }
+        this.declencher({ type: "ajouterCouche", couche: couche }); 
+        couche.declencher({ type: "coucheAjoutee" }); 
     };
 
     /** 

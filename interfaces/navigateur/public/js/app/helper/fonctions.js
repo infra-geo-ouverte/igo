@@ -110,7 +110,11 @@ define([], function() {
                         occurencesGeoJSON: jQuery.extend({}, occ)
                     };
                 }
-                gabarits.push("hbars!"+obj.gabarit);
+                if(!obj.gabarit){
+                    gabarits.push(null);
+                } else {
+                    gabarits.push("hbars!"+obj.gabarit);
+                }
                 arrayOccGeoJson.push(obj);       
             });
 

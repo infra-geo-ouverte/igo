@@ -14,7 +14,7 @@ var options = {
 };
 
 {% if this.config.application.debug is defined %}
-    options.debug = {{this.config.application.debug}};
+    options.debug = <?php echo var_export($this->config->application->debug) ?>;
 {% endif %}
 
 {% if avertissement is defined %}
