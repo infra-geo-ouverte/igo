@@ -6,11 +6,12 @@
  <?php echo $this->getContent(); ?>
 
     <script>
-    var contexteId = "{{contexteId}}";
-    var contexteCode = "{{contexteCode}}";
-    var configuration = "{{configuration}}";
-    var coucheId = "{{couche}}";
-    var callbackInitIGO={{callbackInitIGO}};
-    
-    {% include "partials/lancer.volt" %}
+    (function(){
+	    var contexteId = "{{contexteId}}";
+	    var contexteCode = "{{contexteCode}}";
+	    var configuration = "{{configuration}}";
+	    var coucheId = "{{couche}}";
+	    
+	    {% include "partials/lancer.volt" %}
+    })();
     </script>

@@ -59,6 +59,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     this.ouvrirTableVecteur();
                 }                    
     };
+    
   
     PanneauTable.prototype._initEvent = function(){
         var that=this;
@@ -77,10 +78,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
     
     PanneauTable.prototype._obtenirToolbar = function(){
-        
-        this.barreOutils = new BarreOutils(this.carte);    
-        return this.barreOutils._getToolbar();
+        var that=this;
+        this.barreOutils = new BarreOutils(this.carte);
     
+        return this.barreOutils._getToolbar();
     };
     
     PanneauTable.prototype._obtenirPaginationBarre = function(config){
@@ -410,7 +411,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         
         if(this._panel && this._panel.store && this._panel.store.sortInfo){
             var sortInfo  = this._panel.store.sortInfo;
-            store.sort(sortInfo.field, sortInfo.direction);         
+            store.sort(sortInfo.field, sortInfo.direction);
         } else {
             store.sort('id', "ASC");
         }
@@ -513,9 +514,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
              outilsSelection.push(new OutilTableSelection({
                 type:'auto',
                 couche: this.donnees,
-                _extOptions:{checked:selectionnerAuto}}));
+                _extOptions:{checked:selectionnerAuto}}));          
             
-            
+			 outilsSelection.push(new OutilTableSelection({
+                type:'selectionSeulement',
+                couche: this.donnees}));
+
+
             var selectionnerContenuPage = typeof this.options.outils_contenupage ? this.options.outils_contenupage:false;
             if(this.options.paginer){
                 outilsSelection.push(new OutilTableSelection({
@@ -533,7 +538,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
     
     PanneauTable.prototype.reconfigurer = function(template, donnees){
-        var config = this.configurer(template, donnees);      
+        var config = this.configurer(template, donnees);       
         this._panel.reconfigure(config.store, config.columnModel);
         var that=this;
         setTimeout(function() {
@@ -864,10 +869,17 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         if(this._.donnees.zoomAuto){
             this._.donnees.zoomerOccurences(this._.donnees.obtenirOccurencesSelectionnees());
         }
+        
+        if(this._.donnees.options.selectionSeulement){
+           this._.donnees.afficherSelectionSeulement();
+        }else{
+            this._.donnees.afficherTous();
+        }
+        
         this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur }); 
     };
     
-  
+    
     return PanneauTable;
     
 });

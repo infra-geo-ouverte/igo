@@ -183,7 +183,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         } else {
             this.propriete[nom] = valeur;
         }
-        
+                
         if (this.parent){
             var nomOL = this._lookupOptionsOL[nom];
             var vTemp = this._traiterValeurIGO(nom, valeur);
@@ -192,7 +192,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                     this.parent._layer.styleMap.styles['default'].defaultStyle[nomOL] = vTemp;
                 };
                 this.parent._layer.styleMap.styles[this.regle].defaultStyle[nomOL] = vTemp;
-                this.parent.rafraichir();
+                this.parent.rafraichir();       
             } else if (this.parent.obtenirTypeClasse() === 'Occurence'){
                 if(!this.parent._feature.style){
                     this.parent._feature.style = {};
@@ -205,7 +205,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 if($.isEmptyObject(this.propriete)){
                     this.parent._feature.style = undefined;
                 }
-                this.parent.rafraichir();
+                this.parent.rafraichir();              
             } 
         }
     };

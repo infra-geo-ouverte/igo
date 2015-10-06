@@ -37,10 +37,10 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @name GestionCouches#ajouterCouches
     * @param {Tableau} couches Tableau de {@link Couche} à ajouter
     */
-    GestionCouches.prototype.ajouterCouches = function(couches) {
+    GestionCouches.prototype.ajouterCouches = function(couches, opt) {
         var that=this;
         $.each(couches, function(key, value){
-            that.ajouterCouche(value);
+            that.ajouterCouche(value, opt);
         });
     };
     
@@ -51,11 +51,11 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @param {Couche} couche La couche à ajouter
     * @exception Vérification de la validité de la couche en paramètre
     */
-    GestionCouches.prototype.ajouterCouche = function(couche) {
+    GestionCouches.prototype.ajouterCouche = function(couche, opt) {
         if (couche instanceof Couche) {
             couche.definirCarte(this.carte);
             couche._ = this;
-            couche._ajoutCallback(this, this._ajouterCoucheCallback);
+            couche._ajoutCallback(this, this._ajouterCoucheCallback, opt);
         } else {
             throw new Error("Igo.Carte.ajouterCouche(couche) a besoin d'un objet de type Igo.Couches");
         }
@@ -69,19 +69,33 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @name GestionCouches#_ajouterCoucheCallback
     * @param {Couche} couche
     */
-    GestionCouches.prototype._ajouterCoucheCallback = function(couche) {
+    GestionCouches.prototype._ajouterCoucheCallback = function(couche, opt) {
         var that = this;
+        opt = opt || {};
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            setTimeout(function() {
-                that.carte._carteOL.addLayer(couche._getLayer());
-                couche.definirOrdreAffichage();
-                if (couche.estFond()){
-                    couche.desactiver(!Aide.toBoolean(couche.options.active));
-                }
-            }, 1);
-            this.declencher({ type: "ajouterCouche", couche: couche }); 
+            if(couche.obtenirTypeClasse() === "WMS"){
+                setTimeout(function() {
+                    that._ajouterCoucheCallbackEnd(couche, opt);
+                }, 1)
+            } else {
+                this._ajouterCoucheCallbackEnd(couche, opt);
+            }
         };
+    };
+
+    GestionCouches.prototype._ajouterCoucheCallbackEnd = function(couche, opt) {
+        this.carte._carteOL.addLayer(couche._getLayer());
+        couche.definirOrdreAffichage();
+        if (couche.estFond()){
+            couche.desactiver(!Aide.toBoolean(couche.options.active));
+        }
+        if(opt.callback){
+            var scopeCallback = opt.scopeCallback || couche;
+            opt.callback.call(scopeCallback);
+        }
+        this.declencher({ type: "ajouterCouche", couche: couche }); 
+        couche.declencher({ type: "coucheAjoutee" }); 
     };
 
     /** 

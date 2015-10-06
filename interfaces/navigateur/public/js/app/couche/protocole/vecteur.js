@@ -35,6 +35,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.listeOccurences = [];
         this.styles={};
         this.templates={};
+        this.defautOptions.rafraichissementPermis = true;
+        this.defautOptions.rafraichirMaxOccurence = 100;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
@@ -205,13 +207,18 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.deselectionnerTout = function(opt) { 
-        var that=this;
+        
         var opt = opt || {};
-        $.each(this.obtenirOccurencesSelectionnees(), function(key, value){
+        var occurences = this.obtenirOccurencesSelectionnees();
+        this.definirRafraichissementPermis('debut', occurences);
+        var that=this;
+        $.each(occurences, function(key, value){
             if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
                 that.deselectionnerOccurence(value);
             }
         });
+        this.definirRafraichissementPermis('fin');
+        
     };
     
       /** 
@@ -221,13 +228,18 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.selectionnerTout = function(opt) { 
+        
+        var opt = opt || {};
+        var occurences = this.obtenirOccurences();
+        this.definirRafraichissementPermis('debut', occurences);
         var that=this;
-        var opt = opt || {};    
-         $.each(this.obtenirOccurences(), function(key, value){
+        
+         $.each(occurences, function(key, value){
             if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
                 that.selectionnerOccurence(value);
             }
         });
+        this.definirRafraichissementPermis('fin');
     };
     
        /** 
@@ -237,10 +249,14 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.selectionnerInverse = function(opt) { 
+        
+        var opt = opt || {};
+        var occurences = this.obtenirOccurences();
+        this.definirRafraichissementPermis('debut', occurences);
         var that=this;
-        var opt = opt || {}; 
+        
         //todo: throw error si trop occurences... 
-          $.each(this.obtenirOccurences(), function(key, value){
+          $.each(occurences, function(key, value){
             if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
              if(value.selectionnee){
                  that.deselectionnerOccurence(value);
@@ -248,6 +264,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
                  that.selectionnerOccurence(value);
             }  
          }}); 
+     
+       this.definirRafraichissementPermis('fin');
         
     };
     
@@ -318,6 +336,10 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
         this.listeOccurences.push(occurence);
         if(!opt.existe){
+            if(!this._layer.map){
+                console.warn("Cette couche n'est pas associée à la carte, l'ajout d'occurrence n'est pas permis.");
+                return false;
+            }
             occurence._feature.utilisateur=true;
             this._layer.addFeatures(occurence._feature);
         };
@@ -643,13 +665,18 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @name Couche.Vecteur#rafraichir
     */
     Vecteur.prototype.rafraichir = function(occurence) { 
-        if(!occurence){
-            this._layer.redraw();  
+        
+        if(this.options.rafraichissementPermis){
+            if(!occurence){
+                this._layer.redraw();  
+                this.rafraichirLegende();
+                return true;
+            }
+            this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
             return true;
         }
-        this._layer.drawFeature(occurence._feature);
-        this.rafraichirLegende();
+       
     };
     
     Vecteur.prototype.rafraichirLegende = function() {

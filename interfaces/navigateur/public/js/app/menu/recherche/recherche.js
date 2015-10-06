@@ -374,7 +374,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         occurence.selectionner();
     }
 
-    Recherche.prototype.creerVecteurRecherche = function(styles) {
+    Recherche.prototype.creerVecteurRecherche = function(styles, callback, paramsCallback) {
         var active = false;
         if (!this.pineCheckbox || this.pineCheckbox.checked) {
             active = true;
@@ -386,6 +386,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         };
         
         var vecteur = new Vecteur({active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});         
+        if(callback){
+            vecteur.ajouterDeclencheur("coucheAjoutee", callback, {scope: this, params: paramsCallback});
+        }
         this.carte.gestionCouches.ajouterCouche(vecteur);
         return vecteur;
     };

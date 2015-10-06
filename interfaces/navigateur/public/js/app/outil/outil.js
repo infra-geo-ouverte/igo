@@ -40,7 +40,8 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
             titre: '',
             infobulle: '',
             visible: true,
-            actif: true,
+            actif: false,
+            activable: true,
             groupe: undefined,
             _allowDepress: true,
             executer: function(){if(!this.options.groupe || this._bouton.pressed || this._bouton.pressed === undefined){this.executer()}},
@@ -81,7 +82,7 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
                 itemId: opt.id,
                 tooltip: opt.infobulle,
                 hidden: !Aide.toBoolean(opt.visible),
-                disabled: !Aide.toBoolean(opt.actif),
+                disabled: !Aide.toBoolean(opt.activable),
                 toggleGroup: opt.groupe,
                 allowDepress: opt._allowDepress,
                 scope: this,
@@ -127,6 +128,9 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
         }
               
         this._bouton = new Ext.Toolbar.Button(this._extOptions);
+        if(opt.actif){
+            this.enfoncer();
+        }
     };
     
     /** 
@@ -236,7 +240,7 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
     };
     
     /**
-    * Activer le bouton
+    * Activer le bouton (rendreActivable)
     * @method
     * @name Outil#activer
     */
@@ -271,8 +275,8 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
     };
     
     
-    //appelle la fonction Outil.eteindre
-    Outil.prototype.enfoncerBouton =  function (e) {
+    //appelle la fonction Outil.executer
+    Outil.prototype.enfoncer=  function (e) {
         var that=this;
         if(!that._bouton.pressed){
             that._bouton.toggle(true);
@@ -284,7 +288,7 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
         }
     };
     
-    Outil.prototype.releverBouton =  function (e) {     
+    Outil.prototype.relever =  function (e) {     
         var that=this;
         if(this instanceof Outil){
             that.eteindre();
@@ -299,6 +303,14 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
         }
     };
     
+    Outil.prototype.presser =  function () {     
+        if(this.estEnfonce()){
+            this.relever()
+        } else {
+            this.enfoncer()
+        } 
+    };
+
     Outil.prototype.changerTitre = function(titre){
         this._bouton.setText(titre);
     };

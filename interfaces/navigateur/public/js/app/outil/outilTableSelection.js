@@ -56,6 +56,15 @@ define(['outil', 'aide'], function(Outil, Aide) {
            });
        // } else {
        //     throw new Error("OutilTableSelection a besoin d'un type");
+        }  else if (this.options.type === 'selectionSeulement'){
+            this.defautOptions = $.extend({},this.defautOptions, {
+                id: 'affiche_selection_seulement',
+                xtype:'menucheckitem',
+                titre: 'Afficher la sélection seulement',
+                infobulle: 'Affiche seulement la sélection'                
+           });
+       // } else {
+       //     throw new Error("OutilTableSelection a besoin d'un type");
         }  
     };
     
@@ -95,6 +104,9 @@ define(['outil', 'aide'], function(Outil, Aide) {
             else{
                 this.options.couche.afficherTout();
             }
+        } else if (this.options.type === 'selectionSeulement'){
+            this.options.couche.options.selectionSeulement = !this._bouton.checked;
+            this.options.couche.declencher({ type: "occurenceClique", occurence:this.options.couche.obtenirOccurencesSelectionnees()});
         }
     };
     

@@ -52,8 +52,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         this.projection = this.options.projection || "EPSG:3857";
         this.projectionAffichage = this.options.displayProjection || "EPSG:4326";
+        this.limiteEtendue;
 
-        var etendueMax, resolutions, limiteEtendue, resolutionMax;
+        var etendueMax, resolutions, resolutionMax;
 
         if (this.options.etendueMax) {
 
@@ -72,12 +73,12 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         if (this.options.limiteEtendue) {
             if (this.options.limiteEtendue === "aucune") {
-                limiteEtendue = undefined;
+                this.limiteEtendue = undefined;
             } else {
-                limiteEtendue = new OpenLayers.Bounds(this.options.limiteEtendue);
+                this.limiteEtendue = new OpenLayers.Bounds(this.options.limiteEtendue.split(","));
             }
         } else {
-            limiteEtendue = new OpenLayers.Bounds(-11000000, 3397938, -4806248, 9512143).transform(new OpenLayers.Projection("EPSG:3857"), this.projection);
+            this.limiteEtendue = new OpenLayers.Bounds(-11000000, 3397938, -4806248, 9512143).transform(new OpenLayers.Projection("EPSG:3857"), this.projection);
         }
 
         if (this.options.resolutionMax) {
@@ -90,7 +91,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             displayProjection: new OpenLayers.Projection(this.projectionAffichage),
             units: 'm',
             zoomMethod: null,
-            //restrictedExtent : limiteEtendue,
+            restrictedExtent : this.limiteEtendue,
             maxExtent: etendueMax,
             resolutions: resolutions,
             maxResolutions: resolutionMax,
@@ -182,10 +183,23 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 if (!occurence && couche.obtenirTypeClasse() === "VecteurCluster") {
                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
+                if (!occurence) {
+                    return false;
+                }
+
+                var dessus = false;
+                var occSurvolArray = that.gestionCouches.obtenirListeOccurencesSurvols();
+                if(occSurvolArray.length){
+                    var lastOccSurvol = occSurvolArray[occSurvolArray.length-1];
+                    if(lastOccSurvol.id === occurence.id){
+                        dessus = true;
+                    }
+                }        
                 couche.declencher({
                     type: "occurenceClique",
-                    occurence: occurence
-                });
+                    occurence: occurence,
+                    dessus: dessus
+                }); 
             },
             moveend: function() {
                 that.declencher({
@@ -229,6 +243,22 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                         type: "coucheVisibilitéChangée",
                         couche: couche
                     });
+                }
+            },
+            changebaselayer: function(e) {
+                var restrictedExtent;
+                if(e.layer.options.limiteEtendue){
+                    restrictedExtent = e.layer.options.limiteEtendue;
+                } else if(that.limiteEtendue) {
+                    restrictedExtent = that.limiteEtendue;
+                } else {
+                    restrictedExtent = undefined;
+                }
+                if(that._carteOL.restrictedExtent !== restrictedExtent){
+                    that._carteOL.restrictedExtent = restrictedExtent;
+                    var zoom = that.obtenirZoom();
+                    that.zoomer(zoom - 1);
+                    that.zoomer(zoom);
                 }
             }
         };
@@ -786,6 +816,8 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
         if (!options.mesure && !couche) {
             throw new Error("Carte.Controles.activerDessin : La couche est obligatoire");
+        } else if (!options.mesure && (!couche.obtenirTypeClasse || couche.obtenirTypeClasse() !== 'Vecteur')){
+            throw new Error("Carte.Controles.activerDessin : La couche doit être de type Vecteur");
         }
 
         if (this.controleDessin &&

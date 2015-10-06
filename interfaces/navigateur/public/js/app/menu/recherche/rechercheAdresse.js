@@ -84,9 +84,15 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-       var styles = {defaut: style, select: style};
+       var styles = {defaut: {visible: false}, select: style};
 
-        var vecteur = this.creerVecteurRecherche(styles);
+        var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
+
+    };
+   
+    RechercheAdresse.prototype.ajouterOccurences = function(e) {
+        var vecteur = e.target;
+        var responseJSON = e.options.params.responseJSON;
         $.each(responseJSON.geocoderReponseListe, function(key, value) {
             var point;
             if (!value.localisation) {

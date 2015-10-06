@@ -20,6 +20,7 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
         this.contexteParentAssocierFichier = this.options.associerFichier;
         this.contexteParentVisualiserFichier = this.options.visualiserFichier;
         this.contexteParentListerFichiers = this.options.listerFichiers;
+        this.contexteParentMettreAjourCompteur = this.options.mettreAjourCompteur;
         this.defautOptions.titre = "Associer des fichiers";
         this.defautOptions.champs || [{name:'id'}, {name:'nom_phys_docu'}, {name:'timb_maj'}];
         this.defautOptions.executer = this.afficherFenetre;
@@ -113,6 +114,7 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
             listeners : {
                 click : function(){
                      that.fenetreAssocFichier.hide();
+                     that.contexteParentMettreAjourCompteur(that.obtenirNombreFichier());
                 }
             }
         });        
@@ -195,12 +197,18 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
     
     OutilAssocierFichier.prototype.listerFichiers = function(){
        
-        this.contexteParentListerFichiers(this.callBackListerFichiers.bind(this));
+        this.contexteParentListerFichiers(this.callBackListerFichiersSucess.bind(this), this.callBackListerFichiersErreur.bind(this));
     };
     
-    OutilAssocierFichier.prototype.callBackListerFichiers = function(data){
+    OutilAssocierFichier.prototype.callBackListerFichiersSucess = function(data){
        
        this.gridAssocierFichier.getStore().loadData(data);
+        
+    };
+    
+    OutilAssocierFichier.prototype.callBackListerFichiersErreur = function(data){
+       
+        console.log("Impossible de lister les fichiers");
         
     };
     
@@ -218,6 +226,10 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
                  
         this.contexteParentVisualiserFichier(fichier);
     };    
+    
+    OutilAssocierFichier.prototype.obtenirNombreFichier = function(){
+        return this.gridAssocierFichier.getStore().getTotalCount();
+    };
        
     return OutilAssocierFichier;
     
