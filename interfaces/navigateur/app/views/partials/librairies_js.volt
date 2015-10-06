@@ -1,11 +1,11 @@
 <?php if(isset($this->config->application->debug) && $this->config->application->debug){ ?>
-    {{ view.ajouterJavascript("openlayers/OpenLayers.debug.js", true, true) }}
+    {{ view.ajouterJavascript("openlayers/lib/OpenLayers.js", true, true) }}
     {{ view.ajouterJavascript("extjs/adapter/ext/ext-base-debug.js", true, true) }}
     {{ view.ajouterJavascript("extjs/ext-all-debug.js", true, true) }}
     {{ view.ajouterJavascript("libs/GeoExt/GeoExt-build-debug.js", false) }}
     {{ view.ajouterJavascript("jquery/jquery.js", true, true) }}
 <?php } else { ?> 
-    {{ view.ajouterJavascript("openlayers/OpenLayers.js", true, true) }}
+    {{ view.ajouterJavascript("openlayers/lib/OpenLayers.js", true, true) }}
     {{ view.ajouterJavascript("extjs/adapter/ext/ext-base.js", true, true) }}
     {{ view.ajouterJavascript("extjs/ext-all.js", true, true) }}
     {{ view.ajouterJavascript("libs/GeoExt/GeoExt-build.js", false) }}
