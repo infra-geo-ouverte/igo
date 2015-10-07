@@ -80,7 +80,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype._obtenirToolbar = function(){
         var that=this;
         this.barreOutils = new BarreOutils(this.carte);
-    
         return this.barreOutils._getToolbar();
     };
     
@@ -509,17 +508,16 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             outilsSelection.push(new OutilTableSelection({
                 type:'zoom',    
                 couche: this.donnees}));
+              
+            outilsSelection.push(new OutilTableSelection({
+                type:'selectionSeulement',
+                couche: this.donnees}));
             
             var selectionnerAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
              outilsSelection.push(new OutilTableSelection({
                 type:'auto',
                 couche: this.donnees,
                 _extOptions:{checked:selectionnerAuto}}));          
-            
-			 outilsSelection.push(new OutilTableSelection({
-                type:'selectionSeulement',
-                couche: this.donnees}));
-
 
             var selectionnerContenuPage = typeof this.options.outils_contenupage ? this.options.outils_contenupage:false;
             if(this.options.paginer){
@@ -530,7 +528,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     _extOptions:{checked:selectionnerContenuPage}}));
             }
             
-           
             menuSelection.ajouterOutils(outilsSelection);  
             if(selectionnerContenuPage)outilsSelection[outilsSelection.length-1].executer(true);
             if(selectionnerAuto)outilsSelection[outilsSelection.length-1].executer(true);
@@ -872,8 +869,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         
         if(this._.donnees.options.selectionSeulement){
            this._.donnees.afficherSelectionSeulement();
+        }else if (this._.donnees.afficheContenuPage){
+            this._.donnees.afficherOccurence(this._.obtenirOccurences());
         }else{
-            this._.donnees.afficherTous();
+            this._.donnees.afficherTout();
         }
         
         this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur }); 
