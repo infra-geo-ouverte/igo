@@ -166,6 +166,22 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         return occurences;
     };
     
+      /** 
+    * Obtenir la liste des occurences pas sélectionnées.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurencesNonSelectionnees
+    * @returns {Tableau} Tableau de {@link Occurence}
+    */
+    Vecteur.prototype.obtenirOccurencesNonSelectionnees = function() { 
+        var occurences=[];
+        $.each(this.obtenirOccurences(), function(key, value){
+            if(!value.selectionnee){
+                occurences.push(value);
+            };
+        });
+        return occurences;
+    };
+    
     /** 
     * Obtenir l'occurence ayant l'id entré en paramètre.
     * @method 
@@ -210,15 +226,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         
         var opt = opt || {};
         var occurences = this.obtenirOccurencesSelectionnees();
-        this.definirRafraichissementPermis('debut', occurences);
-        var that=this;
-        $.each(occurences, function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-                that.deselectionnerOccurence(value);
-            }
-        });
-        this.definirRafraichissementPermis('fin');
-        
+        this.processThis('deselectionnerOccurence',occurences,opt);
+
     };
     
       /** 
@@ -230,17 +239,40 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.prototype.selectionnerTout = function(opt) { 
         
         var opt = opt || {};
-        var occurences = this.obtenirOccurences();
-        this.definirRafraichissementPermis('debut', occurences);
-        var that=this;
-        
-         $.each(occurences, function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-                that.selectionnerOccurence(value);
-            }
-        });
-        this.definirRafraichissementPermis('fin');
+        var occurences = this.obtenirOccurences();   
+        this.processThis('selectionnerOccurence', occurences, opt);
+  
     };
+    
+    
+    /** 
+    * Effectuer une méthode sans rafraichir la couche.
+    * @method 
+    * @name Couche.Vecteur#processThis
+    * @param {func} la méthode a effectuer
+    * @param {param} le paramètre de la méthode OU l'objet de la méthode
+    * @param {opt} exceptions 
+    */
+    Vecteur.prototype.processThis = function(func, param, opt){
+        var that=this;
+        this.options.rafraichissementPermis = false;
+        
+        if(this[func] !== undefined){
+            $.each(param, function(key, value){
+                if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
+                    that[func](value);
+                }
+            });
+        }
+        else{
+            $.each(param, function(key, value){
+                value[func](opt);
+            });
+        }
+         
+        this.options.rafraichissementPermis = true;
+        this.rafraichir();
+    }
     
        /** 
     * Inverser la sélection des occurences
@@ -251,22 +283,11 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.prototype.selectionnerInverse = function(opt) { 
         
         var opt = opt || {};
-        var occurences = this.obtenirOccurences();
-        this.definirRafraichissementPermis('debut', occurences);
-        var that=this;
-        
-        //todo: throw error si trop occurences... 
-          $.each(occurences, function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-             if(value.selectionnee){
-                 that.deselectionnerOccurence(value);
-               } else{
-                 that.selectionnerOccurence(value);
-            }  
-         }}); 
-     
-       this.definirRafraichissementPermis('fin');
-        
+        var selectionPassee = this.obtenirOccurencesSelectionnees();
+        var selectionFutur = this.obtenirOccurencesNonSelectionnees();
+        this.processThis('deselectionnerOccurence', selectionPassee, opt);
+        this.processThis('selectionnerOccurence', selectionFutur, opt);
+
     };
     
     /** 
@@ -482,19 +503,15 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     
     Vecteur.prototype.cacherTout = function(tousLesStyles) { 
         
-        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;       
+        var selection = this.obtenirOccurences();        
+        this.processThis('cacher', selection, tousLesStyles);
         
-        $.each(this.listeOccurences, function(index, value){
-            value.cacher(tousLesStyles);
-        })
-       
     };
 
     Vecteur.prototype.afficherOccurence = function(occurence) { 
-        if(Array.isArray(occurence)){
-            $.each(occurence, function(index, value){
-                value.afficher();
-            })
+        if(Array.isArray(occurence)){     
+            this.processThis('afficher', occurence);
         }else{
             if(!occurence || occurence.vecteur !== this){return false};
             occurence.afficher();
@@ -504,10 +521,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.prototype.afficherTout = function(tousLesStyles) { 
         
         var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
-               
-        $.each(this.listeOccurences, function(index, value){
-            value.afficher(tousLesStyles);
-        })
+        var selection = this.obtenirOccurences();
+        this.processThis('afficher', selection, tousLesStyles);
        
     };
     /** 
@@ -710,6 +725,15 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         return true;
     };
     
+    Vecteur.prototype.afficherSelectionSeulement = function(){
+        
+        var selection = this.obtenirOccurencesNonSelectionnees();
+        this.processThis('cacher', selection, true);
+        selection = this.obtenirOccurencesSelectionnees();
+        this.processThis('afficher', selection, true);
+ 
+    }
+        
     Vecteur.Controles = function(_){
         this._ = _;
         if (this._.options.simplificationZoom) {
