@@ -54,17 +54,13 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 infobulle: 'Affiche seulement le contenu de la page active.',
                 
            });
-       // } else {
-       //     throw new Error("OutilTableSelection a besoin d'un type");
         }  else if (this.options.type === 'selectionSeulement'){
             this.defautOptions = $.extend({},this.defautOptions, {
                 id: 'affiche_selection_seulement',
                 xtype:'menucheckitem',
                 titre: 'Afficher la sélection seulement',
                 infobulle: 'Affiche seulement la sélection'                
-           });
-       // } else {
-       //     throw new Error("OutilTableSelection a besoin d'un type");
+           });  
         }  
     };
     
@@ -100,13 +96,53 @@ define(['outil', 'aide'], function(Outil, Aide) {
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
                 this.options.couche.cacherTout();
                 this.options.couche.afficherOccurence(this.options.panneauTable.obtenirOccurences());
+                
+                //ne pas permettre l'option d'afficher seulement la sélection
+                $.each(this.parent.obtenirOutils(), function(index,value){
+                    if(value.options.type === 'selectionSeulement'){
+                        value._bouton.setChecked(false);
+                        value._bouton.disable();
+                        value.options.couche.options.selectionSeulement = false;
+                    }                
+                });
             }
             else{
+                
+                $.each(this.parent.obtenirOutils(), function(index,value){
+                    if(value.options.type === 'selectionSeulement'){
+                        value._bouton.enable();
+                    }                
+                });
+                
                 this.options.couche.afficherTout();
-            }
+            }            
         } else if (this.options.type === 'selectionSeulement'){
-            this.options.couche.options.selectionSeulement = !this._bouton.checked;
-            this.options.couche.declencher({ type: "occurenceClique", occurence:this.options.couche.obtenirOccurencesSelectionnees()});
+            
+            if(!lancementManuel){
+                this.options.couche.options.selectionSeulement = !this._bouton.checked;
+            }
+            if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
+                 this.options.couche.declencher({ type: "occurenceClique", occurence:this.options.couche.obtenirOccurencesSelectionnees()});
+                
+                if(this.options.couche.options.selectionSeulement){
+                    //ne pas permettre l'option d'afficher seulement le contenu de la page
+                    $.each(this.parent.obtenirOutils(), function(index,value){
+                        if(value.options.type === 'contenupage'){
+                            value._bouton.disable();
+                            value._bouton.setChecked(false);
+                            value.options.couche.afficheContenuPage = false;
+                        }                
+                    });
+                }
+            }
+            else{
+                $.each(this.parent.obtenirOutils(), function(index,value){
+                    if(value.options.type === 'contenupage'){
+                        value._bouton.enable();
+                    }                
+                });
+                this.options.couche.afficherTout();
+            }           
         }
     };
     
