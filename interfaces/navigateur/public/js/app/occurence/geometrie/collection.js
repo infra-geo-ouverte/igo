@@ -32,18 +32,6 @@ define(['geometrie', 'polygone', 'ligne', 'point', 'aide'], function(Geometrie, 
         var that = this;
         this.geometries = [];
 
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Collection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-
         if (geometries && geometries.CLASS_NAME === "OpenLayers.Geometry.Collection") {
             geometries = geometries.components;
         }

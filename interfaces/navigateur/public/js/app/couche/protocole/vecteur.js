@@ -722,12 +722,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
     };
    
-    Vecteur.Controles.prototype.activerDeplacement = function(opt) {
-        opt = opt || {};
-        if (!this._dragControl) {
-            this._dragControl = new OpenLayers.Control.DragFeature(this._._layer, {onStart: this._debutDeplacement, onDrag: this._deplacement, onComplete: this._finDeplacement, scope: this});
-            this._.carte._getCarte().addControl(this._dragControl);
-        };
+    Vecteur.Controles.prototype.activerDeplacement = function() {
+        this._.carte.controles.activerDeplacementVecteur(this._);
        /* if(opt.combinaisonClique){
             this._dragControl.handlers['drag'].stopDown = false;
             this._dragControl.handlers['drag'].stopUp = false;
@@ -740,38 +736,28 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
             this._dragControl.handlers['feature'].stopDown = true;
             this._dragControl.handlers['feature'].stopClick = true;
         };*/
-        this._dragControl.activate();
     };
-    
+
+    Vecteur.Controles.prototype.activerEdition = function(options) {
+        this._.carte.controles.activerEdition(this._, options);
+    };
+
+    Vecteur.Controles.prototype.activerDessin = function(options) {
+        this._.carte.controles.activerDessin(this._, options);
+    };
+
     Vecteur.Controles.prototype.desactiverDeplacement = function() {
-        if (this._dragControl) {
-            this._dragControl.deactivate();
-        }
+        this._.carte.controles.desactiverDeplacementVecteur();
+
     };
-    
-    Vecteur.Controles.prototype._debutDeplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        that._.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
+
+    Vecteur.Controles.prototype.desactiverEdition = function() {
+        this._.carte.controles.desactiverEdition();
     };
-    
-    
-    Vecteur.Controles.prototype._deplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        occurence.x = feature.geometry.x;
-        occurence.y = feature.geometry.y;
-        that._.declencher({ type: "deplacementOccurence", occurence: occurence }); 
+
+    Vecteur.Controles.prototype.desactiverDessin = function() {
+        this._.carte.controles.desactiverDessin();
     };
-    
-    Vecteur.Controles.prototype._finDeplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        occurence.x = feature.geometry.x;
-        occurence.y = feature.geometry.y;
-        that._.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
-    };
-    
 
     Vecteur.Controles.prototype.activerSelection = function(opt) { //ajouter? au lieu d'activer? separer en 2?
         opt = opt || {};

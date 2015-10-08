@@ -616,45 +616,150 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         };
     };
 
+    Carte.Controles.prototype.activerDeplacementVecteur = function(couche) {
+        var that = this;
+        couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
+        if(!couche){return false;}
+
+        if (this.controleDrag && (this.controleDrag.layer !== couche._layer)){
+            this.desactiverDeplacementVecteur();
+        }
+
+        if(!this.controleDrag){
+            var cacherVertex = function(){
+                if(that.controleEdition && that.controleEdition.vertices.length && !that.controleEdition.vertices[0].style){
+                    $.each(that.controleEdition.vertices, function(key, value){
+                        value.style = new OpenLayers.Style({fillOpacity: 0, strokeOpacity: 0});
+                    });
+                    $.each(that.controleEdition.virtualVertices, function(key, value){
+                        value.style = new OpenLayers.Style({fillOpacity: 0, strokeOpacity: 0});
+                    });
+                    that.controleEdition.layer.redraw()
+                }
+            };
+
+            this.controleDrag = new OpenLayers.Control.DragFeature(couche._layer, {
+                onStart: function(feature){
+                    cacherVertex();
+                    var occurence = couche.obtenirOccurenceParId(feature.id);
+                    if(occurence){
+                        couche.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
+                    }
+                }, 
+                onDrag: function(feature){
+                    cacherVertex();
+                    var occurence = couche.obtenirOccurenceParId(feature.id);
+                    if(occurence){
+                        occurence.x = feature.geometry.x;
+                        occurence.y = feature.geometry.y;
+                        couche.declencher({ type: "deplacementOccurence", occurence: occurence }); 
+                    }
+                }, 
+                onComplete: function(feature){
+                    if(that.controleEdition){
+                        that.controleEdition.resetVertices();
+                    }
+                    var occurence = couche.obtenirOccurenceParId(feature.id);
+                    if(occurence){
+                        occurence.x = feature.geometry.x;
+                        occurence.y = feature.geometry.y;
+                        couche.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
+                    }
+                }, 
+                scope: this
+            });
+        }
+
+        if(this.controleEdition && this.controleEdition.active){
+            this.controleEdition.deactivate();
+            this.controleDrag.handlers['drag'].stopDown = false;
+            this.controleDrag.handlers['drag'].stopUp = false;
+            this.controleDrag.handlers['drag'].stopClick = false;
+            this._._carteOL.addControl(this.controleDrag);
+            this.controleDrag.activate();
+            this.controleEdition.activate();
+        } else {
+            this._._carteOL.addControl(this.controleDrag);
+            this.controleDrag.activate();
+        }
+
+        if (this.snap) {
+            this.activerSnap(couche);
+        }
+    }
+
+    Carte.Controles.prototype.desactiverDeplacementVecteur = function(couche) {
+        if (this.controleDrag) {
+            this.desactiverSnap();
+            this.controleDrag.deactivate();
+            this._._carteOL.removeControl(this.controleDrag);
+            this.controleDrag.destroy();
+            this.controleDrag = undefined;
+        }
+    }
+
     Carte.Controles.prototype.activerEdition = function(couche, options) {
         options = options  || {};
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
+        if(!couche){return false;}
 
-        if (this.controleEdition && (this.controleEdition.layer !== couche._layer)) {
-            this._desactiverEventsEdition();
-            /* this._._carteOL.removeControl(this.controleEdition);
-             this.controleEdition.destroy();
-             this.controleEdition=undefined;*/
+        if (this.controleEdition && (this.controleEdition.layer !== couche._layer || this.controleEdition.optionsIgo !== options)){
+            this.desactiverEdition();
+        }
+
+        if(this.controleDrag){
+            this.controleDrag.handlers['drag'].stopDown = false;
+            this.controleDrag.handlers['drag'].stopUp = false;
+            this.controleDrag.handlers['drag'].stopClick = false;
         }
 
         if (!this.controleEdition) {
-            this.controleEdition = new OpenLayers.Control.ModifyFeature(couche._layer /*, {clickout: false}*/ );
-            this._._carteOL.addControl(this.controleEdition);
-        }
+            var modeEdit = 0;
+            if(options.editVertex !== false){
+                modeEdit = OpenLayers.Control.ModifyFeature.RESHAPE ;
+            } 
+            if(options.rotation){
+                modeEdit += OpenLayers.Control.ModifyFeature.ROTATE ;
+            } 
+            if(options.editDimension){
+                modeEdit += OpenLayers.Control.ModifyFeature.RESIZE ;
+            } 
 
-        this.controleEdition.activate();
-
-        this.desactiverOccurenceEvenement(couche);
-        var occurenceSelectionnee = couche.obtenirOccurencesSelectionnees()[0];
-        if (occurenceSelectionnee) {
-            couche.deselectionnerTout();
-            occurenceSelectionnee.selectionner();
-            this.controleEdition.selectFeature(occurenceSelectionnee._feature);
+            if(modeEdit){
+                this.controleEdition = new OpenLayers.Control.ModifyFeature(couche._layer, {
+                    mode: modeEdit
+                });
+                this._._carteOL.addControl(this.controleEdition); 
+                this.controleEdition.optionsIgo = options;
+                this.controleEdition.coucheIgo = couche;
+            }
         }
-        this._initEventsEdition(couche);
-        this._activerEventsEdition();
-        couche.declencher({
-            type: 'controleEditionActiver'
-        });
-        if (this.snap) {
-            this.activerSnap(couche);
+        
+        if(this.controleEdition){
+            this.controleEdition.activate();
+
+            this.desactiverOccurenceEvenement(couche);
+            var occurenceSelectionnee = couche.obtenirOccurencesSelectionnees()[0];
+            if (occurenceSelectionnee) {
+                couche.deselectionnerTout();
+                occurenceSelectionnee.selectionner();
+                this.controleEdition.selectFeature(occurenceSelectionnee._feature);
+            }
+            this._initEventsEdition(couche);
+            this._activerEventsEdition();
+            couche.declencher({
+                type: 'controleEditionActiver'
+            });
+            
+            if (this.snap) {
+                this.activerSnap(couche);
+            }
         }
     };
 
     Carte.Controles.prototype.desactiverEdition = function(couche) {
         if (this.controleEdition) {
-            //couche = couche || this._.gestionCouches.coucheVecteurActive;
-            // this._editionEvents.fnAfterFeatureModified({feature: this.controleEdition.feature});
+            this.desactiverSnap();
             this._desactiverEventsEdition();
             this.controleEdition.deactivate();
             this._._carteOL.removeControl(this.controleEdition);
