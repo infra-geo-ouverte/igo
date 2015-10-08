@@ -155,31 +155,7 @@ define(['geometrie', 'aide'], function(Geometrie, Aide) {
         return this._obtenirGeomOL().distanceTo(p2._obtenirGeomOL());
     };
 
-    /** 
-     * Déplacer le point vers un nouveau point
-     * @method
-     * @name Geometrie.Point#deplacer
-     * @param {Geometrie.Point} point Nouvel emplacement
-     * @returns {Geometrie.Point} Retourne lui-même
-     * @throws Point.deplacer : L'argument n'est pas un point
-     * @throws Point.deplacer : Les points ne sont pas dans la même projection
-     */
-    Point.prototype.deplacer = function(point) {
-        if (!(point instanceof Point)) {
-            throw new Error("Point.deplacer : L'argument n'est pas un point");
-        } else if (this.projection !== point.projection) {
-            //plus: paramètre pour convertir ou non la projection
-            throw new Error("Point.deplacer : Les points ne sont pas dans la même projection");
-        }
-        this.x = parseFloat(point.x);
-        this.y = parseFloat(point.y);
-        this.definirNombreDecimales();
-        if (this._feature) {
-            this._feature.move(point._obtenirLonLatOL());
-        }
-        return this;
-    };
-    
+
      /** 
      * Déplacer de dX et dY le point
      * @method

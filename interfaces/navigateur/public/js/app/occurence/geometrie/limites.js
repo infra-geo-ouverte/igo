@@ -28,7 +28,7 @@ define(['geometrie', 'aide', 'point'], function(Geometrie, Aide, Point) {
      * @property {string} projection Projection du point (Format EPSG)
      */
     function Limites(gauche, bas, droite, haut, proj) {
-        Geometrie.apply(this, arguments);
+        Geometrie.apply(this, [proj]);
         this.gauche = Number(gauche);
         this.bas = Number(bas);
         this.droite = Number(droite);

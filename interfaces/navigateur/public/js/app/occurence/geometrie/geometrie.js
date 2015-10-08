@@ -111,13 +111,43 @@ define(['aide'], function(Aide) {
             return this.limites;
         }
         var limitesOL = this._obtenirGeomOL().getBounds();
-        return new Igo.Geometrie.Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
+        return new Igo.Geometrie.Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top, this.projection);
     };
 
     Geometrie.prototype.obtenirCentroide = function() {
+        var centroidOL = this._obtenirGeomOL().getCentroid();
+        return new Igo.Geometrie.Point(centroidOL, this.projection);
+    };
+
+    Geometrie.prototype.obtenirCentre = function() {
         var limites = this.obtenirLimites();
         return limites.obtenirCentroide();
     };
+
+    /** 
+     * Déplacer la géométrie vers un nouveau point
+     * @method
+     * @name Geometrie#deplacer
+     * @param {Geometrie.Point} point Nouvel emplacement
+     * @returns {Geometrie} Retourne lui-même
+     * @throws Geometrie.deplacer : L'argument n'est pas un point
+     * @throws Geometrie.deplacer : Les géométries ne sont pas dans la même projection
+     */
+    Geometrie.prototype.deplacer = function(point) {
+        if (point.obtenirTypeClasse() !== 'Point') {
+            throw new Error("Geometrie.deplacer : L'argument n'est pas un point");
+        } else if (this.projection !== point.projection) {
+            //plus: paramètre pour convertir ou non la projection
+            throw new Error("Geometrie.deplacer : Les points ne sont pas dans la même projection");
+        }
+
+        if (this._feature) {
+            this._feature.move(point._obtenirLonLatOL());
+            this.majGeometrie(this._feature.geometry);
+        }
+        return this;
+    };
+    
 
     return Geometrie;
 });
