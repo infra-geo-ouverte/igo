@@ -6,7 +6,7 @@
  * @requires aide
  */
 
-define(['aide', 'point'], function(Aide, Point) {
+define(['geometrie', 'aide', 'point'], function(Geometrie, Aide, Point) {
     /** 
      * Création de l'object Geometrie.MultiPoint.
      * @constructor
@@ -19,20 +19,9 @@ define(['aide', 'point'], function(Aide, Point) {
      * @returns {Geometrie.MultiPoint} Instance de {@link Geometrie.MultiPoint}
      */
     function MultiPoint(arrayPoint, proj) {
+        Geometrie.apply(this, [proj]);
         var that = this;
         this.points = [];
-
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new MultiPoint : Projection EPSG invalide");
-        }
-        this.projection = proj;
 
         if (arrayPoint && (arrayPoint.CLASS_NAME === "OpenLayers.Geometry.MultiPoint")) {
             arrayPoint = arrayPoint.components;
@@ -62,79 +51,8 @@ define(['aide', 'point'], function(Aide, Point) {
         }
     }
 
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name MultiPoint#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    MultiPoint.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
-    };
-    
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.MultiPoint#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    MultiPoint.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.MultiPoint#definirProjection
-     * @throws MultiPoint.definirProjection : Projection EPSG invalide
-     * @example MultiPoint.definirProjection('EPSG:4326');
-     */
-    MultiPoint.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiPoint.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
-
-
-    /** 
-     * Transformer les coordonnées dans une autre projection.
-     * Cette fonction ne modifie par le multiPoint, un nouveau multiPoint est créé.
-     * @method
-     * @name Geometrie.MultiPoint#projeter
-     * @param {String} arg1 
-     * Si !arg2, alors arg1 = Projection voulue. La projection source est la projection du multiPoint.
-     * Si arg2, alors arg1 = Projection source
-     * @param {String} [arg2] Projection voulue
-     * @returns {Geometrie.MultiPoint} Instance projectée de {@link Geometrie.MultiPoint}
-     * @throws MultiPoint.projeter : Projection source invalide
-     * @throws MultiPoint.projeter : Projection voulue invalide
-     * @example MultiPoint.projeter('EPSG:4326');
-     * @example MultiPoint.projeter('EPSG:4326','EPSG:900913');
-     */
-    MultiPoint.prototype.projeter = function(arg1, arg2) {
-        var dest, source;
-        if (arg2) {
-            source = arg1;
-            dest = arg2;
-        } else {
-            source = this.projection;
-            dest = arg1;
-        }
-        if (typeof source !== "string" || source.toUpperCase().substr(0, 5) !== 'EPSG:' || source.substr(5) !== source.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiPoint.projeter : Projection source invalide");
-        }
-        if (typeof dest !== "string" || dest.toUpperCase().substr(0, 5) !== 'EPSG:' || dest.substr(5) !== dest.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiPoint.projeter : Projection voulue invalide");
-        }
-        
-        var projSource = new OpenLayers.Projection(source);
-        var projDest = new OpenLayers.Projection(dest);
-        var multiPointsOL = this._obtenirGeomOL();
-        var multiPointsProj = multiPointsOL.transform(projSource, projDest);
-        return new MultiPoint(multiPointsProj, dest);
-    };
+    MultiPoint.prototype = Object.create(Geometrie.prototype);
+    MultiPoint.prototype.constructor = MultiPoint;
 
     /** 
      * Obtenir un multiPoint OpenLayers

@@ -544,20 +544,6 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     };
 
     /** 
-     * Obtenir les limites de l'occurence
-     * @method
-     * @name Occurence#obtenirLimites
-     * @returns {Geometrie.Limites} Limites de l'occurence
-     */
-    Occurence.prototype.obtenirLimites = function() {
-        if (this.limites) {
-            return this.limites;
-        }
-        var limitesOL = this._obtenirGeomOL().getBounds();
-        return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
-    };
-
-    /** 
      * Cacher l'occurence
      * @method
      * @name Occurence#cacher

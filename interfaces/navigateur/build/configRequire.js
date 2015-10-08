@@ -21,6 +21,7 @@ require.config({
                 ligne: 'js/app/occurence/geometrie/ligne',
                 limites: 'js/app/occurence/geometrie/limites',
                 collection: 'js/app/occurence/geometrie/collection',
+                geometrie: 'js/app/occurence/geometrie/geometrie',
                 multiPoint: 'js/app/occurence/geometrie/multiPoint',
                 multiLigne: 'js/app/occurence/geometrie/multiLigne',
                 multiPolygone: 'js/app/occurence/geometrie/multiPolygone',

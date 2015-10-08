@@ -6,7 +6,7 @@
  * @requires polygone
  * @requires aide
  */
-define(['polygone', 'aide'], function(Polygone, Aide) {
+define(['geometrie', 'polygone', 'aide'], function(Geometrie, Polygone, Aide) {
     /** 
      * Création de l'object Geometrie.MultiPolygone.
      * @constructor
@@ -29,20 +29,9 @@ define(['polygone', 'aide'], function(Polygone, Aide) {
      * new Geometrie.MultiPolygone([[[-72,50], [-72,58], [-75,58], [-75,50]], [[-73,52], [-74,55], [-74,52]]], 'EPSG:4326');
      */
     function MultiPolygone(polygones, proj) {
+        Geometrie.apply(this, [proj]);
         var that = this;
         this.polygones = [];
-
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Polygone : Projection EPSG invalide");
-        }
-        this.projection = proj;
 
         if (polygones && polygones.CLASS_NAME === "OpenLayers.Geometry.MultiPolygon") {
             polygones = polygones.components;
@@ -65,30 +54,8 @@ define(['polygone', 'aide'], function(Polygone, Aide) {
         }
     }
 
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.MultiPolygone#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    MultiPolygone.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.MultiPolygone#definirProjection
-     * @throws MultiPolygone.definirProjection : Projection EPSG invalide
-     * @example MultiPolygone.definirProjection('EPSG:4326');
-     */
-    MultiPolygone.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiPolygone.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
+    MultiPolygone.prototype = Object.create(Geometrie.prototype);
+    MultiPolygone.prototype.constructor = MultiPolygone;
 
     /** 
      * Obtenir la longueur du périmètre
@@ -108,53 +75,6 @@ define(['polygone', 'aide'], function(Polygone, Aide) {
      */
     MultiPolygone.prototype.obtenirSuperficie = function() {
         return this._obtenirGeomOL().getGeodesicArea(this.projection);
-    };
-
-    /*
-     * Transformer les coordonnées dans une autre projection.
-     * Cette fonction ne modifie par le MultiPolygone, un nouveau MultiPolygone est créé
-     * @method
-     * @name Geometrie.MultiPolygone#projeter
-     * @param {String} arg1 
-     * Si !arg2, alors arg1 = Projection voulue. La projection source est la projection du MultiPolygone.
-     * Si arg2, alors arg1 = Projection source
-     * @param {String} [arg2] Projection voulue
-     * @returns {Geometrie.MultiPolygone} Instance projectée de {@link Geometrie.MultiPolygone}
-     * @throws MultiPolygone.projeter : Projection source invalide
-     * @throws MultiPolygone.projeter : Projection voulue invalide
-     * @example MultiPolygone.projeter('EPSG:4326');
-     * @example MultiPolygone.projeter('EPSG:4326','EPSG:900913');
-     */
-    MultiPolygone.prototype.projeter = function(arg1, arg2) {
-        var dest, source;
-        if (arg2) {
-            source = arg1;
-            dest = arg2;
-        } else {
-            source = this.projection;
-            dest = arg1;
-        }
-        if (typeof source !== "string" || source.toUpperCase().substr(0, 5) !== 'EPSG:' || source.substr(5) !== source.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiPolygone.projeter : Projection source invalide");
-        }
-        if (typeof dest !== "string" || dest.toUpperCase().substr(0, 5) !== 'EPSG:' || dest.substr(5) !== dest.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiPolygone.projeter : Projection voulue invalide");
-        }
-        var projSource = new OpenLayers.Projection(source);
-        var projDest = new OpenLayers.Projection(dest);
-        var polyOL = this._obtenirGeomOL();
-        var polyProj = polyOL.transform(projSource, projDest);
-        return new MultiPolygone(polyProj, dest);
-    };
-
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name MultiPolygone#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    MultiPolygone.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
     };
     
     /** 

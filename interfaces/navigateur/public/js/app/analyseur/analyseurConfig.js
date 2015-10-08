@@ -484,7 +484,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
     */
     AnalyseurConfig.prototype._analyserCouches = function(json) {
         var that = this;
-        var igoGeometrieReq = ['occurence', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLigne', 'multiPolygone', 'limites', 'style'];
+        var igoGeometrieReq = ['occurence', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLigne', 'multiPolygone', 'collection', 'limites', 'style'];
         var modulesReq = ['google', 'blanc', 'OSM', 'TMS', 'WMS', 'vecteur', 'vecteurCluster', 'marqueurs'];
         modulesReq = this._analyserRequire(json, modulesReq);
         var igoGeoReq = igoGeometrieReq.concat(modulesReq);
