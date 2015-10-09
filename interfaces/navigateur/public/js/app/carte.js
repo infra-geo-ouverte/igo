@@ -650,8 +650,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     cacherVertex();
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence){
-                        occurence.x = feature.geometry.x;
-                        occurence.y = feature.geometry.y;
+                        occurence.majGeometrie(feature.geometry, {lancerDeclencheur: false});
                         couche.declencher({ type: "deplacementOccurence", occurence: occurence }); 
                     }
                 }, 
@@ -661,8 +660,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     }
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence){
-                        occurence.x = feature.geometry.x;
-                        occurence.y = feature.geometry.y;
+                        occurence.majGeometrie(feature.geometry);
                         couche.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
                     }
                 }, 

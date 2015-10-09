@@ -723,7 +723,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return;
         }
 
-        $.extend(this, geometrie, {projeter: Occurence.prototype.projeter});
+        $.extend(geometrie, this);
 
         if (!this.id) {
             var type = this.type ? this.type + '_' : '';
@@ -778,7 +778,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {Geometrie|Openlayers.Geometry} geometrie Géométrie de l'occurence
      * @returns {Occurence} Retourne lui-même
      */
-    Occurence.prototype.majGeometrie = function(geometrie) {
+    Occurence.prototype.majGeometrie = function(geometrie, opt) {
+        opt = opt || {};
         if (this.vecteur) {
             this.vecteur.carte.gestionCouches.enleverOccurenceSurvol(this);
             this.vecteur._layer.removeFeatures(this._feature);
@@ -794,20 +795,22 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             this.appliquerStyle(this.regleCourant, false);
         }
         
-        /**
-         * Événement lancée lorsque l'occurence est modifiée
-         * @event Occurence#occurenceModifiee
-         * @type {object}
-         */
-        this.declencher({type: "occurenceModifiee", modif: geometrie, modifType: 'géométrie'});
-        if (this.vecteur) {
+        if(opt.lancerDeclencheur !== false){
             /**
-             * Événement lancée lorsqu'une occurence du vecteur est modifiée
-             * @event Couche.Vecteur#vecteurOccurenceModifiee
+             * Événement lancée lorsque l'occurence est modifiée
+             * @event Occurence#occurenceModifiee
              * @type {object}
-             * @property {Occurence} occurence L'occurence modifiée
              */
-            this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
+            this.declencher({type: "occurenceModifiee", modif: geometrie, modifType: 'géométrie'});
+            if (this.vecteur) {
+                /**
+                 * Événement lancée lorsqu'une occurence du vecteur est modifiée
+                 * @event Couche.Vecteur#vecteurOccurenceModifiee
+                 * @type {object}
+                 * @property {Occurence} occurence L'occurence modifiée
+                 */
+                this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
+            }
         }
         
         return this;
@@ -863,7 +866,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {String} [arg2] Projection voulue
      * @returns {Occurence} Occurence avec la nouvelle projection
      */
-    Occurence.prototype.projeter = function(arg1, arg2) {        
+    Occurence.prototype.projeter = function(arg1, arg2) {      
         var geom = this._obtenirGeometrie().projeter(arg1, arg2);
         return this.cloner()._definirGeometrie(geom);
     };
@@ -893,7 +896,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         delete this.proprietesOriginales;
         this.modifiee = this.geometrieOriginale ? true : false;
     }
-    
+
     return Occurence;
 
 });
