@@ -1,4 +1,4 @@
-/*if(!require.estDansConfig("pagingStore")){   
+/*if(!require.estDansConfig("pagingStore")){
     require.ajouterConfig({
         paths: {
             pagingStore: 'libs/Ext.ux/PagingStore/PagingStore'
@@ -15,21 +15,21 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             paginer : false,
             paginer_debut:0,
             paginer_limite:50
-        });   
+        });
     };
-    
+
     PanneauTable.prototype = new Panneau();
     PanneauTable.prototype.constructor = PanneauTable;
-    
+
     PanneauTable.prototype._init = function() {
         Ext.QuickTips.init();
-                
+
             var that =this;
             this.controles = new PanneauTable.Controles(this);
             this.template = this.options.template || {colonnes: []};
-            this.donnees = this.options.donnees || [];                    
-            var config = this.configurer(this.template, this.donnees); 
-            
+            this.donnees = this.options.donnees || [];
+            var config = this.configurer(this.template, this.donnees);
+
             this._extOptions = {
                     xtype: 'editorgrid',
                     store: config.store,
@@ -48,19 +48,19 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     listeners:{
                         reconfigure: function(ceci , store, colModel){
                             that.reconfigurerPaginationBarre(store);
-                        }                           
+                        }
                     }
                 };
-                   
+
                 Panneau.prototype._init.call(this);
                 this._initEvent();
                 this.barreOutils._setPanelContainer(this._panel);
                 if(this.options.vecteur){
                     this.ouvrirTableVecteur();
-                }                    
+                }
     };
-    
-  
+
+
     PanneauTable.prototype._initEvent = function(){
         var that=this;
         this._panel.on('beforeedit', function(e){
@@ -68,7 +68,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 return false;
             }
             return that.options.activerEdition === true || that.donnees.editionActif === true;}
-        );     
+        );
         this._panel.on('afteredit', function(e){
             var occurence = e.record.json;
             if(occurence.obtenirPropriete('/'+e.field) !== e.value) {
@@ -76,13 +76,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             }
         });
     };
-    
+
     PanneauTable.prototype._obtenirToolbar = function(){
         var that=this;
         this.barreOutils = new BarreOutils(this.carte);
         return this.barreOutils._getToolbar();
     };
-    
+
     PanneauTable.prototype._obtenirPaginationBarre = function(config){
         if(this.options.paginer){
             return new Ext.PagingToolbar({
@@ -96,9 +96,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         else{
             return null;
         }
-       
+
     };
-    
+
     PanneauTable.prototype.chargerDonnees = function(donnees, garderDonnees){
         var that=this;
         try{
@@ -106,7 +106,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         } catch(e){
             console.warn(e);
 //            $.each(donnees.listeOccurences, function(key, value){
-//                
+//
 //            });
 //            donnees.listeOccurences[0].definirPropriete("test", {});
 //            that.chargerDonnees(donnees, garderDonnees);
@@ -118,7 +118,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             this._panel.store.sort('id', "ASC");
         }
     };
-    
+
     PanneauTable.prototype.ajouterOccurences = function(occurences, garderDonnees){
         //todo: vérifié si compatible avec le template?
         this.chargerDonnees({listeOccurences: occurences}, garderDonnees);
@@ -126,13 +126,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
 //        occurences[0].selectionner();
 //        var index = this._panel.store.indexOfId(occurences[0].id);
 //        if(index === -1){return true;}
-        
+
 //        var that=this;
 //        setTimeout(function() { //todo: utiliser un event after loadData
 //           // that._panel.getView().focusRow(index);
 //        }, 5);
     };
-    
+
     PanneauTable.prototype.enleverParOccurences = function(occurences){
         var that=this;
         $.each(occurences, function(key, value){
@@ -141,18 +141,18 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             that.enleverParIndex(index);
         });
     };
-    
+
     PanneauTable.prototype.enleverParIndex = function(index){
         this._panel.store.removeAt(index);
     };
-    
+
     PanneauTable.prototype._obtenirColumnModel = function(colTemplate){
         var editor;
         var rendu = colTemplate.rendu;
         var that=this;
         //colTemplate.type = 'enumeration';
 //        colTemplate.editable = true;
-        if(!colTemplate.editable) {        
+        if(!colTemplate.editable) {
             editor = undefined;
 //            if(this.donnees.options.editable){
 //                rendu = function(currentCellValue, metadata){
@@ -198,7 +198,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             });
 
             rendu = function(value) {
-                var store = this.editor.store; 
+                var store = this.editor.store;
                 var index = store.find('id', value);
                 if(index != -1) {
                     return store.data.items[index].data["value"];
@@ -208,30 +208,30 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             };
         } else if(colTemplate.type === 'nombre' || colTemplate.type === "integer") {
             editor = new Ext.form.NumberField({
-                allowBlank: !colTemplate.obligatoire                
+                allowBlank: !colTemplate.obligatoire
             });
         } else if(colTemplate.type === 'texte'){
            editor = new Ext.form.TextArea({
-                allowBlank: !colTemplate.obligatoire      
-            }); 
+                allowBlank: !colTemplate.obligatoire
+            });
         } else {
            editor = new Ext.form.TextField({
-                allowBlank: !colTemplate.obligatoire      
-            }); 
+                allowBlank: !colTemplate.obligatoire
+            });
         }
 
         var base = '';
         if(colTemplate.utiliserBase !== false && that.template.proprietesBase){
             base = that.template.proprietesBase + '.';
         }
-        
+
         var renduDirty = function(value, cell, objet){
             if(objet.json.modifiee && objet.json.proprietesOriginales){
                 var propriete = objet.store.fields.get(cell.id).name;
                 var proprieteOriginale = propriete.replace("proprietes.", "proprietesOriginales.");
                 var valeurOriginale = objet.json.obtenirPropriete("/"+proprieteOriginale);
                 var valeur = objet.json.obtenirPropriete("/"+propriete);
-                
+
                 if(valeurOriginale !== valeur){
                     cell.css = cell.css + " x-grid3-dirty-cell";
                 }
@@ -241,33 +241,33 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             }
             return value;
         }
-        
+
         var titre;
         if(colTemplate.obligatoire) {
-            titre = "*" + colTemplate.titre;      
+            titre = "*" + colTemplate.titre;
         }
         else{
             titre = colTemplate.titre;
         }
-        
+
         return {
             //id       : colTemplate.titre,
-            header   : titre, 
-            width    : colTemplate.largeur, 
-            sortable : colTemplate.triable, 
+            header   : titre,
+            width    : colTemplate.largeur,
+            sortable : colTemplate.triable,
             alignement : colTemplate.alignement,
             dataIndex: base + colTemplate.propriete,
             renderer : renduDirty,
             editor : editor
         };
     };
-    
+
     PanneauTable.prototype.afficherErreurs = function(){
         var that = this;
         try {
             $(this._panel.view.el.dom.getElementsByClassName("x-form-invalid")).removeClass("x-form-invalid");
         } catch (e){}
-        
+
         $.each(this.donnees.listeOccurences, function(key, occurence){
             if($.isEmptyObject(occurence.obtenirErreurs())){
                 return true;
@@ -314,7 +314,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 }
                 cell.title = messageGen; //todo: un event à la place?
             }
-            
+
             $.each(that.template.colonnes, function(colKey, colTemplate){
                 var base = '';
                 if(colTemplate.utiliserBase !== false && that.template.proprietesBase){
@@ -346,19 +346,19 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             });
         });
     };
-    
+
     PanneauTable.prototype.configurer = function(template, donnees){
         var that=this;
         this.desactiverDeclencheursVecteur(this.donnees);
         //this.controles.desactiverSelection();
-        
+
         this.template = template || this.template || {};
         this.donnees = donnees || this.donnees || [];
 
         if(!this.template.titre){
             this.template.titre = this.options.titre || 'Table';
         }
-        this.definirTitre(this.template.titre); 
+        this.definirTitre(this.template.titre);
 
         var fields = [];
         var columnModel = [];
@@ -369,28 +369,24 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 base = that.template.proprietesBase + '.';
             }
             fields.push({
-                name: base + value.propriete, 
+                name: base + value.propriete,
                 type: value.type,
                 allowBlank: !value.obligatoire,
                 useNull: true
            });
             columnModel.push(that._obtenirColumnModel(value));
         });
-        
+
         var debut = this.options.paginer_debut?parseInt(this.options.paginer_debut):this.defautOptions.paginer_debut;
         var limite = this.options.paginer_limite?parseInt(this.options.paginer_limite):this.defautOptions.paginer_limite;
-        
+
         var store = new Ext.ux.data.PagingJsonStore({
             fields:fields,
             root: this.template.base,
             lastOptions: {'params':{'start':debut,'limit':limite}},
             listeners : {
-                //Lors d'un changement de page. Nous devons executer chaque checkbox de la liste
-                datachanged: function(pagingJsonStore){ 
-                    if(that.donnees.listeOccurences){
-                        that.donnees.deselectionnerTout();
-                    }
-                    
+                //Lors d'un changement de page. Nous devons executer chaque checkbox de la liste D'outil
+                datachanged: function(pagingJsonStore){
                     if(that.barreOutils){
                         $.each(that.barreOutils.obtenirOutilsParType("OutilTableSelection",3), function(index , value){
                             if(typeof value._bouton.isXType === "function" && value._bouton.isXType("menucheckitem")){
@@ -398,16 +394,22 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                             }
                         });
                     }
+                },
+                load: function(pagingJsonStore,record,options){
+                    //resélectionner les occurences après load de la page
+                    if(typeof that.donnees["obtenirOccurencesSelectionnees"] === "function"){
+                        that.selectionnerParOccurences(that.donnees.obtenirOccurencesSelectionnees());
+                    }
                 }
             }
         });
-               
+
         try {
             store.loadData(that.donnees);
         } catch(e){
             console.warn(e);
         }
-        
+
         if(this._panel && this._panel.store && this._panel.store.sortInfo){
             var sortInfo  = this._panel.store.sortInfo;
             store.sort(sortInfo.field, sortInfo.direction);
@@ -418,10 +420,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this.activerDeclencheursVecteur(this.donnees);
         this.reconfigurerBarreOutils(this.donnees);
         this.controles.activerSelection();
-        
+
         return {columnModel: new Ext.grid.ColumnModel(columnModel), store: store};
     };
-    
+
     PanneauTable.prototype.reconfigurerPaginationBarre = function(store){
         if(this.options.paginer && this._panel){
             var paginationBarre = this._panel.getBottomToolbar();
@@ -430,7 +432,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             }
         }
     };
-    
+
     PanneauTable.prototype.reconfigurerBarreOutils = function(){
         var that=this;
         if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster' || this.donnees.obtenirTypeClasse() === 'WFS')){
@@ -452,10 +454,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     var menuDessin = new OutilControleMenu({titre: 'Dessin', utiliserSousTitre: true, outils: outilsDessin});
                     outils.push(menuDessin);
                 }
-                      
+
                 outils.push(new OutilEdition({couche: this.donnees, type: "Vertex"}));
                 outils.push(new Outil({
-                    //titre: 'Supprimer', 
+                    //titre: 'Supprimer',
                     icone: Aide.obtenirCheminRacine()+'images/toolbar/supprimer.png',
                     infobulle: "Supprimer l'occurence",
                     action: function(){
@@ -465,7 +467,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 }));
 
                 outils.push(new Outil({
-                  //  titre:'Sauvegarder', 
+                  //  titre:'Sauvegarder',
                     icone: Aide.obtenirCheminRacine()+'images/toolbar/disk.png',
                     infobulle: "Sauvegarder les changements",
                     action: function(){
@@ -475,20 +477,20 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                             return false;
                         }
                         that.donnees.accepterModifications();
-                        that.rafraichir();       
+                        that.rafraichir();
                     }
-                })); 
+                }));
                 outils.push(new Outil({
-                    //titre:'Annuler', 
+                    //titre:'Annuler',
                     icone: Aide.obtenirCheminRacine()+'images/toolbar/annuler.png',
                     infobulle: "Annuler tous les changements",
                     action: function(){
                         that.donnees.annulerModifications();
                         that.rafraichir();
                     }
-                }));      
+                }));
             }
-             
+
             var menuSelection = new OutilMenu({titre: 'Sélection'});
 
             outils.push(menuSelection);
@@ -503,21 +505,21 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 type:'inverse',
                 couche: this.donnees}));
             outilsSelection.push(new OutilTableSelection({
-                type:'complet', 
+                type:'complet',
                 couche: this.donnees}));
             outilsSelection.push(new OutilTableSelection({
-                type:'zoom',    
+                type:'zoom',
                 couche: this.donnees}));
-              
+
             outilsSelection.push(new OutilTableSelection({
                 type:'selectionSeulement',
                 couche: this.donnees}));
-            
+
             var selectionnerAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
              outilsSelection.push(new OutilTableSelection({
                 type:'auto',
                 couche: this.donnees,
-                _extOptions:{checked:selectionnerAuto}}));          
+                _extOptions:{checked:selectionnerAuto}}));
 
             var selectionnerContenuPage = typeof this.options.outils_contenupage ? this.options.outils_contenupage:false;
             if(this.options.paginer){
@@ -527,22 +529,22 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     panneauTable: this,
                     _extOptions:{checked:selectionnerContenuPage}}));
             }
-            
-            menuSelection.ajouterOutils(outilsSelection);  
+
+            menuSelection.ajouterOutils(outilsSelection);
             if(selectionnerContenuPage)outilsSelection[outilsSelection.length-1].executer(true);
             if(selectionnerAuto)outilsSelection[outilsSelection.length-1].executer(true);
         }
     };
-    
+
     PanneauTable.prototype.reconfigurer = function(template, donnees){
-        var config = this.configurer(template, donnees);       
+        var config = this.configurer(template, donnees);
         this._panel.reconfigure(config.store, config.columnModel);
         var that=this;
         setTimeout(function() {
             that.afficherErreurs();
         }, 1);
     };
-      
+
     PanneauTable.prototype.activerDeclencheursVecteur = function(vecteur){
         if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster' || this.donnees.obtenirTypeClasse() === 'WFS')){
             vecteur.ajouterDeclencheur('vecteurOccurenceSelectionnee', this._selectionEvent, {scope:this});
@@ -553,7 +555,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             vecteur.ajouterDeclencheur('enleverCouche', this._coucheEnleveeEvent, {scope:this});
         }
     };
-    
+
     PanneauTable.prototype.desactiverDeclencheursVecteur = function(vecteur){
         if(this.donnees.obtenirTypeClasse && (this.donnees.obtenirTypeClasse() === 'Vecteur' || this.donnees.obtenirTypeClasse() === 'VecteurCluster' || this.donnees.obtenirTypeClasse() === 'WFS')){
             vecteur.enleverDeclencheur('vecteurOccurenceSelectionnee', undefined, this._selectionEvent);
@@ -564,15 +566,15 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             vecteur.enleverDeclencheur('enleverCouche', undefined, this._coucheEnleveeEvent);
         }
     };
-      
+
     PanneauTable.prototype._selectionEvent = function(e){
         e.options.scope.selectionnerParOccurences([e.occurence]);
     };
-    
+
     PanneauTable.prototype._deselectionEvent = function(e){
         e.options.scope.deselectionnerParOccurences([e.occurence]);
     };
-    
+
     PanneauTable.prototype._modificationEvent = function(e){
         if(e.modifType=="propriete"){
             var index = this.obtenirIndexParOccurence(e.occurence);
@@ -581,7 +583,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             var record = this._panel.store.getAt(index);
             if(e.modif.valeur !== record.get(pStore)){
                 record.set(pStore, e.modif.valeur);
-            }   
+            }
         } else if (e.modifType=="objetProprietes"){
             var index = this.obtenirIndexParOccurence(e.occurence);
             if(index === -1){return false;}
@@ -595,47 +597,47 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             });
         }
     };
-    
+
     PanneauTable.prototype._occurenceAjouteeEvent = function(e){
         e.options.scope.ajouterOccurences([e.occurence], true);
-    }; 
-    
+    };
+
     PanneauTable.prototype._occurenceEnleveeEvent = function(e){
         e.options.scope.enleverParOccurences([e.occurence]);
     };
-    
+
     PanneauTable.prototype._coucheEnleveeEvent = function(e){
         if (e.options.scope.parent && e.options.scope.parent.obtenirTypeClasse() === 'PanneauOnglet') {
             e.options.scope.parent.enleverPanneau(e.options.scope);
             return true;
         }
-        e.options.scope.reconfigurer({},[]);      
+        e.options.scope.reconfigurer({},[]);
     };
-    
+
     PanneauTable.prototype.obtenirIndexParEnregistrementHtml = function(html){
         return this._panel.getView().findRowIndex(html);
     };
-    
+
     PanneauTable.prototype.obtenirIndexParOccurence = function(occurence){
         if(!occurence){return -1}
         return this._panel.store.indexOfId(occurence.id);
     };
-    
+
     PanneauTable.prototype.selectionnerParOccurences = function(occurences){
         var that=this;
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}
             var index = that._panel.store.indexOfId(value.id);
             if(index === -1){
-                if(value.selectionnee){
+              /*  if(value.selectionnee){
                     value.deselectionner();
-                }
+                } */
                 return true;
             }
             that.selectionnerParIndex(index, true);
         });
     };
-    
+
     PanneauTable.prototype.deselectionnerParOccurences = function(occurences){
         var that=this;
         $.each(occurences, function(key, value){
@@ -647,7 +649,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             that.deselectionnerParIndex(index);
         });
     };
-    
+
     PanneauTable.prototype.selectionnerParIndex = function(index, garderSelection, scroll){
         if(this._panel.selModel.grid && !this._panel.selModel.isSelected(index)){
             this._panel.selModel.selectRow(String(index), garderSelection);
@@ -656,21 +658,21 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             }
         }
     };
-    
+
     PanneauTable.prototype.deselectionnerParIndex = function(index){
         if(this._panel.selModel.grid && this._panel.selModel.isSelected(index)){
             this._panel.selModel.deselectRow(String(index));
         }
     };
-    
+
     PanneauTable.prototype.obtenirEnregistrementParIndex = function(index){
         return this._panel.getStore().getAt(index);
     };
-    
+
     PanneauTable.prototype.obtenirEnregistrementParId = function(id){
         return this._panel.getStore().getById(id);
     };
-    PanneauTable.prototype.ouvrirTableVecteur = function(vecteur){ 
+    PanneauTable.prototype.ouvrirTableVecteur = function(vecteur){
         vecteur = vecteur || this.options.vecteur;
 
         var template = {
@@ -678,63 +680,63 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             base: 'listeOccurences',
             proprietesBase: 'proprietes'
         };
-        
+
         if(vecteur.templates && vecteur.templates.table){
             $.extend(template, vecteur.templates.table);
         }
-        
+
         if(!template.colonnes){
             template.proprietesBase = 'proprietes';
             template.colonnes = [{
                 utiliserBase: false,
-                titre   : 'id', 
-                largeur    : 160, 
-                triable : true, 
-                propriete: 'id'   
+                titre   : 'id',
+                largeur    : 160,
+                triable : true,
+                propriete: 'id'
             }];
 
             if(vecteur.listeOccurences[0]){
                 $.each(vecteur.listeOccurences[0].proprietes, function(key, value){
                     template.colonnes.push({
-                        titre   : key, 
-                        largeur    : 160, 
-                        triable : true, 
+                        titre   : key,
+                        largeur    : 160,
+                        triable : true,
                         propriete: key,
                         editable: vecteur.options.editable
-                    });                      
+                    });
                 });
             }
         }
-        
+
         this.controles.desactiverSelection();
         this.reconfigurer(template, vecteur);
-               
+
         var that=this;
         setTimeout(function() {
             that.selectionnerParOccurences(vecteur.obtenirOccurencesSelectionnees());
         }, 1);
        // this.controles.activerSelection();
     };
-    
-    
+
+
     PanneauTable.prototype.rafraichir = function() {
         this.reconfigurer();
         Panneau.prototype.rafraichir.call(this);
     };
-    
+
     PanneauTable.prototype.callbackCreation = function(){
         if(Aide.toBoolean(this.options.aContexteMenu) !== false){
             this.contexteMenu = new ContexteMenuTable({panneauTable: this, selecteur: '#'+this.obtenirId(), cible: '.x-grid3-row'});
         }
         Panneau.prototype.callbackCreation.call(this);
     };
-    
+
     PanneauTable.prototype.avantFermeture = function(){
         this.desactiverDeclencheursVecteur(this.donnees);
         this.declencher({ type: "tableFermeture", donnees: this.donnees });
         this.barreOutils.eteindreOutils();
     };
-    
+
     /**
      * Fonction permettant de mettre à jour des attributs d'enregistrement
      * @method
@@ -742,12 +744,12 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
      * @param {object} donnees Objet d'occurence à mettre à jour
      * @param {string} indicateur attribut du Id de l'occurence se retrouvant dans l'objet donnees
      */
-    PanneauTable.prototype.mettreAJourDonnees = function(donnees, indicateur){       
+    PanneauTable.prototype.mettreAJourDonnees = function(donnees, indicateur){
         var that = this;
-       
+
         $.each(donnees, function(index, feature) {
             that.enreg = that.donnees.obtenirOccurenceParId(feature[indicateur]);
-            
+
             if(that.enreg) {
                 $.each(feature.properties, function(key, value){
                     that.enreg.definirPropriete("/" + that.template.proprietesBase + "." + key, value);
@@ -757,24 +759,24 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 console.log("Occurrence " + feature[indicateur] + " non trouvée");
             }
         });
-        
-        that.enreg = undefined; 
-        that.rafraichir();       
+
+        that.enreg = undefined;
+        that.rafraichir();
     };
-    
+
     PanneauTable.prototype.verifierTableau = function(){
         var erreurs = this._panel.store.queryBy(function(e){return !e.isValid()});
         if(erreurs.length == 0){return true;}
-        
+
         $.each(erreurs.items, function(index, erreur) {
             var occurrence = erreur.json;
             $.each(erreur.fields.items, function(index2, field) {
                 if(!field.allowBlank && (erreur.data[field.name] === "" || erreur.data[field.name] === null)){
-                    occurrence.definirErreur(field.name, {message: "Ce champs est obligatoire"});     
+                    occurrence.definirErreur(field.name, {message: "Ce champs est obligatoire"});
                 }
             });
         });
-        
+
         this.afficherErreurs();
         return false;
     };
@@ -787,15 +789,15 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
      */
     PanneauTable.prototype.ajouterErreurs = function(donnees, categorie){
         var that = this;
-        
+
         $.each(donnees, function(index, erreur) {
             var occurrence = that.donnees.obtenirOccurenceParId(index);
-            occurrence.definirErreurs(erreur, categorie);          
+            occurrence.definirErreurs(erreur, categorie);
         });
-        
+
         this.afficherErreurs();
     };
-    
+
     /**
      * Retirer les erreurs des occurences
      * @methode
@@ -805,53 +807,73 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
       $.each(this.donnees.listeOccurences, function(key, occurrence){
          occurrence.erreurs = undefined;
       });
-      
-      this.afficherErreurs();     
+
+      this.afficherErreurs();
     };
-    
+
     PanneauTable.prototype.obtenirOccurences = function(){
         var that = this;
         var listeOccurences = Array();
-        $.each(this.donnees.obtenirOccurences(), function(index, value){
-            if(!that._panel.store){return false;}
-            var index = that._panel.store.indexOfId(value.id);
-            if(index !== -1){
-               listeOccurences.push(value);
-            }
+        $.each(this._panel.store.data.items, function(index, value){
+          listeOccurences.push(value.json);
         });
         return listeOccurences;
     };
-    
-    
+
+    PanneauTable.prototype.obtenirOccurencesSelectionnees = function(){
+        var that = this;
+        var listeOccurences = Array();
+        $.each(this._._panel.store, function(index, value){
+               listeOccurences.push(value);
+        });
+        return listeOccurences;
+    };
+
+
     PanneauTable.Controles = function(_){
         this._ = _;
         this.activerSelection();
-    };   
-    
+    };
+
     PanneauTable.Controles.prototype.activerClique = function() {
         this._._panel.on('rowClick', this.clique, this);
     };
-    
+
     PanneauTable.Controles.prototype.clique = function(grid, rowIndex, e) {
         var json = this._._panel.store.data.items[rowIndex].json;
-        this._.declencher({ type: "tableEnregistrementClique", indexEnregistrement: rowIndex, enregistrement: json }); 
+        this._.declencher({ type: "tableEnregistrementClique", indexEnregistrement: rowIndex, enregistrement: json });
     };
-    
+
     PanneauTable.Controles.prototype.activerSelection = function() {
         if(!this._._panel){return false;};
         this._._panel.selModel.on('selectionchange', this._selection, this);
     };
-    
+
     PanneauTable.Controles.prototype.desactiverSelection = function() {
         if(!this._._panel){return false;};
         this._._panel.selModel.removeListener('selectionchange', this._selection, this);
-    };    
+    };
 
     PanneauTable.Controles.prototype._selection = function(selection) {
-        var selectionIGO = [];
-        $.each(selection.selections.items, function(key, value){
-            selectionIGO.push(value.json);
-        });
+
+
+        var selectionIGO = this._.donnees.obtenirOccurencesSelectionnees();
+
+        if(selection.selections.items.length > 0){
+          //enlever les items du panneau pour ensuite les ajoutés
+          //TODO trouver meilleur méthode
+          $.each(this._.obtenirOccurences(), function(key, value){
+            var index = selectionIGO.indexOf(value);
+            if(index > -1){
+              selectionIGO.splice(index,1);
+            }
+          });
+
+          $.each(selection.selections.items, function(key, value){
+              selectionIGO.push(value.json);
+          });
+        }
+
         var vecteur;
         if(this._.donnees.obtenirTypeClasse && (this._.donnees.obtenirTypeClasse() === 'Vecteur' || this._.donnees.obtenirTypeClasse() === 'VecteurCluster' || this._.donnees.obtenirTypeClasse() === 'WFS')){
             vecteur = this._.donnees;
@@ -860,13 +882,14 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 if(value.estSelectionnee()){
                     return true;
                 }
-                value.selectionner();               
+                value.selectionner();
             });
         }
+
         if(this._.donnees.zoomAuto){
             this._.donnees.zoomerOccurences(this._.donnees.obtenirOccurencesSelectionnees());
         }
-        
+
         if(this._.donnees.options.selectionSeulement){
            this._.donnees.afficherSelectionSeulement();
         }else if (this._.donnees.afficheContenuPage){
@@ -874,11 +897,11 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         }else{
             this._.donnees.afficherTout();
         }
-        
-        this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur }); 
+
+        this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur });
     };
-    
-    
+
+
     return PanneauTable;
-    
+
 });
