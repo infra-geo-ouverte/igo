@@ -16,10 +16,8 @@ https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 https://www.python.org/downloads/
 
 #### Git (avec clé ssh)
-https://git-scm.com/download/win  <br />  
-cocher "Use Git from the Windows Command Prompt", ce qui ajoutera "git" à vos variables d'environnement <br />
+https://git-scm.com/download/  <br />  
 https://help.github.com/articles/generating-ssh-keys/
-
 
 #### NodeJS
 https://nodejs.org
