@@ -29,15 +29,21 @@ npm install -g grunt-cli
 ```
 
 # Installation de IGO
-cd /var/www/html/  <br />  
-git clone https://github.com/infra-geo-ouverte/igo.git  <br />  
-cd igo <br />  
+```
+cd /var/www/html/ 
+git clone https://github.com/infra-geo-ouverte/igo.git  
+cd igo 
+```
 
 # Installer les modules nodeJS
+```
 npm install
+```
 
 #Préparer le dossier IGO
+```
 grunt init
+```
 
 ## Configurer IGO  
 cp config/config.exempleSimple.php config/config.php  <br /> 
@@ -74,7 +80,6 @@ Alias /api/ "/var/www/html/igo/interfaces/navigateur/api/"
 </Directory>
 
 ```
-
 
 #Installation d'un module
 Ajouter dans modules.json <br />
