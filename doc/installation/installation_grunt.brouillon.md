@@ -16,7 +16,7 @@ https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 https://www.python.org/downloads/
 
 #### Git (avec clé ssh)
-https://git-scm.com/download/  <br />  
+https://git-scm.com/download/  
 https://help.github.com/articles/generating-ssh-keys/
 
 #### NodeJS
