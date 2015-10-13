@@ -23,8 +23,10 @@ https://help.github.com/articles/generating-ssh-keys/
 https://nodejs.org
 
 #### Bower et Grunt
-npm install -g bower <br />  
+```
+npm install -g bower 
 npm install -g grunt-cli
+```
 
 # Installation de IGO
 cd /var/www/html/  <br />  
