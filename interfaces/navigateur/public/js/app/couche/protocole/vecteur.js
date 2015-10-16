@@ -814,6 +814,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     Vecteur.Controles.prototype._selection = function(e) {
+        if(e.occurence.selectionnable === false){return false;}
         var that = e.options.scope;
         if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
         if (!Aide.obtenirNavigateur().obtenirCtrl()) { 
