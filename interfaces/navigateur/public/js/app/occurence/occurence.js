@@ -723,7 +723,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return;
         }
 
-        $.extend(geometrie, this);
+        $.extend(this, geometrie, Occurence.prototype);
 
         if (!this.id) {
             var type = this.type ? this.type + '_' : '';
