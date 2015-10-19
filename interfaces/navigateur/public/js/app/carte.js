@@ -850,9 +850,8 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
-            that._desactiverEventsEdition();
+
             occurence.selectionner();
-            that._activerEventsEdition();
         };
 
         this._editionEvents.fnAfterFeatureModified = function() {
@@ -877,27 +876,20 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 couche._layer.removeFeatures(occurence._feature);
             }
 
-            that._desactiverEventsEdition();
             occurence.deselectionner();
-            that._activerEventsEdition();
         };
 
 
         this._editionEvents.fnVecteurOccurenceSelectionnee = function(e) {
-            e.options.scope._desactiverEventsEdition();
             if (couche.obtenirOccurencesSelectionnees().length > 1) {
-                couche.deselectionnerTout();
-                e.occurence.selectionner();
+                couche.deselectionnerTout({exceptions: [e.occurence]});
             }
             e.options.scope.controleEdition.selectFeature(e.occurence._feature);
-            e.options.scope._activerEventsEdition();
         };
 
         this._editionEvents.fnVecteurOccurenceDeselectionnee = function(e) {
             if (e.occurence._feature === e.options.scope.controleEdition.feature) {
-                e.options.scope._desactiverEventsEdition();
                 e.options.scope.controleEdition.unselectFeature(e.occurence._feature);
-                e.options.scope._activerEventsEdition();
             }
         };
     };
