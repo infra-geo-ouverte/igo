@@ -149,6 +149,10 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     return false;
                 }
 
+                if(occurence.obtenirInteraction('survol') === false){ 
+                    $('.olMapViewport').css('cursor','default'); 
+                    return false;
+                }
                 that.gestionCouches.ajouterOccurenceSurvol(occurence);
             },
             featureout: function(e) {
@@ -184,6 +188,10 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
                 if (!occurence) {
+                    return false;
+                }
+
+                if(occurence.obtenirInteraction('cliquable') === false){ 
                     return false;
                 }
 
@@ -640,8 +648,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
             this.controleDrag = new OpenLayers.Control.DragFeature(couche._layer, {
                 onStart: function(feature){
-                    cacherVertex();
                     var occurence = couche.obtenirOccurenceParId(feature.id);
+                    if(occurence.obtenirInteraction('editable') === false){
+                        that.controleDrag.cancel();
+                        return false;
+                    }
+                    cacherVertex();
+                    
                     if(occurence){
                         couche.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
                     }
@@ -825,6 +838,16 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             if (!occurence) {
                 return true;
             }
+
+
+            if(occurence.obtenirInteraction('editable') === false){ 
+                if(occurence.obtenirTypeGeometrie() === 'Point'){
+                    //la carte n'est plus focus pour un déplacement
+                    that.controleEdition.handlers.drag.dragend(e)
+                }
+                return false;
+            }
+
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
             that._desactiverEventsEdition();

@@ -897,6 +897,24 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this.modifiee = this.geometrieOriginale ? true : false;
     }
 
+
+    Occurence.prototype.definirInteraction = function(interaction) {
+        this._interaction = interaction;
+    }
+
+    /*
+        Propriete: selectionnable, editable
+    */
+    Occurence.prototype.obtenirInteraction = function(propriete) {
+        if(!propriete){
+            return this._interaction;
+        }
+        if(this._interaction === false || ($.isPlainObject(this._interaction) && this._interaction[propriete] === false)){
+            return false;
+        }
+        return true;
+    }
+
     return Occurence;
 
 });
