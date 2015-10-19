@@ -761,6 +761,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
     Vecteur.Controles.prototype.activerSelection = function(opt) { //ajouter? au lieu d'activer? separer en 2?
         opt = opt || {};
+        if (!this._.options.selectionnable && !opt.force){return false};
         if(this._.obtenirDeclencheur('occurenceClique', null, this._selection).length){
             return false;
         } 
@@ -816,6 +817,9 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.Controles.prototype._selection = function(e) {
         var that = e.options.scope;
         if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
+        if(e.occurence.obtenirInteraction('selectionnable') === false){
+            return false;
+        }
         if (!Aide.obtenirNavigateur().obtenirCtrl()) { 
             that._.carte.gestionCouches.deselectionnerToutesOccurences();
         }
@@ -828,8 +832,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     
-    Vecteur.prototype.afficherSelectionSeulement = function(){
-        
+    Vecteur.prototype.afficherSelectionSeulement = function(){     
         var selection = this.obtenirOccurencesNonSelectionnees();
         this.definirRafraichissementPermis('debut', selection);
         $.each(selection, function(key, occurence){

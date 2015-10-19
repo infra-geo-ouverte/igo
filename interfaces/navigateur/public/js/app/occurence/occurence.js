@@ -723,10 +723,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return;
         }
 
-        $.extend(this, geometrie, {
-            constructor: Occurence.prototype.constructor,
-            projeter: Occurence.prototype.projeter,
-        });
+        $.extend(this, geometrie, Occurence.prototype);
 
         if (!this.id) {
             var type = this.type ? this.type + '_' : '';
@@ -898,6 +895,24 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this.definirProprietes();
         delete this.proprietesOriginales;
         this.modifiee = this.geometrieOriginale ? true : false;
+    }
+
+
+    Occurence.prototype.definirInteraction = function(interaction) {
+        this._interaction = interaction;
+    }
+
+    /*
+        Propriete: selectionnable, editable
+    */
+    Occurence.prototype.obtenirInteraction = function(propriete) {
+        if(!propriete){
+            return this._interaction;
+        }
+        if(this._interaction === false || ($.isPlainObject(this._interaction) && this._interaction[propriete] === false)){
+            return false;
+        }
+        return true;
     }
 
     return Occurence;
