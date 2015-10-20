@@ -771,8 +771,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
     };
 
-    Carte.Controles.prototype.desactiverEdition = function(couche) {
+    Carte.Controles.prototype.desactiverEdition = function() {
         if (this.controleEdition) {
+            var couche = this.controleEdition.coucheIgo;
             this.desactiverSnap();
             this._desactiverEventsEdition();
             this.controleEdition.deactivate();
@@ -781,16 +782,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this.controleEdition = undefined;
             this._editionEvents.oModifification = undefined;
             this._editionEvents.oModifificationTerminee = undefined;
+            this.activerOccurenceEvenement();
             if (couche) {
-                var oSelected = couche.obtenirOccurencesSelectionnees();
-                if (oSelected[0]) {
-                    oSelected[0].selectionner();
-                }
+                couche.deselectionnerTout();
                 couche.declencher({
                     type: 'controleEditionDesactiver'
                 });
             }
-            this.activerOccurenceEvenement();
         }
     };
 
@@ -854,7 +852,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
 
+            that._desactiverEventsEdition();
             occurence.selectionner();
+            that._activerEventsEdition();
         };
 
         this._editionEvents.fnAfterFeatureModified = function() {
@@ -879,22 +879,28 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 couche._layer.removeFeatures(occurence._feature);
             }
 
+            that._desactiverEventsEdition();
             occurence.deselectionner();
+            that._activerEventsEdition();
         };
 
 
         this._editionEvents.fnVecteurOccurenceSelectionnee = function(e) {
-            if (couche.obtenirOccurencesSelectionnees().length > 1) {
+             //e.options.scope._desactiverEventsEdition();
+            if (couche.obtenirOccurencesSelectionnees().length > 1) {       
                 couche.deselectionnerTout({exceptions: [e.occurence]});
             }
             if(e.occurence){
                 e.options.scope.controleEdition.selectFeature(e.occurence._feature);
             }
+            //e.options.scope._activerEventsEdition();
         };
 
         this._editionEvents.fnVecteurOccurenceDeselectionnee = function(e) {
             if (e.occurence._feature === e.options.scope.controleEdition.feature) {
+               // e.options.scope._desactiverEventsEdition();
                 e.options.scope.controleEdition.unselectFeature(e.occurence._feature);
+               // e.options.scope._activerEventsEdition();
             }
         };
     };
