@@ -750,14 +750,17 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this.controleEdition.activate();
 
             this.desactiverOccurenceEvenement(couche);
-            var occurenceSelectionnee = couche.obtenirOccurencesSelectionnees()[0];
-            if (occurenceSelectionnee) {
-                couche.deselectionnerTout();
-                occurenceSelectionnee.selectionner();
-                this.controleEdition.selectFeature(occurenceSelectionnee._feature);
-            }
+
             this._initEventsEdition(couche);
             this._activerEventsEdition();
+
+            this._editionEvents.fnVecteurOccurenceSelectionnee({
+                occurence: couche.obtenirOccurencesSelectionnees()[0],
+                options:{
+                    scope: this
+                }
+            });
+
             couche.declencher({
                 type: 'controleEditionActiver'
             });
@@ -884,7 +887,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             if (couche.obtenirOccurencesSelectionnees().length > 1) {
                 couche.deselectionnerTout({exceptions: [e.occurence]});
             }
-            e.options.scope.controleEdition.selectFeature(e.occurence._feature);
+            if(e.occurence){
+                e.options.scope.controleEdition.selectFeature(e.occurence._feature);
+            }
         };
 
         this._editionEvents.fnVecteurOccurenceDeselectionnee = function(e) {
