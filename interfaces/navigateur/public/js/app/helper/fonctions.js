@@ -385,6 +385,37 @@ define([], function() {
         };
     };
     
+    // Cherche dans le tableau les attribut qui ont la valeur
+    // spécifié et les supprime.
+    // Retourne le nouveau tableau avec les valeurs supprimées
+    Fonctions.rechercherEtSupprimer = function(array, property, value) {
+        return array.filter(function(v, k, obj) {
+            return v[property] !== value;
+        });
+    };
+
+    // Retourne les éléments du tableau qui ont
+    // la propriété spécifiée à la valeur demandé.
+    // si not est faux, trouve ceux qui ne correspondent pas au lieu
+    // de ceux qui correspondent
+    Fonctions.rechercher = function(array, property, value, not) {
+        var result = array.filter(function(item) {
+            if(not) {
+                return (item[property] !== value);
+            } else {
+                return (item[property] === value);  
+            }
+        });
+
+        if(result.length === 0) {
+            result = false;
+        } else {
+            result = result[0];
+        }
+
+        return result;
+    };
+
     return Fonctions;
     
 });
