@@ -175,6 +175,8 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 that.gestionCouches.enleverOccurenceSurvol(occurence);
             },
             featureclick: function(e) {
+                console.log('>>>>', e.feature);
+                console.log('>>>>', e.feature.layer.id);
                 var couche = that.gestionCouches.obtenirCoucheParId(e.feature.layer.id);
                 if (!couche) {
                     return false;
@@ -197,6 +199,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
                 var dessus = false;
                 var occSurvolArray = that.gestionCouches.obtenirListeOccurencesSurvols();
+                console.log(">>>>>>>>>>>>>>", occSurvolArray);
                 if(occSurvolArray.length){
                     var lastOccSurvol = occSurvolArray[occSurvolArray.length-1];
                     if(lastOccSurvol.id === occurence.id){

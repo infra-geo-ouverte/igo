@@ -795,7 +795,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     Vecteur.Controles.prototype.desactiverSelection = function() { //retirer
-        this._.carte.enleverDeclencheur('occurenceClique', null, this._selection);
+        this._.enleverDeclencheur('occurenceClique', null, this._selection);
       /*  opt = opt || {};
         if (!opt.local !== undefined && opt.local) {
             if (this._selectControl) {
