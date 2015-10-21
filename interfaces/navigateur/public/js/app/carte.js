@@ -646,6 +646,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 }
             };
 
+            var $olMapViewport = $('.olMapViewport');
             this.controleDrag = new OpenLayers.Control.DragFeature(couche._layer, {
                 onStart: function(feature){
                     var occurence = couche.obtenirOccurenceParId(feature.id);
@@ -674,6 +675,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence){
                         occurence.majGeometrie(feature.geometry);
+                        $olMapViewport.removeClass('olControlDragFeatureOver');
                         couche.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
                     }
                 }, 
