@@ -385,6 +385,47 @@ define([], function() {
         };
     };
     
+    /**
+     * Recherche les éléments du tableau qui ont la valeur de propriété
+     * demandée et les supprime.
+     * 
+     * @param  {[array]} tableau  La tableau dans lequel faire la recherche.
+     * @param  {[type]} propriete La propriete sur laquelle faire la recherche.
+     * @param  {[type]} valeur    La valeur avec laquelle la propriete est comparée.
+     * @return {[array]}          Le tableau avec les valeurs supprimées.
+     */
+    Fonctions.rechercherEtSupprimer = function(tableau, propriete, valeur) {
+        return tableau.filter(function(v, k, obj) {
+            return v[propriete] !== valeur;
+        });
+    };
+
+    /**
+     * Retourne les éléments du tableau qui ont la propriété spécifiée à la valeur demandé.
+     * @param  {[array]} tableau    La tableau dans lequel faire la recherche.
+     * @param  {[type]} property    La propriete sur laquelle faire la recherche.
+     * @param  {[mixed]} valeur     La valeur avec laquelle la propriete est comparée.
+     * @param  {[type]} contraire   Si vrai, la recherche retourna le résultat qui correspondant pas.
+     * @return {[mixed]} Le resultat trouvé sinon false.
+     */
+    Fonctions.rechercher = function(tableau, propriete, valeur, contraire) {
+        var resultat = tableau.filter(function(item) {
+            if(negatif) {
+                return (item[propriete] !== valeur);
+            } else {
+                return (item[propriete] === valeur);  
+            }
+        });
+
+        if(resultat.length === 0) {
+            resultat = false;
+        } else {
+            resultat = result[0];
+        }
+
+        return resultat;
+    };
+
     return Fonctions;
     
 });
