@@ -385,6 +385,70 @@ define([], function() {
         };
     };
     
+    /**
+     * Recherche les éléments du tableau qui ont la valeur de propriété
+     * demandée et les supprime.
+     * 
+     * @param  {[array]} tableau  La tableau dans lequel faire la recherche.
+     * @param  {[type]} propriete La propriété sur laquelle faire la recherche.
+     * @param  {[type]} valeur    La valeur avec laquelle la propriété est comparée.
+     * @return {[array]}          Le tableau avec les valeurs supprimées.
+     */
+    Fonctions.rechercherEtSupprimer = function(tableau, propriete, valeur) {
+        return tableau.filter(function(v, k, obj) {
+            return v[propriete] !== valeur;
+        });
+    };
+
+    /**
+     * Retourne les éléments du tableau qui ont la propriété spécifiée à la valeur demandée.
+     * @param  {[array]} tableau    La tableau dans lequel faire la recherche.
+     * @param  {[type]} property    La propriété sur laquelle faire la recherche.
+     * @param  {[mixed]} valeur     La valeur avec laquelle la propriété est comparée.
+     * @param  {[type]} contraire   Si vrai, la recherche retourna le résultat ne correspondant pas.
+     * @return {[mixed]} Le resultat trouvé sinon false.
+     */
+    Fonctions.rechercher = function(tableau, propriete, valeur, contraire) {
+        var resultat = tableau.filter(function(item) {
+            if(contraire) {
+                return (item[propriete] !== valeur);
+            } else {
+                return (item[propriete] === valeur);  
+            }
+        });
+
+        if(resultat.length === 0) {
+            resultat = false;
+        } else {
+            resultat = resultat[0];
+        }
+
+        return resultat;
+    };
+
+    /**
+     * Mettre en majuscule la première lettre de la chaine de caractère.
+     * @param {[string]} chaine     Le chaine à modifier.
+     */
+    Fonctions.CapitaliserPremiereLettre = function(chaine) {
+        chaine = chaine.toLowerCase().replace(/\b[a-z]/g, function(lettre) {
+            return lettre.toUpperCase();
+        });
+
+        return chaine;
+    };
+
+    /**
+     * Retourne vrai si le nombre donné en paramètre est un
+     * numérique valide.
+     * 
+     * @param  {[object]} nombre    Le nombre a valider.
+     * @return {[boolean]} Vrai si nombre est un numérique valide.
+     */
+    Fonctions.estNumerique = function(nombre) {
+        return !isNaN(parseFloat(nombre)) && isFinite(nombre);
+    };
+
     return Fonctions;
     
 });
