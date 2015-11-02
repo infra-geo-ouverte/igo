@@ -646,6 +646,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 }
             };
 
+            var $olMapViewport = $('.olMapViewport');
             this.controleDrag = new OpenLayers.Control.DragFeature(couche._layer, {
                 onStart: function(feature){
                     var occurence = couche.obtenirOccurenceParId(feature.id);
@@ -674,6 +675,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence){
                         occurence.majGeometrie(feature.geometry);
+                        $olMapViewport.removeClass('olControlDragFeatureOver');
                         couche.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
                     }
                 }, 
@@ -750,14 +752,17 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this.controleEdition.activate();
 
             this.desactiverOccurenceEvenement(couche);
-            var occurenceSelectionnee = couche.obtenirOccurencesSelectionnees()[0];
-            if (occurenceSelectionnee) {
-                couche.deselectionnerTout();
-                occurenceSelectionnee.selectionner();
-                this.controleEdition.selectFeature(occurenceSelectionnee._feature);
-            }
+
             this._initEventsEdition(couche);
             this._activerEventsEdition();
+
+            this._editionEvents.fnVecteurOccurenceSelectionnee({
+                occurence: couche.obtenirOccurencesSelectionnees()[0],
+                options:{
+                    scope: this
+                }
+            });
+
             couche.declencher({
                 type: 'controleEditionActiver'
             });
@@ -768,8 +773,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
     };
 
-    Carte.Controles.prototype.desactiverEdition = function(couche) {
+    Carte.Controles.prototype.desactiverEdition = function() {
         if (this.controleEdition) {
+            var couche = this.controleEdition.coucheIgo;
             this.desactiverSnap();
             this._desactiverEventsEdition();
             this.controleEdition.deactivate();
@@ -778,16 +784,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this.controleEdition = undefined;
             this._editionEvents.oModifification = undefined;
             this._editionEvents.oModifificationTerminee = undefined;
+            this.activerOccurenceEvenement();
             if (couche) {
-                var oSelected = couche.obtenirOccurencesSelectionnees();
-                if (oSelected[0]) {
-                    oSelected[0].selectionner();
-                }
+                couche.deselectionnerTout();
                 couche.declencher({
                     type: 'controleEditionDesactiver'
                 });
             }
-            this.activerOccurenceEvenement();
         }
     };
 
@@ -850,6 +853,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
+
             that._desactiverEventsEdition();
             occurence.selectionner();
             that._activerEventsEdition();
@@ -884,20 +888,21 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
 
         this._editionEvents.fnVecteurOccurenceSelectionnee = function(e) {
-            e.options.scope._desactiverEventsEdition();
-            if (couche.obtenirOccurencesSelectionnees().length > 1) {
-                couche.deselectionnerTout();
-                e.occurence.selectionner();
+             //e.options.scope._desactiverEventsEdition();
+            if (couche.obtenirOccurencesSelectionnees().length > 1) {       
+                couche.deselectionnerTout({exceptions: [e.occurence]});
             }
-            e.options.scope.controleEdition.selectFeature(e.occurence._feature);
-            e.options.scope._activerEventsEdition();
+            if(e.occurence){
+                e.options.scope.controleEdition.selectFeature(e.occurence._feature);
+            }
+            //e.options.scope._activerEventsEdition();
         };
 
         this._editionEvents.fnVecteurOccurenceDeselectionnee = function(e) {
             if (e.occurence._feature === e.options.scope.controleEdition.feature) {
-                e.options.scope._desactiverEventsEdition();
+               // e.options.scope._desactiverEventsEdition();
                 e.options.scope.controleEdition.unselectFeature(e.occurence._feature);
-                e.options.scope._activerEventsEdition();
+               // e.options.scope._activerEventsEdition();
             }
         };
     };

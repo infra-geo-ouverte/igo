@@ -80,6 +80,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @fires Couche.Vecteur#vecteurOccurenceSelectionnee
      */
     Occurence.prototype.selectionner = function() {
+        if(this.selectionnee){
+            return true;
+        }
         if (!this.estDansCluster) {
             this.appliquerStyle('select');
         }
@@ -112,6 +115,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @fires Couche.Vecteur#vecteurOccurenceDeselectionnee
      */
     Occurence.prototype.deselectionner = function() {
+        if(!this.selectionnee){
+            return true;
+        }
         if (!this.estDansCluster) {
             this.appliquerStyle('defaut');
         }
