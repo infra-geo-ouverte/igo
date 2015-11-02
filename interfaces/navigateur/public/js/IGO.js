@@ -111,7 +111,7 @@ define([], function(){
     IgoNav.prototype.executerModulesFct = function(Aide){
         var that = this;
         $.each(this.modulesFct, function(key, fct){
-            fct(that.configClient, Aide);
+            fct.call(that, that.configClient, Aide);
         });
     }
 

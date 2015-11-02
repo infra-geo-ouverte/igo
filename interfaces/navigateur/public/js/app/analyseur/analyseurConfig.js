@@ -390,6 +390,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         this.fin.analyse = true;
         this._analyserDeclencheurs(Aide.obtenirConfigXML('declencheurs'));
         $("#igoLoading").remove();
+
         if(this.options.callback){
             this.options.callback.call(this.igo.nav);
         }
@@ -630,6 +631,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
         if(!message){message = "Erreur lors du chargement du contexte. (" + textStatus +")";}
         Aide.afficherMessage("Erreur chargement contexte", message, null, 'ERROR');
+        this.fin.couches = true;
+        this._analyserContexte();
     };
 
     /** 
