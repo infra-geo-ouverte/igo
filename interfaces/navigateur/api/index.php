@@ -467,6 +467,9 @@ try {
      * @param ??? $di
      */
     function obtenirInfoContexte($contexte, $app, $di){
+        if(!isset($contexte->id)){
+            return false;
+        }
 
         $contexteId = $contexte->id;
         $contexteCouches = IgoVueContexteCoucheNavigateur::find(array(
