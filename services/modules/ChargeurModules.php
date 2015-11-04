@@ -114,7 +114,8 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 		}
 
 		$permis = null;
-
+		$permisXml = false;
+		
 		//XML
 		$configXml = $this->getDi()->getView()->configXml;
 		if(isset($configXml) && isset($configXml->modules) &&

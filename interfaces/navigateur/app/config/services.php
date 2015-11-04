@@ -114,6 +114,14 @@ $di->set('dispatcher', function() use($di){
 
 }, true);
 
+/**
+ *    Logger
+**/
+$di->set('logger', function () use ($config) {
+    $pathLogFile = $config->repertoireLogs . "igo.log";
+    return new IGO\Modules\Logger($pathLogFile, $config->application->debug);
+}, true);
+
 
 /**
  * Encryption pour les mots de passes des couches securisées

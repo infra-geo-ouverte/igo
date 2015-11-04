@@ -16,7 +16,8 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             bringToText: "Mettre en",
             frontText : "avant",
             backText : "arrière",
-            closeText : "Fermer"
+            closeText : "Fermer",
+            metadataText : "Informations sur la couche"
         };
         this.init();
     };
@@ -34,6 +35,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
         this.ajouterFonctionsConstruction(this.initSelectionnerTout);
         this.ajouterFonctionsConstruction(this.initActiverImportationSubmenu);
         this.ajouterFonctionsConstruction(this.initWMStime);
+        this.ajouterFonctionsConstruction(this.initMetadonneeSubmenu);
         this.ajouterFonctionsConstruction(this.initSupprimerVecteurSubmenu);
         this.ajouterFonctionsConstruction(this.initFermerSubmenu);
         
@@ -58,6 +60,22 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             couche: layer,
             nodeHtml: nodeHtml
         };
+    };
+
+
+    ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
+        var that=args.scope;
+        if (args.couche.options.metadonnee) {
+            return {
+                id: 'arborescenceMetadonnee',
+                text : that.locale.metadataText,
+                handler : function() {
+                    require(['metadonnee'], function(Metadonnee){
+                        Metadonnee.getLayerCapabilities(args.couche);
+                    });
+                }
+            };
+        }
     };
 
     ContexteMenuArborescence.prototype.initStyleSubmenu = function(args){ 

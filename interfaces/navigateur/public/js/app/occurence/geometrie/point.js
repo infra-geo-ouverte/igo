@@ -6,7 +6,7 @@
  * @requires aide
  */
 
-define(['aide'], function(Aide) {
+define(['geometrie', 'aide'], function(Geometrie, Aide) {
     /** 
      * Création de l'object Geometrie.Point.
      * @constructor
@@ -30,6 +30,7 @@ define(['aide'], function(Aide) {
      * @example new Point([-73.4, 46.5], 'EPSG:4326')
      */
     function Point(x, y, proj) {
+        Geometrie.apply(this, [proj]);
         if (!x) {
             throw new Error("new Point : Paramètres obligatoires");
         } else if ((typeof x == "number" || typeof x == "string") && (typeof y == "number" || typeof y == "string")) {
@@ -55,53 +56,10 @@ define(['aide'], function(Aide) {
             this.precision = parseInt(nav.carte.options.precision);
             this.definirNombreDecimales();
         }
-        if (!proj) {
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj != "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Point : Projection EPSG invalide");
-        }
-        this.projection = proj.toUpperCase();
     }
 
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name Point#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    Point.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
-    };
-    
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.Point#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    Point.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.Point#definirProjection
-     * @throws Point.definirProjection : Projection EPSG invalide
-     * @example Point.definirProjection('EPSG:4326');
-     */
-    Point.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Point.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
-
+    Point.prototype = Object.create(Geometrie.prototype);
+    Point.prototype.constructor = Point;
 
     /** 
      * Transformer les coordonnées dans une autre projection.
@@ -197,31 +155,7 @@ define(['aide'], function(Aide) {
         return this._obtenirGeomOL().distanceTo(p2._obtenirGeomOL());
     };
 
-    /** 
-     * Déplacer le point vers un nouveau point
-     * @method
-     * @name Geometrie.Point#deplacer
-     * @param {Geometrie.Point} point Nouvel emplacement
-     * @returns {Geometrie.Point} Retourne lui-même
-     * @throws Point.deplacer : L'argument n'est pas un point
-     * @throws Point.deplacer : Les points ne sont pas dans la même projection
-     */
-    Point.prototype.deplacer = function(point) {
-        if (!(point instanceof Point)) {
-            throw new Error("Point.deplacer : L'argument n'est pas un point");
-        } else if (this.projection !== point.projection) {
-            //plus: paramètre pour convertir ou non la projection
-            throw new Error("Point.deplacer : Les points ne sont pas dans la même projection");
-        }
-        this.x = parseFloat(point.x);
-        this.y = parseFloat(point.y);
-        this.definirNombreDecimales();
-        if (this._feature) {
-            this._feature.move(point._obtenirLonLatOL());
-        }
-        return this;
-    };
-    
+
      /** 
      * Déplacer de dX et dY le point
      * @method

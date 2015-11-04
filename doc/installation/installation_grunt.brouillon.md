@@ -16,28 +16,34 @@ https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 https://www.python.org/downloads/
 
 #### Git (avec clé ssh)
-https://git-scm.com/download/win  <br />  
-cocher "Use Git from the Windows Command Prompt", ce qui ajoutera "git" à vos variables d'environnement <br />
+https://git-scm.com/download/  
 https://help.github.com/articles/generating-ssh-keys/
-
 
 #### NodeJS
 https://nodejs.org
 
 #### Bower et Grunt
-npm install -g bower <br />  
+```
+npm install -g bower 
 npm install -g grunt-cli
+```
 
 # Installation de IGO
-cd /var/www/html/  <br />  
-git clone https://github.com/infra-geo-ouverte/igo.git  <br />  
-cd igo <br />  
+```
+cd /var/www/html/ 
+git clone https://github.com/infra-geo-ouverte/igo.git  
+cd igo 
+```
 
 # Installer les modules nodeJS
+```
 npm install
+```
 
 #Préparer le dossier IGO
+```
 grunt init
+```
 
 ## Configurer IGO  
 cp config/config.exempleSimple.php config/config.php  <br /> 
@@ -74,7 +80,6 @@ Alias /api/ "/var/www/html/igo/interfaces/navigateur/api/"
 </Directory>
 
 ```
-
 
 #Installation d'un module
 Ajouter dans modules.json <br />

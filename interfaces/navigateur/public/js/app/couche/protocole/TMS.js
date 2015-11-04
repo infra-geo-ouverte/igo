@@ -37,8 +37,12 @@ define(['couche', 'aide'], function(Couche, Aide) {
         
         if(Aide.toBoolean(this.options.utiliserProxy)){
             this.options.url=Aide.utiliserProxy(this.options.url, true);
-        } else {
+        } else if(typeof this.options.url === 'string') {
             this.options.url = this.options.url.replace(' ','').split(',');
+        } else if(typeof this.options.url === 'object') {
+            this.options.url = $.map(this.options.url, function(value, index) {
+                return [value];
+            });
         }
         
         this._init();
