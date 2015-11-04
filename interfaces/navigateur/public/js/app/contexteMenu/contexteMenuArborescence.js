@@ -5,9 +5,9 @@ require.ajouterConfig({
 });
 
 define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, PanneauTable, DateTimeIntervalPicker) {
-  
+
     function ContexteMenuArborescence(options){
-        this.options = options || {};   
+        this.options = options || {};
         this.locale= {
             deleteLayerText : "Effacer la couche",
             deleteLayerConfirmationText : "Êtes-vous certain de vouloir effacer cette couche: ",
@@ -20,13 +20,13 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
         };
         this.init();
     };
-    
+
     ContexteMenuArborescence.prototype = new ContexteMenu();
     ContexteMenuArborescence.prototype.constructor = ContexteMenuArborescence;
-    
+
     ContexteMenuArborescence.prototype.init = function(){
         ContexteMenu.prototype.init.call(this);
-        this.ajouterFonctionsConstruction(this.initOpaciteSubmenu);      
+        this.ajouterFonctionsConstruction(this.initOpaciteSubmenu);
         this.ajouterFonctionsConstruction(this.initStyleSubmenu);
         this.ajouterFonctionsConstruction(this.initOrdreAffichageSubmenu);
         this.ajouterFonctionsConstruction(this.initOuvrirTableVecteur);
@@ -36,9 +36,9 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
         this.ajouterFonctionsConstruction(this.initWMStime);
         this.ajouterFonctionsConstruction(this.initSupprimerVecteurSubmenu);
         this.ajouterFonctionsConstruction(this.initFermerSubmenu);
-        
+
     };
-    
+
     ContexteMenuArborescence.prototype.obtenirInformation = function(e){
         var nodeHtml;
         var $target = $(e.target);
@@ -60,7 +60,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
         };
     };
 
-    ContexteMenuArborescence.prototype.initStyleSubmenu = function(args){ 
+    ContexteMenuArborescence.prototype.initStyleSubmenu = function(args){
         var that=args.scope;
         if(!Aide.toBoolean(args.couche.options.styleSubmenu)) {return false;}
         return {
@@ -70,8 +70,8 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                 id: 'arborescenceStyleCouleur',
                 plain : true,
                 items : {
-                    //html: "# <input type='text' id='picker'></input>", 
-                    html: "<button id='picker'></button>", 
+                    //html: "# <input type='text' id='picker'></input>",
+                    html: "<button id='picker'></button>",
                     listeners: {
                         afterrender:function(){
                             var $picker = $('#picker');
@@ -87,7 +87,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                                     }
                                 });
                             }
-                            
+
                             var couleur = args.couche.obtenirStyle().obtenirPropriete("couleur");
                             if (couleur[0] !== "#"){
                                 var splitValeur = couleur.split(" ");
@@ -108,7 +108,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                                         //$(el).css('border-color','#'+hex);
                                         if(!bySetColor) $(el).val(hex);
                                     },
-                                    onSubmit: function(){         
+                                    onSubmit: function(){
                                         args.couche.obtenirStyle().definirPropriete("couleur", "#"+$picker.val());
                                     }
                                 }).keyup(function(){
@@ -131,8 +131,8 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
         };
     };
 
-    ContexteMenuArborescence.prototype.initOpaciteSubmenu = function(args){ 
-        if (args.couche.options.opaciteSlider !== false) {      
+    ContexteMenuArborescence.prototype.initOpaciteSubmenu = function(args){
+        if (args.couche.options.opaciteSlider !== false) {
             var that=args.scope;
             var sliderOptions = {
                 layer : args.couche._layer,
@@ -152,11 +152,11 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             };
         }
     };
-     ContexteMenuArborescence.prototype.initWMStime = function(args){ 
-        if (args.couche.options.wms_timeextent) {        
+     ContexteMenuArborescence.prototype.initWMStime = function(args){
+        if (args.couche.options.wms_timeextent) {
             // This is a layer from the MSP map file. In which case we read the msp metadata.
             // Create the DatePicker
-            var timeExtentArray = args.couche.options.wms_timeextent.split("/");							
+            var timeExtentArray = args.couche.options.wms_timeextent.split("/");
             var startDate = Fonctions.createDateFromIsoString(timeExtentArray[0]);
             var endDate=null;
             var allowIntervals=null;
@@ -168,11 +168,11 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                 endDate = null;
                 allowIntervals = false;
             }
-            
+
             if(args.couche.options.wms_timeAllowIntervals){
                 allowIntervals = Aide.toBoolean(args.couche.options.wms_timeAllowIntervals);
             }
-            
+
             var datePicker = new DateTimeIntervalPicker({
                 id : 'datePicker',
                 layer : args.couche._layer,
@@ -198,18 +198,18 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             var endDate = null;
 
             // In the case of a WMST layer version 1.1.1 as implemented by EC.
-            // Requires the OpenLayer fix as implemented by F.Morin. 
+            // Requires the OpenLayer fix as implemented by F.Morin.
             // OpenLayer ticket number 3607: http://trac.osgeo.org/openlayers/ticket/3607
             if (args.couche._layer.options.metadata.extents && args.couche._layer.options.metadata.extents.time) {
                 // Read the extent and apply start and end dates.
                 //ex of date extent: "2012-01-14T18:00:00Z/2012-01-17T06:00:00Z/PT6H"
-                var timeExtentArray = args.couche._layer.options.metadata.extents.time.values[0].split("/");								
+                var timeExtentArray = args.couche._layer.options.metadata.extents.time.values[0].split("/");
                 startDate = Fonctions.createDateFromIsoString(timeExtentArray[0]);
                 endDate = Fonctions.createDateFromIsoString(timeExtentArray[1]);
 
             // In the case of a WMST layer as implemented by MapServer
             }else if(args.couche._layer.options.metadata.dimensions.time.values){
-                var timeExtentArray = args.couche._layer.options.metadata.dimensions.time.values[0].split("/");								
+                var timeExtentArray = args.couche._layer.options.metadata.dimensions.time.values[0].split("/");
                 startDate = Fonctions.createDateFromIsoString(timeExtentArray[0]);
                 endDate = Fonctions.createDateFromIsoString(timeExtentArray[1]);
             }
@@ -234,8 +234,8 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             };
         }
     };
-        
-    ContexteMenuArborescence.prototype.initSupprimerVecteurSubmenu = function(args){ 
+
+    ContexteMenuArborescence.prototype.initSupprimerVecteurSubmenu = function(args){
         var that=args.scope;
         if (args.couche._layer.allowDelete || args.couche.options.suppressionPermise) {
             return {
@@ -243,7 +243,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                 text : that.locale.deleteLayerText,
                 handler : function() {
                     Aide.afficherMessage({
-                        title: that.locale.deleteLayerText, 
+                        title: that.locale.deleteLayerText,
                         message: that.locale.deleteLayerConfirmationText + args.couche.obtenirTitre(),
                         boutons: 'OUINON',
                         action :function(btn) {
@@ -257,8 +257,8 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             };
         }
     };
-        
-    ContexteMenuArborescence.prototype.initActiverImportationSubmenu = function(args){ 
+
+    ContexteMenuArborescence.prototype.initActiverImportationSubmenu = function(args){
         if (args.couche.options.importationWFS) {
             var coucheWFS = args.couche;
             var coucheWFSActive = coucheWFS.carte.gestionCouches.coucheWFSActive;
@@ -274,20 +274,20 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                     if(coucheWFSActive){
                         coucheWFSActive._nodeHtml.css('background-color', '');
                     }
-                    
+
                     if(coucheWFS){
                         args.nodeHtml.css('background-color', '#c8dbc9');
                         coucheWFS._nodeHtml = args.nodeHtml;
-                    } 
-                    
+                    }
+
                     args.couche.carte.gestionCouches.coucheWFSActive = coucheWFS;
                 }
             };
         }
     };
-    
+
     ContexteMenuArborescence.prototype.initZoomEmprise = function(args){
-    	
+
     	if(args.couche.obtenirTypeClasse() === 'Vecteur' || args.couche.obtenirTypeClasse() === 'VecteurCluster' || args.couche.obtenirTypeClasse() === 'WFS') {
     	    return {
                 id: 'arborescenceZoomEmpriseVecteur',
@@ -298,11 +298,11 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             };
     	}
     	//TODO else if WMS
-    	
+
     };
 
     ContexteMenuArborescence.prototype.initSelectionnerTout = function(args){
-      
+
         if( args.couche.obtenirTypeClasse() === 'Vecteur' ) {
     	    return {
                 id: 'arborescenceSelectionnerToutVecteur',
@@ -311,12 +311,12 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                     args.couche.selectionnerTout();
                 }
             };
-    	}  
+    	}
     };
-    
-    
-    
-    ContexteMenuArborescence.prototype.initOuvrirTableVecteur = function(args){      
+
+
+
+    ContexteMenuArborescence.prototype.initOuvrirTableVecteur = function(args){
         var that=args.scope;
         var arbo = that.options.arborescence;
         var aPanneauTable = false;
@@ -325,7 +325,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             var nav = Aide.obtenirNavigateur();
             panneauTable = nav.obtenirPanneauParId(arbo.options.idResultatTable, -1);
             if(panneauTable && panneauTable.obtenirTypeClasse){aPanneauTable = true;}
-            
+
         }
         if(aPanneauTable){
             return {
@@ -343,20 +343,33 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                                 return false;
                             }
                         });
-                        
+
                         if(!existe){
-                            var nouvelleTable = new PanneauTable({reductible: false, fermable: true});        
+
+                           //aller chercher les options passées dans le XML
+                           //TODO faire une méthode pour ça
+                            var options = {reductible: false,
+                                            fermable: true,
+                                            paginer: panneauTable.options.paginer,
+                                            paginer_debut: panneauTable.options.paginer_debut,
+                                            paginer_limite: panneauTable.options.paginer_limite,
+                                            outils_auto: panneauTable.options.outils_auto,
+                                            outils_contenupage: panneauTable.options.outils_contenupage,
+                                            outils_selectionSeulement: panneauTable.options.outils_selectionSeulement
+                                          };
+
+                            var nouvelleTable = new PanneauTable(options);
                             panneauTable.ajouterPanneau(nouvelleTable);
                             panneauTable.activerPanneau(nouvelleTable);
-                            nouvelleTable.ouvrirTableVecteur(args.couche);                       
+                            nouvelleTable.ouvrirTableVecteur(args.couche);
                         }
                     }
                 }
             };
-        }  
+        }
      };
-    
-    ContexteMenuArborescence.prototype.initOrdreAffichageSubmenu = function(args){ 
+
+    ContexteMenuArborescence.prototype.initOrdreAffichageSubmenu = function(args){
         var that=args.scope;
         if( args.couche.estFond()) {
             return false;
@@ -372,8 +385,8 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                     handler : function() {
                         //todo: à améliorer... selon le type
                         args.couche.definirOrdreAffichage(29999);
-                    }   
-                }, { 
+                    }
+                }, {
                     text : that.locale.backText,
                    // icon: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxQHBgkIBwgWCgkLFhYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJycfLT0tMTU3Ojo6KSs6Oz8zQy85NDcBCgoKDg0OGhAPGjclHyM1NzUuLDc3Njc1Nzg3NC03LjAyNzUuLTc3Ny40LSwrMjQ3NzQ3LDc0LjY3Kyw0Ny44N//AABEIADAAMAMBEQACEQEDEQH/xAAaAAEBAAIDAAAAAAAAAAAAAAAABgQFAgMH/8QAKRAAAQMDAgUDBQAAAAAAAAAAAQACAwQFERIxBhMhQVFxgbIiQmGhsf/EABoBAQACAwEAAAAAAAAAAAAAAAAEBQECAwb/xAArEQACAQMBBgQHAAAAAAAAAAAAAQIDBBHwBRIhMZHBFEFxgSIyM1FSYeH/2gAMAwEAAhEDEQA/APcUAQBAEAQBAEAQGhvvERtVcylbR87UwSajLpxkkY2PhV93feHmo7ueH3/hxqVdx4wd9gvRu7qhrqbkmHSekmrOrP4Hhb2d54jPDGDNOpv54G3U06hAEAQEPxqdN5a7GcRM+T157a/1V6d2Q7j5jM4HGJq/PiL+vXfY/Kft3N7fzKxXRJCAIDi9utjmOyA4EHS4g+xHULDWVgEBfrTJR1gNTM6oif8ATDUSvLj50HOx39dx3A81f21SE8yba8n2IVWm0+Jm8OWt1VIJmTPgpG9HvilcwzkfaMHYdcn1A7kSNnW05fFlqPTJvSg36For4lBAEB11DDLBJGyQxueC0Pbu0kbhayWYtJ4MPkTs3DEs8ZjnvLpIzu14kIPtzFWy2fUksSqtrX7OLpN83rqcouG5omsZHe3sYzAa1okAAHYDmY/S2jY1Y4xVevcyqUvy11KRWR2CAIAgCAIAgCA//9k=',
                     handler : function() {
@@ -383,15 +396,15 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             }
         };
     };
-    
-    ContexteMenuArborescence.prototype.initFermerSubmenu = function(args){ 
+
+    ContexteMenuArborescence.prototype.initFermerSubmenu = function(args){
         var that=args.scope;
         return {
             id: 'arborescenceClose',
             text : that.locale.closeText
         };
     };
-    
+
     return ContexteMenuArborescence;
-    
+
 });

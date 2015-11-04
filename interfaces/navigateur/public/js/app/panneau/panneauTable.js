@@ -84,7 +84,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.prototype._obtenirPaginationBarre = function(config){
-        if(this.options.paginer){
+        //forcer la pagination si plus que la limite.
+        if(this.options.paginer === true || config.store.totalLength > config.store.lastOptions.params.limit){
+            this.options.paginer = true;
             return new Ext.PagingToolbar({
                         pageSize: config.store.lastOptions.params.limit,
                         store: config.store,
@@ -380,6 +382,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         var debut = this.options.paginer_debut?parseInt(this.options.paginer_debut):this.defautOptions.paginer_debut;
         var limite = this.options.paginer_limite?parseInt(this.options.paginer_limite):this.defautOptions.paginer_limite;
 
+        //vérifier selon le nombre d'occurence s'il faut paginer
+        if(this.donnees.listeOccurences){
+          if(this.donnees.listeOccurences.length > limite){
+            this.options.paginer = true;
+          }
+        }
+
         var store = new Ext.ux.data.PagingJsonStore({
             fields:fields,
             root: this.template.base,
@@ -425,10 +434,28 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.prototype.reconfigurerPaginationBarre = function(store){
-        if(this.options.paginer && this._panel){
+        if((this.options.paginer || store.totalLength > store.lastOptions.params.limit) && this._panel){
+
+            this.options.paginer = true;
             var paginationBarre = this._panel.getBottomToolbar();
+
+            //vérifier dans les items
+            if(typeof paginationBarre == "undefined"){
+              $.each(this._panel.items.items, function(key, value){
+                if(value instanceof Ext.PagingToolbar){
+                    paginationBarre = value;
+                }
+              })
+            }
+
+            //créer la barre de pagination
+            if(typeof paginationBarre == "undefined"){
+              paginationBarre = this._obtenirPaginationBarre(this.configurer(this.template, this.donnees))
+              this._panel.add(paginationBarre);
+            }
+
             if(paginationBarre){
-                paginationBarre.bind(store);
+              paginationBarre.bind(store);
             }
         }
     };
@@ -511,9 +538,11 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 type:'zoom',
                 couche: this.donnees}));
 
+            var selectionSeulement = typeof this.options.outils_selectionSeulement? this.options.outils_selectionSeulement;false;
             outilsSelection.push(new OutilTableSelection({
                 type:'selectionSeulement',
-                couche: this.donnees}));
+                couche: this.donnees
+                _extOptions:{checked:selectionSeulement}}));
 
             var selectionnerAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
              outilsSelection.push(new OutilTableSelection({
@@ -522,7 +551,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 _extOptions:{checked:selectionnerAuto}}));
 
             var selectionnerContenuPage = typeof this.options.outils_contenupage ? this.options.outils_contenupage:false;
-            if(this.options.paginer){
+            if(this.options.paginer === true){
                 outilsSelection.push(new OutilTableSelection({
                     type:'contenupage',
                     couche: this.donnees,
@@ -856,8 +885,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
 
     PanneauTable.Controles.prototype._selection = function(selection) {
 
-
-        var selectionIGO = this._.donnees.obtenirOccurencesSelectionnees();
+        var selectionIGO = Array();
+        if(this._.donnees.obtenirOccurencesSelectionnees){
+          selectionIGO = this._.donnees.obtenirOccurencesSelectionnees();
+        }
 
         if(selection.selections.items.length > 0){
           //enlever les items du panneau pour ensuite les ajoutés
