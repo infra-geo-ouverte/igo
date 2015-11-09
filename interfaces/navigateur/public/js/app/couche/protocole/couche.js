@@ -126,8 +126,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
         
-        this._getLayer().events.register('loadstart',this,function(e){this.afficherChargement()});
-        this._getLayer().events.register('loadend',this,function(e){this.masquerChargement()});
+        this._getLayer().events.register('loadstart', this, function(e){this.afficherChargement()});
+        this._getLayer().events.register('loadend', this, function(e){this.masquerChargement()});
+        this._getLayer().events.register('visibilitychanged', this, function(e){this._visibiliteChangee()});
     };
     
     /** 
@@ -407,6 +408,12 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             $(div).find(".layerArboLoading").hide();
         }
     };
+
+    Couche.prototype._visibiliteChangee = function(){
+        this.declencher({
+            type: this.estActive() ? "activee": "desactivee"
+        }); 
+    }
     
     return Couche;
 });
