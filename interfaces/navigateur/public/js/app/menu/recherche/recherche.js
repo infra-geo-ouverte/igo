@@ -290,6 +290,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             Aide.afficherMessage({titre: "Recherche", message:'Veillez entrer un texte à chercher'});
             return false;
         }
+        this.textUser = textUser;
         Aide.afficherMessageChargement({message: 'Recherche en cours, patientez un moment...'});
         this.reinitialiserVecteur();
         var texte = '';
@@ -340,6 +341,8 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     };
 
     Recherche.prototype.traiterResultatVecteur = function(vecteur){
+        this.declencher({type: "resultatRecherche", vecteur: vecteur, texteRecherche: this.textUser});
+
         vecteur.garderHistorique = true;
         var occurence = vecteur.obtenirOccurences()[0];
         if(!occurence){
@@ -583,6 +586,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      */
     Recherche.prototype.reinitialiserRecherche = function(){
         this.reinitialiserVecteur();
+        this.textUser = undefined;
         $.each(this._panel.items.items, function(index, item){
            if(item.xtype == "textfield" || item.xtype == "numberfield" || item.xtype == "combo"){
                item.reset();

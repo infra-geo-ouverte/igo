@@ -131,29 +131,29 @@ try {
                     }
                 }
                 
-                $motAlias = array();
-                if($config->aliasXml){
-                    $motAlias = $config->aliasXml;
+                $variableXml = array();
+                if(isset($config->variableXml)){
+                    $variableXml = $config->variableXml;
                 }
 
                 $json = json_encode($element);
                 $json = preg_replace_callback(
                     "/\"{{(\w+?)}}\"/", 
-                    function($m) use ($motAlias) {
-                        if(!isset($motAlias[$m[1]])){
+                    function($m) use ($variableXml) {
+                        if(!isset($variableXml[$m[1]])){
                             return "";
                         }
-                        return json_encode($motAlias[$m[1]]); 
+                        return json_encode($variableXml[$m[1]]); 
                     },
                     $json
                 );
                 $json = preg_replace_callback(
                     "/{{(\w+?)}}/", 
-                    function($m) use ($motAlias) {
-                        if(!isset($motAlias[$m[1]])){
+                    function($m) use ($variableXml) {
+                        if(!isset($variableXml[$m[1]])){
                             return "";
                         }
-                        return json_encode($motAlias[$m[1]]); 
+                        return json_encode($variableXml[$m[1]]); 
                     },
                     $json
                 );

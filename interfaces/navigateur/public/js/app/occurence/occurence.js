@@ -616,25 +616,47 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (!this.estAffichee() && !args.force) {
             return;
         }
+
+
         var position = OpenLayers.LonLat.fromString(this._obtenirGeomOL().getCentroid().toShortString());
-        var dimension = args.dimension ? new OpenLayers.Size(args.dimension[0], args.dimension[1]) : null;
+        var offset = args.offset && args.offset.length === 2 ? {'size': new OpenLayers.Size(0,0),'offset':new OpenLayers.Pixel(args.offset[0], args.offset[1])} : null;
+        var dimensionArray = args.dimension && args.dimension.length === 2 ? args.dimension : ['auto', 'auto'];
+        var dimension = new OpenLayers.Size(dimensionArray[0], dimensionArray[1]);
         var html = args.html || "<p>Aucun contenu.</p>";
-        var callbackFermeture = args.callbackFermeture || null;
+        var callbackFermeture = args.callbackFermeture ? function(e){args.callbackFermeture.call(that, e);} : null;
         var aFermerBouton = args.aFermerBouton === undefined ? true : Aide.toBoolean(args.aFermerBouton);
+        var id = args.id || null;
 
         this.fermerInfobulle();
-        this._infobulle = new OpenLayers.Popup.FramedCloud(
-            null,
-            position,
-            dimension,
-            html,
-            null,
-            aFermerBouton,
-            function(e){
-                callbackFermeture.call(that, e);
+        if(args.type === 'simple'){
+            this._infobulle = new OpenLayers.Popup.Anchored(
+                id,
+                position,
+                dimension,
+                html,
+                offset,
+                aFermerBouton,
+                callbackFermeture
+            );
+            if(args.couleur){
+                this._infobulle.setBackgroundColor(args.couleur); //'transparent'
             }
-        );
-        
+        } else {
+            this._infobulle = new OpenLayers.Popup.FramedCloud(
+                id,
+                position,
+                dimension,
+                html,
+                offset,
+                aFermerBouton,
+                callbackFermeture
+            );
+        }
+
+        this._infobulle.calculateRelativePosition = function () {
+            return args.positionRelative || 'br';
+        }
+
         if(args.minDimension && args.minDimension.length===2){
             this._infobulle.minSize = new OpenLayers.Size(args.minDimension[0], args.minDimension[1]);
         }

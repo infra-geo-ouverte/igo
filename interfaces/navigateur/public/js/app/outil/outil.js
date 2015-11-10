@@ -86,7 +86,7 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
                 toggleGroup: opt.groupe,
                 allowDepress: opt._allowDepress,
                 scope: this,
-                handler: opt.executer,
+                handler: function() {this.declencher({type: 'activee'}); opt.executer.call(this)},
                 toggleHandler: function(a,b){if(!b && !a.pressing){this.eteindre();} else if(this.options.groupe=='carte'){this.declencher({type: 'controleCarteActiver'});} a.pressing=false; }
             }, this._extOptions, this.options._extOptions);
             

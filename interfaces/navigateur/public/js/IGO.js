@@ -101,8 +101,9 @@ define([], function(){
 
 
     IgoNav.prototype.setConfigClient = function(Aide){
+        var that = this;
         define("configuration", [], function() {
-            return this.configClient;
+            return that.configClient;
         })
 
         Aide.definirConfig(this.configClient);

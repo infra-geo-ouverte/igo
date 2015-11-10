@@ -240,13 +240,34 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         //filtre.split(/\(|\)/g);
         //this.filtre;
         var comparatorArray = [], logicSeparator;
-        if(filtre){
-            filtre = filtre.replace(/ /g, '');
-
-            logicSeparator = filtre.match(/&&|\|\|/g);
-            comparatorArray = filtre.split(/&&|\|\|/g);
-        };
         var filterLast;
+
+        if(filtre){
+            if(filtre instanceof Function){
+                var filterLast = new OpenLayers.Filter.FeatureId({
+                    evaluate: function(feature) {
+                        var occ;
+                         if(that.parent){
+                            occ = that.parent.obtenirOccurenceParId(feature.id);
+                            if(!occ && that.parent.obtenirClusterParId){
+                                occ = that.parent.obtenirClusterParId(feature.id);
+                            }
+                        } else {
+                            var nav = Aide.obtenirNavigateur();
+                            occ = nav.carte.gestionCouches.obtenirOccurenceParId(feature.id);
+                        }
+                                   
+                        return filtre.call(that, occ);
+                    }
+                });
+            } else {
+                filtre = filtre.replace(/ /g, '');
+                logicSeparator = filtre.match(/&&|\|\|/g);
+                comparatorArray = filtre.split(/&&|\|\|/g);
+            }
+
+        };
+        
         $.each(comparatorArray, function(key, value){
             if (value === ''){return true};
             var propriete = value.substring(1,value.indexOf("]")); 
