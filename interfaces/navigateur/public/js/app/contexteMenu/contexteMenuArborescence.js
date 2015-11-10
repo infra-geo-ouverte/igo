@@ -350,12 +350,12 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                            //TODO faire une méthode pour ça
                             var options = {reductible: false,
                                             fermable: true,
-                                            paginer: panneauTable.options.paginer,
+                                            paginer: Aide.toBoolean(panneauTable.options.paginer),
                                             paginer_debut: panneauTable.options.paginer_debut,
                                             paginer_limite: panneauTable.options.paginer_limite,
-                                            outils_auto: panneauTable.options.outils_auto,
-                                            outils_contenupage: panneauTable.options.outils_contenupage,
-                                            outils_selectionSeulement: panneauTable.options.outils_selectionSeulement
+                                            outils_auto: Aide.toBoolean(panneauTable.options.outils_auto),
+                                            outils_contenupage: Aide.toBoolean(panneauTable.options.outils_contenupage),
+                                            outils_selectionSeulement: Aide.toBoolean(panneauTable.options.outils_selectionSeulement)
                                           };
 
                             var nouvelleTable = new PanneauTable(options);

@@ -14,7 +14,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             id: 'table-panneau',
             paginer : false,
             paginer_debut:0,
-            paginer_limite:50
+            paginer_limite:5000
         });
     };
 
@@ -94,6 +94,15 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                         displayMsg: 'Affiche les occurences {0} à {1} de {2}',
                         emptyMsg: "Aucune occurence"
                     });
+
+
+            ide.obtenirNavigateur().evenements.ajouterDeclencheur('occurenceSelectionnee', function(e) {
+                e.options.scope.desactiverDessin();
+            }, {
+                scope: this,
+                id: 'activerDessin-OutilExecuter'
+            });
+
         }
         else{
             return null;
@@ -396,13 +405,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             listeners : {
                 //Lors d'un changement de page. Nous devons executer chaque checkbox de la liste D'outil
                 datachanged: function(pagingJsonStore){
-                    if(that.barreOutils){
+                    /*if(that.barreOutils){
                         $.each(that.barreOutils.obtenirOutilsParType("OutilTableSelection",3), function(index , value){
                             if(typeof value._bouton.isXType === "function" && value._bouton.isXType("menucheckitem")){
                                 value.executer(true);
                             }
                         });
-                    }
+                    }*/
                 },
                 load: function(pagingJsonStore,record,options){
                     //resélectionner les occurences après load de la page
@@ -538,10 +547,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 type:'zoom',
                 couche: this.donnees}));
 
-            var selectionSeulement = typeof this.options.outils_selectionSeulement? this.options.outils_selectionSeulement;false;
+            var selectionSeulement = typeof this.options.outils_selectionSeulement? this.options.outils_selectionSeulement:false;
             outilsSelection.push(new OutilTableSelection({
                 type:'selectionSeulement',
-                couche: this.donnees
+                couche: this.donnees,
                 _extOptions:{checked:selectionSeulement}}));
 
             var selectionnerAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
@@ -917,9 +926,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             });
         }
 
-        if(this._.donnees.zoomAuto){
+        /*if(this._.donnees.zoomAuto){
             this._.donnees.zoomerOccurences(this._.donnees.obtenirOccurencesSelectionnees());
-        }
+        }*/
 
         if(this._.donnees.options.selectionSeulement){
            this._.donnees.afficherSelectionSeulement();

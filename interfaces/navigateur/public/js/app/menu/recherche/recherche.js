@@ -341,7 +341,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
 
     Recherche.prototype.traiterResultatVecteur = function(vecteur){
         vecteur.garderHistorique = true;
-        vecteur.zoomAuto = true;
+        vecteur.ajouterDeclencheur('vecteurOccurenceSelectionnee', function(e){
+                    e.target.zoomerOccurence(e.occurence);
+        }, {scope: this, id:'occurenceCliqueRecherche'});
         
         var occurence = vecteur.obtenirOccurences()[0];
         if(!occurence){

@@ -686,13 +686,14 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
             if(!occurence){
                 this._layer.redraw();
                 this.rafraichirLegende();
+                this.declencher({type: "vecteurRafraichie", vecteur:this, occurence: occurence});
                 return true;
             }
             this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
+            this.declencher({type: "vecteurRafraichie", vecteur:this, occurence: occurence});
             return true;
-        }
-
+        }      
     };
 
     Vecteur.prototype.rafraichirLegende = function() {

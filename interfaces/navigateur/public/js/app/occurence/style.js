@@ -310,6 +310,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             });
         }
         var filtreCombinaison;
+
         if(filterLast){
             filtreCombinaison= new OpenLayers.Rule({
                 name: options.titre,

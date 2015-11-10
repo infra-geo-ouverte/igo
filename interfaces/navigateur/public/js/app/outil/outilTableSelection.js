@@ -1,4 +1,4 @@
-define(['outil', 'aide'], function(Outil, Aide) {
+define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
     function OutilTableSelection(options){
         this.options = options || {};
 
@@ -86,15 +86,26 @@ define(['outil', 'aide'], function(Outil, Aide) {
         } else if (this.options.type === 'zoom'){
             this.options.couche.zoomerOccurences(this.options.couche.obtenirOccurencesSelectionnees());
         } else if (this.options.type === 'auto'){
-            if(!lancementManuel){
-                this.options.couche.zoomAuto = !this._bouton.checked;
+            if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
+                this.options.couche.ajouterDeclencheur('vecteurOccurenceSelectionnee', function(e){
+                    e.target.zoomerOccurence(e.occurence);
+                }, {scope: this, id:'occurenceCliqueTableSelection'});
+            }else{
+                this.options.couche.enleverDeclencheur('vecteurOccurenceSelectionnee', 'occurenceCliqueTableSelection',function(e){
+                    e.target.zoomerOccurence(e.occurence);
+                });
             }
+
         }  else if (this.options.type === 'contenupage'){
             if(!lancementManuel){
                 this.options.couche.afficheContenuPage = !this._bouton.checked;
+
+                
+               
+
             }
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
-                this.options.couche.cacherTout();
+                /*this.options.couche.cacherTout();
                 this.options.couche.afficherOccurence(this.options.panneauTable.obtenirOccurences());
 
                 //ne pas permettre l'option d'afficher seulement la sélection
@@ -104,17 +115,41 @@ define(['outil', 'aide'], function(Outil, Aide) {
                         value._bouton.disable();
                         value.options.couche.options.selectionSeulement = false;
                     }
-                });
+                });*/
+                var that = this;
+                $.each(this.options.couche.obtenirStyles(), function(index, value){
+                    value.ajouterFiltre({filtre: 'true==true', 
+                                            style: new Style({
+                                                    display:"${contenupage}",
+                                                    contexte : {
+                                                        contenupage : function(occurence){
+                                                            console.log("patate");
+                                                            /*if(that.options.panneauTable.obtenirIndexParOccurence(occurence) == -1){
+                                                                return false;
+                                                            }   
+                                                            else{
+                                                                return true;
+                                                            }*/
+                                                            return 'display';
+                                                        }
+                                                    }})
+                                        });
+                })
             }
             else{
 
+                $.each(this.options.couche.obtenirStyles(), function(index, value){
+                    value.reinitialiserFiltres();
+                });
+                
+/*
                 $.each(this.parent.obtenirOutils(), function(index,value){
                     if(value.options.type === 'selectionSeulement'){
                         value._bouton.enable();
                     }
                 });
 
-                this.options.couche.afficherTout();
+                this.options.couche.afficherTout();*/
             }
         } else if (this.options.type === 'selectionSeulement'){
 
