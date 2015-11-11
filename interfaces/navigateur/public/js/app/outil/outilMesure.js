@@ -31,6 +31,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         var oMeasrLinearCtrlOptions = {
             title: "Effectuer une mesure linéaire.",
             geodesic: true,
+            immediate: true,
             eventListeners: {
                 activate: function(e){
                     that.displayMeasr('');
@@ -63,6 +64,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         var oMeasrPolgnCtrlOptions = {
             title: "Effectuer une mesure surfacique.",
             geodesic: true,
+            immediate: true,
             eventListeners: {
                 activate: function(e){
                     that.displayMeasr('', '');
