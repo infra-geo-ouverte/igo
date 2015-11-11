@@ -80,6 +80,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype._obtenirToolbar = function(){
         var that=this;
         this.barreOutils = new BarreOutils(this.carte);
+        this.barreOutils.parent = this;
         return this.barreOutils._getToolbar();
     };
 
