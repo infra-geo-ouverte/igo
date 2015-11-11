@@ -6,7 +6,7 @@
  * @requires point
  * @requires aide
  */
-define(['point', 'aide'], function(Point, Aide) {
+define(['geometrie', 'point', 'aide'], function(Geometrie, Point, Aide) {
     /** 
      * Création de l'object Geometrie.Ligne.
      * @constructor
@@ -30,20 +30,9 @@ define(['point', 'aide'], function(Point, Aide) {
      * new Geometrie.Ligne([[46,52],[48,55]], 'EPSG:4326');
      */
     function Ligne(arrayPoint, proj) {
+        Geometrie.apply(this, [proj]);
         var that = this;
         this.points = [];
-
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Ligne : Projection EPSG invalide");
-        }
-        this.projection = proj;
 
         if (arrayPoint && (arrayPoint.CLASS_NAME === "OpenLayers.Geometry.LineString" || arrayPoint.CLASS_NAME === "OpenLayers.Geometry.LinearRing")) {
             arrayPoint = arrayPoint.components;
@@ -73,41 +62,9 @@ define(['point', 'aide'], function(Point, Aide) {
         }
     }
 
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name Ligne#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    Ligne.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
-    }; 
+    Ligne.prototype = Object.create(Geometrie.prototype);
+    Ligne.prototype.constructor = Ligne;
     
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.Ligne#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    Ligne.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.Ligne#definirProjection
-     * @throws Ligne.definirProjection : Projection EPSG invalide
-     * @example Ligne.definirProjection('EPSG:4326');
-     */
-    Ligne.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Ligne.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
-
     /** 
      * Obtenir la longueur de la ligne
      * @method 
@@ -168,44 +125,7 @@ define(['point', 'aide'], function(Point, Aide) {
         }
         return this;
     };
-    
-    /** 
-     * Transformer les coordonnées dans une autre projection.
-     * Cette fonction ne modifie par la ligne, une nouvelle ligne est créée.
-     * @method
-     * @name Geometrie.Ligne#projeter
-     * @param {String} arg1 
-     * Si !arg2, alors arg1 = Projection voulue. La projection source est la projection de la ligne.
-     * Si arg2, alors arg1 = Projection source
-     * @param {String} [arg2] Projection voulue
-     * @returns {Geometrie.Ligne} Instance projectée de {@link Geometrie.Ligne}
-     * @throws Ligne.projeter : Projection source invalide
-     * @throws Ligne.projeter : Projection voulue invalide
-     * @example Ligne.projeter('EPSG:4326');
-     * @example Ligne.projeter('EPSG:4326','EPSG:900913');
-     */
-    Ligne.prototype.projeter = function(arg1, arg2) {
-        var dest, source;
-        if (arg2) {
-            source = arg1;
-            dest = arg2;
-        } else {
-            source = this.projection;
-            dest = arg1;
-        }
-        if (typeof source !== "string" || source.toUpperCase().substr(0, 5) !== 'EPSG:' || source.substr(5) !== source.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Ligne.projeter : Projection source invalide");
-        }
-        if (typeof dest !== "string" || dest.toUpperCase().substr(0, 5) !== 'EPSG:' || dest.substr(5) !== dest.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Ligne.projeter : Projection voulue invalide");
-        }
-        var projSource = new OpenLayers.Projection(source);
-        var projDest = new OpenLayers.Projection(dest);
-        var ligneOL = this._obtenirGeomOL();
-        var ligneProj = ligneOL.transform(projSource, projDest);
-        return new Ligne(ligneProj, dest);
-    };
-    
+       
     /** 
      * Simplifier la géométrie. La simplification est basée sur l'algorithme Douglas-Peucker.
      * Ne modifie pas la ligne, la fonction crée une nouvelle ligne simplifiée

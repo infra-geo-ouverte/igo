@@ -131,7 +131,33 @@ try {
                     }
                 }
                 
-                echo json_encode($element);               
+                $motAlias = array();
+                if($config->aliasXml){
+                    $motAlias = $config->aliasXml;
+                }
+
+                $json = json_encode($element);
+                $json = preg_replace_callback(
+                    "/\"{{(\w+?)}}\"/", 
+                    function($m) use ($motAlias) {
+                        if(!isset($motAlias[$m[1]])){
+                            return "";
+                        }
+                        return json_encode($motAlias[$m[1]]); 
+                    },
+                    $json
+                );
+                $json = preg_replace_callback(
+                    "/{{(\w+?)}}/", 
+                    function($m) use ($motAlias) {
+                        if(!isset($motAlias[$m[1]])){
+                            return "";
+                        }
+                        return json_encode($motAlias[$m[1]]); 
+                    },
+                    $json
+                );
+                echo $json;               
             
             }else{
                 return envoyerResponse(404, "Not Found", "L'élément racine du fichier de configuration doit se nommer 'navigateur' !");
@@ -441,6 +467,9 @@ try {
      * @param ??? $di
      */
     function obtenirInfoContexte($contexte, $app, $di){
+        if(!isset($contexte->id)){
+            return false;
+        }
 
         $contexteId = $contexte->id;
         $contexteCouches = IgoVueContexteCoucheNavigateur::find(array(

@@ -80,6 +80,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @fires Couche.Vecteur#vecteurOccurenceSelectionnee
      */
     Occurence.prototype.selectionner = function() {
+        if(this.selectionnee){
+            return true;
+        }
         if (!this.estDansCluster) {
             this.appliquerStyle('select');
         }
@@ -112,6 +115,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @fires Couche.Vecteur#vecteurOccurenceDeselectionnee
      */
     Occurence.prototype.deselectionner = function() {
+        if(!this.selectionnee){
+            return true;
+        }
         if (!this.estDansCluster) {
             this.appliquerStyle('defaut');
         }
@@ -544,20 +550,6 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     };
 
     /** 
-     * Obtenir les limites de l'occurence
-     * @method
-     * @name Occurence#obtenirLimites
-     * @returns {Geometrie.Limites} Limites de l'occurence
-     */
-    Occurence.prototype.obtenirLimites = function() {
-        if (this.limites) {
-            return this.limites;
-        }
-        var limitesOL = this._obtenirGeomOL().getBounds();
-        return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
-    };
-
-    /** 
      * Cacher l'occurence
      * @method
      * @name Occurence#cacher
@@ -737,7 +729,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return;
         }
 
-        $.extend(this, geometrie, {projeter: Occurence.prototype.projeter});
+        $.extend(this, geometrie, Occurence.prototype);
 
         if (!this.id) {
             var type = this.type ? this.type + '_' : '';
@@ -792,7 +784,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {Geometrie|Openlayers.Geometry} geometrie Géométrie de l'occurence
      * @returns {Occurence} Retourne lui-même
      */
-    Occurence.prototype.majGeometrie = function(geometrie) {
+    Occurence.prototype.majGeometrie = function(geometrie, opt) {
+        opt = opt || {};
         if (this.vecteur) {
             this.vecteur.carte.gestionCouches.enleverOccurenceSurvol(this);
             this.vecteur._layer.removeFeatures(this._feature);
@@ -808,20 +801,22 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             this.appliquerStyle(this.regleCourant, false);
         }
         
-        /**
-         * Événement lancée lorsque l'occurence est modifiée
-         * @event Occurence#occurenceModifiee
-         * @type {object}
-         */
-        this.declencher({type: "occurenceModifiee", modif: geometrie, modifType: 'géométrie'});
-        if (this.vecteur) {
+        if(opt.lancerDeclencheur !== false){
             /**
-             * Événement lancée lorsqu'une occurence du vecteur est modifiée
-             * @event Couche.Vecteur#vecteurOccurenceModifiee
+             * Événement lancée lorsque l'occurence est modifiée
+             * @event Occurence#occurenceModifiee
              * @type {object}
-             * @property {Occurence} occurence L'occurence modifiée
              */
-            this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
+            this.declencher({type: "occurenceModifiee", modif: geometrie, modifType: 'géométrie'});
+            if (this.vecteur) {
+                /**
+                 * Événement lancée lorsqu'une occurence du vecteur est modifiée
+                 * @event Couche.Vecteur#vecteurOccurenceModifiee
+                 * @type {object}
+                 * @property {Occurence} occurence L'occurence modifiée
+                 */
+                this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
+            }
         }
         
         return this;
@@ -877,7 +872,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {String} [arg2] Projection voulue
      * @returns {Occurence} Occurence avec la nouvelle projection
      */
-    Occurence.prototype.projeter = function(arg1, arg2) {        
+    Occurence.prototype.projeter = function(arg1, arg2) {      
         var geom = this._obtenirGeometrie().projeter(arg1, arg2);
         return this.cloner()._definirGeometrie(geom);
     };
@@ -907,7 +902,25 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         delete this.proprietesOriginales;
         this.modifiee = this.geometrieOriginale ? true : false;
     }
-    
+
+
+    Occurence.prototype.definirInteraction = function(interaction) {
+        this._interaction = interaction;
+    }
+
+    /*
+        Propriete: selectionnable, editable
+    */
+    Occurence.prototype.obtenirInteraction = function(propriete) {
+        if(!propriete){
+            return this._interaction;
+        }
+        if(this._interaction === false || ($.isPlainObject(this._interaction) && this._interaction[propriete] === false)){
+            return false;
+        }
+        return true;
+    }
+
     return Occurence;
 
 });

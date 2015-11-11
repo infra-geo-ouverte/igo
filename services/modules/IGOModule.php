@@ -27,7 +27,7 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	/**
 	 * Le chemin vers la fonction php à inclure
 	 */
-	const FICHIER_FONCTION_PRINCIPAL = '/php/module.php';
+	const FICHIER_FONCTION_PRINCIPAL = '/controllers/moduleController.php';
 
 	/**
 	 * La configuration du module. Lu à partir de `config/config.php`

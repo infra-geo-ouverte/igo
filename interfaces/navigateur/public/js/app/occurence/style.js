@@ -348,7 +348,11 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
      * @returns {Geometrie.Style} Instance de {@link Geometrie.Style}
     */
     Style.prototype.cloner = function(){
-        return jQuery.extend(true, {}, this);  
+        var parent = this.parent;
+        this.parent = null;
+        var clone = jQuery.extend(true, {}, this);  
+        this.parent = parent;
+        return clone;
     };
     
      /**
