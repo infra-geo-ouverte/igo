@@ -132,9 +132,9 @@ try {
                 }
                 
                 $motAlias = array();
-                if($config->aliasXml){
-                    $motAlias = $config->aliasXml;
-                }
+//                if($config->aliasXml){
+//                    $motAlias = $config->aliasXml;
+//                }
 
                 $json = json_encode($element);
                 $json = preg_replace_callback(
@@ -460,6 +460,55 @@ try {
         obtenirInfoContexte($contexte, $app, $di);
     });
 
+    
+  
+    function obtenirChaineConnexion($service){  
+         global $app;
+         //Services  
+        $igoController = new IgoController();
+
+        $permisUrl = $igoController->obtenirPermisUrl($service);
+        
+        if($permisUrl === false){
+            http_response_code(403);
+            die("Vous n'avez pas les droits pour ce service.");
+        } 
+
+        $url = $permisUrl['url'];
+
+       //Decrypter la chaine de connexion
+        if (!empty($permisUrl['connexion']) || !empty($permisUrl['user'])) {
+            $auth = array();
+            if(!empty($permisUrl['user'])) {
+                $auth['user'] = $permisUrl['user']; 
+            }
+            if(!empty($permisUrl['pass'])) {
+                $auth['pass'] = $permisUrl['pass']; 
+            }
+            if(!empty($permisUrl['methode'])) {
+                $auth['method'] = $permisUrl['methode']; 
+            }
+
+            if(!empty($permisUrl['connexion'])){
+                $crypt = $app->getDI()->get("crypt");
+                $chaine = explode(",", $crypt->decryptBase64(urldecode($permisUrl['connexion'])));
+                $auth['user'] = ltrim(trim($chaine[0]), " user:");
+                $auth['pass'] = ltrim(trim($chaine[1]), " pass:");
+                if (empty($auth['pass'])) {
+                    header('Content-Type: text/html; charset=utf-8');
+                    http_response_code(401);
+                    die("Votre clé n'est pas décryptée correctement.");
+                }
+            }
+
+             return $auth;
+        }
+                
+    }
+    
+    
+    
+    
     /**
      * //TODO Obtenir devrait retourner du texte, pas l'afficher
      * @param ??? $contexte
@@ -467,10 +516,10 @@ try {
      * @param ??? $di
      */
     function obtenirInfoContexte($contexte, $app, $di){
-        if(!isset($contexte->id)){
+         if(!isset($contexte->id)){
             return false;
         }
-
+        
         $contexteId = $contexte->id;
         $contexteCouches = IgoVueContexteCoucheNavigateur::find(array(
                 "conditions"=>"contexte_id=$contexteId", 
@@ -820,8 +869,8 @@ try {
             if(!empty($permisUrl['connexion'])){
                 $crypt = $app->getDI()->get("crypt");
                 $chaine = explode(",", $crypt->decryptBase64(urldecode($permisUrl['connexion'])));
-                $auth['user'] = ltrim($chaine[0], " user:");
-                $auth['pass'] = ltrim($chaine[1], " pass:");
+                $auth['user'] = ltrim(trim($chaine[0]), " user:");
+                $auth['pass'] = ltrim(trim($chaine[1]), " pass:");
                 if (empty($auth['pass'])) {
                     header('Content-Type: text/html; charset=utf-8');
                     http_response_code(401);
@@ -830,7 +879,7 @@ try {
             }
 
             $authtmp['auth'] = $auth;
-            $options = array_merge($options, $authtmp);
+            $options = array_merge($options, $authtmp);           
         }
 
         if(isset($url) && is_string($url) && $url !== ""){
@@ -963,7 +1012,7 @@ try {
                 $result = array_merge($data, $filesTemp);
 
                 curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER,  array('multipart/form-data;charset=UTF-8'));
+                //curl_setopt($ch, CURLOPT_HTTPHEADER,  array('multipart/form-data;charset=UTF-8'));
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $result);
                 curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
             } else {
@@ -973,7 +1022,7 @@ try {
             }
 
         }
-
+        
         if (($method === 'POST') && isset($_SERVER['HTTP_SOAPACTION']) && isset($_SERVER['CONTENT_TYPE'])) {
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -982,12 +1031,57 @@ try {
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:' . $_SERVER['CONTENT_TYPE'],
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
-
-        if (!empty($options['auth'])) {
+        
+        if (!empty ($options['auth'])) {
             $auth = $options['auth'];
-            if (isset($auth['method']) && isset($auth['user']) && isset($auth['pass'])) {
-                curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            if (isset ($auth['method']) && isset ($auth['user']) && isset ($auth['pass'])) {
+                
+                //On obtient le payload (objectif chercher dans le payload les url securisees)
+                $postdata = file_get_contents ("php://input");
+                //Seul le post xml de zoo est modifié
+                if (!empty ($postdata) && strpos ($postdata, 'wps:Execute') !== false) {
+                    $doc = new DOMDocument();
+                    $doc->loadXML ($postdata);
+                    $domList = $doc->getElementsByTagNameNS ('*', '*');
+                   //on navigue dans tout le payload
+                    for ($i = 0; $i < $domList->length; $i++) {
+                        if ($domList->item ($i)->tagName === 'wps:Reference') {
+                            $xmlurl = $domList->item ($i)->getAttribute ('xlink:href');
+                            $partsxml = parse_url ($xmlurl);
+                            //les credentials a ajouter dans le xml on verifié s il y en as
+                            if (isset ($xmlurl) && $partsxml['scheme'] === 'https') {
+                                if ($xmlurl !== $url) {
+                                 //les credentials des urls qu on as pas 
+                                    $authxml = obtenirChaineConnexion ($partsxml['scheme'] . '://' . $partsxml['host'] . $partsxml['path']);
+                                    if (isset ($authxml['user']) && isset ($authxml['pass'])) {
+                                        $urlxml = $partsxml['scheme'] . '://' . $authxml['user'] . ':' . $authxml['pass'] . '@' . $partsxml['host'] . $partsxml['path'] . '?' . $partsxml['query'];
+                                    }
+                                    $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
+                                    $postdata = $xmlpost;
+                                }
+                                //les credentials de zoo on possede deja dans le xml est modifié
+                                if ($xmlurl === $url) {
+                                    $urlxml = $partsxml['scheme'] . '://' . $auth['user'] . ':' . $auth['pass'] . '@' . $partsxml['host'] . $partsxml['path'];
+                                    $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
+                                    $postdata = $xmlpost;
+                                }
+                            }
+                        }
+                    }
+
+                    curl_setopt ($ch, CURLOPT_POST, 1);
+                    curl_setopt ($ch, CURLOPT_POSTFIELDS, $postdata);
+                       
+                }
+
+              
+
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  2);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);  
+
 
                 switch ($auth['method']) {
                     case "BASIC":
@@ -1010,11 +1104,11 @@ try {
                 curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ':' . $auth['pass']);
             }
         }
-
+             
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-     
+ 
         curl_close ($ch);
 
        if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)){
@@ -1023,7 +1117,7 @@ try {
                 "application/xml", 
                 "application/vnd.ogc.wms_xml", 
                 "application/vnd.ogc.gml", 
-                "text/xml; subtype=gml/3.1.1"
+                "text/xml; subtype=gml/3.1.1" 
                 );
 
             if(in_array($contentType, $contentsTypesAVerifier) && !isset($options['encodage'])){

@@ -413,7 +413,9 @@ class IgoController extends ControllerBase {
             } else if ($regex[0] === "*") {
                 $trustedDom = "#(.)+#";
             } else if (is_array([$regex])) {
-                if(!isset($regex['url'])){
+                if(!isset($regex['url']) ){
+                    $regex['url'] = $regex[0];
+                }else if($regex['url'] !== $regex[0] ){
                     $regex['url'] = $regex[0];
                 }
                 $trustedDom = $regex['url'];
