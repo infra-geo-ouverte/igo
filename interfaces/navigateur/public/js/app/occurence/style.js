@@ -68,6 +68,8 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             etiquetteEpaisseur: 'fontWeight',
             etiquetteTaille: 'fontSize',
             etiquettePolice: 'fontFamily',
+            etiquetteLimiteCouleur: 'labelOutlineColor',
+            etiquetteLimiteEpaisseur: 'labelOutlineWidth', 
             visible: 'display',
             rotation: 'rotation'
         };
@@ -151,7 +153,10 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 }
             });
         }
-        var styleOL = new OpenLayers.Style(this._getStyleOptionsOL(), {context: contexte});
+        var styleOL = new OpenLayers.Style(this._getStyleOptionsOL(), {
+            context: contexte,
+            defaultsPerSymbolizer: this.propriete.defautParRegle ? true : false
+        });
         styleOL.addRules(this._filtresOL);
         styleOL.title = this.propriete.titre || "Style";
         return styleOL;
@@ -356,7 +361,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         }
         
         this._filtresOL.push(filtreCombinaison);
-        this.filtres.push({filtre:filtre, style:style});
+        this.filtres.push({titre:options.titre, filtre: filtre, style: style});
         
         if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
             if(this.regle==='defaut'){
