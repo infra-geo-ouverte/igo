@@ -337,9 +337,22 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                 Aide.obtenirNavigateur().evenements.ajouterDeclencheur("occurenceSelectionnee", function(evt){
                     that.mesureSelection(evt, undefined);
                 }, {scope: this, id: "outilMesureOccurenceSelectionnee"});   
+
+                Aide.obtenirNavigateur().evenements.ajouterDeclencheur("occurenceModifiee", function(evt){
+                    that.mesureSelection(evt, undefined);
+                }, {scope: this, id: "outilMesureOccurenceModifiee"});   
+
+              /*  Aide.obtenirNavigateur().evenements.ajouterDeclencheur("mesure", function(evt){
+                    that.mesureSelection(evt, undefined);
+                }, {scope: this, id: "outilMesureOccurenceCreation"});  
+
+                Aide.obtenirNavigateur().evenements.ajouterDeclencheur("mesurePartielle", function(evt){
+                    that.mesureSelection(evt, undefined);
+                }, {scope: this, id: "outilMesureOccurenceCreationPartielle"});  */
             });
             oWindowMeasr.on('hide', function(win) {
                 Aide.obtenirNavigateur().evenements.enleverDeclencheur("occurenceSelectionnee", "outilMesureOccurenceSelectionnee");
+                Aide.obtenirNavigateur().evenements.enleverDeclencheur("occurenceModifiee", "outilMesureOccurenceModifiee");
             });
 
             oWindowMeasr.on('minimize', function(){
