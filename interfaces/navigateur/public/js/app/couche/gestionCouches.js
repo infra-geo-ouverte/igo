@@ -208,6 +208,18 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         return couches;
     };
     
+
+    GestionCouches.prototype.obtenirCoucheDeBaseActive = function() {
+        var coucheActive = false;
+        $.each(this.obtenirCouchesDeBase(), function(index, value){
+            if(value.estActive()){
+                coucheActive = value;
+                return false;
+            } 
+        });
+        return coucheActive;
+    };
+
     /** 
     * Obtenir la liste des couches étant du type donné en paramètre.
     * @method 
