@@ -156,6 +156,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 that.gestionCouches.ajouterOccurenceSurvol(occurence);
             },
             featureout: function(e) {
+                if(!e.feature.layer){
+                    return false;
+                }
                 var couche = that.gestionCouches.obtenirCoucheParId(e.feature.layer.id);
                 if (!couche) {
                     return false;
@@ -650,7 +653,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this.controleDrag = new OpenLayers.Control.DragFeature(couche._layer, {
                 onStart: function(feature){
                     var occurence = couche.obtenirOccurenceParId(feature.id);
-                    if(occurence.obtenirInteraction('editable') === false){
+                    if(occurence && occurence.obtenirInteraction('editable') === false){
                         that.controleDrag.cancel();
                         return false;
                     }
@@ -771,6 +774,20 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 this.activerSnap(couche);
             }
         }
+
+        this.controleEdition.handlers.drag.callbacks.move = function (pixel) {
+            delete this._unselect;
+            if (this.vertex) {
+                this.dragVertex(this.vertex, pixel);
+            }
+           
+            var occ = new Occurence(this.feature.geometry);
+            couche.declencher({
+                type: 'mesurePartielle',
+                occurence: occ
+            });
+
+        }
     };
 
     Carte.Controles.prototype.desactiverEdition = function() {
@@ -851,6 +868,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 return false;
             }
 
+            occurence._resetVertex = function(){if(that.controleEdition){that.controleEdition.resetVertices()}};
+            
+            occurence._controle = that.controleEdition;
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
 
@@ -881,6 +901,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 couche._layer.removeFeatures(occurence._feature);
             }
 
+            delete occurence._resetVertex;
             that._desactiverEventsEdition();
             occurence.deselectionner();
             that._activerEventsEdition();
@@ -936,7 +957,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
 
         var typeControl = OpenLayers.Control.DrawFeatureEx;
-        if (options.mesure) {
+        if (options.mesure) { //la couche n'est pas requise, aucun undo/redo
             if (type === "cercle") {
                 typeControl = OpenLayers.Control.MeasureCircle;
             } else if (typeHandler !== OpenLayers.Handler.Point) {
@@ -977,6 +998,10 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 },
                 featureAdded: function(feature) {
                     var occurence = new Occurence(feature);
+                    couche.declencher({
+                        type: 'mesure',
+                        occurence: occurence
+                    });
                     couche._layer.removeFeatures(feature);
                     couche.ajouterOccurence(occurence, {
                         existe: false
@@ -984,6 +1009,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     occurence.rafraichir();
                 }
             });
+
             if (options.mesure) {
                 this.controleDessin.events.on({
                     "measure": function(e) {
@@ -1012,6 +1038,22 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     },
                     scope: this
                 });
+            } else if(typeHandler !== OpenLayers.Handler.Point){
+                this.controleDessin.handler.callbacks.modify = function(vertex, feature) {
+                    this.layer.events.triggerEvent(
+                        "sketchmodified", {vertex: vertex, feature: feature}
+                    );
+                    if(feature.geometry.CLASS_NAME === "OpenLayers.Geometry.LineString" && feature.geometry.components.length < 2){
+                        return false;
+                    } else if (feature.geometry.CLASS_NAME === "OpenLayers.Geometry.Polygon" && feature.geometry.components[0].components.length < 3){
+                        return false;
+                    }
+                    var occ = new Occurence(feature.geometry);
+                    couche.declencher({
+                        type: 'mesurePartielle',
+                        occurence: occ
+                    });
+                }
             }
 
             this._._carteOL.addControl(this.controleDessin);
