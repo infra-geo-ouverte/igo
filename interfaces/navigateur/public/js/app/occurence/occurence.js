@@ -599,6 +599,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (this.vecteur) {
             this.vecteur.rafraichir(this);
         }
+        if(this._resetVertex){
+            this._resetVertex();
+        }
     };
 
     /** 
