@@ -46,9 +46,23 @@ define([], function(){
     }
 
     IgoNav.prototype.requireError = function(){
+        var that = this;
         requirejs.onError = function (err) {
             console.log(err);
-            console.warn("Erreur chargement ("+err.requireType+"): Le module '" + err.requireModules + "' n'a pas été chargé");
+            var messageErreur = "Erreur chargement ("+err.requireType+"): Le module '" + err.requireModules + "' n'a pas été chargé";
+            console.warn(messageErreur);
+
+            if(!that.nav || !that.nav.nav || !that.nav.nav.isReady){
+                setTimeout(function(){
+                    if($("#igoLoading").length !== 0){
+                        $("#igoLoading").remove();
+                        var html = "<p style=\"padding:10px;font-size: 20px;\"><b>503 Site temporairement indisponible ou en maintenance</b></p>";
+                        html += "<p style=\"padding:10px;\">" + messageErreur + "</p>"
+                        $("#igoInstance").html(html);
+                    }
+                }, 1000);
+            }
+
             throw new Error("Le module '" + err.requireModules + "' n'a pas été chargé: " + err.originalError.target.src);
         };
     }
