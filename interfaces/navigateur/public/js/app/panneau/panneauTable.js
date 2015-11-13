@@ -28,6 +28,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             this.controles = new PanneauTable.Controles(this);
             this.template = this.options.template || {colonnes: []};
             this.donnees = this.options.donnees || [];
+            this.donnees.panneauTable = this;
             var config = this.configurer(this.template, this.donnees);
 
             this._extOptions = {
@@ -48,6 +49,16 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     listeners:{
                         reconfigure: function(ceci , store, colModel){
                             that.reconfigurerPaginationBarre(store);
+                        },
+                        rowmousedown:function(ceci,rowindex,e){
+                            
+                                Igo.nav.ctrlPressed = e.ctrlKey;
+                            
+                        },
+                        rowmouseup:function(ceci,rowindex,e){
+                           
+                                Igo.nav.ctrlPressed = e.ctrlKey;
+                           
                         }
                     }
                 };
@@ -362,10 +373,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype.configurer = function(template, donnees){
         var that=this;
         this.desactiverDeclencheursVecteur(this.donnees);
-        //this.controles.desactiverSelection();
-
+       
         this.template = template || this.template || {};
         this.donnees = donnees || this.donnees || [];
+        this.donnees.panneauTable = this;
 
         if(!this.template.titre){
             this.template.titre = this.options.titre || 'Table';
@@ -404,20 +415,15 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             root: this.template.base,
             lastOptions: {'params':{'start':debut,'limit':limite}},
             listeners : {
-                //Lors d'un changement de page. Nous devons executer chaque checkbox de la liste D'outil
                 datachanged: function(pagingJsonStore){
-                    /*if(that.barreOutils){
-                        $.each(that.barreOutils.obtenirOutilsParType("OutilTableSelection",3), function(index , value){
-                            if(typeof value._bouton.isXType === "function" && value._bouton.isXType("menucheckitem")){
-                                value.executer(true);
-                            }
-                        });
-                    }*/
                 },
                 load: function(pagingJsonStore,record,options){
                     //resélectionner les occurences après load de la page
                     if(typeof that.donnees["obtenirOccurencesSelectionnees"] === "function"){
-                        that.selectionnerParOccurences(that.donnees.obtenirOccurencesSelectionnees());
+                        that.selectionnerParOccurences(that.donnees.obtenirOccurencesSelectionnees(), true);
+                    }
+                    if(typeof that.donnees["rafraichir"] === "function"){
+                        that.donnees.rafraichir();
                     }
                 }
             }
@@ -439,6 +445,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this.activerDeclencheursVecteur(this.donnees);
         this.reconfigurerBarreOutils(this.donnees);
         this.controles.activerSelection();
+        this.controles.activerSurvolLigne();
 
         return {columnModel: new Ext.grid.ColumnModel(columnModel), store: store};
     };
@@ -554,11 +561,11 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 couche: this.donnees,
                 _extOptions:{checked:selectionSeulement}}));
 
-            var selectionnerAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
+            var selectionneZoomAuto = typeof this.options.outils_auto ? this.options.outils_auto:false;
              outilsSelection.push(new OutilTableSelection({
                 type:'auto',
                 couche: this.donnees,
-                _extOptions:{checked:selectionnerAuto}}));
+                _extOptions:{checked:selectionneZoomAuto}}));
 
             var selectionnerContenuPage = typeof this.options.outils_contenupage ? this.options.outils_contenupage:false;
             if(this.options.paginer === true){
@@ -570,8 +577,15 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             }
 
             menuSelection.ajouterOutils(outilsSelection);
-            if(selectionnerContenuPage)outilsSelection[outilsSelection.length-1].executer(true);
-            if(selectionnerAuto)outilsSelection[outilsSelection.length-1].executer(true);
+
+            $.each(outilsSelection, function(index, value){
+                if(value._extOptions.checked){
+                    value.executer(true);
+                }
+            })
+
+            //if(selectionnerContenuPage)outilsSelection[outilsSelection.length-1].executer(true);
+            //if(selectionneZoomAuto)outilsSelection[outilsSelection.length-1].executer(true);
         }
     };
 
@@ -607,7 +621,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.prototype._selectionEvent = function(e){
-        e.options.scope.selectionnerParOccurences([e.occurence]);
+        if(Igo.nav.ctrlPressed){
+            e.options.scope.selectionnerParOccurences([e.occurence], true);
+        }
+        else{
+            e.options.scope.selectionnerParOccurences([e.occurence]); 
+        }
+        
     };
 
     PanneauTable.prototype._deselectionEvent = function(e){
@@ -659,11 +679,15 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
 
     PanneauTable.prototype.obtenirIndexParOccurence = function(occurence){
         if(!occurence){return -1}
-        return this._panel.store.indexOfId(occurence.id);
+        if(this._panel.store){
+            return this._panel.store.indexOfId(occurence.id);
+        }
     };
 
-    PanneauTable.prototype.selectionnerParOccurences = function(occurences){
+    PanneauTable.prototype.selectionnerParOccurences = function(occurences, garderSelection, scroll, notifieVue){
         var that=this;
+        garderSelection = typeof garderSelection == "undefined"?Igo.nav.ctrlPressed:garderSelection;
+       
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}
             var index = that._panel.store.indexOfId(value.id);
@@ -673,7 +697,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 } */
                 return true;
             }
-            that.selectionnerParIndex(index, true);
+            
+            that.selectionnerParIndex(index, garderSelection, scroll, notifieVue);
+
         });
     };
 
@@ -689,9 +715,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         });
     };
 
-    PanneauTable.prototype.selectionnerParIndex = function(index, garderSelection, scroll){
+    PanneauTable.prototype.selectionnerParIndex = function(index, garderSelection, scroll, notifieVue){
         if(this._panel.selModel.grid && !this._panel.selModel.isSelected(index)){
-            this._panel.selModel.selectRow(String(index), garderSelection);
+            this._panel.selModel.selectRow(String(index), garderSelection, notifieVue);
             if(this._panel.getView().getRow(index) && scroll !== false){
                 this._panel.getView().getRow(index).scrollIntoView(this._panel.getView());
             }
@@ -872,6 +898,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.Controles = function(_){
         this._ = _;
         this.activerSelection();
+        this.activerSurvolLigne();
     };
 
     PanneauTable.Controles.prototype.activerClique = function() {
@@ -885,7 +912,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
 
     PanneauTable.Controles.prototype.activerSelection = function() {
         if(!this._._panel){return false;};
-        this._._panel.selModel.on('selectionchange', this._selection, this);
+        
+         this._._panel.selModel.on('selectionchange', this._selection, this);
+        
     };
 
     PanneauTable.Controles.prototype.desactiverSelection = function() {
@@ -893,23 +922,80 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         this._._panel.selModel.removeListener('selectionchange', this._selection, this);
     };
 
+    PanneauTable.Controles.prototype.activerSurvolLigne = function() {
+        if(!this._._panel){return false;};
+        this._._panel.on('mouseover', this.survol, this);
+        this._._panel.on('mouseout', this.finSurvol, this);
+        this._.donnees.ajouterDeclencheur('occurenceSurvol', this.survolCarte, {scope: this});
+        this._.donnees.ajouterDeclencheur('occurenceSurvolFin', this.finSurvolCarte, {scope: this});
+    };
+
+    PanneauTable.Controles.prototype.desactiverSurvolLigne = function() {
+        if(!this._._panel){return false;};
+        this._._panel.removeListener('mouseover', this.survol, this);
+        this._._panel.removeListener('mouseout', this.finSurvol, this);
+        this._.donnees.enleverDeclencheur('occurenceSurvol', this.survolCarte, {scope: this});
+        this._.donnees.enleverDeclencheur('occurenceSurvolFin', this.finSurvolCarte, {scope: this});
+    };
+
+    PanneauTable.Controles.prototype.survol = function(event,html) {
+        var index = this._._panel.getView().findRowIndex(html);
+        if(index){
+            var occu = this._.obtenirEnregistrementParIndex(index);
+            Igo.nav.carte.gestionCouches.ajouterOccurenceSurvol(occu.json);
+        }
+    };
+
+     PanneauTable.Controles.prototype.finSurvol = function(event,html) {
+       
+        var index = this._._panel.getView().findRowIndex(html);
+        if(index){
+            var occu = this._.obtenirEnregistrementParIndex(index);
+            Igo.nav.carte.gestionCouches.enleverOccurenceSurvol(occu.json);
+        }
+    };
+
+    PanneauTable.Controles.prototype.survolCarte = function(a,b,c) {
+       if(a.occurence){
+            var index = this._.obtenirIndexParOccurence(a.occurence);
+            if(index!=-1){
+                this._._panel.getView().focusCell(index);
+                var view = this._._panel.getView();
+                var row = view.getRow(index);
+                Ext.fly(row).addClass('x-grid3-row-over');
+            }
+        }
+    };
+
+    PanneauTable.Controles.prototype.finSurvolCarte = function(a,b,c) {
+       if(a.occurence){
+            var index = this._.obtenirIndexParOccurence(a.occurence);
+            if(index != -1){
+                var view = this._._panel.getView();
+                var row = view.getRow(index);
+                Ext.fly(row).removeClass('x-grid3-row-over');
+            }
+        }
+    };
+
+   
     PanneauTable.Controles.prototype._selection = function(selection) {
 
         var selectionIGO = Array();
-        if(this._.donnees.obtenirOccurencesSelectionnees){
+        if(this._.donnees.obtenirOccurencesSelectionnees && (Igo.nav.ctrlPressed || selection.silent || (typeof selection.last == 'string'))){
           selectionIGO = this._.donnees.obtenirOccurencesSelectionnees();
         }
 
-        if(selection.selections.items.length > 0){
+        if(selection.selections.items.length > 0 ){
           //enlever les items du panneau pour ensuite les ajoutés
           //TODO trouver meilleur méthode
-          $.each(this._.obtenirOccurences(), function(key, value){
+          /*$.each(this._.obtenirOccurences(), function(key, value){
             var index = selectionIGO.indexOf(value);
             if(index > -1){
               selectionIGO.splice(index,1);
             }
           });
-
+            */
           $.each(selection.selections.items, function(key, value){
               selectionIGO.push(value.json);
           });
@@ -927,19 +1013,8 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             });
         }
 
-        /*if(this._.donnees.zoomAuto){
-            this._.donnees.zoomerOccurences(this._.donnees.obtenirOccurencesSelectionnees());
-        }*/
-
-        if(this._.donnees.options.selectionSeulement){
-           this._.donnees.afficherSelectionSeulement();
-        }else if (this._.donnees.afficheContenuPage){
-            this._.donnees.afficherOccurence(this._.obtenirOccurences());
-        }else{
-            this._.donnees.afficherTout();
-        }
-
         this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur });
+        
     };
 
 

@@ -97,17 +97,9 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
             }
 
         }  else if (this.options.type === 'contenupage'){
-            if(!lancementManuel){
-                this.options.couche.afficheContenuPage = !this._bouton.checked;
-
-                
-               
-
-            }
+            
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
-                /*this.options.couche.cacherTout();
-                this.options.couche.afficherOccurence(this.options.panneauTable.obtenirOccurences());
-
+                              
                 //ne pas permettre l'option d'afficher seulement la sélection
                 $.each(this.parent.obtenirOutils(), function(index,value){
                     if(value.options.type === 'selectionSeulement'){
@@ -115,24 +107,23 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                         value._bouton.disable();
                         value.options.couche.options.selectionSeulement = false;
                     }
-                });*/
-                var that = this;
+                });
+               
                 $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.ajouterFiltre({filtre: 'true==true', 
+                    value.reinitialiserFiltres();
+                    value.ajouterFiltre({filtre: function(occurence){
+                                                    if(occurence.vecteur.panneauTable.obtenirIndexParOccurence(occurence) == -1){
+                                                        return false;
+                                                    }
+                                                    else{
+                                                        return true;
+                                                    }  
+                                                
+                                            }, 
                                             style: new Style({
-                                                    display:"${contenupage}",
-                                                    contexte : {
-                                                        contenupage : function(occurence){
-                                                            console.log("patate");
-                                                            /*if(that.options.panneauTable.obtenirIndexParOccurence(occurence) == -1){
-                                                                return false;
-                                                            }   
-                                                            else{
-                                                                return true;
-                                                            }*/
-                                                            return 'display';
-                                                        }
-                                                    }})
+                                                    display:false,
+                                                    titre:'test'
+                                                })
                                         });
                 })
             }
@@ -142,33 +133,45 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                     value.reinitialiserFiltres();
                 });
                 
-/*
                 $.each(this.parent.obtenirOutils(), function(index,value){
                     if(value.options.type === 'selectionSeulement'){
                         value._bouton.enable();
                     }
                 });
 
-                this.options.couche.afficherTout();*/
+                this.options.couche.afficherTout();
             }
+
         } else if (this.options.type === 'selectionSeulement'){
 
-            if(!lancementManuel){
-                this.options.couche.options.selectionSeulement = !this._bouton.checked;
-            }
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
                  this.options.couche.declencher({ type: "occurenceClique", occurence:this.options.couche.obtenirOccurencesSelectionnees()});
 
-                if(this.options.couche.options.selectionSeulement){
-                    //ne pas permettre l'option d'afficher seulement le contenu de la page
-                    $.each(this.parent.obtenirOutils(), function(index,value){
-                        if(value.options.type === 'contenupage'){
-                            value._bouton.disable();
-                            value._bouton.setChecked(false);
-                            value.options.couche.afficheContenuPage = false;
-                        }
-                    });
-                }
+               
+                //ne pas permettre l'option d'afficher seulement le contenu de la page
+                $.each(this.parent.obtenirOutils(), function(index,value){
+                    if(value.options.type === 'contenupage'){
+                        value._bouton.disable();
+                        value._bouton.setChecked(false);
+                    }
+                });
+                
+                $.each(this.options.couche.obtenirStyles(), function(index, value){
+                    value.reinitialiserFiltres();
+                    value.ajouterFiltre({filtre: function(occurence){
+                                                    if(occurence.estSelectionnee()){
+                                                        return true;
+                                                    }
+                                                    else{
+                                                        return false;
+                                                    }  
+                                                
+                                            }, 
+                                            style: new Style({
+                                                    display:false
+                                                })
+                                        });
+                })
             }
             else{
                 $.each(this.parent.obtenirOutils(), function(index,value){
@@ -176,9 +179,15 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                         value._bouton.enable();
                     }
                 });
-                //this.options.couche.afficherTout();
+
+                $.each(this.options.couche.obtenirStyles(), function(index, value){
+                    value.reinitialiserFiltres();
+                });
+
+                this.options.couche.afficherTout();
             }
         }
+
     };
 
     OutilTableSelection.prototype.initEvent =  function () {
