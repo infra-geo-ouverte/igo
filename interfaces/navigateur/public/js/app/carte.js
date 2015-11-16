@@ -150,7 +150,6 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 }
 
                 if(occurence.obtenirInteraction('survol') === false){ 
-                    $('.olMapViewport').css('cursor','default'); 
                     return false;
                 }
                 that.gestionCouches.ajouterOccurenceSurvol(occurence);
@@ -172,6 +171,10 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     occurence = couche.obtenirClusterParId(e.feature.id);
                 }
                 if (!occurence) {
+                    return false;
+                }
+
+                if(occurence.obtenirInteraction('survol') === false){ 
                     return false;
                 }
 
@@ -658,7 +661,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                         return false;
                     }
                     cacherVertex();
-                    
+                    that._.curseur = 'move';
                     if(occurence){
                         couche.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
                     }
@@ -675,6 +678,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     if(that.controleEdition){
                         that.controleEdition.resetVertices();
                     }
+                    that._.curseur = undefined;
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence){
                         occurence.majGeometrie(feature.geometry);
@@ -682,6 +686,16 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                         couche.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
                     }
                 }, 
+                onEnter: function(feature){
+                    var occurence = couche.obtenirOccurenceParId(feature.id);
+                    if(occurence && occurence.obtenirInteraction('editable') === false){
+                        var $dragFeature = $('.olControlDragFeatureOver');
+                        if($dragFeature.length){
+                            $dragFeature.removeClass('olControlDragFeatureOver');
+                        }
+                        return false;
+                    }
+                },
                 scope: this
             });
         }
@@ -715,6 +729,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
     }
 
     Carte.Controles.prototype.activerEdition = function(couche, options) {
+        var that = this;
         options = options  || {};
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
         if(!couche){return false;}
@@ -776,6 +791,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
 
         this.controleEdition.handlers.drag.callbacks.move = function (pixel) {
+            that._.curseur = 'move';
             delete this._unselect;
             if (this.vertex) {
                 this.dragVertex(this.vertex, pixel);
@@ -786,7 +802,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 type: 'mesurePartielle',
                 occurence: occ
             });
+        }
 
+        this.controleEdition.handlers.drag.callbacks.done = function(pixel){
+            that._.curseur = undefined;
+            if (this.vertex) {
+                this.dragComplete(this.vertex);
+            }
         }
     };
 

@@ -385,7 +385,9 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     };
     
     GestionCouches.prototype.ajouterOccurenceSurvol = function(occurence){
-        $('.olMapViewport').css('cursor','pointer');            
+        if(!this.carte.curseur){
+            $('.olMapViewport').css('cursor','pointer');
+        }            
         var index = this.obtenirListeOccurencesSurvols().indexOf(occurence);
         if (index === -1) {
             occurence.appliquerStyle('courant', true);
