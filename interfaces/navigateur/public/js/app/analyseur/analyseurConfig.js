@@ -88,9 +88,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
     */
     AnalyseurConfig.prototype._chargementConfigError = function(XMLHttpRequest, textStatus, errorThrown) {
         $("#igoLoading").remove();
-        var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : XMLHttpRequest.responseText;
-        if(!message){message = "Erreur lors du chargement de la configuration. (" + textStatus +")";}
-        Aide.afficherMessage("Erreur chargement configuration", message, null, 'ERROR');
+        var message = XMLHttpRequest.responseJSON ? XMLHttpRequest.responseJSON.error : undefined;
+        if(!message){message = "Erreur lors du chargement de la configuration XML. (" + textStatus +")";}
+        Aide.afficherMessage("Erreur chargement de la configuration XML", message, null, 'ERROR');
     };
 
     /** 
