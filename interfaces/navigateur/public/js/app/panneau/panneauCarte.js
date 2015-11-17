@@ -74,7 +74,7 @@ define(['panneau', 'point', 'aide'], function(Panneau, Point, Aide) {
         var z = Aide.obtenirParametreURL('zoom') || opt.zoom || 7;
         
         var coucheDeBaseActive = this.carte.gestionCouches.obtenirCoucheDeBaseActive();
-        if(coucheDeBaseActive._layer.maxZoomLevel && z > coucheDeBaseActive._layer.maxZoomLevel){
+        if(coucheDeBaseActive._layer && coucheDeBaseActive._layer.maxZoomLevel && z > coucheDeBaseActive._layer.maxZoomLevel){
             z = coucheDeBaseActive._layer.maxZoomLevel;
         }
 
