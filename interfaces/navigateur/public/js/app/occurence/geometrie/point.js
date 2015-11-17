@@ -30,7 +30,6 @@ define(['geometrie', 'aide'], function(Geometrie, Aide) {
      * @example new Point([-73.4, 46.5], 'EPSG:4326')
      */
     function Point(x, y, proj) {
-        Geometrie.apply(this, [proj]);
         if (!x) {
             throw new Error("new Point : Paramètres obligatoires");
         } else if ((typeof x == "number" || typeof x == "string") && (typeof y == "number" || typeof y == "string")) {
@@ -50,7 +49,9 @@ define(['geometrie', 'aide'], function(Geometrie, Aide) {
         if (!this.x || !this.y) {
             throw new Error("new Point : Paramètres invalides");
         }
-       
+
+        Geometrie.apply(this, [proj]);
+
         var nav = Aide.obtenirNavigateur();
         if(nav && nav.carte && nav.carte.options.precision){
             this.precision = parseInt(nav.carte.options.precision);
@@ -155,28 +156,6 @@ define(['geometrie', 'aide'], function(Geometrie, Aide) {
         return this._obtenirGeomOL().distanceTo(p2._obtenirGeomOL());
     };
 
-
-     /** 
-     * Déplacer de dX et dY le point
-     * @method
-     * @name Geometrie.Point#deplacerDe
-     * @param {float} dx delta en X
-     * @param {float} dy delta en Y
-     * @returns {Geometrie.Point} Retourne lui-même
-     */
-    Point.prototype.deplacerDe = function(dx , dy) {
-            
-        this.x = parseFloat(this.x+dx);
-        this.y = parseFloat(this.y+dy);
-        this.definirNombreDecimales();
-        
-        var point = new Point(this.x,this.y, this.projection);
-        if (this._feature) {
-            this._feature.move(point._obtenirLonLatOL());
-        }
-        return this;
-    };
-    
     /**
      * Définir le nombre de décimales pour les coordonnées selon la valeur défini dans le fichier de config xml
      * @param {float} nombre Nombre où la précision doit être défini
@@ -193,6 +172,11 @@ define(['geometrie', 'aide'], function(Geometrie, Aide) {
         var multi = Math.pow(10, this.precision);
         this.x = Math.round((this.x * multi).toFixed(this.precision + 1) ) / multi;
         this.y = Math.round((this.y * multi).toFixed(this.precision + 1) ) / multi;
+    };
+
+    Point.prototype.majGeometrie = function(point) {
+        Geometrie.prototype.majGeometrie.call(this, point);
+        this.definirNombreDecimales();
     };
     
     return Point;

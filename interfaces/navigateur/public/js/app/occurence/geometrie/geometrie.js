@@ -21,7 +21,7 @@ define(['aide'], function(Aide) {
                 proj = 'EPSG:3857';
             }
         } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Geometrie : Projection EPSG invalide");
+            throw new Error("new " + this.obtenirTypeClasse() + " : Projection EPSG invalide");
         }
         this.projection = proj.toUpperCase();
 	}
@@ -57,7 +57,7 @@ define(['aide'], function(Aide) {
      */
     Geometrie.prototype.definirProjection = function(proj) {
         if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Geometrie.definirProjection : Projection EPSG invalide");
+            throw new Error(this.obtenirTypeClasse() + ".definirProjection : Projection EPSG invalide");
         }
         this.projection = proj;
     };
@@ -87,10 +87,10 @@ define(['aide'], function(Aide) {
             dest = arg1;
         }
         if (typeof source !== "string" || source.toUpperCase().substr(0, 5) !== 'EPSG:' || source.substr(5) !== source.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Geometrie.projeter : Projection source invalide");
+            throw new Error(this.obtenirTypeClasse() + ".projeter : Projection source invalide");
         }
         if (typeof dest !== "string" || dest.toUpperCase().substr(0, 5) !== 'EPSG:' || dest.substr(5) !== dest.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Geometrie.projeter : Projection voulue invalide");
+            throw new Error(this.obtenirTypeClasse() + ".projeter : Projection voulue invalide");
         }
         var projSource = new OpenLayers.Projection(source);
         var projDest = new OpenLayers.Projection(dest);
@@ -134,20 +134,65 @@ define(['aide'], function(Aide) {
      * @throws Geometrie.deplacer : Les géométries ne sont pas dans la même projection
      */
     Geometrie.prototype.deplacer = function(point) {
-        if (point.obtenirTypeClasse() !== 'Point') {
-            throw new Error("Geometrie.deplacer : L'argument n'est pas un point");
+        if(!point){
+            throw new Error(this.obtenirTypeClasse() + ".deplacer : L'argument est obligatoire");
+        } else if (point.CLASS_NAME === 'OpenLayers.LonLat'){
+            //continue
+        } else if (point.obtenirTypeClasse() !== 'Point') {
+            throw new Error(this.obtenirTypeClasse() + ".deplacer : L'argument n'est pas un point");
         } else if (this.projection !== point.projection) {
             //plus: paramètre pour convertir ou non la projection
-            throw new Error("Geometrie.deplacer : Les points ne sont pas dans la même projection");
+            throw new Error(this.obtenirTypeClasse() + ".deplacer : Les points ne sont pas dans la même projection");
         }
 
         if (this._feature) {
-            this._feature.move(point._obtenirLonLatOL());
+            var pointOL = point;
+            if (point.obtenirTypeClasse && point.obtenirTypeClasse() === 'Point'){
+                pointOL = point._obtenirLonLatOL();
+            }
+            this._feature.move(pointOL);
             this.majGeometrie(this._feature.geometry);
+        } else {
+            var centre = this.obtenirCentre();
+            var dx = point.x - centre.x;
+            var dy = point.y - centre.y;
+            this.deplacerDe(dx, dy);
+        }
+
+        return this;
+    };
+
+     /** 
+     * Déplacer de dX et dY le point
+     * @method
+     * @name Geometrie#deplacerDe
+     * @param {float} dx delta en X
+     * @param {float} dy delta en Y
+     * @returns {Geometrie} Retourne lui-même
+     */
+    Geometrie.prototype.deplacerDe = function(dx , dy) {
+        if (this._feature) {
+            var centre = this.obtenirCentre();
+            var newX = parseFloat(centre.x+dx);
+            var newY = parseFloat(centre.y+dy);
+            var point = new OpenLayers.LonLat(newX, newY);
+            this.deplacer(point);
+        } else {
+            geom = this._obtenirGeomOL();
+            geom.move(dx, dy);
+            this.majGeometrie(geom);
         }
         return this;
     };
     
+    Geometrie.prototype.majGeometrie = function(geom, proj) {
+        var proj = proj || this.projection;
+        var newGeom = new this.constructor(geom, proj);
+        if(newGeom){
+            $.extend(this, newGeom);
+        }
+        return this;
+    };
 
     return Geometrie;
 });

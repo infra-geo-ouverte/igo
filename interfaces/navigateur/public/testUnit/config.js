@@ -20,6 +20,8 @@ require.config({
         google: 'js/app/couche/protocole/google',
         marqueurs: 'js/app/couche/protocole/marqueurs',
         vecteur: 'js/app/couche/protocole/vecteur',
+        geometrie: 'js/app/occurence/geometrie/geometrie',
+        collection: 'js/app/occurence/geometrie/collection',
         ligne: 'js/app/occurence/geometrie/ligne',
         limites: 'js/app/occurence/geometrie/limites',
         multiPoint: 'js/app/occurence/geometrie/multiPoint',

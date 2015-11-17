@@ -1,7 +1,14 @@
-require(['polygone','ligne', 'point'], function (Polygone, Ligne, Point) {
+require(['polygone','ligne', 'point', 'limites'], function (Polygone, Ligne, Point, Limites) {
 
     module('Polygone',{
         setup: function() {
+            Igo = {
+                Geometrie: {
+                    Point: Point,
+                    Polygone: Polygone,
+                    Limites: Limites
+                }
+            }            
             this.polygone = new Polygone([[-7933887.5829941, 5909591.6735735], [-7633887.5529941, 5509591.6735735], [-7833887.5829941, 5709591.6735735]]);
             this.polygoneTroue = new Polygone([[[-7933887.5829941, 5909591.6735735], [-7633887.5529941, 5909591.6735735], [-7633887.5529941, 5609591.6735735], [-7833887.5829941, 5709591.6735735]], [[-7833887.5829941, 5809591.6735735], [-7733887.5529941, 5809591.6735735], [-7833887.5829941, 5709591.6735735]]]);
         }

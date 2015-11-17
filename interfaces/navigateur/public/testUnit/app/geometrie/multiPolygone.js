@@ -1,7 +1,14 @@
-require(['multiPolygone', 'polygone', 'ligne', 'point'], function (MultiPolygone, Polygone, Ligne, Point) {
+require(['multiPolygone', 'polygone', 'ligne', 'point', 'limites'], function (MultiPolygone, Polygone, Ligne, Point, Limites) {
 
     module('MultiPolygone',{
         setup: function() {
+            Igo = {
+                Geometrie: {
+                    Point: Point,
+                    MultiPolygone: MultiPolygone,
+                    Limites: Limites
+                }
+            }                  
             this.multiPolygone = new MultiPolygone([[[-7933887.5829941, 5909591.6735735], [-7633887.5529941, 5509591.6735735], [-7833887.5829941, 5709591.6735735]], [[-8933887.5829941, 8909591.6735735], [-7833887.5529941, 5809591.6735735], [-6833887.5829941, 6709591.6735735]]]);
         }
     });
