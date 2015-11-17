@@ -797,11 +797,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 this.dragVertex(this.vertex, pixel);
             }
            
-            var occ = new Occurence(this.feature.geometry);
-            couche.declencher({
-                type: 'mesurePartielle',
-                occurence: occ
-            });
+            if(this.feature){
+                var occ = new Occurence(this.feature.geometry);
+                couche.declencher({
+                    type: 'mesurePartielle',
+                    occurence: occ
+                });
+            }
         }
 
         this.controleEdition.handlers.drag.callbacks.done = function(pixel){
