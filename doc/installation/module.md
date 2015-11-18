@@ -15,5 +15,5 @@ Exécuter cette commande: grunt modules:get
 
 ## Créer un nouveau module
 
-Voir le projet demo: https://gitlab.forge.gouv.qc.ca/igo_module/demo (todo: transférer dans github)
+Voir le projet demo: https://github.com/infra-geo-ouverte/module-demo
 
