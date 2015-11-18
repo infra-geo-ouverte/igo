@@ -528,13 +528,13 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         this.outilItineraire = new OutilItineraire({panneauItineraire: this});
         var barreOutils = Aide.obtenirNavigateur().barreOutils;
         barreOutils.ajouterOutil(this.outilItineraire);
-        this.outilItineraire.enfoncerBouton();
+        this.outilItineraire.enfoncer();
                 
         this._._panel.on("expand", function(){
-            that.outilItineraire.enfoncerBouton();
+            that.outilItineraire.enfoncer();
         }); 
         this._._panel.on("collapse", function(){
-            that.outilItineraire.releverBouton();
+            that.outilItineraire.relever();
         });
     };
 

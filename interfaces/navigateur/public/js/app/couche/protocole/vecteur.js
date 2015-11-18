@@ -35,6 +35,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.listeOccurences = [];
         this.styles={};
         this.templates={};
+        this.defautOptions.rafraichissementPermis = true;
+        this.defautOptions.rafraichirMaxOccurence = 100;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
@@ -165,6 +167,23 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     /** 
+    * Obtenir la liste des occurences pas sélectionnées.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurencesNonSelectionnees
+    * @returns {Tableau} Tableau de {@link Occurence}
+    */
+    Vecteur.prototype.obtenirOccurencesNonSelectionnees = function() { 
+        var occurences=[];
+        $.each(this.obtenirOccurences(), function(key, value){
+            if(!value.selectionnee){
+                occurences.push(value);
+            };
+        });
+        return occurences;
+    };
+    
+    
+    /** 
     * Obtenir l'occurence ayant l'id entré en paramètre.
     * @method 
     * @name Couche.Vecteur#obtenirOccurenceParId
@@ -205,13 +224,18 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.deselectionnerTout = function(opt) { 
-        var that=this;
+        
         var opt = opt || {};
-        $.each(this.obtenirOccurencesSelectionnees(), function(key, value){
+        var occurences = this.obtenirOccurencesSelectionnees();
+        this.definirRafraichissementPermis('debut', occurences);
+        var that=this;
+        $.each(occurences, function(key, value){
             if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
                 that.deselectionnerOccurence(value);
             }
         });
+        this.definirRafraichissementPermis('fin');
+        
     };
     
       /** 
@@ -221,13 +245,18 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.selectionnerTout = function(opt) { 
+        
+        var opt = opt || {};
+        var occurences = this.obtenirOccurences();
+        this.definirRafraichissementPermis('debut', occurences);
         var that=this;
-        var opt = opt || {};    
-         $.each(this.obtenirOccurences(), function(key, value){
+        
+         $.each(occurences, function(key, value){
             if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
                 that.selectionnerOccurence(value);
             }
         });
+        this.definirRafraichissementPermis('fin');
     };
     
        /** 
@@ -237,10 +266,13 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.selectionnerInverse = function(opt) { 
+        
+        var opt = opt || {};
+        var occurences = this.obtenirOccurences();
+        this.definirRafraichissementPermis('debut', occurences);
         var that=this;
-        var opt = opt || {}; 
         //todo: throw error si trop occurences... 
-          $.each(this.obtenirOccurences(), function(key, value){
+          $.each(occurences, function(key, value){
             if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
              if(value.selectionnee){
                  that.deselectionnerOccurence(value);
@@ -248,6 +280,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
                  that.selectionnerOccurence(value);
             }  
          }}); 
+     
+       this.definirRafraichissementPermis('fin');
         
     };
     
@@ -318,6 +352,10 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
         this.listeOccurences.push(occurence);
         if(!opt.existe){
+            if(!this._layer.map){
+                console.warn("Cette couche n'est pas associée à la carte, l'ajout d'occurrence n'est pas permis.");
+                return false;
+            }
             occurence._feature.utilisateur=true;
             this._layer.addFeatures(occurence._feature);
         };
@@ -447,9 +485,12 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
 
-    Vecteur.prototype.cacherOccurence = function(occurence) { 
+    Vecteur.prototype.cacherOccurence = function(occurence,tousLesStyles) { 
         if(!occurence || occurence.vecteur !== this){return false};
-        occurence.cacher();
+        
+        var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+             
+        occurence.cacher(tousStyles);
     };
 
     Vecteur.prototype.afficherOccurence = function(occurence) { 
@@ -612,13 +653,17 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @name Couche.Vecteur#rafraichir
     */
     Vecteur.prototype.rafraichir = function(occurence) { 
-        if(!occurence){
-            this._layer.redraw();  
+        
+        if(this.options.rafraichissementPermis){
+            if(!occurence){
+                this._layer.redraw();  
+                this.rafraichirLegende();
+                return true;
+            }
+            this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
-            return true;
         }
-        this._layer.drawFeature(occurence._feature);
-        this.rafraichirLegende();
+        
     };
     
     Vecteur.prototype.rafraichirLegende = function() {
@@ -677,12 +722,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
     };
    
-    Vecteur.Controles.prototype.activerDeplacement = function(opt) {
-        opt = opt || {};
-        if (!this._dragControl) {
-            this._dragControl = new OpenLayers.Control.DragFeature(this._._layer, {onStart: this._debutDeplacement, onDrag: this._deplacement, onComplete: this._finDeplacement, scope: this});
-            this._.carte._getCarte().addControl(this._dragControl);
-        };
+    Vecteur.Controles.prototype.activerDeplacement = function() {
+        this._.carte.controles.activerDeplacementVecteur(this._);
        /* if(opt.combinaisonClique){
             this._dragControl.handlers['drag'].stopDown = false;
             this._dragControl.handlers['drag'].stopUp = false;
@@ -695,41 +736,32 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
             this._dragControl.handlers['feature'].stopDown = true;
             this._dragControl.handlers['feature'].stopClick = true;
         };*/
-        this._dragControl.activate();
     };
-    
+
+    Vecteur.Controles.prototype.activerEdition = function(options) {
+        this._.carte.controles.activerEdition(this._, options);
+    };
+
+    Vecteur.Controles.prototype.activerDessin = function(options) {
+        this._.carte.controles.activerDessin(this._, options);
+    };
+
     Vecteur.Controles.prototype.desactiverDeplacement = function() {
-        if (this._dragControl) {
-            this._dragControl.deactivate();
-        }
+        this._.carte.controles.desactiverDeplacementVecteur();
+
     };
-    
-    Vecteur.Controles.prototype._debutDeplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        that._.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
+
+    Vecteur.Controles.prototype.desactiverEdition = function() {
+        this._.carte.controles.desactiverEdition();
     };
-    
-    
-    Vecteur.Controles.prototype._deplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        occurence.x = feature.geometry.x;
-        occurence.y = feature.geometry.y;
-        that._.declencher({ type: "deplacementOccurence", occurence: occurence }); 
+
+    Vecteur.Controles.prototype.desactiverDessin = function() {
+        this._.carte.controles.desactiverDessin();
     };
-    
-    Vecteur.Controles.prototype._finDeplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        occurence.x = feature.geometry.x;
-        occurence.y = feature.geometry.y;
-        that._.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
-    };
-    
 
     Vecteur.Controles.prototype.activerSelection = function(opt) { //ajouter? au lieu d'activer? separer en 2?
         opt = opt || {};
+        if (!this._.options.selectionnable && !opt.force){return false};
         if(this._.obtenirDeclencheur('occurenceClique', null, this._selection).length){
             return false;
         } 
@@ -763,7 +795,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     Vecteur.Controles.prototype.desactiverSelection = function() { //retirer
-        this._.carte.enleverDeclencheur('occurenceClique', null, this._selection);
+        this._.enleverDeclencheur('occurenceClique', null, this._selection);
       /*  opt = opt || {};
         if (!opt.local !== undefined && opt.local) {
             if (this._selectControl) {
@@ -785,6 +817,9 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.Controles.prototype._selection = function(e) {
         var that = e.options.scope;
         if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
+        if(e.occurence.obtenirInteraction('selectionnable') === false){
+            return false;
+        }
         if (!Aide.obtenirNavigateur().obtenirCtrl()) { 
             that._.carte.gestionCouches.deselectionnerToutesOccurences();
         }
@@ -795,6 +830,56 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
         //that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
     };
+    
+    
+    Vecteur.prototype.afficherSelectionSeulement = function(){     
+        var selection = this.obtenirOccurencesNonSelectionnees();
+        this.definirRafraichissementPermis('debut', selection);
+        $.each(selection, function(key, occurence){
+                occurence.cacher(true);
+        });
+        selection = this.obtenirOccurencesSelectionnees();
+        $.each(selection, function(key, occurence){
+                occurence.afficher(true);
+        });
+        this.definirRafraichissementPermis('fin');
+    }
+    
+    Vecteur.prototype.cacherTous = function(){
+        
+        var selection = this.obtenirOccurences();
+        this.definirRafraichissementPermis('debut', selection);
+        $.each(selection, function(key, occurence){
+                occurence.cacher(true);
+        });
+        this.definirRafraichissementPermis('fin');
+    }
+    
+     Vecteur.prototype.afficherTous = function(){
+        
+        var selection = this.obtenirOccurences();
+        this.definirRafraichissementPermis('debut', selection);
+        $.each(selection, function(key, occurence){
+                occurence.afficher(true);
+        });
+        this.definirRafraichissementPermis('fin');
+    }
+    
+    Vecteur.prototype.definirRafraichissementPermis = function (tag, occurence){
+        switch(tag){
+            case 'debut':
+                if(occurence.length > this.options.rafraichirMaxOccurence){
+                    this.options.rafraichissementPermis = false;
+                }
+                break;
+            case 'fin':
+                if(!this.options.rafraichissementPermis){
+                    this.options.rafraichissementPermis = true;
+                }
+                this.rafraichir();
+                break;
+        }
+    }
     
   /*  Vecteur.Controles.prototype.activerClique = function() {   
         this._.carte.ajouterDeclencheur('occurenceClique', this._clique, {scope: this});

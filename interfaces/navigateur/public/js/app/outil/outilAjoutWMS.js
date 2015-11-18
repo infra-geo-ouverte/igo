@@ -53,7 +53,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
                 this.options.urlPreenregistre = this.configPhp.urlPreenregistre.concat(',').concat(this.options.urlPreenregistre);
             }
         }
-        var datastore_wms_msp = this.options.urlPreenregistre.split(',') || [];
+        var datastore_wms_msp = this.options.urlPreenregistre.replace(' ','').split(',') || [];
 
         $.each(datastore_wms_msp, function(key, value){
             datastore_wms_msp[key] = [value];

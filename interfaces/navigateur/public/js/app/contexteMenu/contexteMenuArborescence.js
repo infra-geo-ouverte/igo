@@ -4,7 +4,7 @@ require.ajouterConfig({
     }
 });
 
-define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable, DateTimeIntervalPicker) {
+define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, PanneauTable, DateTimeIntervalPicker) {
   
     function ContexteMenuArborescence(options){
         this.options = options || {};   
@@ -17,7 +17,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             frontText : "avant",
             backText : "arrière",
             closeText : "Fermer",
-            mspMetadataText : "Informations sur la couche"
+            metadataText : "Informations sur la couche"
         };
         this.init();
     };
@@ -60,6 +60,22 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             couche: layer,
             nodeHtml: nodeHtml
         };
+    };
+
+
+    ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
+        var that=args.scope;
+        if (args.couche.options.metadonnee) {
+            return {
+                id: 'arborescenceMetadonnee',
+                text : that.locale.metadataText,
+                handler : function() {
+                    require(['metadonnee'], function(Metadonnee){
+                        Metadonnee.getLayerCapabilities(args.couche);
+                    });
+                }
+            };
+        }
     };
 
     ContexteMenuArborescence.prototype.initStyleSubmenu = function(args){ 
@@ -259,20 +275,6 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             };
         }
     };
-
-    ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
-        var that=args.scope;
-        if (args.couche.options.metadonnee) {
-             return {
-                id: 'arborescenceMetadonnee',
-                text : that.locale.mspMetadataText,
-                handler : function() {
-                    Metadonnee.getLayerCapabilities(args.couche);
-                }
-             };
-        }
-    };
-        
         
     ContexteMenuArborescence.prototype.initActiverImportationSubmenu = function(args){ 
         if (args.couche.options.importationWFS) {

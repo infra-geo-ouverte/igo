@@ -26,6 +26,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {Geometrie|Openlayers.Geometry} geometrie Géométrie de l'occurence
      * @param {Dictionnaire} [proprietes] Propriétés de l'occurence
      * @param {Style} [style] Style de l'occurence
+     * @param {Objet} [opt] Option de l'occurence
      * @property {String} type Type de géométrie
      * @property {String} id id de l'occurence
      * @property {Dictionnaire} proprietes Propriétés de l'occurence
@@ -49,9 +50,11 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
                 geometrie = vectorOL.geometry;
             } 
         }
+        
+        var typeGeometrie = opt.typeGeometrie?opt.typeGeometrie:null;
 
         this.styles = {};
-        this._definirGeometrie(geometrie);
+        this._definirGeometrie(geometrie,typeGeometrie);
         this.definirProprietes(proprietes);
         this.accepterModifications();
 
@@ -77,6 +80,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @fires Couche.Vecteur#vecteurOccurenceSelectionnee
      */
     Occurence.prototype.selectionner = function() {
+        if(this.selectionnee){
+            return true;
+        }
         if (!this.estDansCluster) {
             this.appliquerStyle('select');
         }
@@ -109,6 +115,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @fires Couche.Vecteur#vecteurOccurenceDeselectionnee
      */
     Occurence.prototype.deselectionner = function() {
+        if(!this.selectionnee){
+            return true;
+        }
         if (!this.estDansCluster) {
             this.appliquerStyle('defaut');
         }
@@ -188,7 +197,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (proprietes && !$.isPlainObject(proprietes)) {
             throw new Error("Occurence.definirProprietes : Paramètre invalide");
         }
-
+              
         if (!this.proprietesOriginales) {
             this.modifiee = true;
             this.proprietesOriginales = $.extend(true, {}, this.obtenirProprietes());
@@ -243,7 +252,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     Occurence.prototype.definirPropriete = function(propriete, valeur) {
         if (typeof propriete !== 'string') {
             throw new Error("Occurence.definirPropriete : Nom de la propriété invalide");
-        }
+        }       
         var obj = this._feature.attributes;
         if (propriete[0] === '/') {
             propriete = propriete.substr(1);
@@ -370,7 +379,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (typeof regle !== 'string') {
             throw new Error("Occurence.definirStyle : Règle du style invalide");
         }
-
+             
         if (style && style.obtenirTypeClasse && style.obtenirTypeClasse() === 'Style') {
             this.styles[regle] = style.cloner();
             this.styles[regle].parent = this;
@@ -395,7 +404,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      */
     Occurence.prototype.appliquerStyle = function(regle, survol) {
         regle = regle || 'defaut';
-
+      
         if (typeof regle !== 'string') {
             throw new Error("Occurence.appliquerStyle : Règle du style invalide");
         } else if (regle === 'courant') {
@@ -421,7 +430,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             this._feature.style = this.styles[regle]._getStyleOptionsOL();
             this._feature.renderIntent = undefined;
         }
-
+        
         this.rafraichir();
     };
 
@@ -520,7 +529,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             throw new Error("Occurence.definirProprieteStyle : Nom de la propriété invalide");
         }
         regle = regle || 'courant';
-        regle = regle == 'courant' ? this.regleCourant : regle;
+        regle = regle == 'courant' ? this.regleCourant : regle;      
         if (this.obtenirStyle(regle)) {
             this.obtenirStyle(regle).definirPropriete(nom, valeur);
         } else if (this.obtenirStyle(regle, true, true)) {
@@ -541,35 +550,24 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     };
 
     /** 
-     * Obtenir les limites de l'occurence
-     * @method
-     * @name Occurence#obtenirLimites
-     * @returns {Geometrie.Limites} Limites de l'occurence
-     */
-    Occurence.prototype.obtenirLimites = function() {
-        if (this.limites) {
-            return this.limites;
-        }
-        var limitesOL = this._obtenirGeomOL().getBounds();
-        return new Limites(limitesOL.left, limitesOL.bottom, limitesOL.right, limitesOL.top);
-    };
-
-    /** 
      * Cacher l'occurence
      * @method
      * @name Occurence#cacher
      * @param {boolean} tousLesStyles Cacher l'occurence pour tous les styles ou seulement le style courant
      */
     Occurence.prototype.cacher = function(tousLesStyles) {
-        this.definirProprieteStyle('visible', 'none');
-        if (this.vecteur) {
-            this.vecteur.carte.gestionCouches.enleverOccurenceSurvol(this);
-        }
-        this.rafraichir();
-        if (tousLesStyles) {
-            //todo: faire une boucle sur tous les styles
-            this.definirProprieteStyle('visible', 'none', 'defaut');
-            this.definirProprieteStyle('visible', 'none', 'select');
+      
+        if(this.estAffichee()){
+             this.definirProprieteStyle('visible', 'none', undefined);
+            if (this.vecteur) {
+                this.vecteur.carte.gestionCouches.enleverOccurenceSurvol(this);
+            }
+            
+            if (tousLesStyles) {
+                //todo: faire une boucle sur tous les styles
+                this.definirProprieteStyle('visible', 'none', 'defaut');
+                this.definirProprieteStyle('visible', 'none', 'select');
+            }
         }
     };
 
@@ -580,12 +578,15 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {boolean} tousLesStyles Afficher l'occurence pour tous les styles ou seulement le style courant
      */
     Occurence.prototype.afficher = function(tousLesStyles) {
-        this.definirProprieteStyle('visible', undefined);
-        this.rafraichir();
-        if (tousLesStyles) {
-            //todo: faire une boucle sur tous les styles
-            this.definirProprieteStyle('visible', undefined, 'defaut');
-            this.definirProprieteStyle('visible', undefined, 'select');
+                
+        if(!this.estAffichee()){
+            this.definirProprieteStyle('visible', undefined, undefined);
+            
+            if (tousLesStyles) {
+                //todo: faire une boucle sur tous les styles
+                this.definirProprieteStyle('visible', undefined, 'defaut');
+                this.definirProprieteStyle('visible', undefined, 'select');
+            }
         }
     };
 
@@ -597,6 +598,9 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     Occurence.prototype.rafraichir = function() {
         if (this.vecteur) {
             this.vecteur.rafraichir(this);
+        }
+        if(this._resetVertex){
+            this._resetVertex();
         }
     };
 
@@ -615,25 +619,47 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (!this.estAffichee() && !args.force) {
             return;
         }
+
+
         var position = OpenLayers.LonLat.fromString(this._obtenirGeomOL().getCentroid().toShortString());
-        var dimension = args.dimension ? new OpenLayers.Size(args.dimension[0], args.dimension[1]) : null;
+        var offset = args.offset && args.offset.length === 2 ? {'size': new OpenLayers.Size(0,0),'offset':new OpenLayers.Pixel(args.offset[0], args.offset[1])} : null;
+        var dimensionArray = args.dimension && args.dimension.length === 2 ? args.dimension : ['auto', 'auto'];
+        var dimension = new OpenLayers.Size(dimensionArray[0], dimensionArray[1]);
         var html = args.html || "<p>Aucun contenu.</p>";
-        var callbackFermeture = args.callbackFermeture || null;
+        var callbackFermeture = args.callbackFermeture ? function(e){args.callbackFermeture.call(that, e);} : null;
         var aFermerBouton = args.aFermerBouton === undefined ? true : Aide.toBoolean(args.aFermerBouton);
+        var id = args.id || null;
 
         this.fermerInfobulle();
-        this._infobulle = new OpenLayers.Popup.FramedCloud(
-            null,
-            position,
-            dimension,
-            html,
-            null,
-            aFermerBouton,
-            function(e){
-                callbackFermeture.call(that, e);
+        if(args.type === 'simple'){
+            this._infobulle = new OpenLayers.Popup.Anchored(
+                id,
+                position,
+                dimension,
+                html,
+                offset,
+                aFermerBouton,
+                callbackFermeture
+            );
+            if(args.couleur){
+                this._infobulle.setBackgroundColor(args.couleur); //'transparent'
             }
-        );
-        
+        } else {
+            this._infobulle = new OpenLayers.Popup.FramedCloud(
+                id,
+                position,
+                dimension,
+                html,
+                offset,
+                aFermerBouton,
+                callbackFermeture
+            );
+        }
+
+        this._infobulle.calculateRelativePosition = function () {
+            return args.positionRelative || 'br';
+        }
+
         if(args.minDimension && args.minDimension.length===2){
             this._infobulle.minSize = new OpenLayers.Size(args.minDimension[0], args.minDimension[1]);
         }
@@ -669,11 +695,11 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {Geometrie|Openlayers.Geometry} geometrie Géométrie de l'occurence
      * @throws Occurence._definirGeometrie : La géométrie est invalide
      **/
-    Occurence.prototype._definirGeometrie = function(geometrie) {
+    Occurence.prototype._definirGeometrie = function(geometrie, typeGeometrie) {
         var proprietes = this.obtenirProprietes();
         delete this._feature;
         delete this.x;
-        delete this.x;
+        delete this.y;
         delete this.points;
         delete this.lignes;
         delete this.polygones;
@@ -685,7 +711,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
 
         if (!geometrie) {
             this._feature = new OpenLayers.Feature.Vector();
-            this.type = undefined;
+            this.type = typeGeometrie;
         } else if (geometrie.CLASS_NAME !== undefined) {
             if (geometrie.CLASS_NAME === "OpenLayers.Feature.Vector") {
                 this._feature = geometrie;
@@ -728,7 +754,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return;
         }
 
-        $.extend(this, geometrie, {projeter: Occurence.prototype.projeter});
+        $.extend(this, geometrie, Occurence.prototype);
 
         if (!this.id) {
             var type = this.type ? this.type + '_' : '';
@@ -750,28 +776,32 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @returns {Geometrie} Géométrie de l'occurence
      */
     Occurence.prototype._obtenirGeometrie = function() {
-        switch (this.obtenirTypeGeometrie()) {
-            case "Point":
-                return new Point(this.x, this.y, this.obtenirProjection());
-            case "Ligne":
-                return new Ligne(this.points, this.obtenirProjection());
-            case "Polygone":
-                return new Polygone(this.lignes, this.obtenirProjection());
-            case "MultiPolygone":
-                return new MultiPolygone(this.polygones, this.obtenirProjection());
-            case "MultiLignes":
-                return new MultiLignes(this.lignes, this.obtenirProjection());
-            case "MultiPoints":
-                return new MultiPoints(this.points, this.obtenirProjection());
-            case "Collection":
-                return new Collection(this.geometries, this.obtenirProjection());
-            case "Limites":
-                return new Limites(this.gauche, this.bas, this.droite, this.haut);
-            default:
-                return undefined;
+        try {
+            switch (this.obtenirTypeGeometrie()) {
+                case "Point":
+                    return new Point(this.x, this.y, this.obtenirProjection());
+                case "Ligne":
+                    return new Ligne(this.points, this.obtenirProjection());
+                case "Polygone":
+                    return new Polygone(this.lignes, this.obtenirProjection());
+                case "MultiPolygone":
+                    return new MultiPolygone(this.polygones, this.obtenirProjection());
+                case "MultiLignes":
+                    return new MultiLignes(this.lignes, this.obtenirProjection());
+                case "MultiPoints":
+                    return new MultiPoints(this.points, this.obtenirProjection());
+                case "Collection":
+                    return new Collection(this.geometries, this.obtenirProjection());
+                case "Limites":
+                    return new Limites(this.gauche, this.bas, this.droite, this.haut);
+                default:
+                    return undefined;
+            }
+        } catch(e){
+            return undefined;
         }
     };
-
+    
     /** 
      * Mise à jour de la géométrie de l'occurence
      * @method
@@ -779,7 +809,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {Geometrie|Openlayers.Geometry} geometrie Géométrie de l'occurence
      * @returns {Occurence} Retourne lui-même
      */
-    Occurence.prototype.majGeometrie = function(geometrie) {
+    Occurence.prototype.majGeometrie = function(geometrie, opt) {
+        opt = opt || {};
         if (this.vecteur) {
             this.vecteur.carte.gestionCouches.enleverOccurenceSurvol(this);
             this.vecteur._layer.removeFeatures(this._feature);
@@ -795,20 +826,22 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             this.appliquerStyle(this.regleCourant, false);
         }
         
-        /**
-         * Événement lancée lorsque l'occurence est modifiée
-         * @event Occurence#occurenceModifiee
-         * @type {object}
-         */
-        this.declencher({type: "occurenceModifiee", modif: geometrie, modifType: 'géométrie'});
-        if (this.vecteur) {
+        if(opt.lancerDeclencheur !== false){
             /**
-             * Événement lancée lorsqu'une occurence du vecteur est modifiée
-             * @event Couche.Vecteur#vecteurOccurenceModifiee
+             * Événement lancée lorsque l'occurence est modifiée
+             * @event Occurence#occurenceModifiee
              * @type {object}
-             * @property {Occurence} occurence L'occurence modifiée
              */
-            this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
+            this.declencher({type: "occurenceModifiee", modif: geometrie, modifType: 'géométrie'});
+            if (this.vecteur) {
+                /**
+                 * Événement lancée lorsqu'une occurence du vecteur est modifiée
+                 * @event Couche.Vecteur#vecteurOccurenceModifiee
+                 * @type {object}
+                 * @property {Occurence} occurence L'occurence modifiée
+                 */
+                this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
+            }
         }
         
         return this;
@@ -864,7 +897,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @param {String} [arg2] Projection voulue
      * @returns {Occurence} Occurence avec la nouvelle projection
      */
-    Occurence.prototype.projeter = function(arg1, arg2) {        
+    Occurence.prototype.projeter = function(arg1, arg2) {      
         var geom = this._obtenirGeometrie().projeter(arg1, arg2);
         return this.cloner()._definirGeometrie(geom);
     };
@@ -894,7 +927,25 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         delete this.proprietesOriginales;
         this.modifiee = this.geometrieOriginale ? true : false;
     }
-    
+
+
+    Occurence.prototype.definirInteraction = function(interaction) {
+        this._interaction = interaction;
+    }
+
+    /*
+        Propriete: selectionnable, editable
+    */
+    Occurence.prototype.obtenirInteraction = function(propriete) {
+        if(!propriete){
+            return this._interaction;
+        }
+        if(this._interaction === false || ($.isPlainObject(this._interaction) && this._interaction[propriete] === false)){
+            return false;
+        }
+        return true;
+    }
+
     return Occurence;
 
 });

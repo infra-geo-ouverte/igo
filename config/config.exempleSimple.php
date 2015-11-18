@@ -7,6 +7,7 @@ $baseServicesDir = $baseDir . 'services/';
 $baseXmlDir = $baseDir . 'xml/';
 
 return array(
+    'repertoireLogs' => '/tmp/log/', //Répertoire de logs
     'application' => array(
         // Permet de versionner les fichiers javascripts et css (possible de mettre 'aleatoire')
         'version'        =>  '1.0.0', 
@@ -24,7 +25,9 @@ return array(
             'dir'            => $baseServicesDir,
             'controllersDir' => $baseServicesDir . 'igo_commun/app/controllers/',
             'viewsDir'       => $baseServicesDir . 'igo_commun/app/views/'     
-        )
+        ),
+        //Répertoire où se situe les modules
+        'modules' => $baseDir . '/modules'
     ),
     //url des différentes parties du projet
     'uri' => array(
@@ -32,7 +35,8 @@ return array(
         'edition'       => "/igo/edition/",
         'librairies'    => "/igo/librairie/",
         'services'      => "/igo/services/",
-        'api'           => "/api/"
+        'api'           => "/api/",
+        'modules'       => '/igo/modules/'
     ),
     //Options des outils/panneaux à ajouter à une classe
     //Voir la documentation XML pour une liste plus complète
