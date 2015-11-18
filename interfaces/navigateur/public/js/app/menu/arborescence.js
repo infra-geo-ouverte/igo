@@ -96,7 +96,7 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
             $.each(groupeArray, function(key, groupe) {
                 var nameSpan = $("span:contains("+groupe+")").filter(function(key, value){return value.textContent === groupe});
                 if(nameSpan){
-                    var plusIcone = nameSpan.parent().parent().find(".x-tree-ec-icon");
+                    var plusIcone = nameSpan.parent().parent().find(".x-tree-ec-icon.x-tree-elbow-end-plus, .x-tree-ec-icon.x-tree-elbow-plus");
                     if(plusIcone){
                         plusIcone.click();
                     }
