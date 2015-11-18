@@ -343,7 +343,14 @@ Permet la définition d'un panneau appelé à contenir un tableau.
 
 *Attributs ou valeurs spécifiques*
 
-Aucun
+|Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
+|---------------|-----------------------|---------------|-----------------|-------------|
+|paginer 		| Permet de paginer le tableau	| Non	    | Booléen	        | *false* |
+|paginer_debut	| Permet de commencer la pagination à une page précise	| Non		| Nombre entier		| *0*|
+|paginer_limite	| Permet de limiter le nombre d'occurence par page		| Non		| Nombre entier		| *5000*|
+|outils_selectionSeulement	| Permet d'activer l'outil d'affichage de sélection seulement	| Non		| Booléen	| *false* |
+|outils_auto   | Permet d'activer l'outil de zoom automatique sur la sélection | Non		| Booléen		| *false* |
+|outils_contenupage   | Permet d'activer l'outil de d'affichage du contenu de la page seulement | Non	| Booléen	| *false* |
 
 *Exemples*
 
