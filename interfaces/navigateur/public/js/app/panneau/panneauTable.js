@@ -1,11 +1,3 @@
-/*if(!require.estDansConfig("pagingStore")){
-    require.ajouterConfig({
-        paths: {
-            pagingStore: 'libs/Ext.ux/PagingStore/PagingStore'
-        }
-    });
-}*/
-
 define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu) {
 
     function PanneauTable(options) {
@@ -128,11 +120,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             that._panel.store.loadData(donnees, garderDonnees);
         } catch(e){
             console.warn(e);
-//            $.each(donnees.listeOccurences, function(key, value){
-//
-//            });
-//            donnees.listeOccurences[0].definirPropriete("test", {});
-//            that.chargerDonnees(donnees, garderDonnees);
         }
         if(this._panel.store.sortInfo){
             var sortInfo  = this._panel.store.sortInfo;
@@ -145,15 +132,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype.ajouterOccurences = function(occurences, garderDonnees){
         //todo: vérifié si compatible avec le template?
         this.chargerDonnees({listeOccurences: occurences}, garderDonnees);
-//        this.donnees.deselectionnerTout();
-//        occurences[0].selectionner();
-//        var index = this._panel.store.indexOfId(occurences[0].id);
-//        if(index === -1){return true;}
-
-//        var that=this;
-//        setTimeout(function() { //todo: utiliser un event after loadData
-//           // that._panel.getView().focusRow(index);
-//        }, 5);
     };
 
     PanneauTable.prototype.enleverParOccurences = function(occurences){
@@ -173,16 +151,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         var editor;
         var rendu = colTemplate.rendu;
         var that=this;
-        //colTemplate.type = 'enumeration';
-//        colTemplate.editable = true;
+
         if(!colTemplate.editable) {
             editor = undefined;
-//            if(this.donnees.options.editable){
-//                rendu = function(currentCellValue, metadata){
-//                    metadata.css = "GridCellInactif";
-//                    return currentCellValue;
-//                };
-//            }
+
         } else if(colTemplate.type === 'enumeration'){
             var store;
             if(colTemplate.urlEnumeration){
@@ -274,7 +246,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         }
 
         return {
-            //id       : colTemplate.titre,
             header   : titre,
             width    : colTemplate.largeur,
             sortable : colTemplate.triable,
@@ -583,9 +554,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     value.executer(true);
                 }
             })
-
-            //if(selectionnerContenuPage)outilsSelection[outilsSelection.length-1].executer(true);
-            //if(selectionneZoomAuto)outilsSelection[outilsSelection.length-1].executer(true);
         }
     };
 
@@ -692,9 +660,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             if(!that._panel.store){return false;}
             var index = that._panel.store.indexOfId(value.id);
             if(index === -1){
-              /*  if(value.selectionnee){
-                    value.deselectionner();
-                } */
                 return true;
             }
             
@@ -780,7 +745,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         setTimeout(function() {
             that.selectionnerParOccurences(vecteur.obtenirOccurencesSelectionnees());
         }, 1);
-       // this.controles.activerSelection();
     };
 
 
@@ -987,15 +951,6 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         }
 
         if(selection.selections.items.length > 0 ){
-          //enlever les items du panneau pour ensuite les ajoutés
-          //TODO trouver meilleur méthode
-          /*$.each(this._.obtenirOccurences(), function(key, value){
-            var index = selectionIGO.indexOf(value);
-            if(index > -1){
-              selectionIGO.splice(index,1);
-            }
-          });
-            */
           $.each(selection.selections.items, function(key, value){
               selectionIGO.push(value.json);
           });
