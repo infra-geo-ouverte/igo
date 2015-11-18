@@ -81,11 +81,6 @@ Alias /api/ "/var/www/html/igo/interfaces/navigateur/api/"
 
 ```
 
-#Installation d'un module
-Ajouter dans modules.json <br />
-Lancer: grunt modules:get
-
-
 #Problèmes connus
 Si le ssh est bloqué: <br /> 
 git config --global url.https://.insteadOf git:// <br /> 
