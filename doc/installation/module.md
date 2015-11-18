@@ -1,4 +1,4 @@
-## Installer un module
+## Déployer un module
 
 ### Sans grunt
 Cloner le projet dans le répertoire modules. <br />
