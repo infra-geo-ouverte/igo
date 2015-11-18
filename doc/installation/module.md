@@ -5,7 +5,7 @@ Cloner le projet dans le répertoire modules. <br />
 Suivre les instructions dans le readme.
 
 
-#### Avec Grunt
+### Avec Grunt
 Ajouter l'information des modules dans modules.json. <br />
 Voir modules.exemple.json pour un exemple. <br />
 
