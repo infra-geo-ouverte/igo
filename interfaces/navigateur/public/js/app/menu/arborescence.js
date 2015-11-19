@@ -149,9 +149,8 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
         this.comboBox = new Ext.form.ComboBox({ 
             id:'combo_'+id,
             name:'combo',
-            fieldLabel: 'Recherche',
+            fieldLabel: 'Entrer le nom de la couche',
             allowBlank:false,
-            emptyText:'Entrer le nom de la couche',
             store: this.store,
             displayField:'display',
             valueField:'display',
@@ -221,7 +220,12 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
             minimizable:false,
             plain:true,
             bodyStyle:'padding5px',
-            items:[panneau]
+            items:[panneau],
+            listeners: {
+                show: function(){
+                    setTimeout(function(e){that.comboBox.focus()}, 100);
+                }
+            }
         });
     };
 
