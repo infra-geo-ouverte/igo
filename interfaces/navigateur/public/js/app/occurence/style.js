@@ -340,7 +340,6 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 _optionsOL[valueOL] = vTemp;
             });
         }
-
         var filtreCombinaison;
         if(filterOL){
             filtreCombinaison= new OpenLayers.Rule({

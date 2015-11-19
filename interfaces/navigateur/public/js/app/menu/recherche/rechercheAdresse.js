@@ -84,7 +84,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-        var styles = {defaut: {visible: false}, select: style};
+       var styles = {defaut: {visible: false}, select: style};
 
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
 
@@ -124,7 +124,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
 
         this.traiterResultatVecteur(vecteur, responseJSON.nombreResultat); 
     };
-
+    
     RechercheAdresse.prototype.traiterResultatVecteur = function(vecteur, nombreResultats) {
         nombreResultats = nombreResultats || vecteur.listeOccurences.length ;
             
