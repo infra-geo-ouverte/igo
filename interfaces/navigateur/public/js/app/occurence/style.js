@@ -31,6 +31,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         this.propriete = style || {};
         
         this.defautPropriete = {
+            visible: true,
             cursor: 'inherit',
             rayon: 6,
             couleur: '#ee9900',
@@ -100,7 +101,9 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         $.each(this._lookupOptionsOL, function(valueIGO, valueOL){
             var vTemp = opt[valueIGO];
             vTemp = that._traiterValeurIGO(valueIGO, vTemp);
-            _optionsOL[valueOL] = vTemp;
+            if(vTemp !== undefined){
+                _optionsOL[valueOL] = vTemp;
+            }
         });
 
         return _optionsOL;
@@ -122,7 +125,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             return valeur;
         }
         if(propriete === "visible"){
-            return Aide.toBoolean(valeur) === false ? "none": '';
+            return Aide.toBoolean(valeur) === false ? "none": Aide.toBoolean(valeur) === true ? "" : undefined;
         }
 
        return valeur;
@@ -183,7 +186,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
      * @param {*} valeur Valeur de la propriété
     */
     Style.prototype.definirPropriete = function(nom, valeur){
-        if(!valeur){
+        if(valeur === undefined){
             delete this.propriete[nom];
         } else {
             this.propriete[nom] = valeur;
@@ -202,7 +205,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 if(!this.parent._feature.style){
                     this.parent._feature.style = {};
                 }
-                if(!vTemp){
+                if(vTemp === undefined){
                     delete this.parent._feature.style[nomOL];
                 } else {
                     this.parent._feature.style[nomOL] = vTemp;
@@ -337,7 +340,9 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             $.each(this._lookupOptionsOL, function(valueIGO, valueOL){
                 var vTemp = style[valueIGO];
                 vTemp = that._traiterValeurIGO(valueIGO, vTemp);
-                _optionsOL[valueOL] = vTemp;
+                if(vTemp !== undefined){
+                    _optionsOL[valueOL] = vTemp;
+                }
             });
         }
         var filtreCombinaison;

@@ -156,22 +156,8 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                     }
                 });
                 
-                $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
-                    value.ajouterFiltre({filtre: function(occurence){
-                                                    if(occurence.estSelectionnee()){
-                                                        return true;
-                                                    }
-                                                    else{
-                                                        return false;
-                                                    }  
-                                                
-                                            }, 
-                                            style: new Style({
-                                                    display:false
-                                                })
-                                        });
-                })
+                var style = this.options.couche.obtenirStyle('defaut');
+                style.definirPropriete('visible', false);
             }
             else{
                 $.each(this.parent.obtenirOutils(), function(index,value){
@@ -180,11 +166,8 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                     }
                 });
 
-                $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
-                });
-
-                this.options.couche.afficherTout();
+                var style = this.options.couche.obtenirStyle('defaut');
+                style.definirPropriete('visible', undefined);
             }
         }
 

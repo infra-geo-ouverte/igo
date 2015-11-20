@@ -349,6 +349,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         if(!occurence){
             return false;
         }      
+        vecteur.zoomerOccurence(occurence, this.options.zoom);
+        occurence.selectionner();
+        
         if(this.options.idResultatTable){
             var nav = Aide.obtenirNavigateur();
             var panneauTable = nav.obtenirPanneauParId(this.options.idResultatTable, -1);
@@ -360,20 +363,21 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                 var limite = panneauTable.options.paginer_limite?parseInt(panneauTable.options.paginer_limite):undefined;
                 var debut = panneauTable.options.paginer_debut?parseInt(panneauTable.options.paginer_debut):undefined;              
                 
-                var nouvelleTable = new PanneauTable({reductible: false, fermable: true,
-                                                        paginer : paginer,
-                                                        paginer_debut: debut,
-                                                        paginer_limite: limite,
-                                                        outils_auto:true                                                        
-                                    });        
+                var nouvelleTable = new PanneauTable({
+                    reductible: false, 
+                    fermable: true,
+                    paginer : paginer,
+                    paginer_debut: debut,
+                    paginer_limite: limite,
+                    outils_auto:true,
+                    outils_selectionSeulement: true                                                        
+                });        
 
                 panneauTable.ajouterPanneau(nouvelleTable);
                 nouvelleTable.ouvrirTableVecteur(vecteur);
                 panneauTable.activerPanneau(nouvelleTable);        
             }
         }
-        vecteur.zoomerOccurence(occurence, this.options.zoom);
-        occurence.selectionner();
     }
 
     Recherche.prototype.creerVecteurRecherche = function(styles, callback, paramsCallback) {
@@ -387,7 +391,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             visible = true;
         };
         
-        var vecteur = new Vecteur({active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});         
+        var vecteur = new Vecteur({legende: false, active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});         
         if(callback){
             vecteur.ajouterDeclencheur("coucheAjoutee", callback, {scope: this, params: paramsCallback});
         }
@@ -441,7 +445,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         $(this.resultatPanneau.items.items[0].body.dom).find('#suivantRecherche')
             .click($.proxy(this.appelSuivant, this));
         $(this.resultatPanneau.items.items[0].body.dom).find('li.rechercheResultatsListe')
-                .click($.proxy(this.eventResultatClique, this));
+            .click($.proxy(this.eventResultatClique, this))
+            .mouseover($.proxy(this.eventResultatMouseover, this))
+            .mouseout($.proxy(this.eventResultatMouseout, this));
     };
 
     Recherche.prototype.eventResultatClique = function(e) {
@@ -455,6 +461,24 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         occurence.selectionner();
     };
     
+    Recherche.prototype.eventResultatMouseover = function(e) {
+        var id = $(e.target).parents('.rechercheResultatsListe').data('id');
+        var occurence = this.vecteur.obtenirOccurenceParId(id);
+        if(!occurence){
+            return false;
+        }
+        occurence.appliquerStyle('courant', true);
+    };
+
+    Recherche.prototype.eventResultatMouseout = function(e) {
+        var id = $(e.target).parents('.rechercheResultatsListe').data('id');
+        var occurence = this.vecteur.obtenirOccurenceParId(id);
+        if(!occurence){
+            return false;
+        }
+        occurence.appliquerStyle('courant', false);
+    };
+
     /**
      * Préfixe de la recherche
      * @method
