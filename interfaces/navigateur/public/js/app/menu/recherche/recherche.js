@@ -344,9 +344,6 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         this.declencher({type: "resultatRecherche", vecteur: vecteur, texteRecherche: this.textUser});
 
         vecteur.garderHistorique = true;
-        vecteur.ajouterDeclencheur('vecteurOccurenceSelectionnee', function(e){
-                    e.target.zoomerOccurence(e.occurence);
-        }, {scope: this, id:'occurenceCliqueRecherche'});
         
         var occurence = vecteur.obtenirOccurences()[0];
         if(!occurence){
@@ -367,9 +364,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                                                         paginer : paginer,
                                                         paginer_debut: debut,
                                                         paginer_limite: limite,
-                                                        outils_auto:true,
-                                                        outils_contenupage:true
+                                                        outils_auto:true                                                        
                                     });        
+
                 panneauTable.ajouterPanneau(nouvelleTable);
                 nouvelleTable.ouvrirTableVecteur(vecteur);
                 panneauTable.activerPanneau(nouvelleTable);        

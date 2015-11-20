@@ -161,29 +161,6 @@ define(['panneau'], function(Panneau) {
         return panneaux;
     };
 
-    /**
-     * Obtenir les panneaux liée à une couche vecteur
-     * @method
-     * @name PanneauOnglet#obtenirPanneauxParVecteur
-     * @param {String} type Type du panneau recherché
-     * @returns {Tableau} Tableau de {@link Panneau}
-     */
-    PanneauOnglet.prototype.obtenirPanneauxParVecteur = function(vecteur, niveau) {
-        niveau = niveau || 1;
-        var panneaux = [];
-        $.each(this.obtenirPanneaux(), function(key, value) {
-            if(value.donnees){
-              if (value.donnees.obtenirId() === vecteur.obtenirId()) {
-                  panneaux.push(value);
-              }
-            }
-            if ((niveau > 1 || niveau < 0) && value.obtenirPanneauxParVecteur) {
-                panneaux = panneaux.concat(value.obtenirPanneauxParVecteur(vecteur, niveau - 1));
-            }
-        });
-        return panneaux;
-    };
-
     PanneauOnglet.prototype._beforeCloseTab = function(element){
         this.listeOnglets = $.grep(this.listeOnglets, function(value) {
             if(value._panel === element){

@@ -345,29 +345,6 @@ define(['barreOutils', 'panneau', 'carte', 'panneauCarte', 'aide', 'evenement'],
         return panneau;
     };
 
-    /**
-     * Obtenir les panneaux liée à une couche vecteur
-     * @method
-     * @name Navigateur#obtenirPanneauxParVecteur
-     * @param {String} type Type du panneau recherché
-     * @returns {Tableau} Tableau de {@link Panneau}
-     */
-    Navigateur.prototype.obtenirPanneauxParVecteur = function(vecteur, niveau) {
-        niveau = niveau || 1;
-        var panneau = [];
-        $.each(this.listePanneaux, function(key, value) {
-            if(value.donnees){
-              if (value.donnees.obtenirId() === vecteur.obtenirId()) {
-                  panneau.push(value);
-              }
-            }
-            if ((niveau > 1 || niveau < 0) && value.obtenirPanneauxParVecteur) {
-                panneau = panneau.concat(value.obtenirPanneauxParVecteur(vecteur, niveau - 1));
-            }
-        });
-        return panneau;
-    };
-
     return Navigateur;
 
 });
