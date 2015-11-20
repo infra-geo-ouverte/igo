@@ -36,7 +36,6 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.styles={};
         this.templates={};
         this.defautOptions.rafraichissementPermis = true;
-        this.defautOptions.rafraichirMaxOccurence = 100;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
@@ -493,14 +492,17 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     
 
 
-    Vecteur.prototype.cacherOccurence = function(occurence) {
+    Vecteur.prototype.cacherOccurence = function(occurence,tousLesStyles) {
+        
+         var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+
         if(Array.isArray(occurence)){
             $.each(occurence, function(index, value){
-                value.cacher();
+                value.cacher(tousStyles);
             })
         }else{
             if(!occurence || occurence.vecteur !== this){return false};
-            occurence.cacher();
+            occurence.cacher(tousStyles);
         }
     };
 
@@ -512,12 +514,15 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
     };
 
-    Vecteur.prototype.afficherOccurence = function(occurence) {
+    Vecteur.prototype.afficherOccurence = function(occurence, tousStyles) {
+
+        var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+
         if(Array.isArray(occurence)){
-            this.processThis('afficher', occurence);
+            this.processThis('afficher', occurence, tousStyles);
         }else{
             if(!occurence || occurence.vecteur !== this){return false};
-            occurence.afficher();
+            occurence.afficher(tousStyles);
         }
     };
 
@@ -688,12 +693,12 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
             if(!occurence){
                 this._layer.redraw();  
                 this.rafraichirLegende();
-                this.declencher({type: "vecteurRafraichie", vecteur:this, occurence: occurence});
+                this.declencher({type: "vecteurRafraichi", vecteur:this, occurence: occurence});
                 return true;
             }
             this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
-            this.declencher({type: "vecteurRafraichie", vecteur:this, occurence: occurence});
+            this.declencher({type: "vecteurRafraichi", vecteur:this, occurence: occurence});
             return true;
         }      
     };
