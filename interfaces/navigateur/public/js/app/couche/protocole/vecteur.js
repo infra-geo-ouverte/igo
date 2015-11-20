@@ -734,15 +734,6 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         return true;
     };
 
-    Vecteur.prototype.afficherSelectionSeulement = function(){
-
-        var selection = this.obtenirOccurencesNonSelectionnees();
-        this.processThis('cacher', selection, true);
-        selection = this.obtenirOccurencesSelectionnees();
-        this.processThis('afficher', selection, true);
-
-    }
-
     Vecteur.Controles = function(_){
         this._ = _;
         if (this._.options.simplificationZoom) {
