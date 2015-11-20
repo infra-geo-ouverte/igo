@@ -589,12 +589,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.prototype._selectionEvent = function(e){
-        if(Igo.nav.ctrlPressed){
+        e.options.scope.selectionnerParOccurences([e.occurence], true);
+        /*if(Igo.nav.ctrlPressed){
             e.options.scope.selectionnerParOccurences([e.occurence], true);
         }
         else{
             e.options.scope.selectionnerParOccurences([e.occurence]); 
-        }
+        }*/
         
     };
 
@@ -654,7 +655,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
 
     PanneauTable.prototype.selectionnerParOccurences = function(occurences, garderSelection, scroll, notifieVue){
         var that=this;
-        garderSelection = typeof garderSelection == "undefined"?Igo.nav.ctrlPressed:garderSelection;
+        garderSelection = typeof garderSelection == "undefined" ? Igo.nav.ctrlPressed : garderSelection;
        
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}

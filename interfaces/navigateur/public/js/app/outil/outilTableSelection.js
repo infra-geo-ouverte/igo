@@ -88,7 +88,7 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
         } else if (this.options.type === 'auto'){
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
                 this.options.couche.ajouterDeclencheur('vecteurOccurenceSelectionnee', function(e){
-                    e.target.zoomerOccurence(e.occurence);
+                    e.target.zoomerOccurences(e.target.obtenirOccurencesSelectionnees());
                 }, {scope: this, id:'occurenceCliqueTableSelection'});
             }else{
                 this.options.couche.enleverDeclencheur('vecteurOccurenceSelectionnee', 'occurenceCliqueTableSelection',function(e){
