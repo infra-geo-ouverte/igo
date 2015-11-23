@@ -132,9 +132,9 @@ try {
                 }
                 
                 $motAlias = array();
-//                if($config->aliasXml){
-//                    $motAlias = $config->aliasXml;
-//                }
+                if($config->aliasXml){
+                    $motAlias = $config->aliasXml;
+                }
 
                 $json = json_encode($element);
                 $json = preg_replace_callback(
