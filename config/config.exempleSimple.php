@@ -32,7 +32,6 @@ return array(
     //url des différentes parties du projet
     'uri' => array(
         'navigateur'    => "/igo_navigateur/",
-        'edition'       => "/igo/edition/",
         'librairies'    => "/igo/librairie/",
         'services'      => "/igo/services/",
         'api'           => "/api/",
