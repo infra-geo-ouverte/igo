@@ -268,6 +268,9 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
      *  Determine the symbol type given a feature.
      */
     symbolTypeFromFeature: function(feature) {
+        if(!feature.geometry){
+            return false;
+        }
         var match = feature.geometry.CLASS_NAME.match(/Point|Line|Polygon/);
         return (match && match[0]) || "Point";
     },
@@ -410,6 +413,13 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                 applies = applies && (this.currentScaleDenominator < rule.maxScaleDenominator);
             }
         }
+
+        var renderer = this.createRuleRenderer(rule);
+        var title = this.createRuleTitle(rule);  
+        if(!renderer){
+            title.html = "";
+        }
+        
         return {
             xtype: "panel",
             layout: "column",
@@ -420,8 +430,8 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                 border: false
             },
             items: [
-                this.createRuleRenderer(rule),
-                this.createRuleTitle(rule)
+                renderer,
+                title
             ],
             listeners: {
                 render: function(comp){
@@ -481,6 +491,17 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                 symbolizer = this.mergeOptions(defaultStyle, symbolizer);
             }
             symbolizers = [symbolizer];
+            if(symbolizers[0].display === 'none'){
+                return false;
+            } else if (symbolizers[0].externalGraphic){
+                var diviseur = symbolizers[0].graphicHeight/16;
+                if (diviseur){
+                    symbolizers[0].graphicHeight = symbolizers[0].graphicHeight/diviseur; //34
+                    symbolizers[0].graphicWidth = symbolizers[0].graphicWidth/diviseur;  //20
+                    symbolizers[0].graphicXOffset = 0; //-10
+                    symbolizers[0].graphicYOffset = -symbolizers[0].graphicHeight/2;
+                }
+            }
         } else {
             var Type;
             outer: for (var i=0, ii=types.length; i<ii; ++i) {
@@ -630,8 +651,13 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
         var ruleEntry = this.getRuleEntry(rule);
         if (ruleEntry) {
             ruleEntry.removeAll();
-            ruleEntry.add(this.createRuleRenderer(rule));
-            ruleEntry.add(this.createRuleTitle(rule));
+            var renderer = this.createRuleRenderer(rule);
+            var title = this.createRuleTitle(rule);
+            if(!renderer){
+                title.html = "";
+            }
+            ruleEntry.add(renderer);
+            ruleEntry.add(title);
             ruleEntry.doLayout();
         }
     },
