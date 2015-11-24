@@ -453,6 +453,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
              outilsSelection.push(new OutilTableSelection({
                 type:'auto',
                 couche: this.donnees}));
+             outilsSelection.push(new OutilTableSelection({
+                type:'selectionSeulement',
+                couche: this.donnees}));
 
 
             menuSelection.ajouterOutils(outilsSelection);  
@@ -550,7 +553,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         var that=this;
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}
-            var index = that._panel.store.indexOfId(value.id);
+            if(value){
+                var index = that._panel.store.indexOfId(value.id);
+            }
             if(index === -1){return true;}
             that.selectionnerParIndex(index, true);
         });
@@ -770,6 +775,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         if(this._.donnees.zoomAuto){
             this._.donnees.zoomerOccurences(this._.donnees.obtenirOccurencesSelectionnees());
         }
+        
+        if(this._.donnees.options.selectionSeulement){
+           this._.donnees.afficherSelectionSeulement();
+        }else{
+            this._.donnees.afficherTous();
+        }
+        
         this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur }); 
     };
     

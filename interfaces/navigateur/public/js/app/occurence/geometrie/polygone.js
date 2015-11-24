@@ -7,7 +7,7 @@
  * @requires point
  * @requires aide
  */
-define(['ligne', 'point', 'aide'], function(Ligne, Point, Aide) {
+define(['geometrie', 'ligne', 'point', 'aide'], function(Geometrie, Ligne, Point, Aide) {
     /** 
      * Création de l'object Geometrie.Polygone.
      * @constructor
@@ -33,20 +33,9 @@ define(['ligne', 'point', 'aide'], function(Ligne, Point, Aide) {
      * new Geometrie.Polygone([[[-72,50], [-72,58], [-75,58], [-75,50]], [[-73,52], [-74,55], [-74,52]]], 'EPSG:4326');
      */
     function Polygone(arrayLigne, proj) {
+        Geometrie.apply(this, [proj]);
         var that = this;
         this.lignes = [];
-
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Polygone : Projection EPSG invalide");
-        }
-        this.projection = proj;
 
         if (!arrayLigne) {
             throw new Error("new Polygone : Le paramètre est obligatoire");
@@ -89,41 +78,9 @@ define(['ligne', 'point', 'aide'], function(Ligne, Point, Aide) {
         }
     }
 
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name Polygone#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    Polygone.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
-    };
+    Polygone.prototype = Object.create(Geometrie.prototype);
+    Polygone.prototype.constructor = Polygone;
     
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.Polygone#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    Polygone.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.Polygone#definirProjection
-     * @throws Polygone.definirProjection : Projection EPSG invalide
-     * @example Polygone.definirProjection('EPSG:4326');
-     */
-    Polygone.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Polygone.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
-
     /** 
      * Obtenir la longueur du périmètre
      * @method 
@@ -164,44 +121,7 @@ define(['ligne', 'point', 'aide'], function(Ligne, Point, Aide) {
         return this.lignes.slice(1);
     };
 
-    /** 
-     * Transformer les coordonnées dans une autre projection.
-     * Cette fonction ne modifie par le polygone, un nouveau polygone est créé
-     * @method
-     * @name Geometrie.Polygone#projeter
-     * @param {String} arg1 
-     * Si !arg2, alors arg1 = Projection voulue. La projection source est la projection du polygone.
-     * Si arg2, alors arg1 = Projection source
-     * @param {String} [arg2] Projection voulue
-     * @returns {Geometrie.Polygone} Instance projectée de {@link Geometrie.Polygone}
-     * @throws Polygone.projeter : Projection source invalide
-     * @throws Polygone.projeter : Projection voulue invalide
-     * @example Polygone.projeter('EPSG:4326');
-     * @example Polygone.projeter('EPSG:4326','EPSG:900913');
-     */
-    Polygone.prototype.projeter = function(arg1, arg2) {
-        var dest, source;
-        if (arg2) {
-            source = arg1;
-            dest = arg2;
-        } else {
-            source = this.projection;
-            dest = arg1;
-        }
-        if (typeof source !== "string" || source.toUpperCase().substr(0, 5) !== 'EPSG:' || source.substr(5) !== source.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Polygone.projeter : Projection source invalide");
-        }
-        if (typeof dest !== "string" || dest.toUpperCase().substr(0, 5) !== 'EPSG:' || dest.substr(5) !== dest.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Polygone.projeter : Projection voulue invalide");
-        }
-        var projSource = new OpenLayers.Projection(source);
-        var projDest = new OpenLayers.Projection(dest);
-        var polyOL = this._obtenirGeomOL();
-        var polyProj = polyOL.transform(projSource, projDest);
-        return new Polygone(polyProj, dest);
-    };
-
-    /** 
+     /** 
      * Simplifier la géométrie. La simplification est basée sur l'algorithme Douglas-Peucker.
      * Ne modifie pas le polygone, la fonction crée un nouveau polygone simplifié
      * @method

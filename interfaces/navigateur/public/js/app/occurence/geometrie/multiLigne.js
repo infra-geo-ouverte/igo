@@ -6,7 +6,7 @@
  * @requires aide
  */
 
-define(['aide', 'point', 'ligne'], function(Aide, Point, Ligne) {
+define(['geometrie', 'aide', 'point', 'ligne'], function(Geometrie, Aide, Point, Ligne) {
     /** 
      * Création de l'object Geometrie.MultiLigne.
      * @constructor
@@ -19,20 +19,9 @@ define(['aide', 'point', 'ligne'], function(Aide, Point, Ligne) {
      * @returns {Geometrie.MultiLigne} Instance de {@link Geometrie.MultiLigne}
      */
     function MultiLigne(arrayLigne, proj) {
+        Geometrie.apply(this, [proj]);
         var that = this;
         this.lignes = [];
-
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new MultiLigne : Projection EPSG invalide");
-        }
-        this.projection = proj;
 
         if (!arrayLigne) {
             throw new Error("new MultiLigne : Le paramètre est obligatoire");
@@ -75,79 +64,9 @@ define(['aide', 'point', 'ligne'], function(Aide, Point, Ligne) {
         }
     }
 
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name MultiLigne#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    MultiLigne.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
-    };
+    MultiLigne.prototype = Object.create(Geometrie.prototype);
+    MultiLigne.prototype.constructor = MultiLigne;
     
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.MultiLigne#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    MultiLigne.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.MultiLigne#definirProjection
-     * @throws MultiLigne.definirProjection : Projection EPSG invalide
-     * @example MultiLigne.definirProjection('EPSG:4326');
-     */
-    MultiLigne.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiLigne.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
-
-
-    /** 
-     * Transformer les coordonnées dans une autre projection.
-     * Cette fonction ne modifie par le multiLigne, un nouveau multiLigne est créé.
-     * @method
-     * @name Geometrie.MultiLigne#projeter
-     * @param {String} arg1 
-     * Si !arg2, alors arg1 = Projection voulue. La projection source est la projection du multiLigne.
-     * Si arg2, alors arg1 = Projection source
-     * @param {String} [arg2] Projection voulue
-     * @returns {Geometrie.MultiLigne} Instance projectée de {@link Geometrie.MultiLigne}
-     * @throws MultiLigne.projeter : Projection source invalide
-     * @throws MultiLigne.projeter : Projection voulue invalide
-     * @example MultiLigne.projeter('EPSG:4326');
-     * @example MultiLigne.projeter('EPSG:4326','EPSG:900913');
-     */
-    MultiLigne.prototype.projeter = function(arg1, arg2) {
-        var dest, source;
-        if (arg2) {
-            source = arg1;
-            dest = arg2;
-        } else {
-            source = this.projection;
-            dest = arg1;
-        }
-        if (typeof source !== "string" || source.toUpperCase().substr(0, 5) !== 'EPSG:' || source.substr(5) !== source.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiLigne.projeter : Projection source invalide");
-        }
-        if (typeof dest !== "string" || dest.toUpperCase().substr(0, 5) !== 'EPSG:' || dest.substr(5) !== dest.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("MultiLigne.projeter : Projection voulue invalide");
-        }
-        
-        var projSource = new OpenLayers.Projection(source);
-        var projDest = new OpenLayers.Projection(dest);
-        var multiLignesOL = this._obtenirGeomOL();
-        var multiLignesProj = multiLignesOL.transform(projSource, projDest);
-        return new MultiLigne(multiLignesProj, dest);
-    };
 
     /** 
      * Obtenir un multiLigne OpenLayers

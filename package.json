@@ -1,21 +1,24 @@
 {
   "name": "Igo",
   "version": "1.1.0",
-  "urlTestUnit": "",
   "devDependencies": {
     "grunt": "^0.4.5",
-    "grunt-cli" : "^0.1.13",
     "grunt-bower": "^0.19.0",
     "grunt-chmod": "^1.0.3",
+    "grunt-cli": "^0.1.13",
     "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-copy": "^0.8.1",
     "grunt-contrib-jshint": "^0.11.2",
     "grunt-contrib-requirejs": "^0.4.4",
     "grunt-contrib-uglify": "^0.9.1",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-git": "^0.3.5",
     "grunt-jsbeautifier": "^0.2.10",
     "grunt-jsdoc": "^0.6.7",
+    "grunt-load-gruntfile": "0.0.2",
     "grunt-notify": "^0.4.1",
     "grunt-shell": "^1.1.2",
+    "grunt-then": "^1.0.0",
     "rjs-build-analysis": "0.0.3"
   }
 }

@@ -440,6 +440,21 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
         };
     },
 
+    /** private: method[mergeOptions]
+     */
+    mergeOptions: function(obj1, obj2) {
+        var obj3 = {};
+        for (var attrname in obj1) { 
+            obj3[attrname] = obj1[attrname]; 
+        }
+        for (var attrname in obj2) { 
+            if(obj2[attrname] !== undefined){
+                obj3[attrname] = obj2[attrname];
+            }
+        }
+        return obj3;
+    },
+
     /** private: method[createRuleRenderer]
      *  :arg rule: ``OpenLayers.Rule``
      *  :returns: ``GeoExt.FeatureRenderer``
@@ -460,6 +475,10 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                     haveType = true;
                     break;
                 }
+            }
+            if(!this.layer.styleMap.styles.default.defaultsPerSymbolizer){
+                var defaultStyle = this.layer.styleMap.styles.default.defaultStyle;
+                symbolizer = this.mergeOptions(defaultStyle, symbolizer);
             }
             symbolizers = [symbolizer];
         } else {

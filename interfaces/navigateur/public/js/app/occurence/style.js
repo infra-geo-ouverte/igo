@@ -68,6 +68,8 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             etiquetteEpaisseur: 'fontWeight',
             etiquetteTaille: 'fontSize',
             etiquettePolice: 'fontFamily',
+            etiquetteLimiteCouleur: 'labelOutlineColor',
+            etiquetteLimiteEpaisseur: 'labelOutlineWidth', 
             visible: 'display',
             rotation: 'rotation'
         };
@@ -151,7 +153,10 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 }
             });
         }
-        var styleOL = new OpenLayers.Style(this._getStyleOptionsOL(), {context: contexte});
+        var styleOL = new OpenLayers.Style(this._getStyleOptionsOL(), {
+            context: contexte,
+            defaultsPerSymbolizer: this.propriete.defautParRegle ? true : false
+        });
         styleOL.addRules(this._filtresOL);
         styleOL.title = this.propriete.titre || "Style";
         return styleOL;
@@ -183,7 +188,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         } else {
             this.propriete[nom] = valeur;
         }
-        
+                
         if (this.parent){
             var nomOL = this._lookupOptionsOL[nom];
             var vTemp = this._traiterValeurIGO(nom, valeur);
@@ -192,7 +197,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                     this.parent._layer.styleMap.styles['default'].defaultStyle[nomOL] = vTemp;
                 };
                 this.parent._layer.styleMap.styles[this.regle].defaultStyle[nomOL] = vTemp;
-                this.parent.rafraichir();
+                this.parent.rafraichir();       
             } else if (this.parent.obtenirTypeClasse() === 'Occurence'){
                 if(!this.parent._feature.style){
                     this.parent._feature.style = {};
@@ -205,7 +210,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 if($.isEmptyObject(this.propriete)){
                     this.parent._feature.style = undefined;
                 }
-                this.parent.rafraichir();
+                this.parent.rafraichir();              
             } 
         }
     };
@@ -224,36 +229,39 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         });
     };
     
-     /** 
-     * Ajouter un filtre aux occurences pour leur attribuer un style différent selon un attribut de l'occurence
-     * @method
-     * @name Geometrie.Style#ajouterFiltre
-     * @param {String} filtre Opération de comparaison Exemple: [propriete]>valeur
-     * @param {Geometrie.Style} style Style à appliquer aux occurences filtrés
-    */
-    Style.prototype.ajouterFiltre = function(options){
-        var filtre = options.filtre;
-        var style = options.style;
-        var that=this;
-        //dernier filtre qui est respecté qui est pris en compte
-        //! (not) et parenthèse pas implanté
-        //filtre.split(/\(|\)/g);
-        //this.filtre;
-        var comparatorArray = [], logicSeparator;
-        if(filtre){
-            filtre = filtre.replace(/ /g, '');
 
-            logicSeparator = filtre.match(/&&|\|\|/g);
-            comparatorArray = filtre.split(/&&|\|\|/g);
-        };
-        var filterLast;
+    Style.prototype._createFilterByFunction = function(filtre) {
+        var that = this;
+        return new OpenLayers.Filter.FeatureId({
+            evaluate: function(feature) {
+                var occ;
+                if(that.parent){
+                    occ = that.parent.obtenirOccurenceParId(feature.id);
+                    if(!occ && that.parent.obtenirClusterParId){
+                        occ = that.parent.obtenirClusterParId(feature.id);
+                    }
+                };
+                           
+                return filtre.call(that, occ);
+            }
+        });
+    };
+
+    Style.prototype._createFilterByString = function(filtre) {
+        var filterLast, logicSeparator;
+        var comparatorArray = [];
+
+        filtre = filtre.replace(/ /g, '');
+        logicSeparator = filtre.match(/&&|\|\|/g);
+        comparatorArray = filtre.split(/&&|\|\|/g);
+
         $.each(comparatorArray, function(key, value){
             if (value === ''){return true};
             var propriete = value.substring(1,value.indexOf("]")); 
             // [propriete] == null
             // [propriete] == 'undefined'
             //Si l'occurence n'est pas filtré, il ne sera pas visible...
-            //todo tester si oparator est null
+            //todo tester si operator est null
             var operatorMatch = value.match(/==|!=|<=|>=|<|>/); 
             if(!operatorMatch){
                 throw new Error("Style.ajouterFiltre : Opérateur invalide");
@@ -287,7 +295,6 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                     return eval('obj' + operator + rule.value);
                 }
             });
-            //  var filterComparison = new OpenLayers.Filter.Comparison(rule);
             
             if(key !== 0){
                 var filterLogical=new OpenLayers.Filter.Logical({
@@ -298,7 +305,31 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             
             filterLast = filterLogical || filterComparison;
         }); 
+
+        return filterLast;
+    };
+
+     /** 
+     * Ajouter un filtre aux occurences pour leur attribuer un style différent selon un attribut de l'occurence
+     * @method
+     * @name Geometrie.Style#ajouterFiltre
+     * @param {String} filtre Opération de comparaison Exemple: [propriete]>valeur
+     * @param {Geometrie.Style} style Style à appliquer aux occurences filtrés
+    */
+    Style.prototype.ajouterFiltre = function(options){
+        var filtre = options.filtre;
+        var style = options.style;
+        var that=this;
+        //! (not) et parenthèse pas implanté
+        //filtre.split(/\(|\)/g);
         
+        var filterOL;
+        if(filtre instanceof Function){
+            filterOL = this._createFilterByFunction(filtre);
+        } else if (filtre) {
+            filterOL = this._createFilterByString(filtre);
+        }
+
         var _optionsOL = {};
         if (style instanceof Style){
             _optionsOL = style._getStyleOptionsOL();
@@ -309,11 +340,12 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 _optionsOL[valueOL] = vTemp;
             });
         }
+
         var filtreCombinaison;
-        if(filterLast){
+        if(filterOL){
             filtreCombinaison= new OpenLayers.Rule({
                 name: options.titre,
-                filter: filterLast,
+                filter: filterOL,
                 maxScaleDenominator: options.echelleMax,
                 minScaleDenominator: options.echelleMin,
                 symbolizer: _optionsOL
@@ -329,7 +361,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         }
         
         this._filtresOL.push(filtreCombinaison);
-        this.filtres.push({filtre:filtre, style:style});
+        this.filtres.push({titre:options.titre, filtre: filtre, style: style});
         
         if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
             if(this.regle==='defaut'){
@@ -347,7 +379,16 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
      * @returns {Geometrie.Style} Instance de {@link Geometrie.Style}
     */
     Style.prototype.cloner = function(){
-        return jQuery.extend(true, {}, this);  
+        var parent = this.parent;
+        this.parent = null;
+        
+        var clone = jQuery.extend(true, {}, this);  
+        var filtres = clone.filtres;
+        clone.reinitialiserFiltres();
+        clone.ajouterFiltres(filtres);
+
+        this.parent = parent;
+        return clone;
     };
     
      /**

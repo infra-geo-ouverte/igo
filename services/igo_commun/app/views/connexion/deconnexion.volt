@@ -9,9 +9,22 @@
           Vous êtes maintenant déconnecté.
         </div>
     </div>
+    {% if pageRedirection and pageRedirection !== "" %}
     <div class="row">
         <div class="col-xs-12 col-md-12 text-center">
-            <p><a href="/">Retour à l'accueil</a></p>
+            <span><a href="{{pageRedirection}}">Retour au navigateur</a></span>
+            {% if seConnecter and seConnecter !== "" %}
+            <span> | </span>
+            <span><a href="{{pageRedirection}}?force-auth=true">Se connecter</a></span>
+            {% endif  %}
         </div>
     </div>
+    {% endif  %}
+    {% if pageAccueil %}
+    <div class="row">
+        <div class="col-xs-12 col-md-12 text-center">
+            <p><a href="{{pageAccueil}}">Retour à l'accueil</a></p>
+        </div>
+    </div>
+    {% endif  %}
 </div>

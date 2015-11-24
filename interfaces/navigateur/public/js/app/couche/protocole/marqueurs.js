@@ -54,7 +54,7 @@ define(['couche', 'aide', 'limites'], function(Couche, Aide, Limites) {
     * @param {Tableau} [decalage] Decalage par rapport au centre de l'icone.
     */
     Marqueurs.prototype.ajouterMarqueur = function(point, icone, dimension, decalage) {
-        dimension = dimension || [21,25];
+        dimension = dimension || [20,34];
         var w = dimension[0];
         var h = dimension[1];
         var sizeOL = new OpenLayers.Size(w,h);
@@ -64,7 +64,19 @@ define(['couche', 'aide', 'limites'], function(Couche, Aide, Limites) {
         var offY = decalage[1];
         var offsetOL = new OpenLayers.Pixel(offX, offY);
         
+       
+        if(icone === 'bleu' || icone === 'undefined'){
+            icone = 'images/marqueur/marker-blue.png';
+        } else if (icone === 'vert'){
+            icone = 'images/marqueur/marker-green.png';
+        } else if (icone === 'jaune'){
+            icone = 'images/marqueur/marker-yellow.png';
+        } else if (icone === 'rouge'){
+            icone = 'images/marqueur/marker-orange.png';
+        }
+        
         var url = Aide.utiliserBaseUri(icone || 'images/marqueur/marker-blue.png');
+        
         var icon = new OpenLayers.Icon(url, sizeOL, offsetOL);
 
         this._getLayer().addMarker(new OpenLayers.Marker(point._obtenirLonLatOL(),icon));

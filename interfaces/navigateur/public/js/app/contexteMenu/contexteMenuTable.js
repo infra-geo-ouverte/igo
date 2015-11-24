@@ -101,7 +101,7 @@ define(['contexteMenu', 'aide', 'fonctions'], function(ContexteMenu, Aide, Fonct
                 }
             }); 
         }
-    
+              
         return menu;
     };    
 
