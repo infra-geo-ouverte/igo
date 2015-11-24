@@ -74,7 +74,7 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
      *  name.  Default is ``"Untitled "``.  Prefix will be appended with a
      *  number that corresponds to the index of the rule (1 for first rule).
      */
-    untitledPrefix: "Untitled ",
+    untitledPrefix: "Sans titre ",
     
     /** api: config[clickableSymbol]
      *  ``Boolean``
