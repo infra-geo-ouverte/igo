@@ -314,6 +314,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
     Style.prototype.ajouterFiltre = function(options){
         var filtre = options.filtre;
         var style = options.style;
+
         var that=this;
         //! (not) et parenthèse pas implanté
         //filtre.split(/\(|\)/g);
@@ -325,20 +326,20 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             filterOL = this._createFilterByString(filtre);
         }
 
-        var _optionsOL = {};
+        var _optionsOL = [];
         if (style instanceof Style){
             _optionsOL = style._getStyleOptionsOL();
         } else {
             $.each(this._lookupOptionsOL, function(valueIGO, valueOL){
                 var vTemp = style[valueIGO];
                 vTemp = that._traiterValeurIGO(valueIGO, vTemp);
-                _optionsOL[valueOL] = vTemp;
+                _optionsOL[valueOL] = vTemp;     
             });
         }
         var filtreCombinaison;
         if(filterOL){
             filtreCombinaison= new OpenLayers.Rule({
-                name: options.titre,
+                name: options.nom,
                 filter: filterOL,
                 maxScaleDenominator: options.echelleMax,
                 minScaleDenominator: options.echelleMin,
@@ -346,7 +347,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             });
         } else {
             filtreCombinaison= new OpenLayers.Rule({
-                name: options.titre,
+                name: options.nom,
                 elseFilter: true,
                 maxScaleDenominator: options.echelleMax,
                 minScaleDenominator: options.echelleMin,
@@ -354,6 +355,10 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             });
         }
         
+        if(options.titre){
+            filtreCombinaison.title = options.titre;
+        }
+
         this._filtresOL.push(filtreCombinaison);
         this.filtres.push({filtre:filtre, style:style});
         
@@ -438,7 +443,32 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         var style = new Style($.extend({}, this.propriete, styleFiltre));
         style.defautPropriete = this.defautPropriete;
         return style;
-    };  
+    }; 
+
+
+    /** 
+     * Enlever un filtre parmi tous les styles
+     * @method
+     * @name Geometrie.Style#enleverFiltre
+     * @param {Function} filtre Filtre à supprimer 
+     * @returns {Boolean} retour Confirmation si oui ou non un ou des filtres
+                                    ont été supprimé.
+    */
+    Style.prototype.enleverFiltre = function (filtre){
+        var that = this;
+        var retour = false;
+        
+        for(var i = this.filtres.length -1; i >= 0 ; i--){
+            if(that._filtresOL[i] && that._filtresOL[i].evaluate && that.filtres[i].filtre){
+                if(filtre.toString() === that.filtres[i].filtre.toString()){
+                    this.filtres.splice(i,1);
+                    this._filtresOL.splice(i,1);
+                    retour = true;
+                }
+            } 
+        }
+        return retour;
+    };
     
     return Style;
 });

@@ -80,9 +80,16 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
         if (this.options.type === 'efface'){
             this.options.couche.deselectionnerTout();
         } else if (this.options.type === 'inverse'){
+             //fake le CTRL
+           // Igo.nav.ctrlPressed = true;
              this.options.couche.selectionnerInverse();
+           // $.event.trigger({type:'keydown'});
+
         } else if (this.options.type === 'complet'){
+            //fake le CTRL
+           // Igo.nav.ctrlPressed = true;
             this.options.couche.selectionnerTout();
+            //$.event.trigger({type:'keydown'});
         } else if (this.options.type === 'zoom'){
             this.options.couche.zoomerOccurences(this.options.couche.obtenirOccurencesSelectionnees());
         } else if (this.options.type === 'auto'){
@@ -98,6 +105,18 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
 
         }  else if (this.options.type === 'contenupage'){
             
+            //filtre 
+            var contenuPageSeulement = function(occurence){
+                if(occurence.vecteur.panneauTable.obtenirIndexParOccurence(occurence) == -1){
+                    return true;
+                }
+                else{
+                    return false;
+                }  
+            };
+
+            var bidon = function(b){return true};
+
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
                               
                 //ne pas permettre l'option d'afficher seulement la sélection
@@ -105,32 +124,27 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                     if(value.options.type === 'selectionSeulement'){
                         value._bouton.setChecked(false);
                         value._bouton.disable();
-                        value.options.couche.options.selectionSeulement = false;
                     }
                 });
                
                 $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
-                    value.ajouterFiltre({filtre: function(occurence){
-                                                    if(occurence.vecteur.panneauTable.obtenirIndexParOccurence(occurence) == -1){
-                                                        return false;
-                                                    }
-                                                    else{
-                                                        return true;
-                                                    }  
-                                                
-                                            }, 
-                                            style: new Style({
-                                                    display:false,
-                                                    titre:'test'
-                                                })
+                    
+                    value.ajouterFiltre({filtre: bidon, 
+                                            style:{},
+                                            titre: 'Défaut'           
+                                        });
+
+                    value.ajouterFiltre({filtre: contenuPageSeulement, 
+                                            style:{visible: false},
+                                            titre: 'Page Seulement'
                                         });
                 })
             }
             else{
 
                 $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
+                    value.enleverFiltre(contenuPageSeulement);
+                    value.enleverFiltre(bidon);
                 });
                 
                 $.each(this.parent.obtenirOutils(), function(index,value){
@@ -144,10 +158,21 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
 
         } else if (this.options.type === 'selectionSeulement'){
 
+            //filtre 
+            var selectionSeulement = function(occurence){
+                if(occurence.estSelectionnee()){
+                    return false;
+                }
+                else{
+                    return true;
+                }    
+            }
+
+            var bidon = function(a){return true};
+
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
                  this.options.couche.declencher({ type: "occurenceClique", occurence:this.options.couche.obtenirOccurencesSelectionnees()});
 
-               
                 //ne pas permettre l'option d'afficher seulement le contenu de la page
                 $.each(this.parent.obtenirOutils(), function(index,value){
                     if(value.options.type === 'contenupage'){
@@ -157,19 +182,16 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                 });
                 
                 $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
-                    value.ajouterFiltre({filtre: function(occurence){
-                                                    if(occurence.estSelectionnee()){
-                                                        return true;
-                                                    }
-                                                    else{
-                                                        return false;
-                                                    }  
-                                                
-                                            }, 
-                                            style: new Style({
-                                                    display:false
-                                                })
+
+                      value.ajouterFiltre({filtre: bidon, 
+                                            style:{},
+                                            titre: 'Défaut' 
+                                        });
+
+
+                    value.ajouterFiltre({filtre: selectionSeulement, 
+                                           style:{visible: false},
+                                             titre: 'Sélection Seulement'
                                         });
                 })
             }
@@ -181,7 +203,8 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                 });
 
                 $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
+                    value.enleverFiltre(selectionSeulement);
+                    value.enleverFiltre(bidon);
                 });
 
                 this.options.couche.afficherTout();

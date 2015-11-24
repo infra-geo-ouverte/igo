@@ -86,6 +86,10 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
 
        var styles = {defaut: {visible: false}, select: style};
 
+       if(this.options.idResultatTable){
+            styles.defaut = style;
+       }
+
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
 
     };

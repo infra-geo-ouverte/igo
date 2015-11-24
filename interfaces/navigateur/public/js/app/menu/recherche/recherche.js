@@ -364,7 +364,8 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                                                         paginer : paginer,
                                                         paginer_debut: debut,
                                                         paginer_limite: limite,
-                                                        outils_auto:true                                                        
+                                                        outils_auto:true,
+                                                        outils_selectionSeulement:true                                                       
                                     });        
 
                 panneauTable.ajouterPanneau(nouvelleTable);
@@ -386,7 +387,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         if (this.saveCheckbox && this.saveCheckbox.checked) {
             visible = true;
         };
-        
+       
         var vecteur = new Vecteur({active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});         
         if(callback){
             vecteur.ajouterDeclencheur("coucheAjoutee", callback, {scope: this, params: paramsCallback});

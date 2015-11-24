@@ -589,13 +589,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.prototype._selectionEvent = function(e){
-        if(Igo.nav.ctrlPressed){
-            e.options.scope.selectionnerParOccurences([e.occurence], true);
-        }
-        else{
-            e.options.scope.selectionnerParOccurences([e.occurence]); 
-        }
-        
+        e.options.scope.selectionnerParOccurences([e.occurence], true);        
     };
 
     PanneauTable.prototype._deselectionEvent = function(e){
