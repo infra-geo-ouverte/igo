@@ -109,28 +109,27 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                     }
                 });
                
-                $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
-                    value.ajouterFiltre({filtre: function(occurence){
-                                                    if(occurence.vecteur.panneauTable.obtenirIndexParOccurence(occurence) == -1){
-                                                        return false;
-                                                    }
-                                                    else{
-                                                        return true;
-                                                    }  
-                                                
-                                            }, 
-                                            style: new Style({
-                                                    display:false,
-                                                    titre:'test'
-                                                })
-                                        });
-                })
-            }
-            else{
+                var contenuPageSeulement = function(occurence){
+                    return occurence.vecteur.panneauTable.obtenirIndexParOccurence(occurence) === -1;
+                };
 
                 $.each(this.options.couche.obtenirStyles(), function(index, value){
-                    value.reinitialiserFiltres();
+                    value.ajouterFiltre({
+                        id: 'contenuPageSeulement',
+                        style: {},
+                        titre: 'Page Seulement'
+                    });
+                    value.ajouterFiltre({
+                        id: 'contenuPageSeulementInvisible',
+                        filtre: contenuPageSeulement, 
+                        style: {visible: false},
+                        titre: 'Invisible'
+                    });
+                });
+            } else {
+                $.each(this.options.couche.obtenirStyles(), function(index, value){
+                    value.enleverFiltre('contenuPageSeulement');
+                    value.enleverFiltre('contenuPageSeulementInvisible');
                 });
                 
                 $.each(this.parent.obtenirOutils(), function(index,value){
@@ -138,10 +137,7 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                         value._bouton.enable();
                     }
                 });
-
-                this.options.couche.afficherTout();
             }
-
         } else if (this.options.type === 'selectionSeulement'){
 
             if((!lancementManuel && !this._bouton.checked) || (lancementManuel && this._bouton.checked)){
