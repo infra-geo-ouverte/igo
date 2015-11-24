@@ -924,7 +924,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
        if(a.occurence){
             var index = this._.obtenirIndexParOccurence(a.occurence);
             if(index!=-1){
-                this._._panel.getView().focusCell(index);
+                //this._._panel.getView().focusCell(index);
                 var view = this._._panel.getView();
                 var row = view.getRow(index);
                 Ext.fly(row).addClass('x-grid3-row-over');
