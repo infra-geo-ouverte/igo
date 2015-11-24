@@ -80,16 +80,9 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
         if (this.options.type === 'efface'){
             this.options.couche.deselectionnerTout();
         } else if (this.options.type === 'inverse'){
-             //fake le CTRL
-           // Igo.nav.ctrlPressed = true;
              this.options.couche.selectionnerInverse();
-           // $.event.trigger({type:'keydown'});
-
         } else if (this.options.type === 'complet'){
-            //fake le CTRL
-           // Igo.nav.ctrlPressed = true;
             this.options.couche.selectionnerTout();
-            //$.event.trigger({type:'keydown'});
         } else if (this.options.type === 'zoom'){
             this.options.couche.zoomerOccurences(this.options.couche.obtenirOccurencesSelectionnees());
         } else if (this.options.type === 'auto'){
