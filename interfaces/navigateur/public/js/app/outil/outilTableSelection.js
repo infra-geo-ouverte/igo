@@ -181,6 +181,12 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
         }
     };
 
+    OutilTableSelection.prototype.eteindre = function () {
+        if(this._bouton.xtype == "menucheckitem" && this._bouton.checked){
+            this._bouton.fireEvent('click');
+        }
+    }
+
      return OutilTableSelection;
 
 });
