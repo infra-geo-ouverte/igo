@@ -60,6 +60,7 @@ define(['outil'], function(Outil) {
         if (outil instanceof Outil) {
             outil.carte = this.carte;
             outil._init();
+            outil.parent = this;
             outil._ajoutCallback(this, this._ajouterOutilCallback, options);
         } else if (outil === '-') {
             this.ajouterDivision(options);

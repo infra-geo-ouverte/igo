@@ -31,6 +31,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         this.propriete = style || {};
         
         this.defautPropriete = {
+            visible: true,
             cursor: 'inherit',
             rayon: 6,
             couleur: '#ee9900',
@@ -100,7 +101,9 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         $.each(this._lookupOptionsOL, function(valueIGO, valueOL){
             var vTemp = opt[valueIGO];
             vTemp = that._traiterValeurIGO(valueIGO, vTemp);
-            _optionsOL[valueOL] = vTemp;
+            if(vTemp !== undefined){
+                _optionsOL[valueOL] = vTemp;
+            }
         });
 
         return _optionsOL;
@@ -122,7 +125,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             return valeur;
         }
         if(propriete === "visible"){
-            return Aide.toBoolean(valeur) === false ? "none": '';
+            return Aide.toBoolean(valeur) === false ? "none": Aide.toBoolean(valeur) === true ? "" : undefined;
         }
 
        return valeur;
@@ -183,7 +186,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
      * @param {*} valeur Valeur de la propriété
     */
     Style.prototype.definirPropriete = function(nom, valeur){
-        if(!valeur){
+        if(valeur === undefined){
             delete this.propriete[nom];
         } else {
             this.propriete[nom] = valeur;
@@ -202,7 +205,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
                 if(!this.parent._feature.style){
                     this.parent._feature.style = {};
                 }
-                if(!vTemp){
+                if(vTemp === undefined){
                     delete this.parent._feature.style[nomOL];
                 } else {
                     this.parent._feature.style[nomOL] = vTemp;
@@ -225,10 +228,21 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
     Style.prototype.ajouterFiltres = function(filtres){
         var that=this;
         $.each(filtres, function(key, value){
+            value._majFiltres = false;
             that.ajouterFiltre(value);
         });
+        this._majFiltres();
     };
     
+    Style.prototype._majFiltres = function() {
+        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
+            if(this.regle==='defaut'){
+                this.parent._layer.styleMap.styles['default'].rules=this._filtresOL;
+            };
+            this.parent._layer.styleMap.styles[this.regle].rules=this._filtresOL;
+            this.parent.rafraichir();
+        };
+    }
 
     Style.prototype._createFilterByFunction = function(filtre) {
         var that = this;
@@ -337,14 +351,16 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             $.each(this._lookupOptionsOL, function(valueIGO, valueOL){
                 var vTemp = style[valueIGO];
                 vTemp = that._traiterValeurIGO(valueIGO, vTemp);
-                _optionsOL[valueOL] = vTemp;
+                if(vTemp !== undefined){
+                    _optionsOL[valueOL] = vTemp;
+                }
             });
         }
-
         var filtreCombinaison;
         if(filterOL){
             filtreCombinaison= new OpenLayers.Rule({
                 name: options.titre,
+                title: options.titre,
                 filter: filterOL,
                 maxScaleDenominator: options.echelleMax,
                 minScaleDenominator: options.echelleMin,
@@ -353,6 +369,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         } else {
             filtreCombinaison= new OpenLayers.Rule({
                 name: options.titre,
+                title: options.titre,
                 elseFilter: true,
                 maxScaleDenominator: options.echelleMax,
                 minScaleDenominator: options.echelleMin,
@@ -360,16 +377,16 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
             });
         }
         
+        if(options.id){
+            filtreCombinaison.id = options.id;
+        }
+
         this._filtresOL.push(filtreCombinaison);
-        this.filtres.push({titre:options.titre, filtre: filtre, style: style});
+        this.filtres.push({id: options.id, titre: options.titre, filtre: filtre, style: style});
         
-        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
-            if(this.regle==='defaut'){
-                this.parent._layer.styleMap.styles['default'].rules=this._filtresOL;
-            };
-            this.parent._layer.styleMap.styles[this.regle].rules=this._filtresOL;
-            this.parent.rafraichir();
-        };
+        if(options._majFiltres !== false){
+            this._majFiltres()
+        }
     };
     
      /** 
@@ -399,13 +416,7 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
     Style.prototype.reinitialiserFiltres = function(){
         this._filtresOL=[];
         this.filtres=[];
-        if(this.parent && (this.parent.obtenirTypeClasse() === 'Vecteur' || this.parent.obtenirTypeClasse() === 'VecteurCluster' || this.parent.obtenirTypeClasse() === 'WFS')){
-            if(this.regle==='defaut'){
-                this.parent._layer.styleMap.styles['default'].rules=this._filtresOL;
-            };
-            this.parent._layer.styleMap.styles[this.regle].rules=this._filtresOL;
-            this.parent.rafraichir();
-        };
+        this._majFiltres();
     };  
     
     Style.prototype.evaluerFiltre = function(filtre, occurence){
@@ -445,6 +456,35 @@ define(['evenement', 'fonctions', 'aide', 'libs/extension/OpenLayers/FilterClone
         style.defautPropriete = this.defautPropriete;
         return style;
     };  
+
+    /** 
+     * Enlever un filtre parmi tous les styles
+     * @method
+     * @name Geometrie.Style#enleverFiltre
+     * @param {string} id Id du filtre à supprimer 
+     * @returns {Boolean} retour Confirmation si oui ou non un ou des filtres
+                                    ont été supprimé.
+    */
+    Style.prototype.enleverFiltre = function (id){
+        var that = this;
+        var retour = false;
+        
+        $.each(this.filtres, function(key, filtre){
+            if(filtre.id && that._filtresOL[key]){
+                if(id === filtre.id){
+                    that.filtres.splice(key, 1);
+                    that._filtresOL.splice(key, 1);
+                    retour = true;
+                    return false;
+                }
+            } 
+        });
+
+        this._majFiltres();
+
+        return retour;
+    };
+
     
     return Style;
 });

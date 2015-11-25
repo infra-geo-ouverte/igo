@@ -36,7 +36,6 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.styles={};
         this.templates={};
         this.defautOptions.rafraichissementPermis = true;
-        this.defautOptions.rafraichirMaxOccurence = 100;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
@@ -227,15 +226,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         
         var opt = opt || {};
         var occurences = this.obtenirOccurencesSelectionnees();
-        this.definirRafraichissementPermis('debut', occurences);
-        var that=this;
-        $.each(occurences, function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-                that.deselectionnerOccurence(value);
-            }
-        });
-        this.definirRafraichissementPermis('fin');
-        
+        this.processThis('deselectionnerOccurence',occurences,opt);
+
     };
     
       /** 
@@ -248,18 +240,42 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         
         var opt = opt || {};
         var occurences = this.obtenirOccurences();
-        this.definirRafraichissementPermis('debut', occurences);
-        var that=this;
-        
-         $.each(occurences, function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-                that.selectionnerOccurence(value);
-            }
-        });
-        this.definirRafraichissementPermis('fin');
+        this.processThis('selectionnerOccurence', occurences, opt);
+
     };
-    
-       /** 
+
+
+    /**
+    * Effectuer une méthode sans rafraichir la couche.
+    * @method
+    * @name Couche.Vecteur#processThis
+    * @param {func} la méthode a effectuer
+    * @param {param} Array contenant le paramètre d'une méthode de This (Vecteur)
+                      OU l'objet contenant la méthode
+    * @param {opt} exceptions
+    */
+    Vecteur.prototype.processThis = function(func, param, opt){
+        var that=this;
+        this.options.rafraichissementPermis = false;
+
+        if(this[func] !== undefined){
+            $.each(param, function(key, value){
+                if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
+                    that[func](value);
+                }
+            });
+        }
+        else{
+            $.each(param, function(key, value){
+                value[func](opt);
+            });
+        }
+
+        this.options.rafraichissementPermis = true;
+        this.rafraichir();
+    }
+
+       /**
     * Inverser la sélection des occurences
     * @method 
     * @name Couche.Vecteur#selectionnerInverse
@@ -268,21 +284,11 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.prototype.selectionnerInverse = function(opt) { 
         
         var opt = opt || {};
-        var occurences = this.obtenirOccurences();
-        this.definirRafraichissementPermis('debut', occurences);
-        var that=this;
-        //todo: throw error si trop occurences... 
-          $.each(occurences, function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-             if(value.selectionnee){
-                 that.deselectionnerOccurence(value);
-               } else{
-                 that.selectionnerOccurence(value);
-            }  
-         }}); 
-     
-       this.definirRafraichissementPermis('fin');
-        
+        var selectionPassee = this.obtenirOccurencesSelectionnees();
+        var selectionFutur = this.obtenirOccurencesNonSelectionnees();
+        this.processThis('deselectionnerOccurence', selectionPassee, opt);
+        this.processThis('selectionnerOccurence', selectionFutur, opt);
+
     };
     
     /** 
@@ -485,20 +491,49 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
 
-    Vecteur.prototype.cacherOccurence = function(occurence,tousLesStyles) { 
-        if(!occurence || occurence.vecteur !== this){return false};
+
+    Vecteur.prototype.cacherOccurence = function(occurence,tousLesStyles) {
         
-        var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
-             
-        occurence.cacher(tousStyles);
+         var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+
+        if(Array.isArray(occurence)){
+            $.each(occurence, function(index, value){
+                value.cacher(tousStyles);
+            })
+        }else{
+            if(!occurence || occurence.vecteur !== this){return false};
+            occurence.cacher(tousStyles);
+        }
     };
 
-    Vecteur.prototype.afficherOccurence = function(occurence) { 
-        if(!occurence || occurence.vecteur !== this){return false};
-        occurence.afficher();
+    Vecteur.prototype.cacherTout = function(tousLesStyles) {
+
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        var selection = this.obtenirOccurences();
+        this.processThis('cacher', selection, tousLesStyles);
+
     };
-    
-    /** 
+
+    Vecteur.prototype.afficherOccurence = function(occurence, tousStyles) {
+
+        var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+
+        if(Array.isArray(occurence)){
+            this.processThis('afficher', occurence, tousStyles);
+        }else{
+            if(!occurence || occurence.vecteur !== this){return false};
+            occurence.afficher(tousStyles);
+        }
+    };
+
+    Vecteur.prototype.afficherTout = function(tousLesStyles) {
+
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        var selection = this.obtenirOccurences();
+        this.processThis('afficher', selection, tousLesStyles);
+
+    };
+    /**
      * Obtenir l'emprise de toutes les occurences de la couche
      * @method 
      * @name Couche.Vecteur#obtenirLimites
@@ -658,12 +693,14 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
             if(!occurence){
                 this._layer.redraw();  
                 this.rafraichirLegende();
+                this.declencher({type: "vecteurRafraichi", vecteur:this, occurence: occurence});
                 return true;
             }
             this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
-        }
-        
+            this.declencher({type: "vecteurRafraichi", vecteur:this, occurence: occurence});
+            return true;
+        }      
     };
     
     Vecteur.prototype.rafraichirLegende = function() {
@@ -696,7 +733,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
       
         return true;
     };
-    
+
     Vecteur.Controles = function(_){
         this._ = _;
         if (this._.options.simplificationZoom) {
@@ -736,6 +773,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
             this._dragControl.handlers['feature'].stopDown = true;
             this._dragControl.handlers['feature'].stopClick = true;
         };*/
+       
     };
 
     Vecteur.Controles.prototype.activerEdition = function(options) {
@@ -830,58 +868,8 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
         //that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
     };
-    
-    
-    Vecteur.prototype.afficherSelectionSeulement = function(){     
-        var selection = this.obtenirOccurencesNonSelectionnees();
-        this.definirRafraichissementPermis('debut', selection);
-        $.each(selection, function(key, occurence){
-                occurence.cacher(true);
-        });
-        selection = this.obtenirOccurencesSelectionnees();
-        $.each(selection, function(key, occurence){
-                occurence.afficher(true);
-        });
-        this.definirRafraichissementPermis('fin');
-    }
-    
-    Vecteur.prototype.cacherTous = function(){
-        
-        var selection = this.obtenirOccurences();
-        this.definirRafraichissementPermis('debut', selection);
-        $.each(selection, function(key, occurence){
-                occurence.cacher(true);
-        });
-        this.definirRafraichissementPermis('fin');
-    }
-    
-     Vecteur.prototype.afficherTous = function(){
-        
-        var selection = this.obtenirOccurences();
-        this.definirRafraichissementPermis('debut', selection);
-        $.each(selection, function(key, occurence){
-                occurence.afficher(true);
-        });
-        this.definirRafraichissementPermis('fin');
-    }
-    
-    Vecteur.prototype.definirRafraichissementPermis = function (tag, occurence){
-        switch(tag){
-            case 'debut':
-                if(occurence.length > this.options.rafraichirMaxOccurence){
-                    this.options.rafraichissementPermis = false;
-                }
-                break;
-            case 'fin':
-                if(!this.options.rafraichissementPermis){
-                    this.options.rafraichissementPermis = true;
-                }
-                this.rafraichir();
-                break;
-        }
-    }
-    
-  /*  Vecteur.Controles.prototype.activerClique = function() {   
+
+  /*  Vecteur.Controles.prototype.activerClique = function() {
         this._.carte.ajouterDeclencheur('occurenceClique', this._clique, {scope: this});
     };
     
