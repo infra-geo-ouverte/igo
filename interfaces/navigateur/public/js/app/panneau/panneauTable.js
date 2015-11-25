@@ -923,7 +923,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.Controles.prototype.survolCarte = function(a,b,c) {
        if(a.occurence){
             var index = this._.obtenirIndexParOccurence(a.occurence);
-            if(index!=-1){
+            if(index && index!=-1){
                 //this._._panel.getView().focusCell(index);
                 var view = this._._panel.getView();
                 var row = view.getRow(index);
@@ -935,7 +935,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.Controles.prototype.finSurvolCarte = function(a,b,c) {
        if(a.occurence){
             var index = this._.obtenirIndexParOccurence(a.occurence);
-            if(index != -1){
+            if(index && index != -1){
                 var view = this._._panel.getView();
                 var row = view.getRow(index);
                 Ext.fly(row).removeClass('x-grid3-row-over');

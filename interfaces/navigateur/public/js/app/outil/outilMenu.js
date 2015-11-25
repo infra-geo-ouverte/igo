@@ -204,6 +204,14 @@ define(['outil'], function(Outil) {
     OutilMenu.prototype.cacher = function(){
         //this._bouton.setHidden(true);
     };
+
+    OutilMenu.prototype.releverBouton = function(){
+        $.each(this.obtenirOutils(), function(key,value){
+            if(value.relever !== undefined){
+                value.relever();
+            }
+        });
+    }
               
     return OutilMenu;
 
