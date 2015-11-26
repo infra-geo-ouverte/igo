@@ -494,12 +494,12 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
             if(symbolizers[0].display === 'none'){
                 return false;
             } else if (symbolizers[0].externalGraphic){
-                var diviseur = symbolizers[0].graphicHeight/16;
+                var diviseur = symbolizers[0].graphicHeight/20;
                 if (diviseur){
-                    symbolizers[0].graphicHeight = symbolizers[0].graphicHeight/diviseur; //34
-                    symbolizers[0].graphicWidth = symbolizers[0].graphicWidth/diviseur;  //20
-                    symbolizers[0].graphicXOffset = 0; //-10
-                    symbolizers[0].graphicYOffset = -symbolizers[0].graphicHeight/2;
+                    symbolizers[0].graphicHeight = symbolizers[0].graphicHeight/diviseur;
+                    symbolizers[0].graphicWidth = symbolizers[0].graphicWidth/diviseur;  
+                    symbolizers[0].graphicXOffset = undefined;
+                    symbolizers[0].graphicYOffset = undefined;
                 }
             }
         } else {
