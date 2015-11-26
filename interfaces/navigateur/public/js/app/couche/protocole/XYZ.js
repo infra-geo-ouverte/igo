@@ -55,10 +55,7 @@ define(['couche', 'aide'], function(Couche, Aide) {
     */
     XYZ.prototype._init = function(){
         Couche.prototype._init.call(this);
-        //TODO: voir pour bien gérer inclure tous les traitements de tuile.js
-        //selon le host, appeler les bonnes tuiles... voir Tuiles.getURLs_MapCache()
-        //mettre une variable d'environnement qui pointe vers le bon serveur de tuile.
-        //et pour les printOptions....
+        
         this._layer = new OpenLayers.Layer.XYZ(
             this.options.titre,
             getXYZurl(this.options.url),
