@@ -14,7 +14,7 @@ define(['occurence'], function(Occurence) {
                     throw err;
                 }
        
-                if (this.internalProjection && this.externalProjection) {
+                if (this.internalProjection && this.externalProjection && geometry !== null) {
                     geometry.transform(this.externalProjection, 
                                        this.internalProjection); 
                 }     

@@ -40,14 +40,12 @@ $di->set('view', function () use ($config) {
 
     $view = new igoView();
     $view->config = $config;
-    
-    //$view->host=$config->igo->host;
-    if(isset($config->application->pilotage)){
-        //vraiment utile?
-        $view->metadonneesViewsDir=$config->application->pilotage->viewsDir;
+
+    if(isset($config->mapserver) && isset($config->mapserver->host)){
+        $view->host = $config->mapserver->host;
     }
+
     $view->viewsDir=$config->application->navigateur->viewsDir;
-   // $view->mapserver_path=$config->mapserver->url;
     
     $view->setViewsDir($config->application->navigateur->viewsDir);
 
@@ -116,6 +114,50 @@ $di->set('dispatcher', function() use($di){
 
 }, true);
 
+/**
+ *    Logger
+**/
+$di->set('logger', function () use ($config) {
+    $pathLogFile = $config->repertoireLogs . "igo.log";
+    return new IGO\Modules\Logger($pathLogFile, $config->application->debug);
+}, true);
+
+
+/**
+ * Encryption pour les mots de passes des couches securisées
+ */
+
+$di->set('crypt', function () use ($config) {
+
+    $crypt = new Phalcon\Crypt();
+    $crypt->setCipher('blowfish');
+    $crypt->setMode('cbc');
+
+    if (isset($config->application->authentification['secretXmlFile'])) {
+       $xmlPath = $config->application->authentification->secretXmlFile;
+    }
+    
+    if (empty($xmlPath)) {
+        header('Content-Type: text/html; charset=utf-8');
+        http_response_code(401);
+        die("Le paramètre secretXmlFile n'a pas été trouvé dans le config.php");
+    }
+    
+    if (file_exists($xmlPath) && !empty($xmlPath) ) {
+        $key = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
+    }
+
+    if (empty($key)) {
+        header('Content-Type: text/html; charset=utf-8');
+        http_response_code(401);
+        die("La clé n'a pas été trouvée dans ce chemin" . $xmlPath . "ou elle n'existe pas!");
+    }
+
+    $crypt->setKey($key['authentification']);
+
+    return $crypt;
+}, true);
+
 
 /**
  * Database connection is created based in the parameters defined in the configuration file
@@ -181,9 +223,17 @@ if($config->offsetExists("database")) {
  * Start the session the first time some component request the session service
  */
 $di->setShared('session', function () {
-   
+    $cookieName = 'sessionIGO';
     $session = new SessionAdapter();
-    session_name('sessionIGO');
+
+    if (isset($_COOKIE[$cookieName])) {
+        $sessid = $_COOKIE[$cookieName];
+        if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $sessid)) {
+            unset($_COOKIE[$cookieName]);
+            setcookie($cookieName, '', time() - 3600, '/');
+        }     
+    } 
+    session_name($cookieName);
     $session->start();
 
     return $session;
@@ -196,6 +246,14 @@ $di->setShared('session', function () {
 $di->set('router', function(){
     $router = new \Phalcon\Mvc\Router();
     //Define a route
+    $router->add(
+        "#^/([a-zA-Z0-9_-]++)#",
+        array(
+            "controller" => "error",
+            "action" => "error404"
+        )
+    );
+
     $router->add(
         "/contexte/{contexte}",
         array(
@@ -226,6 +284,14 @@ $di->set('router', function(){
             "controller" => "igo",
             "action"     => "groupe",
             "coucheid" => 1
+        )
+    );
+
+    $router->add(
+        "/connexion/{action}",
+        array(
+            "controller" => "connexion",
+            "action" => 1
         )
     );
        
@@ -282,39 +348,5 @@ class igoView extends Phalcon\Mvc\View {
     
     public function ajouterBaseUri(){
         print($this->config->application->baseUri);
-    }
-    
-    /**
-     * Ajoute tous les scripts Javascript requis pour chacun des modules.
-     * 
-     * @return void
-     */
-    public function ajouterJavascriptModules() {
-        $chargeurModules = $this->getDi()->get('chargeurModules');
-        $librairies = $chargeurModules->obtenirLibrairiesJavascript();
-
-        foreach($librairies as $url) {
-            print('<script src="' . $url . '" type="text/javascript"></script>' . PHP_EOL);
-        }
-    }
-
-    /**
-     * Ajoute un module RequireJS qui expose des configurations
-     * spécifiées dans le fichier de configuration IGO.
-     * 
-     * @return string Un contenu text définissant le module de configuration.
-     */
-    public function ajouterModuleConfigurations() {
-        $config = $this->getDi()->get('config');
-        
-        echo '
-        <script type="text/javascript">
-            define("Configuration", [], function() {
-                return {
-                    uri: ' . json_encode($config->get('uri')) . '
-                };
-            })
-        </script>
-        ';
     }
 }

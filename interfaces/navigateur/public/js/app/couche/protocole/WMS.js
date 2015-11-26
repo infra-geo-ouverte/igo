@@ -303,7 +303,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         if(this.options.mode === 'getCapabilities'){
             this._getCapabilities(target, callback, optCallback);
         }else {
-            Couche.prototype._ajoutCallback.call(this,target, callback, optCallback);
+            Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
         }
     };
     

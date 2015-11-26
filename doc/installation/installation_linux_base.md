@@ -33,6 +33,8 @@ git clone https://github.com/infra-geo-ouverte/igo-lib.git librairie
 cp config/config.exempleSimple.php config/config.php  <br /> 
 Modifier le fichier config/config.php
 
+## Compiler les js pour la prod
+Voir igo/interfaces/navigateur/build/readme.txt
 
 ## Modification de la configuration d'Apache
 ```

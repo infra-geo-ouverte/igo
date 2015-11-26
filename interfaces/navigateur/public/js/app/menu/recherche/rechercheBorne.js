@@ -77,9 +77,19 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-       var styles = {defaut: {visible: false}, select: style};
+        var survolStyle = style.cloner();
+        survolStyle.definirPropriete('opacite', 0.8);
 
-        var vecteur = this.creerVecteurRecherche(styles);
+        var styles = {defaut: {visible: false}, select: style, survol: survolStyle};
+        if(this.options.idResultatTable){
+            styles.defaut = style;
+        }
+        var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
+    };
+   
+    RechercheBorne.prototype.ajouterOccurences = function(e) {
+        var vecteur = e.target;
+        var responseJSON = e.options.params.responseJSON;
         $.each(responseJSON.borneReponseListe, function(key, value) {
             var point;
             if (!value.localisation) {

@@ -43,12 +43,12 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     };
 
     OutilInfo.prototype.activerEvent = function () {
-        this.carte.ajouterDeclencheur('desactiverClique', this.releverBouton, {scope: this});
+        this.carte.ajouterDeclencheur('desactiverClique', this.relever, {scope: this});
         this.carte.ajouterDeclencheur("clique", this.cliqueCarte, {scope: this});
     };
 
     OutilInfo.prototype.desactiverEvent = function () {
-        this.carte.enleverDeclencheur('desactiverClique', this.releverBouton);
+        this.carte.enleverDeclencheur('desactiverClique', this.relever);
         this.carte.enleverDeclencheur("clique", this.cliqueCarte);
     };
 

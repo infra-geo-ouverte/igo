@@ -126,8 +126,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
         
-        this._getLayer().events.register('loadstart',this,function(e){this.afficherChargement()});
-        this._getLayer().events.register('loadend',this,function(e){this.masquerChargement()});
+        this._getLayer().events.register('loadstart', this, function(e){this.afficherChargement()});
+        this._getLayer().events.register('loadend', this, function(e){this.masquerChargement()});
+        this._getLayer().events.register('visibilitychanged', this, function(e){this._visibiliteChangee()});
     };
     
     /** 
@@ -225,6 +226,17 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         return this._getLayer().getVisibility();
     };
     
+     /** 
+    * Vérifie si la couche peu être affichée selon le minimum
+    * et maximum de résolution
+    * @method 
+    * @name Couche#estDansPortee
+    * @returns {Boolean}
+    */
+    Couche.prototype.estDansPortee = function() { 
+        return this._getLayer().inRange;
+    };
+    
     /** 
     * Activer la couche
     * @method 
@@ -259,8 +271,25 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     };
     
     
+    /** 
+    * Définir la transparence de la couche 
+    * @method 
+    * @name Couche#definirOpacite
+    * @param {Nombre} opacite nombre entre 0 et 1
+    */
     Couche.prototype.definirOpacite = function(opacite) { 
         this._getLayer().setOpacity(opacite);
+    };
+    
+    
+    /** 
+    * Obtenir la transparence de la couche
+    * @method 
+    * @name Couche#obtenirOpacite
+    * @returns {Nombre} transparence entre 0 et 1
+    */    
+    Couche.prototype.obtenirOpacite = function() { 
+        return this._getLayer().opacity;
     };
     
      
@@ -379,6 +408,12 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             $(div).find(".layerArboLoading").hide();
         }
     };
+
+    Couche.prototype._visibiliteChangee = function(){
+        this.declencher({
+            type: this.estActive() ? "activee": "desactivee"
+        }); 
+    }
     
     return Couche;
 });

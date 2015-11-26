@@ -1,7 +1,14 @@
-define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
+define(['aide'], function(Aide) {
     function Metadonnee() {};
  
     Metadonnee.getLayerCapabilities = function(couche){   
+        var externe = this.getLayerCapabilitiesExterne(couche);
+        if(!externe){
+            Aide.afficherMessage("Métadonnée invalide", "La métadonnée associée à la couche n'est pas valide.")
+        }
+    }
+
+    Metadonnee.getLayerCapabilitiesExterne = function(couche){   
         this.couche=couche;
         var nomClasse = couche.options.metadonnee;
         if(Aide.toBoolean(nomClasse) === true){
@@ -25,59 +32,7 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
             this.parse({responseText: "<iframe style='width:800px; height:800px;' src='"+lienExt+"'></iframe>"});
             return true; 
         }  
-        
-        var szURL = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/meta_requete_gn.php?id="+ encodeURIComponent(nomClasse));
-        var catalogue = Aide.obtenirConfig("Metadonnee.catalogueUrl") || couche.options.metadonneeCatalogueUrl;
-        if(catalogue){
-            nomClasse = decodeURIComponent(catalogue).replace("{id}", nomClasse);
-        }
-        if(decodeURIComponent(nomClasse).search("://") !== -1){
-            szURL = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/meta_requete_gn.php?url_metadata="+ encodeURIComponent(decodeURIComponent(nomClasse)));
-        }
-
-        OpenLayers.Request.GET({
-            url: szURL,
-            scope: this,
-            callback: this.parseXML
-        });
-    };
-
-    Metadonnee.parseXML = function(response){
-        var liste_id = response.responseXML.getElementsByTagName('geonetwork_metaid');
-        var id_nomClasse = liste_id[0].getElementsByTagName('nomClasseid')[0].textContent;
-        var id_GN = liste_id[0].getElementsByTagName('id')[0].textContent;
-        if(BrowserDetect.browser == "Explorer"){
-            id_GN = liste_id[0].getElementsByTagName('id')[0].text;
-        }
-        
-        //si pas de resultat avec geonetwork
-        if (id_GN == -99 || id_GN == null) {
-            var message = {responseText: "Aucune information disponible.\r\n"}
-            this.parse(message);
-	} else {   
-            if(BrowserDetect.browser == "Explorer") {
-                id_nomClasse = liste_id[0].getElementsByTagName('nomClasseid')[0].text;
-            }
-            var szURL_GN2 = Aide.utiliserProxy(Aide.obtenirUrlServices()+"metaGN/iframewrapper.php");
-            
-            var metaURL = Aide.obtenirUrlServices()+"metaGN/meta_gn-details.php?id="+ encodeURIComponent(id_nomClasse);
-
-            if(decodeURIComponent(id_nomClasse).search("://") !== -1){
-                metaURL = Aide.obtenirUrlServices()+"metaGN/meta_gn-details.php?url_metadata="+ encodeURIComponent(decodeURIComponent(id_nomClasse));
-            }
-
-            if(this.couche.options.metadonneeExterne){
-                window.open(metaURL, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
-                return true;
-            }
-            
-            OpenLayers.Request.GET({
-                url: szURL_GN2,
-                params: {url_iframe: Aide.utiliserProxy(metaURL)},
-                scope: this,
-                callback: this.parse
-            });
-	}
+        return false;
     }
 
     /**
@@ -116,6 +71,7 @@ define(['aide', 'browserDetect'], function(Aide, BrowserDetect) {
         oMetadataWindow.add(oMetadataPanel);
         oMetadataWindow.show();    
     };
+
 
     return Metadonnee;
 });

@@ -1,7 +1,14 @@
-require(['ligne', 'point'], function (Ligne, Point) {
+require(['ligne', 'point', 'limites'], function (Ligne, Point, Limites) {
 
     module('Ligne',{
         setup: function() {
+            Igo = {
+                Geometrie: {
+                    Point: Point,
+                    Ligne: Ligne,
+                    Limites: Limites
+                }
+            }
             this.ligne = new Ligne([[-7933887.5829941, 5909591.6735735], [-7633887.5529941, 5509591.6735735], [-7833887.5829941, 5709591.6735735]]);
         }
     });

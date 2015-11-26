@@ -144,16 +144,28 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-        var styles = {defaut: {visible: false}, select: style};
+        var survolStyle = style.cloner();
+        survolStyle.definirPropriete('opacite', 0.8);
 
-        var vecteur = this.creerVecteurRecherche(styles);
+        var styles = {defaut: {visible: false}, select: style, survol: survolStyle};
+        if(this.options.idResultatTable){
+            styles.defaut = style;
+        }
+        var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {data: data});
+
+    };
+   
+    RechercheGoogle.prototype.ajouterOccurences = function(e) {
+        var vecteur = e.target;
+        var data = e.options.params.data;
+        console.log(data);
         $.each(data, function(key, value) {  //data.results
-            var x = value.geometry.location.F; //value.geometry.location.lng;
-            var y = value.geometry.location.A; //value.geometry.location.lat;
+            var x = value.geometry.location.lng();
+            var y = value.geometry.location.lat(); 
             var point = new Point(x, y);
-            var minMaxLon = value.geometry.viewport.va;
-            var minMaxLat = value.geometry.viewport.Da  || value.geometry.viewport.Ea;   
-            var limites = new Limites(minMaxLon.j, minMaxLat.A, minMaxLon.A, minMaxLat.j);
+            var northEast = value.geometry.viewport.getNorthEast();
+            var southWest = value.geometry.viewport.getSouthWest()
+            var limites = new Limites(southWest.lng(), southWest.lat(), southWest.lng(), northEast.lat());
             //var limites = new Limites(value.geometry.viewport.southwest.lng, value.geometry.viewport.southwest.lat, value.geometry.viewport.northeast.lng, value.geometry.viewport.northeast.lat);
             var projCarte = Aide.obtenirNavigateur().carte.obtenirProjection();
             point = point.projeter("EPSG:4326", projCarte);

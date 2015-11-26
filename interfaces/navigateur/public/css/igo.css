@@ -435,3 +435,7 @@ div.olControlMousePosition {
     top: 3px;
     left: 5px;
 }
+
+#occurencesResultatsWindow .x-panel-body {
+    overflow: auto;
+}

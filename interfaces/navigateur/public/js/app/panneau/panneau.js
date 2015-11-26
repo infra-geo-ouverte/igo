@@ -1,16 +1,16 @@
-/** 
+/**
  * Module pour l'objet {@link Panneau}.
  * @module panneau
- * @requires aide 
- * @requires evenement 
+ * @requires aide
+ * @requires evenement
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
 
 define(['aide', 'evenement'], function(Aide, Evenement) {
     var compteur=0;
-    
-    /** 
+
+    /**
      * Création de l'object Panneau.
      * @constructor
      * @name Panneau
@@ -18,7 +18,7 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
      * @alias panneau:Panneau
      * @requires panneau
      * @param {dictionnaire} [options] Liste des options du panneau
-     * @param {string} [options.id='panneau##'] Identifiant du panneau. ## est un nombre généré. 
+     * @param {string} [options.id='panneau##'] Identifiant du panneau. ## est un nombre généré.
      * @param {string} [options.position='nord'] Position du navigateur. Choix possibles: nord, sud, ouest, est
      * @param {string} [options.titre] Titre du Panneau
      * @param {Entier} [options.dimension=100] Dimension du panneau. Largeur si positionné à l'ouest ou à l'est. Hauteur pour le nord et le sud.
@@ -35,7 +35,8 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
         this._panel;
         this.carte;
         this.options = options || {};
-        this.defautOptions = { 
+        this.optionsXML = options;
+        this.defautOptions = {
             position: 'nord',
             id: 'panneau',
             titre: '',
@@ -47,32 +48,32 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
             _layout:'auto',
             ouvert: true
             //defaults: {},
-            //items: [] 
+            //items: []
             //listeners: {}
         };
     };
-    
+
     Panneau.prototype = new Evenement();
     Panneau.prototype.constructor = Panneau;
-    
-    /** 
-     * Initialisation de l'object Panneau. 
+
+    /**
+     * Initialisation de l'object Panneau.
      * Est appelé par {@link Navigateur#ajouterPanneau}
      * this._extOptions sera fusionné s'il existe déjà.
-     * @method 
+     * @method
      * @name Panneau#_init
     */
     Panneau.prototype._init = function(){
         var that=this;
         if(this.options && this.options.css){
             Aide.chargerCSS(this.options.css);
-        };    
-  
+        };
+
         //Compteur à ajouter au ID s'il n'est pas défini par l'utilisateur.
         compteur++;
         if(!this.options.id){
             this.options.id = this.defautOptions.id + compteur;
-        } 
+        }
         this.defautOptions = $.extend({}, this.defautOptions, Aide.obtenirConfig(this.obtenirTypeClasse()));
         this.options = $.extend({}, this.defautOptions, this.options);
         if(!this._panel && this.options.init != false){
@@ -82,7 +83,7 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
             opt.items = opt.items || [];
             if(!opt.listeners.afterrender){
                 opt.listeners.afterrender = function(e) {
-                    that.callbackCreation();  
+                    that.callbackCreation();
                 };
             }
             this._extOptions = $.extend({
@@ -105,7 +106,7 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
                 scope: this,
                 listeners: opt.listeners
             }, this._extOptions, this.options._extOptions);
-            
+
             if(!this._extOptions.xtype){
                 this._panel = new Ext.Panel(this._extOptions);
             } else if (this._extOptions.xtype === 'grid') {
@@ -121,10 +122,10 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
     Panneau.prototype.callbackCreation = function(){
         this.declencher({ type: 'init'+this.obtenirTypeClasse(), panneau: this });
     };
-    
-    /** 
+
+    /**
      * Obtenir le panneau ExtJS
-     * @method 
+     * @method
      * @private
      * @name Panneau#_getPanel
      * @returns {Objet} Objet ExtJS
@@ -137,20 +138,20 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
         }
         return this._panel;
     };
-    
-    /** 
+
+    /**
      * Obtenir l'identifiant du panneau
-     * @method 
+     * @method
      * @name Panneau#obtenirId
      * @returns {String} Id du Panneau
     */
     Panneau.prototype.obtenirId = function(){
         return this._getPanel().id;
     };
-    
-    /** 
+
+    /**
      * Obtenir le titre du panneau
-     * @method 
+     * @method
      * @name Panneau#obtenirTitre
      * @returns {String} Titre du Panneau
     */
@@ -158,15 +159,20 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
         if(this._panel && this._panel.title){
             return this._panel.title;
         }
-        return this.options.titre;
+        if(this.options.titre){
+            return this.options.titre;
+        }
+
+        return this.defautOptions.titre;
+
     };
-    
+
     Panneau.prototype.definirTitre = function(titre){
         if(!this._panel){return false}
         this._panel.setTitle(titre);
     };
 
-    
+
     /**
     * Obtenir le type de la classe du panneau
     * @method
@@ -177,40 +183,40 @@ define(['aide', 'evenement'], function(Aide, Evenement) {
         return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
     };
 
-    /** 
+    /**
      * Redessiner le layout du panneau
-     * @method 
+     * @method
      * @name Panneau#rafraichir
     */
     Panneau.prototype.rafraichir = function(){
             this._getPanel().doLayout();
     };
-    
-    /** 
+
+    /**
      * Associer une carte au panneau
      * Est appelé par {@link Navigateur#ajouterPanneau}
-     * @method 
+     * @method
      * @name Panneau#definirCarte
      * @param {Carte} carte Carte à associer au panneau
     */
     Panneau.prototype.definirCarte = function(carte) {
         this.carte = carte;
     };
-    
+
     Panneau.prototype.ouvrir = function(){
         return this._getPanel().expand();
     };
-    
+
     Panneau.prototype.fermer = function(){
         return this._getPanel().collapse();
     };
-    
+
     Panneau.prototype.avantFermeture = function(){};
-    
+
     Panneau.prototype.majContenu = function(contenu){
         this._panel.body.update(contenu);
     };
-    
+
     return Panneau;
-    
+
 });

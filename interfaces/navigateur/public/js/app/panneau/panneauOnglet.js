@@ -1,12 +1,12 @@
-/** 
+/**
  * Module pour l'objet {@link Panneau.PanneauOnglet}.
  * @module panneauOnglet
- * @requires panneau 
+ * @requires panneau
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
 define(['panneau'], function(Panneau) {
-     /** 
+     /**
      * Création de l'object Panneau.PanneauOnglet.
      * Pour la liste complète des paramètres, voir {@link Panneau}
      * @constructor
@@ -21,7 +21,7 @@ define(['panneau'], function(Panneau) {
     */
     function PanneauOnglet(options) {
         this.options = options || {};
-        
+
         this.monPanneauOnglet = new Ext.TabPanel({
             activeTab: 0,
             enableTabScroll:true
@@ -32,16 +32,16 @@ define(['panneau'], function(Panneau) {
             items:[this.monPanneauOnglet],
             _layout: 'fit'
         });
-        this.listeOnglets = []; 
+        this.listeOnglets = [];
     };
-    
+
     PanneauOnglet.prototype = new Panneau();
     PanneauOnglet.prototype.constructor = PanneauOnglet;
-   
-   
-     /** 
-     * Initialisation de l'object Panneau. 
-     * @method 
+
+
+     /**
+     * Initialisation de l'object Panneau.
+     * @method
      * @name PanneauOnglet#_init
     */
     PanneauOnglet.prototype._init = function(){
@@ -51,10 +51,10 @@ define(['panneau'], function(Panneau) {
             this.ajouterPanneaux(this.options.panneaux);
         }
     };
-    
-    /** 
+
+    /**
      * Ajouter des onglets
-     * @method 
+     * @method
      * @name PanneauOnglet#ajouterPanneaux
      * @param {Tableau} panneaux Liste des {@link Panneau}
     */
@@ -64,25 +64,25 @@ define(['panneau'], function(Panneau) {
             that.ajouterPanneau(value);
         });
     };
-    
-    /** 
+
+    /**
      * Ajouter un onglet
-     * @method 
+     * @method
      * @name PanneauOnglet#ajouterPanneau
      * @param {Panneau} panneau Onglet à ajouter
     */
     PanneauOnglet.prototype.ajouterPanneau = function(panneau){
-        panneau.carte=this.carte;  
+        panneau.carte=this.carte;
         panneau.parent = this;
         panneau._init();
-  
+
        /* var onglet = new Ext.Panel({
             title: panneau.obtenirTitre() || 'Onglet',
             items:[panneau._getPanel()],
             height:'fit',
             layout: 'fit',
             hidden: false,
-            autoScroll: true 
+            autoScroll: true
         });*/
         var onglet = panneau._getPanel();
         if(panneau.options.fermable){
@@ -90,11 +90,11 @@ define(['panneau'], function(Panneau) {
         }
 
         this.monPanneauOnglet.add(onglet);
-        this.listeOnglets.push(panneau); 
+        this.listeOnglets.push(panneau);
         if(!this._panel.items.items[0].activeTab){
             this._panel.items.items[0].setActiveTab(0);
         }
-        
+
         this.declencher({ type: 'ajouterPanneau', panneau: panneau });
     };
 
@@ -105,32 +105,32 @@ define(['panneau'], function(Panneau) {
         this._panel.items.items[0].remove(onglet);
         this.listeOnglets = $.grep(this.listeOnglets, function(value) { return value != panneau; });
     };
-    
+
     PanneauOnglet.prototype.activerPanneau = function(panneau){
         var onglet = panneau._getPanel();
         this._panel.items.items[0].setActiveTab(onglet);
     };
-    
-    
-    /** 
+
+
+    /**
      * Obtenir la liste des panneaux (onglets)
-     * @method 
+     * @method
      * @name PanneauOnglet#obtenirPanneaux
      * @returns {Tableau} Liste des {@link Panneau}
     */
     PanneauOnglet.prototype.obtenirPanneaux = function(){
         return this.listeOnglets;
     };
-    
-    /** 
+
+    /**
      * Obtenir le panneau (l'onglet) ayant l'identifiant fourni en intrant
-     * @method 
+     * @method
      * @name PanneauOnglet#obtenirPanneauParId
      * @param {String} id Identifiant de du panneau recherché
      * @returns {Panneau} Instance de {@link Panneau}
-    */    
+    */
    PanneauOnglet.prototype.obtenirPanneauParId = function(id, niveau){
-        var item; 
+        var item;
         niveau = niveau || 1;
         $.each(this.obtenirPanneaux(), function(key, value){
             if(value.obtenirId() === id){
@@ -146,9 +146,9 @@ define(['panneau'], function(Panneau) {
         });
         return item;
     };
-    
+
     PanneauOnglet.prototype.obtenirPanneauxParType = function(type, niveau){
-        var panneaux=[]; 
+        var panneaux=[];
         niveau = niveau || 1;
         $.each(this.obtenirPanneaux(), function(key, value){
             if(value.obtenirTypeClasse() === type){
@@ -160,19 +160,17 @@ define(['panneau'], function(Panneau) {
         });
         return panneaux;
     };
-    
+
     PanneauOnglet.prototype._beforeCloseTab = function(element){
-        this.listeOnglets = $.grep(this.listeOnglets, function(value) { 
+        this.listeOnglets = $.grep(this.listeOnglets, function(value) {
             if(value._panel === element){
                 value.avantFermeture();
             }
-            return value._panel != element; 
+            return value._panel != element;
         });
-        
+
     };
-    
+
     return PanneauOnglet;
-    
+
 });
-       
-    
