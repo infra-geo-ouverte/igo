@@ -12,14 +12,13 @@ Fichier XML de configuration
 			* [1.1.1.6 Panneau Onglet](#panneauonglet)
 			* [1.1.1.7 Panneau table](#panneautable)
 			* [1.1.1.8 Création d'un panneau personnalisé](#creation-panneau-personnalisé)
-			* [1.1.2 Élément de panneau accordeon](#elementAccordeon)
+			* [1.1.2 Élément de panneau accordeon](#element-panneau-accordeon)
 			* [1.1.2.1 Arborescence](#arborescence)
 			* [1.1.2.2 Impression](#impression)
 			* [1.1.2.3 Localisation](#localisation)
-			* [1.1.2.3 Google Itinéraire](#googleItineraire)
-			* [1.1.2.3 Google Street View](#googleStreetView)
-			* [1.1.2.4 Création d'un élément de panneau accordéon personnalisé](#creationelementpanneauaccordeonpersonnalise)
-			* [1.1.3 Élément de localisation](#elementlocalisation)
+			* [1.1.2.3 Google Itinéraire](#googleitineraire---pas-implanté)
+			* [1.1.2.3 Google Street View](#googlestreetview---pas-implanté)
+			* [1.1.3 Élément de localisation](#Élément-de-localisation)
 			* [1.1.3.1 Recherche par adresse](#rechercheadresse)
 			* [1.1.3.2 Recherche par borne](#rechercheborne)
 			* [1.1.3.3 Recherche par cadastre rénové ](#recherchecadastrereno)
@@ -37,28 +36,28 @@ Fichier XML de configuration
 			* [1.2.3 Outil](#outil)
 			* [1.2.3.1 outilAide](#outilaide)
 			* [1.2.3.2 outilAjoutWMS](#outilajoutwms)
-			* [1.2.3.3 outilAssocierFichier](#outilassocierFichier)
-			* [1.2.3.4 outilAnalyseSpatiale](#outilanalysespatiale)
+			* [1.2.3.3 outilAssocierFichier](#outilassocierfichier)
+			* [1.2.3.4 outilAnalyseSpatiale](#outilanalysespatiale---non-implanté)
 			* [1.2.3.5 outilDeplacement](#outildeplacement)
 			* [1.2.3.6 outilDessin](#outildessin)
 			* [1.2.3.7 outilExportGPX](#outilexportgpx)
 			* [1.2.3.8 outilExportShp](#outilexportshp)
 			* [1.2.3.9 outilHistoriqueNavigation](#outilhistoriquenavigation)
-			* [1.2.3.10 outilnfo](#outilinfo)
+			* [1.2.3.10 outilInfo](#outilinfo)
 			* [1.2.3.11 outilMesure](#outilmesure)
 			* [1.2.3.12 outilDeplacerCentre](#outildeplacercentre)
 			* [1.2.3.13 outilPartagerCarte](#outilpartagercarte)
-			* [1.2.3.14 outilRapporterBogue](#outilrapporterbogue)
+			* [1.2.3.14 outilReporterBogue](#outilreporterbogue)
 			* [1.2.3.15 outilZoomEtendueMaximale](#outilzoometenduemaximale)
 			* [1.2.3.16 outilZoomPreselection](#outilzoompreselection)
 			* [1.2.3.17 outilZoomRectangle](#outilzoomrectangle)
 			* [1.2.3.18 outilEdition](#outiledition)
 			* [1.2.3.19 outilItineraire](#outilitineraire)
-			* [1.2.3.20 outilSelection](#outilSelection)
+			* [1.2.3.20 outilSelection](#outilselection)
 			* [1.2.3.21 Création d'un outil personnalisé](#creation-outil-personnalise)
 	* [4 Contexte](#contexte)
 	* [5 Liste des couches](#liste-des-couches)
-		* [5.1 Groupe de couche](#groupe-couche)
+		* [5.1 Groupe de couches](#groupe-de-couches)
 		* [5.2 Couche](#couche)
 		* [5.2.1 Blanc](#blanc)
 		* [5.2.2 Google](#google)
@@ -66,11 +65,12 @@ Fichier XML de configuration
 		* [5.2.4 OSM](#osm)
 		* [5.2.5 TMS](#tms)
 		* [5.2.6 Vecteur](#vecteur)
-		* [5.2.7 WMS](#WMS)
+		* [5.2.7 WMS](#wms)
+		* [5.2.8 ArcGIS93Rest](#arcgis93rest)
 	* [6 Actions](#actions)
 		* [6.1 Action](#action)
-	* [7 Déclencheurs](#declencheurs)
-		* [7.1 Déclencheur](#declencheur)
+	* [7 Déclencheurs](#déclencheurs)
+		* [7.1 Déclencheur](#déclencheur)
 * [8 Exemples de fichier de configuration XML](#exemples-de-fichier-de-configuration-xml)
 * [8.1 Configuration minimale (avec contexte défini dans le fichier de configuration)](#configuration-minimale-xml)
 * [8.2 Configuration minimale (avec contexte chargé à partir de la BD)](#configuration-minimale-bd)
@@ -367,7 +367,7 @@ Permet la définition d'un panneau appelé à contenir un tableau.
 ![](media/image7.png)
 
 
-Creation Panneau personnalise
+Creation Panneau personnalisé
 ----------------------------------
 
 *Exemple*
@@ -486,18 +486,7 @@ Aucun
 <element-accordeon classe="googleStreetView"/>
 ```
 
-*Aperçu*
-
-
-Creation element de panneau accordeon personnalise
---------------------------------------------------
-
-*Exemple*
-
-*Aperçu*
-
-
-Element de localisation
+Élément de localisation
 =======================
 
 *Balise XML: `element`*
@@ -1074,7 +1063,7 @@ l'historique" visible="true" actif="true"/>
 ![](media/image22.png)
 
 
-outilnfo
+outilInfo
 --------
 
 Permet la définition d'un outil d'interrogation du contenu de la carte.
@@ -1677,6 +1666,23 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
    visible="true" active="faux" opacite="100" ordreAffichage="1"/>
 ```
 
+ArcGIS93Rest
+---
+
+Permet la définition d'une couche provenant d’un service rest de ArcGIS.
+
+*Attributs ou valeurs spécifiques*
+
+| Nom   | Description                                 	| Obligatoire 	| Valeurs possibles    	| Valeur défaut	|
+|-------|-----------------------------------------------|---------------|-----------------------|---------------|
+|url	|URL du service      	                	|Oui	    	|URL 		    	|  		|
+|nom	|Nom de la couche                             	|Oui	    	|Chaîne alphanumérique  |		|
+|titre	|           Titre de la couche			|Oui		|Chaîne alphanumérique	|		|
+
+*Exemples*
+```xml
+<couche titre="ArcGis93Rest" protocole="ArcGIS93Rest" url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer/export" nom="0,1,2" />  
+```
 
 Actions
 =======
