@@ -252,9 +252,12 @@ class IgoController extends ControllerBase {
                              break;
                         }
                     }
+                } else if ($count === 1){
+                    $libelleProfil = $application->getDI()->getSession()->get("info_utilisateur")->profils[0]['libelle'];
                 }
             }
         }
+
         $this->view->setVar("profil", $libelleProfil);
         $this->view->setVar("utilisateur", $user);
         $this->view->setVar("nbProfil", $count);
