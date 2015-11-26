@@ -67,6 +67,7 @@ Fichier XML de configuration
 		* [5.2.5 TMS](#tms)
 		* [5.2.6 Vecteur](#vecteur)
 		* [5.2.7 WMS](#WMS)
+		* [5.2.8 ArcGIS93Rest](#arcgis93rest)
 	* [6 Actions](#actions)
 		* [6.1 Action](#action)
 	* [7 Déclencheurs](#declencheurs)
@@ -1677,6 +1678,23 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
    visible="true" active="faux" opacite="100" ordreAffichage="1"/>
 ```
 
+arcGIS93Rest
+---
+
+Permet la définition d'une couche provenant d’un service rest de ArcGIS.
+
+*Attributs ou valeurs spécifiques*
+
+| Nom   | Description                                 	| Obligatoire 	| Valeurs possibles    	| Valeur défaut	|
+|-------|-----------------------------------------------|---------------|-----------------------|---------------|
+|url	|URL du service      	                	|Oui	    	|URL 		    	|  		|
+|nom	|Nom de la couche                             	|Oui	    	|Chaîne alphanumérique  |		|
+|titre	|           Titre de la couche			|Oui		|Chaîne alphanumérique	|		|
+
+*Exemples*
+```xml
+<couche titre="ArcGis93Rest" protocole="ArcGIS93Rest" url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer/export" nom="0,1,2" />  
+```
 
 Actions
 =======
