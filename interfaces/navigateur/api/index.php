@@ -471,14 +471,20 @@ try {
             return false;
         }
 
+        $httprequest = new Phalcon\Http\Request();
+        $dataGet = $httprequest->get();
+        if(isset($dataGet) && isset($dataGet['trier']) && $dataGet['trier'] === 'alpha'){
+            $order = "mf_layer_meta_group_title, mf_layer_meta_title";
+        } else {
+            $order = "layer_a_order, mf_layer_meta_group_title, mf_layer_meta_title";
+        }
+        
         $contexteId = $contexte->id;
         $contexteCouches = IgoVueContexteCoucheNavigateur::find(array(
                 "conditions"=>"contexte_id=$contexteId", 
-                "order"=>array(
-                        "layer_a_order",
-                        "mf_layer_meta_group_title",
-                        "mf_layer_meta_title"
-                )));        
+                "order"=>$order
+            ));        
+
         $authentificationModule = obtenirAuthentificationModule();
         $array = array();
         $avertissements = array();

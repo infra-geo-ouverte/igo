@@ -612,6 +612,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
 
         $.ajax({
             url: contexteUrl,
+            data: {
+                trier: this.contexteAttributs.trier
+            },
             context: this,
             success: this._analyserContexteBDSuccess,
             error: this._analyserContexteBDError,
