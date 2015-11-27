@@ -420,7 +420,7 @@ class IgoController extends ControllerBase {
             } else {
                 $trustedDom = '#' . preg_quote($regex, '#') . '#';
             }
-            if(preg_replace($trustedDom, 'ok', $service) === "ok"){
+             if($trustedDom === $service || preg_replace($trustedDom, 'ok', $service) === "ok"){
                 return $regex;
             }
         }
