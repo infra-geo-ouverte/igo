@@ -865,6 +865,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         };        
         this.vecteur = new Vecteur({titre:'trajetItineraire', styles: styles, active: true, visible:false, selectionnable: false}); 
         this._.carte.gestionCouches.ajouterCouche(this.vecteur);
+        this.ecouterEvenements();
     };
 
     //
@@ -872,6 +873,23 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         this.vecteur.enleverTout();
     };
     
+    Itineraire.Trajet.prototype.ecouterEvenements = function(){
+        this._.carte.ajouterDeclencheur('zoomEnd', this.zoomEndEvent, {scope: this});
+    };
+
+    Itineraire.Trajet.prototype.zoomEndEvent = function(){
+        var depart = this._.marqueurs.depart;
+        var arrivee = this._.marqueurs.arrivee;
+        var intermediaires = this._.marqueurs.intermediaires;
+        if (depart && arrivee) {
+            var points = [];
+            points.push(depart);
+            points = points.concat(intermediaires);
+            points.push(arrivee);
+            this.trouverItineraire(points, true, true);
+        };
+    };
+
     Itineraire.Trajet.prototype.afficherItineraireCarte = function(geometryEncoded) { //todo ajouter
         var route = this.formaterRouteGeometrie(geometryEncoded);
         
@@ -885,7 +903,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         return route;
     };
 
-    Itineraire.Trajet.prototype.trouverItineraire = function(points, rapide) {
+    Itineraire.Trajet.prototype.trouverItineraire = function(points, sansInstructions, sansModifierInstructions) {
         var that = this;
         this.points = points;
         var loc = "";
@@ -904,15 +922,13 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var url;
         var graph = $('#rechercheType select').val(); //todo $variable
         
-        if (rapide) {
-            url = this._.options.service + "?graph=" + graph + "?output=json&compression=true&z=14" + loc;
-            //url = "http://spssogl97d.sso.msp.gouv.qc.ca/Services/itineraire.php?graph=" + graph + "&output=json&compression=true&z=14" + loc;
+        if (sansInstructions) {
+            url = this._.options.service + "?graph=" + graph + "?output=json&compression=true&z=" + this._.carte.obtenirZoom() + loc;
         } else {
-            url = this._.options.service + "?graph=" + graph + "?output=json&compression=true&z=14&instructions=true" + loc;
-            //url = "http://spssogl97d.sso.msp.gouv.qc.ca/Services/itineraire.php?graph=" + graph + "&output=json&compression=true&instructions=true" + loc;
+            url = this._.options.service + "?graph=" + graph + "?output=json&compression=true&instructions=true&z=" + this._.carte.obtenirZoom() + loc;
         };
 
-        if (!rapide || this.ajaxItineraireComplete != false) {
+        if (!sansInstructions || this.ajaxItineraireComplete != false) {
             this.ajaxItineraireComplete = false;
             $.ajax({
                 dataType: 'jsonp',
@@ -923,7 +939,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 //crossDomain: true, //utilisation du proxy
                 context: this,
                 success: function(response) {
-                    that.trouverItineraireSuccess(response, rapide);
+                    that.trouverItineraireSuccess(response, sansInstructions, sansModifierInstructions);
                 },
                 complete: function() {
                     this.ajaxItineraireComplete = true;
@@ -934,14 +950,20 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         }
     };
 
-    Itineraire.Trajet.prototype.trouverItineraireSuccess = function(response, rapide) {
+    Itineraire.Trajet.prototype.trouverItineraireSuccess = function(response, sansInstructions, sansModifierInstructions) {
         if (response.status == 207) {
             this.trouverItineraireEchec();
             return false;
         }
-        var route = this.afficherItineraireCarte(response.route_geometry);
+        var route;
+        if(sansModifierInstructions && response.found_alternative){
+            this.afficherItineraireCarte(response.alternative_geometries);
+            return true;
+        } else {
+            route = this.afficherItineraireCarte(response.route_geometry);
+        }
 
-        if (rapide) {
+        if (sansInstructions) {
             this._.instructions.afficherResume(response.route_summary);
         } else {
             this._.instructions.afficherItineraireDescription(response, route);
@@ -961,6 +983,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
 
     Itineraire.Trajet.prototype.formaterRouteGeometrie = function(routeEncoded) {
+        routeEncoded = $.isArray(routeEncoded) ? routeEncoded[0] : routeEncoded;
         this.formatEncoded = this.formatEncoded || new OpenLayers.Format.EncodedPolyline();
         var route = this.formatEncoded.read(routeEncoded);
         route.geometry.transform(new OpenLayers.Projection(this._.proj4326), new OpenLayers.Projection(this._.projCarte));
