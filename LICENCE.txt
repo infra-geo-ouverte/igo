@@ -2,9 +2,9 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
 Pour IGO (https://github.com/infra-geo-ouverte/igo), la license qui s'applique est :
 
-Licence Libre du Québec – Réciprocité (LiLiQ-R) - https://www.forge.gouv.qc.ca/participez/licence-logicielle/licence-libre-du-quebec-liliq-en-francais/licence-libre-du-quebec-reciprocite-liliq-r-v1-1/
+Licence Libre du Québec – Réciprocité (LiLiQ-R) - https://www.forge.gouv.qc.ca/participez/licence-logicielle/licence-libre-du-quebec-liliq-en-francais/licence-libre-du-quebec-liliq-en-francais-v1-0/licence-libre-du-quebec-reciprocite-liliq-r-v1-0/
 
-Version 1.1
+Version 1.0
 
 1. Préambule
 
@@ -13,31 +13,45 @@ Cette licence s’applique à tout logiciel distribué dont le titulaire du droi
 2. Définitions
 
 Dans la présente licence, à moins que le contexte n’indique un sens différent, on entend par:
+
 « concédant » : le titulaire du droit d’auteur sur le logiciel, ou toute personne dûment autorisée par ce dernier à accorder la présente licence;
+
 « contributeur » : le titulaire du droit d’auteur ou toute personne autorisée par ce dernier à soumettre au concédant une contribution. Un contributeur dont sa contribution est incorporée au logiciel est considéré comme un concédant en regard de sa contribution;
+
 « contribution » : tout logiciel original, ou partie de logiciel original soumis et destiné à être incorporé dans le logiciel;
+
 « distribution » : le fait de délivrer une copie du logiciel;
+
 « licencié » : toute personne qui possède une copie du logiciel et qui exerce les droits concédés par la licence;
+
 « logiciel » : une œuvre protégée par le droit d’auteur, telle qu’un programme d’ordinateur et sa documentation, pour laquelle le titulaire du droit d’auteur a précisé qu’elle est sujette aux termes de la présente licence;
+
 « logiciel dérivé » : tout logiciel original réalisé par un licencié, autre que le logiciel ou un logiciel modifié, qui produit ou reproduit la totalité ou une partie importante du logiciel;
+
 « logiciel modifié » : toute modification par un licencié de l’un des fichiers source du logiciel ou encore tout nouveau fichier source qui incorpore le logiciel ou une partie importante de ce dernier.
 
 3. Licence de droit d’auteur
 
-Sous réserve des termes de la licence, le concédant accorde au licencié une licence non exclusive et libre de redevances lui permettant d’exercer les droits suivants sur le logiciel :
+Sous réserve des termes de la licence, le concédant accorde au licencié une licence non exclusive et libre de redevances lui permettant d’exercer les droits suivants sur le logiciel, et cela à toutes fins utiles :
+
 1° Produire ou reproduire la totalité ou une partie importante;
+
 2° Exécuter ou représenter la totalité ou une partie importante en public;
+
 3° Publier la totalité ou une partie importante.
 
 Cette licence est accordée sans limite territoriale et sans limite de temps.
 
-L’exercice complet de ces droits est sujet à la distribution par le concédant du code source du logiciel, lequel doit être sous une forme permettant d’y apporter des modifications. Le concédant peut aussi distribuer le logiciel accompagné d’une offre de distribuer le code source du logiciel, sans frais supplémentaires, autres que ceux raisonnables afin de permettre la livraison du code source. Cette offre doit être valide pendant une durée raisonnable.
+L’exercice complet de ces droits est sujet à la distribution par le concédant du code source du logiciel, lequel doit être sous une forme permettant d’y apporter des modifications. Le concédant peut aussi distribuer le logiciel accompagné d’une offre de distribuer le code source du logiciel, sans frais supplémentaires, autres que ceux raisonnables afin d’en permettre la livraison. Cette offre doit être valide pendant une durée raisonnable.
 
 4. Distribution
 
 Le licencié peut distribuer des copies du logiciel, d’un logiciel modifié ou dérivé, sous réserve de respecter les conditions suivantes :
+
 1° Le logiciel doit être accompagné d’un exemplaire de cette licence;
-2° Si le logiciel a été modifié, le licencié doit en faire la mention, de préférence dans chacun des fichiers modifiés dont la nature permet une telle mention;
+
+2° Si le logiciel a été modifié, le licencié doit en faire la mention dans chacun des fichiers modifiés;
+
 3° Les étiquettes ou mentions faisant état des droits d’auteur, des marques de commerce, des garanties ou de la paternité concernant le logiciel ne doivent pas être modifiées ou supprimées, à moins que ces étiquettes ou mentions ne soient inapplicables à un logiciel modifié ou dérivé donné.
 
 4.1. Réciprocité
@@ -52,19 +66,15 @@ Dans la mesure où le licencié souhaite distribuer un logiciel modifié combin�
 
 Un licencié qui est titulaire exclusif du droit d’auteur sur le logiciel assujetti à une licence compatible ne peut pas se prévaloir de cette offre. Il en est de même pour toute autre personne dûment autorisée à sous-licencier par le titulaire exclusif du droit d’auteur sur le logiciel assujetti à une licence compatible.
 
-Est considérée comme une licence compatible toute licence libre approuvée ou certifiée par la Free Software Foundation ou l’Open Source Initiative, dont le niveau de réciprocité est comparable ou supérieur à celui de la présente licence, sans toutefois être moindre, notamment :
-1° Common Development and Distribution License (CDDL-1.0)
-2° Common Public License Version 1.0 (CPL-1.0)
-3° Contrat de licence de logiciel libre CeCILL, version 2.1 (CECILL-2.1)
-4° Contrat de licence de logiciel libre CeCILL-C (CECILL-C)
-5° Eclipse Public License – v 1.0 (EPL-1.0)
-6° European Union Public License, version 1.1 (EUPL v. 1.1)
-7° Licence Libre du Québec – Réciprocité forte version 1.1 (LiLiQ-R+ 1.1)
-8° GNU General Public License Version 2 (GNU GPLv2)
-9° GNU General Public License Version 3 (GNU GPLv3)
-10° GNU Lesser General Public License Version 2.1 (GNU LGPLv2.1)
-11° GNU Lesser General Public License Version 3 (GNU LGPLv3)
-12° Mozilla Public License Version 2.0 (MPL-2.0)
+Est considérée comme une licence compatible toute licence libre approuvée ou certifiée par la Free Software Foundation ou l’Open Source Initiative, dont le niveau de réciprocité est comparable à celui de la présente licence, sans toutefois être moindre, notamment :
+
+1° Contrat de licence de logiciel libre CeCILL-C (CECILL-C)
+
+2° GNU Lesser General Public License Version 2.1 (GNU LGPLv2.1)
+
+3° GNU Lesser General Public License Version 3 (GNU LGPLv3)
+
+4° Mozilla Public License Version 2.0 (MPL-2.0)
 
 5. Contributions
 
@@ -72,7 +82,7 @@ Sous réserve d’une entente distincte, toute contribution soumise par un contr
 
 6. Marques de commerce
 
-La licence n’accorde aucune permission particulière qui permettrait d’utiliser les marques de commerce du concédant, autre que celle requise permettant d’identifier la provenance du logiciel.
+La licence n’accorde aucune permission particulière qui permettrait d’utiliser les marques de commerce du concédant, autres que celle requise permettant d’identifier la provenance du logiciel.
 
 7. Garanties
 
@@ -90,7 +100,7 @@ Le concédant ne saurait être tenu responsable du préjudice subi par le licenc
 
 La présente licence est résiliée de plein droit dès que les droits qui y sont accordés ne sont pas exercés conformément aux termes qui y sont stipulés.
 
-Toutefois, si le défaut est corrigé dans un délai de 30 jours de sa prise de connaissance par la personne en défaut, et qu’il s’agit du premier défaut, la licence est accordée de nouveau.
+Toutefois, si le défaut est corrigé dans un délai de 30 jours de sa prise de connaissance, et qu’il s’agit du premier défaut, la licence est accordée de nouveau.
 
 Pour tout défaut subséquent, le consentement exprès du concédant est nécessaire afin que la licence soit accordée de nouveau.
 
@@ -104,7 +114,7 @@ Le concédant peut aussi choisir de concéder la licence sous la version actuell
 
 Dans la mesure où le concédant est un ministère, un organisme public ou une personne morale de droit public, créés en vertu d’une loi de l’Assemblée nationale du Québec, la licence est régie par le droit applicable au Québec et en cas de contestation, les tribunaux du Québec seront seuls compétents.
 
-La présente licence peut être distribuée sans conditions particulières. Toutefois, une version modifiée doit être distribuée sous un nom différent. Toute référence au Centre de services partagés du Québec, et, le cas échéant, ses ayant droit, doit être retirée, autre que celle permettant d’identifier la provenance de la licence.
+La présente licence peut être distribuée sans conditions particulières. Toutefois, une version modifiée doit être distribuée sous un nom différent et toute référence au Centre de services partagés du Québec, et, le cas échéant, ses ayant droit, doit être retirée.
 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
