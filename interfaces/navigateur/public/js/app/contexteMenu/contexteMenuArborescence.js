@@ -178,11 +178,39 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
             var startDate = Fonctions.createDateFromIsoString(timeExtentArray[0]);
             var endDate=null;
             var allowIntervals=null;
+            var defautPrecision;
             if(timeExtentArray.length>1){
                 endDate = Fonctions.createDateFromIsoString(timeExtentArray[1]);
                 allowIntervals = true;
-            }
-            else{
+                if(timeExtentArray[2]){
+                    switch (timeExtentArray[2].toLowerCase()){
+                        case 'seconds':
+                        case 'second':
+                            defautPrecision = 'seconde';
+                        break;
+                        case 'minutes':
+                        case 'minute':
+                            defautPrecision = 'minute';
+                        break;
+                        case 'hours':
+                        case 'hour':
+                            defautPrecision = 'heure';
+                        break;
+                        case 'days':
+                        case 'day':
+                            defautPrecision = 'jour';
+                        break;
+                        case 'months':
+                        case 'month':
+                            defautPrecision = 'mois';
+                        break;
+                        case 'years':
+                        case 'year':
+                            defautPrecision = 'annee';
+                        break;
+                    }
+                }
+            } else{
                 endDate = null;
                 allowIntervals = false;
             }
@@ -191,6 +219,36 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                 allowIntervals = Aide.toBoolean(args.couche.options.wms_timeAllowIntervals);
             }
             
+            if(!defautPrecision){
+                var strArray = timeExtentArray[0].split("-");
+                var heureArray;
+                switch(strArray.length){
+                    case 1:
+                        defautPrecision = 'annee';
+                        break;
+                    case 2:
+                        defautPrecision = 'mois';
+                        break;
+                    case 3:   
+                        defautPrecision = 'jour';
+                        if(strArray[2].split("T")[1]){
+                            heureArray = strArray[2].split("T")[1].split(':');
+                        }
+                        break;
+                }
+                switch(heureArray.length){
+                    case 1:
+                        defautPrecision = 'heure';
+                        break;
+                    case 2:
+                        defautPrecision = 'minute';
+                        break;
+                    case 3:   
+                        defautPrecision = 'seconde';
+                        break;
+                }
+            }
+
             var datePicker = new DateTimeIntervalPicker({
                 id : 'datePicker',
                 layer : args.couche._layer,
@@ -198,7 +256,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                 minStartDate : startDate,
                 maxEndDate : endDate,
                 mapServerTimeString : args.couche.options.wms_timedefault,
-                precision : args.couche.options.wms_timeprecision || 'minute'
+                precision : args.couche.options.wms_timeprecision || defautPrecision
             });
 
             return {
