@@ -473,7 +473,7 @@ try {
          //Services  
         $igoController = new IgoController();
 
-        $permisUrl = $igoController->obtenirPermisUrl($service,$restService);
+        $permisUrl = $igoController->obtenirPermisUrl($service, $restService);
         
         if($permisUrl === false){
             http_response_code(403);
@@ -1089,22 +1089,18 @@ try {
      
         curl_close ($ch);
 
-       if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)){
+        $contentsTypesAVerifier = array(
+            "application/xml", 
+            "application/vnd.ogc.wms_xml", 
+            "application/vnd.ogc.gml", 
+            "text/xml; subtype=gml/3.1.1"
+            );
 
-            $contentsTypesAVerifier = array(
-                "application/xml", 
-                "application/vnd.ogc.wms_xml", 
-                "application/vnd.ogc.gml", 
-                "text/xml; subtype=gml/3.1.1"
-                );
-
-            if(in_array($contentType, $contentsTypesAVerifier) && !isset($options['encodage'])){
-                $pos = strpos($result,'encoding=');
-                if($pos !== false) {
-                    $temp = substr($result, $pos + 10);
-                    $posEnd = strpos($temp,'" ');
-                    $options['encodage'] = substr($temp, 0, $posEnd);
-                }
+        if(in_array($contentType, $contentsTypesAVerifier) && !isset($options['encodage'])){
+            $encodingArray = array();
+            preg_match('<\?xml.* encoding="(.*)".*\?>', $result, $encodingArray);
+            if(isset($encodingArray[1])){
+                $options['encodage'] = $encodingArray[1];
             }
         }
 
