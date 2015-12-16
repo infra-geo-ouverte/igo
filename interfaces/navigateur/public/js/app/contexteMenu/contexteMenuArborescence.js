@@ -183,29 +183,23 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                 endDate = Fonctions.createDateFromIsoString(timeExtentArray[1]);
                 allowIntervals = true;
                 if(timeExtentArray[2]){
-                    switch (timeExtentArray[2].toLowerCase()){
-                        case 'seconds':
-                        case 'second':
+                    switch (timeExtentArray[2][timeExtentArray[2].length-1]){
+                        case 'S':
                             defautPrecision = 'seconde';
                         break;
-                        case 'minutes':
-                        case 'minute':
+                        case 'M':
                             defautPrecision = 'minute';
                         break;
-                        case 'hours':
-                        case 'hour':
+                        case 'H':
                             defautPrecision = 'heure';
                         break;
-                        case 'days':
-                        case 'day':
+                        case 'D':
                             defautPrecision = 'jour';
                         break;
-                        case 'months':
-                        case 'month':
+                        case 'M':
                             defautPrecision = 'mois';
                         break;
-                        case 'years':
-                        case 'year':
+                        case 'Y':
                             defautPrecision = 'annee';
                         break;
                     }
@@ -236,16 +230,18 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
                         }
                         break;
                 }
-                switch(heureArray.length){
-                    case 1:
-                        defautPrecision = 'heure';
-                        break;
-                    case 2:
-                        defautPrecision = 'minute';
-                        break;
-                    case 3:   
-                        defautPrecision = 'seconde';
-                        break;
+                if(heureArray){
+                    switch(heureArray.length){
+                        case 1:
+                            defautPrecision = 'heure';
+                            break;
+                        case 2:
+                            defautPrecision = 'minute';
+                            break;
+                        case 3:   
+                            defautPrecision = 'seconde';
+                            break;
+                    }
                 }
             }
 
