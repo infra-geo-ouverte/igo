@@ -489,6 +489,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         var modulesReq = ['google', 'blanc', 'OSM', 'TMS', 'WMS', 'vecteur', 'vecteurCluster', 'marqueurs'];
         modulesReq = this._analyserRequire(json, modulesReq);
         var igoGeoReq = igoGeometrieReq.concat(modulesReq);
+        that.listCouchesApresContexte = [];
 
         require(igoGeoReq, function() {
             var gReqSize = igoGeometrieReq.length;
@@ -500,6 +501,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             Igo.Couches = Aide.getRequisObjet(modulesReq, argsObj.splice(0, cReqSize));
 
             var listCouches = [];
+            var listCouchesApresContexte = [];
 
             var arrayCouches = $.isArray(json) ? json : [json];
             $.each(arrayCouches, function(key, couches) {
@@ -519,7 +521,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                     var classe = options.protocole;
                     options.typeContexte = 'contexte';
                     var coucheOccurence = new Igo.Couches[classe](options);
-                    listCouches.push(coucheOccurence);
+                    if(!Aide.toBoolean(options.chargementApresContexte)){
+                        listCouches.push(coucheOccurence);
+                    } else {
+                        listCouchesApresContexte.push(coucheOccurence);
+                    }
                 });
             });
             
@@ -527,7 +533,8 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                 that._ajouterCoucheBlanc(listCouches);
                 return true;
             }
-            ;
+            
+            that.listCouchesApresContexte = listCouchesApresContexte;
             that._analyserCouchesSuccess(listCouches);
         });
     };
@@ -702,11 +709,16 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         });
 
         this.igo.nav.carte.gestionCouches.ajouterCouches(listCouches);
+
         if(data.avertissements){
             this.avertissements = this.avertissements.concat(data.avertissements);
         }
-        that.fin.couches = true;
-        that._analyserContexte();
+        this.fin.couches = true;
+
+        setTimeout(function () {
+            that.igo.nav.carte.gestionCouches.ajouterCouches(that.listCouchesApresContexte);
+            that._analyserContexte();
+        }, 1);
     };
 
 
