@@ -43,6 +43,16 @@ define(['couche', 'aide'], function(Couche, Aide) {
             this.options.url,
             this._optionsOL
         );
+        this._layer.options = this._optionsOL;
+    };
+
+    ArcGIS93Rest.prototype._ajoutCallback = function(target, callback, optCallback){
+        if(!Aide.toBoolean(this.options.active)){
+            this.desactiver();
+        } else {
+            this.activer();
+        }
+        Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
     };
     
     return ArcGIS93Rest;

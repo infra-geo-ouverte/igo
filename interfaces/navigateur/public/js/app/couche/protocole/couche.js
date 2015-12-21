@@ -91,7 +91,6 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             zTree: opt.ordreArborescence,
             printOptions: printOptions
         }, this._optionsOL, this.options._optionsOL);
-       
     };
     
     

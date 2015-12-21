@@ -112,7 +112,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             }
     
             if(this.options.mode){
-                Couche.prototype._ajoutCallback.call(this, target, callback, optCalback);
+                Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
             }
         } else {
             this._layer = this.options.layerOL;
