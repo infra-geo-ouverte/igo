@@ -47,6 +47,7 @@
 	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/UrlLegend.js",
 	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/WMSLegend.js",
 	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/VectorLegend.js",
+	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/ArcgisLegend.js",
 	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/LegendPanel.js",
 	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/ZoomSlider.js",
 	"<%= dirs.GeoExt %>/lib/GeoExt/widgets/grid/FeatureSelectionModel.js",
