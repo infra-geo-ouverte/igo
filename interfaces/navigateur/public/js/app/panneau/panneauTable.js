@@ -17,10 +17,10 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         Ext.QuickTips.init();
 
             var that =this;
-            this.controles = new PanneauTable.Controles(this);
             this.template = this.options.template || {colonnes: []};
             this.donnees = this.options.donnees || [];
             this.donnees.panneauTable = this;
+            this.controles = new PanneauTable.Controles(this);
             var config = this.configurer(this.template, this.donnees);
 
             this._extOptions = {
@@ -888,7 +888,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.Controles.prototype.activerSurvolLigne = function() {
-        if(!this._._panel){return false;};
+        if(!this._._panel || typeof this._.donnees.ajouterDeclencheur !== 'function'){return false;};
         this._._panel.on('mouseover', this.survol, this);
         this._._panel.on('mouseout', this.finSurvol, this);
         this._.donnees.ajouterDeclencheur('occurenceSurvol', this.survolCarte, {scope: this});
@@ -896,7 +896,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
     PanneauTable.Controles.prototype.desactiverSurvolLigne = function() {
-        if(!this._._panel){return false;};
+        if(!this._._panel || typeof this._.donnees.enleverDeclencheur !== 'function'){return false;};
         this._._panel.removeListener('mouseover', this.survol, this);
         this._._panel.removeListener('mouseout', this.finSurvol, this);
         this._.donnees.enleverDeclencheur('occurenceSurvol', this.survolCarte, {scope: this});

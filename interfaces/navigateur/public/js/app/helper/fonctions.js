@@ -244,30 +244,30 @@ define([], function() {
     };
     
     Fonctions.createDateFromIsoString = function(isoDateString){		
-	var date = new Date();
-	var strArray = isoDateString.split("-");
-	switch(strArray.length){
-            case 0:
-                alert("Le format de la date pour cette couche n'est pas supporté.");
+    	var date = new Date();
+    	var strArray = isoDateString.split("-");
+    	switch(strArray.length){
+                case 0:
+                    alert("Le format de la date pour cette couche n'est pas supporté.");
+                    break;
+                case 1:
+                    date.setUTCFullYear(strArray[0]);
+                    break;
+                case 2:
+                    date.setUTCFullYear(strArray[0]);
+                    date.setUTCMonth(strArray[1] - 1);
                 break;
-            case 1:
-                date.setUTCFullYear(strArray[0]);
-                break;
-            case 2:
-                date.setUTCFullYear(strArray[0]);
-                date.setUTCMonth(strArray[1] - 1);
-            break;
-            case 3:     
-                if(strArray[2].split("T")[1]){
-                    date.setUTCHours(strArray[2].split("T")[1].split(":")[0]);
-                }
-                date.setUTCDate(strArray[2].split("T")[0]);
-                date.setUTCMonth(strArray[1] - 1);
-                date.setUTCFullYear(strArray[0]);
-                break;
-	}
-        
-	return date;
+                case 3:     
+                    if(strArray[2].split("T")[1]){
+                        date.setUTCHours(strArray[2].split("T")[1].split(":")[0]);
+                    }
+                    date.setUTCDate(strArray[2].split("T")[0]);
+                    date.setUTCMonth(strArray[1] - 1);
+                    date.setUTCFullYear(strArray[0]);
+                    break;
+    	}
+            
+    	return date;
     };    
     
     Fonctions.rgbToHex = function(r, g, b){

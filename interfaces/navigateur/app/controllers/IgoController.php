@@ -252,9 +252,12 @@ class IgoController extends ControllerBase {
                              break;
                         }
                     }
+                } else if ($count === 1){
+                    $libelleProfil = $application->getDI()->getSession()->get("info_utilisateur")->profils[0]['libelle'];
                 }
             }
         }
+
         $this->view->setVar("profil", $libelleProfil);
         $this->view->setVar("utilisateur", $user);
         $this->view->setVar("nbProfil", $count);
@@ -420,7 +423,7 @@ class IgoController extends ControllerBase {
             } else {
                 $trustedDom = '#' . preg_quote($regex, '#') . '#';
             }
-            if(preg_replace($trustedDom, 'ok', $service) === "ok"){
+             if($trustedDom === $service || preg_replace($trustedDom, 'ok', $service) === "ok"){
                 return $regex;
             }
         }

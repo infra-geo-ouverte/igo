@@ -112,7 +112,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             }
     
             if(this.options.mode){
-                Couche.prototype._ajoutCallback.call(this, target, callback, optCalback);
+                Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
             }
         } else {
             this._layer = this.options.layerOL;
@@ -231,7 +231,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
                             if(value.dimensions.time){
                                 xmlOptions.wms_timeextent = value.dimensions.time.values[0];
-                                xmlOptions.wms_timedefault = value.dimensions.time.defaults;
+                                xmlOptions.wms_timedefault = value.dimensions.time.default;
                             }
                             target.ajouterCouche(new WMS(xmlOptions));
                         } 

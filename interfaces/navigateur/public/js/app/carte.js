@@ -220,6 +220,11 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     type: "limitesModifiees"
                 });
             },
+            zoomend: function() {
+                that.declencher({
+                    type: "zoomEnd"
+                });
+            },
             mouseout: function() {
                 that.declencher({
                     type: "quitterSurvolCarte"

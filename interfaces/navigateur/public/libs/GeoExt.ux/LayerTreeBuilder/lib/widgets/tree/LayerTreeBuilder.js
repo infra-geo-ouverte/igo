@@ -199,7 +199,7 @@ GeoExt.ux.tree.LayerTreeBuilder = Ext.extend(Ext.tree.TreePanel, {
                         var layer = layerRecord.getLayer();
                         // WMS and Vector layers can have legend nodes if according
                         // property is enabled
-                        if (layer instanceof OpenLayers.Layer.WMS && that.wmsLegendNodes) {
+                        if ((layer instanceof OpenLayers.Layer.WMS )&& that.wmsLegendNodes) {
                             attr.component = {
                                 xtype: "gx_wmslegend",
                                 layerRecord: layerRecord,
@@ -213,6 +213,17 @@ GeoExt.ux.tree.LayerTreeBuilder = Ext.extend(Ext.tree.TreePanel, {
                         } else if (layer instanceof OpenLayers.Layer.Vector && that.vectorLegendNodes) {
                             attr.component = {
                                 xtype: "gx_vectorlegend",
+                                layerRecord: layerRecord,
+                                showTitle: false,
+                                hidden: !layer.visibility || layer.hideInLegend
+                                    || !layer.inRange || layer.legende===false,
+                                cls: "gx-layertreebuilder-legend"
+                            };
+                            layer.hideInLegend && layerRecord.set(
+                                "hideInLegend", layer.hideInLegend);
+                        } else if(layer instanceof OpenLayers.Layer.ArcGIS93Rest){
+                            attr.component = {
+                                xtype: "gx_arcgislegend",
                                 layerRecord: layerRecord,
                                 showTitle: false,
                                 hidden: !layer.visibility || layer.hideInLegend
