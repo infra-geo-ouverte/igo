@@ -10,7 +10,7 @@ return array(
     'repertoireLogs' => '/tmp/log/', //Répertoire de logs
     'application' => array(
         // Permet de versionner les fichiers javascripts et css (possible de mettre 'aleatoire')
-        'version'        =>  '1.0.0', 
+        'version'        =>  '1.1.1', 
         // Mode debug: des fichiers non-compillés, aucune cache serveur, messages d'erreurs plus nombreux
         'debug'          => true, 
         'navigateur'  => array(
