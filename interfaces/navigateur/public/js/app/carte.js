@@ -717,19 +717,27 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this._._carteOL.addControl(this.controleDrag);
             this.controleDrag.activate();
         }
+        this.controleDrag.coucheIgo = couche;
 
         if (this.snap) {
             this.activerSnap(couche);
         }
     }
 
-    Carte.Controles.prototype.desactiverDeplacementVecteur = function(couche) {
+    Carte.Controles.prototype.desactiverDeplacementVecteur = function() {
         if (this.controleDrag) {
+            var couche = this.controleDrag.coucheIgo;
             this.desactiverSnap();
             this.controleDrag.deactivate();
             this._._carteOL.removeControl(this.controleDrag);
             this.controleDrag.destroy();
             this.controleDrag = undefined;
+            if (couche) {
+                couche.definirOrdreAffichage(couche._layer.z_index_default);
+                couche.declencher({
+                    type: 'controleDeplacementVecteurDesactiver'
+                });
+            }
         }
     }
 
@@ -832,6 +840,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             this._editionEvents.oModifificationTerminee = undefined;
             this.activerOccurenceEvenement();
             if (couche) {
+                couche.definirOrdreAffichage(couche._layer.z_index_default);
                 couche.deselectionnerTout();
                 couche.declencher({
                     type: 'controleEditionDesactiver'
@@ -1086,6 +1095,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             }
 
             this._._carteOL.addControl(this.controleDessin);
+            this.controleDessin.coucheIgo = couche;
         }
 
         Aide.obtenirNavigateur().evenements.ajouterDeclencheur('controleCarteActiver', function(e) {
