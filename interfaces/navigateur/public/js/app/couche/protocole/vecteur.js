@@ -761,19 +761,6 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
    
     Vecteur.Controles.prototype.activerDeplacement = function() {
         this._.carte.controles.activerDeplacementVecteur(this._);
-       /* if(opt.combinaisonClique){
-            this._dragControl.handlers['drag'].stopDown = false;
-            this._dragControl.handlers['drag'].stopUp = false;
-            this._dragControl.handlers['drag'].stopClick = false;
-            this._dragControl.handlers['feature'].stopDown = false;
-            this._dragControl.handlers['feature'].stopUp = false;
-            this._dragControl.handlers['feature'].stopClick = false;
-        } else {
-            this._dragControl.handlers['drag'].stopDown = true;
-            this._dragControl.handlers['feature'].stopDown = true;
-            this._dragControl.handlers['feature'].stopClick = true;
-        };*/
-       
     };
 
     Vecteur.Controles.prototype.activerEdition = function(options) {
@@ -800,56 +787,14 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.Controles.prototype.activerSelection = function(opt) { //ajouter? au lieu d'activer? separer en 2?
         opt = opt || {};
         if (!this._.options.selectionnable && !opt.force){return false};
-        if(this._.obtenirDeclencheur('occurenceClique', null, this._selection).length){
-            return false;
+        if(!this._.obtenirDeclencheur('occurenceClique', null, this._selection).length){
+            this._.ajouterDeclencheur('occurenceClique', this._selection, {scope: this});
         } 
-        this._.ajouterDeclencheur('occurenceClique', this._selection, {scope: this});
-        
-        //todo: vérifier si selectionnable...ou force:
-       /* opt = opt || {};
-        if (!this._.options.selectionnable && !opt.force){return false};
-        
-        if (opt.local !== undefined && opt.local) {
-            if (!this._selectControl) {
-                this._selectControl = new OpenLayers.Control.SelectFeature(this._._layer, {onSelect: this._._.controles._selection, scope: this});
-                this._.carte._getCarte().addControl(this._selectControl);
-            };
-            this._selectControl.activate();
-            return true;
-        }
-        
-        var selectControle = this._._.controles._selectControle;
-        if (!selectControle) {
-            selectControle = this._._.controles.initSelection();
-        };
-        
-        if(selectControle.layers.lastIndexOf(this._._layer) === -1){
-            selectControle.addLayer(this._._layer);
-        }
-
-        if(selectControle.active){
-            selectControle.activate();
-        }  */
+        return true;
     };
     
     Vecteur.Controles.prototype.desactiverSelection = function() { //retirer
         this._.enleverDeclencheur('occurenceClique', null, this._selection);
-      /*  opt = opt || {};
-        if (!opt.local !== undefined && opt.local) {
-            if (this._selectControl) {
-                this._selectControl.deactivate();
-            }
-            return true;
-        }  
-        
-        var selectControle = this._._.controles._selectControle;
-        if (selectControle && selectControle.active) {
-            selectControle.deactivate();
-            selectControle.layers.remove(this._._layer);
-            if(selectControle.layers.length !== 0) {
-                selectControle.activate();
-            }
-        }*/
     };
     
     Vecteur.Controles.prototype._selection = function(e) {
@@ -866,50 +811,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         } else {
             e.occurence.vecteur.selectionnerOccurence(e.occurence);
         }
-        //that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
     };
-
-  /*  Vecteur.Controles.prototype.activerClique = function() {
-        this._.carte.ajouterDeclencheur('occurenceClique', this._clique, {scope: this});
-    };
-    
-    Vecteur.Controles.prototype.desactiverClique = function() { 
-        this._.carte.enleverDeclencheur('occurenceClique', null, this._clique);
-    };
-
-    Vecteur.Controles.prototype._clique = function(e) {
-        var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
-        that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
-    };
-    
-    Vecteur.Controles.prototype.activerMouseover = function() {   
-        this._.carte.ajouterDeclencheur('occurenceMouseover', this._mouseover, {scope: this});
-    };
-    
-    Vecteur.Controles.prototype.desactiverMouseover = function() { 
-        this._.carte.enleverDeclencheur('occurenceMouseover', null, this._mouseover);
-    };
-
-    Vecteur.Controles.prototype._mouseover = function(e) {
-        var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
-        that._.declencher({ type: "occurenceMouseover", occurence: e.occurence }); 
-    };
-
-    Vecteur.Controles.prototype.activerMouseout = function() {   
-        this._.carte.ajouterDeclencheur('occurenceMouseout', this._mouseout, {scope: this});
-    };
-    
-    Vecteur.Controles.prototype.desactiverMouseout = function() { 
-        this._.carte.enleverDeclencheur('occurenceMouseout', null, this._mouseout);
-    };
-
-    Vecteur.Controles.prototype._mouseout = function(e) {
-        var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
-        that._.declencher({ type: "occurenceMouseout", occurence: e.occurence }); 
-    };*/
     
     return Vecteur;
     
