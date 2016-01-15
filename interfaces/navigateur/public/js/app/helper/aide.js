@@ -627,7 +627,7 @@ define([], function() {
     */
     Aide.afficherInfobulle = function(contenu, options) {
         options = options || {};
-        clearInterval(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
+        clearTimeout(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
         var $divInfobulle = $('#divInfobulle');
         // Si l'infobulle n'est pas déjà créée, en faire la création
         if ($divInfobulle.length == 0){
@@ -679,7 +679,7 @@ define([], function() {
     * @name Aide#cacherInfobulle
     */
     Aide.cacherInfobulle = function(){
-         clearInterval(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
+         clearTimeout(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
         $('#divInfobulle').hide();
     };
    
