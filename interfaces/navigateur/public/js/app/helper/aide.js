@@ -627,6 +627,7 @@ define([], function() {
     */
     Aide.afficherInfobulle = function(contenu, options) {
         options = options || {};
+        clearInterval(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
         var $divInfobulle = $('#divInfobulle');
         // Si l'infobulle n'est pas déjà créée, en faire la création
         if ($divInfobulle.length == 0){
@@ -658,7 +659,7 @@ define([], function() {
             $divInfobulle.css({ 'top': options.y + 'px' });            
         } else {
             // Éviter que l'infobulle s'affiche en dehors de l'écran
-            var y = Math.round(this.obtenirNavigateur().carte.coordSouris.y) + this.obtenirNavigateur().obtenirPanneauxParType('PanneauCarte')[0]._panel.y - $divInfobulle.height();
+            var y = Math.round(this.obtenirNavigateur().carte.coordSouris.y) + this.obtenirNavigateur().obtenirPanneauxParType('PanneauCarte')[0]._panel.y - $divInfobulle.height() - 3;
             if (this.obtenirNavigateur().obtenirBarreOutils()){
                 y += this.obtenirNavigateur().obtenirBarreOutils()._panelContainer.getTopToolbar().getHeight();            
             }
@@ -678,6 +679,7 @@ define([], function() {
     * @name Aide#cacherInfobulle
     */
     Aide.cacherInfobulle = function(){
+         clearInterval(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
         $('#divInfobulle').hide();
     };
    
