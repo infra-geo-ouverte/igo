@@ -229,7 +229,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 that.declencher({
                     type: "quitterSurvolCarte"
                 });
-                clearInterval(that._timerEvenementPauseSurvol);
+                clearTimeout(that._timerEvenementPauseSurvol);
             },
             mousemove: function(e) {
                 that.coordSouris = e.xy;
@@ -242,9 +242,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     x: lonlat.lon,
                     y: lonlat.lat
                 });
-                clearInterval(that._timerEvenementPauseSurvol);
-                that._timerEvenementPauseSurvol = setInterval(function() {
-                    clearInterval(that._timerEvenementPauseSurvol);
+                clearTimeout(that._timerEvenementPauseSurvol);
+                that._timerEvenementPauseSurvol = setTimeout(function() {
+                    clearTimeout(that._timerEvenementPauseSurvol);
                     that.declencher({
                         type: "pauseSurvolCarte",
                         x: that._carteOL.getLonLatFromViewPortPx(that.coordSouris).lon,
