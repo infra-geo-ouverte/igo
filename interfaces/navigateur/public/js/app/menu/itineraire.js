@@ -878,6 +878,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     };
 
     Itineraire.Trajet.prototype.zoomEndEvent = function(){
+        if(!this._.marqueurs){
+            return false;
+        }
         var depart = this._.marqueurs.depart;
         var arrivee = this._.marqueurs.arrivee;
         var intermediaires = this._.marqueurs.intermediaires;
