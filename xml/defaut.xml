@@ -1,11 +1,20 @@
-<navigateur authentification="true" titre="IGO">
+<navigateur authentification="false" titre="Déméter II">
     <presentation>
            <panneaux>
                 <panneau classe="PanneauCarte"  />
-                <panneau classe="PanneauInfo" />
+                <panneau classe="PanneauInfo" position="nord" />
                 <panneau classe="PanneauMenu" ouvert="true" >
                     <element-accordeon classe="Arborescence" ouvert="true"/>
+                    <element-accordeon classe="Localisation">
+                        <element titre="Cadastre Rénové" classe="RechercheCadastreReno"/>
+						<element titre="Matricule" classe="RechercheMatricule"/>
+                        <element titre="Adresse" classe="RechercheAdresse"/>
+                        <element classe="RechercheLieu"/>
+                    </element-accordeon>
+					<!--<element-accordeon classe="Impression" ouvert="false"/> -->
                 </panneau>
+				<panneau classe="PanneauTable" id="panTable" position="sud" titre="Résultats"
+						dimension="100" minDimension="100" maxDimension="300" ouvert="false"/>
             </panneaux>
          <outils>
             <groupe-outils>
@@ -13,7 +22,7 @@
                 <outil classe="OutilZoomRectangle" type="avant"/>
                 <outil classe="OutilZoomRectangle" type="arriere"/>
                 <outil classe="OutilDeplacement"/>
-            </groupe-outils>
+		   </groupe-outils>
             <groupe-outils>
                 <outil classe="OutilHistoriqueNavigation" type="precedent"/>
                 <outil classe="OutilHistoriqueNavigation" type="suivant"/>
@@ -21,6 +30,13 @@
             <groupe-outils>
                 <outil classe="OutilMesure" type="lineaire"/>
                 <outil classe="OutilMesure" type="surface"/>
+            </groupe-outils>
+            <groupe-outils>
+                <menu titre="Zoom sur une région">
+                    <outil classe="OutilZoomPreselection" type="region-adm" titre="Par région administrative"/>
+                    <outil classe="OutilZoomPreselection" type="mrc" titre="Par MRC"/>
+                    <outil classe="OutilZoomPreselection" type="mun" titre="Par municipalité"/>
+                </menu>
             </groupe-outils>
             <groupe-outils>
                 <outil classe="OutilInfo" />
@@ -34,7 +50,22 @@
         </outils>
     </presentation>
     <contexte centre="-7994004,6034079" zoom="7"> </contexte>
-    <couches>
-        <couche titre="OpenStreetMap" protocole="OSM" groupe="Fond de carte"/> 
-    </couches>
+    <couches>  <!-- Commentaire -->
+		<!--<couche protocole="WMS" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq" mode="getCapabilities" />-->
+		
+		<couche id="renovation" titre="Cadastre rénové" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo"
+                    nom="cadastre" fond="false" groupe="Agriculture" protocole="WMS" />
+					
+		<couche id="lot_l" titre="lot_l" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo"
+                    nom="lot_l" fond="false" groupe="Agriculture" protocole="WMS" />
+		<couche titre="Zone agricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq"
+                    nom="zone_agricole" fond="false" groupe="Agriculture" protocole="WMS" active="true" visible="true" />
+		<couche id="decision" titre="Décision" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq"
+                    nom="decision,decision_p" fond="false" groupe="Agriculture" protocole="WMS" />
+		<couche titre="OpenStreetMap" protocole="OSM" groupe="Fond de carte" active="true" visible="true" />
+		<couche id="idCoucheGooglesatellite" protocole="Google" titre="Google (satellite)" nom="satellite" fond="true" echelleMin="6000000" echelleMax="1" groupe="Fond de carte" visible="true" active="faux" opacite="100" ordreAffichage="1"/>
+		<couche id="idCoucheGoogleterrain" protocole="Google" titre="Google (terrain)" nom="terrain" fond="true" echelleMin="6000000" echelleMax="1" groupe="Fond de carte" visible="true" active="faux" opacite="100" ordreAffichage="1"/>    
+		<couche id="idCoucheGoogleterrainhybride " protocole="Google" titre="Google (hybride)" nom="hybride" fond="true" echelleMin="6000000" echelleMax="1" groupe="Fond de carte" visible="true" active="faux" opacite="100" ordreAffichage="1"/>    
+		<couche id="idCoucheGoogleterrainroute" protocole="Google" titre="Google (route)" nom="route" fond="true" echelleMin="6000000" echelleMax="1" groupe="Fond de carte" visible="true" active="faux" opacite="100" ordreAffichage="1"/>    
+	</couches>
 </navigateur>
