@@ -52,7 +52,6 @@
     <contexte centre="-7994004,6034079" zoom="7"> </contexte>
     <couches>  <!-- Commentaire -->
 		<!--<couche protocole="WMS" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq" mode="getCapabilities" />-->
-		
 		<couche id="renovation" titre="Cadastre rénové" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo"
                     nom="cadastre" fond="false" groupe="Agriculture" protocole="WMS" />
 					
