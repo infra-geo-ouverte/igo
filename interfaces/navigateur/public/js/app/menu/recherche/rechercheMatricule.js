@@ -14,7 +14,7 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(
    * @constructor
    * @name Panneau.RechercheMatricule
    * @class Panneau.RechercheMatricule
-   * @alias rechercheAdresse:Panneau.RechercheMatricule
+   * @alias RechercheMatricule:Panneau.RechercheMatricule
    * @extends Recherche
    * @requires recherche, limites, point, vecteur, style
    * @param {object} [options] Objet contenant les propriétés du panneau
