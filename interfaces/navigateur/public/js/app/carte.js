@@ -9,7 +9,7 @@
  * @version 1.0
  */
 
-define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'libs/extension/OpenLayers/DrawFeatureEx', 'libs/extension/OpenLayers/CircleToMeasure', 'libs/extension/OpenLayers/MeasureCircle', 'libs/extension/OpenLayers/resetLayersZIndex'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte) {
+define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte) {
     /**
      * Création de l'object Carte.
      * @constructor

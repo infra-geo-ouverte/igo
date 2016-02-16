@@ -97,6 +97,7 @@ require.config({
                 fileUploadField: 'empty:',
                 getInfo: 'empty:',
                 handlebars: 'empty:',
-                IGODatePicker: 'empty:'
+                IGODatePicker: 'empty:',
+                fixOpenLayersRequire: 'empty:'
         }
 });

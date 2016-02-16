@@ -74,13 +74,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         opt = opt || {};
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            if(couche.obtenirTypeClasse() === "WMS"){
-                setTimeout(function() {
-                    that._ajouterCoucheCallbackEnd(couche, opt);
-                }, 1)
-            } else {
-                this._ajouterCoucheCallbackEnd(couche, opt);
-            }
+            this._ajouterCoucheCallbackEnd(couche, opt);
         };
     };
 
