@@ -153,9 +153,14 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     
     WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCalback){
         var that=this;
-
-        if(!response){
-            this._getCapabilitiesError();
+        if(!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length)){
+            var errorMessage;
+            if(response){
+                errorMessage = {
+                    responseText: response.getElementsByTagName("BODY")[0].textContent
+                }
+            }
+            this._getCapabilitiesError(errorMessage);
             return false;
         }
         var xml=new OpenLayers.Format.WMSCapabilities().read(response);
@@ -277,8 +282,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
     WMS.prototype._getCapabilitiesError = function(response, target, callback, optCalback){
         response = response || {};
-        if(response.status != 200){    
-            Aide.afficherMessageConsole('Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText);
+        if(response.status != 200){
+            var message = 'Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText;
+            console.log(message);
+            Aide.afficherMessageConsole(message);
             return false;
         }
         if(BrowserDetect.browser == "Explorer"){
