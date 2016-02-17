@@ -75,7 +75,7 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(
         var numMatricule = tabValeursRecherche["RechercheTitle" + this.options.id].replace(/ /g,'');
         
         if(!numMatricule){
-            Aide.afficherMessage({titre: "Recherche", message:'Vous devez saisir un matricule22'});
+            Aide.afficherMessage({titre: "Recherche", message:'Vous devez saisir un matricule'});
             return false;
         }
         
