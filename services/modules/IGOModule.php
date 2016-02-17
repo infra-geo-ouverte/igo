@@ -44,6 +44,13 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	protected $javascript = array();
 
 	/**
+	 * Liste des dépendances du module.
+	 *
+	 * @var array
+	 */
+	protected $dependances = array();
+
+	/**
 	 * Liste des script Javascript inclus par le module.
 	 *
 	 * @var array
@@ -73,6 +80,25 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 		$this->enregistrerJavascript(IGOModule::FICHIER_JAVASCRIPT_PRINCIPAL);
 		$this->enregistrerVue(IGOModule::FICHIER_VUE_PRINCIPAL);
 		$this->enregistrerFonction(IGOModule::FICHIER_FONCTION_PRINCIPAL);
+
+		$this->initialiserDependances();
+	}
+
+	/**
+	 * Initialise les configurations d'inter-dépendance entre modules.
+	 */
+	private function initialiserDependances() {
+		$this->dependances = array();
+
+		if($this->configuration->offsetExists('dependances')) {
+			$this->dependances = $this->configuration->offsetGet('dependances')->toArray();
+
+			foreach ($this->dependances as $dependance) {
+				if(!is_string($dependance)) {
+					throw new \Exception(print_r($dependance, true) . " n'est pas une valeur de dépendance valide. La définition d'une dépendance d'un module doit être de type 'string'.");
+				}
+			}
+		}
 	}
 
 	/**
@@ -112,6 +138,13 @@ abstract class IGOModule extends Plugin implements IIGOModule {
 	 */
 	public function obtenirConfiguration() {
 		return $this->configuration;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function obtenirDependances() {
+		return $this->dependances;
 	}
 
 	/**
