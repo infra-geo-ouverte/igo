@@ -208,10 +208,19 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         } else {
                             xmlOptions = {
                                 titre: value.title,
-                                droit: value.attribution ? value.attribution.href : undefined,
                                 echelleMin: value.minScale,
                                 echelleMax: value.maxScale
                             };
+
+                            if(value.attribution){
+                                xmlOptions.droitTitre = value.attribution.title;
+                                xmlOptions.droitLien = value.attribution.href;
+                                if(value.attribution.logo){
+                                    xmlOptions.droitLogo = value.attribution.logo.href;
+                                    xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                                    xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                                }
+                            }
 
                             if(value.dataURL && value.dataURL.format === 'igo'){ //"wms_dataurl_format" "igo"
                                 var idMeta = value.dataURL.href;
@@ -250,11 +259,19 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 } else if (iCL===1){
                     xmlOptions = {
                         titre: value.title,
-                        droit: value.attribution ? value.attribution.href : undefined,
                         echelleMin: value.minScale,
                         echelleMax: value.maxScale,
                         groupe: "Couches WMS ajoutées" 
                     };
+                    if(value.attribution){
+                        xmlOptions.droitTitre = value.attribution.title;
+                        xmlOptions.droitLien = value.attribution.href;
+                        if(value.attribution.logo){
+                            xmlOptions.droitLogo = value.attribution.logo.href;
+                            xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                            xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                        }
+                    }
                     if (len===1){
                             return false;
                     };

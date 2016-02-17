@@ -53,7 +53,7 @@ define(['couche'], function(Couche) {
                             window.location.protocol+"//c.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png"];
                     break;
                 case "humanitaire":
-                    var HOTAttribution = '<table><tr><td>© Contributions<a href="http://hot.openstreetmap.org/" target="_blank"></a></td><td><a class="styleAttributionTable" href="http://hot.openstreetmap.org/" target="_blank"> OpenStreetMap</a> Humanitaire</td></tr></table>';
+                    var HOTAttribution = '© Contributions<a href="http://hot.openstreetmap.org/" target="_blank"></a> <a class="styleAttributionTable" href="http://hot.openstreetmap.org/" target="_blank"> OpenStreetMap</a> Humanitaire';
                     var get_my_url = function(bounds) {
                         var res = this.map.getResolution();
                         var x = Math.round ((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
