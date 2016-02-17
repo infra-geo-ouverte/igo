@@ -111,7 +111,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         //this.gestionCouches.ajouterCouche(new Blanc({visible:true, active:true}));
 
         //Controles
-        this._carteOL.addControl(new OpenLayers.Control.Attribution());
+        this._carteOL.addControl(new OpenLayers.Control.Attribution({separator: ', '}));
         this._carteOL.addControl(new OpenLayers.Control.PanPanel());
         this._carteOL.addControl(new OpenLayers.Control.ZoomPanel());
         this._carteOL.addControl(new OpenLayers.Control.Navigation({

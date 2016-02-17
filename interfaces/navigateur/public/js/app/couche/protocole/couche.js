@@ -77,12 +77,38 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             };
         }
 
+        var attribution;
+        if(typeof opt.droit === 'string'){
+            attribution = opt.droit.trim();
+        } else if(opt.droitTitre || opt.droitLogo){
+            var attribution = '<span>';
+
+            if(opt.droitLien){
+                attribution += '<a target="_blank" href="'+opt.droitLien+'">';
+            } 
+            if(opt.droitLogo){    
+                attribution += '<img width="'+opt.droitLogoLargeur+'" height="'+opt.droitLogoHauteur+'" src="'+opt.droitLogo+'">';
+            }
+
+            if(opt.droitLien){
+                attribution += '</a>&nbsp;<a target="_blank" href="'+opt.droitLien+'">';
+            } 
+            
+            attribution += opt.droitTitre;
+
+            if(opt.droitLien){
+                attribution += '</a>';
+            } 
+
+            attribution += '</span>';                           
+        }
+
         this._optionsOL = $.extend({ 
             isBaseLayer: Aide.toBoolean(opt.fond),
             minScale: opt.echelleMin, //todo: defaultMapOptions.resolutions[11] || this.carte.getResolutionForZoom(opt.niveauZoomMin), //echelleMin: grand nombre
             maxScale: opt.echelleMax, //|| this.carte.getResolutionForZoom(opt.niveauZoomMax), //echelleMax: petit nombre
             group: opt.groupe,
-            attribution: opt.droit,
+            attribution: attribution,
             typeContexte: opt.typeContexte,
             displayInLayerSwitcher: Aide.toBoolean(opt.visible),
             legende: Aide.toBoolean(opt.legende),
