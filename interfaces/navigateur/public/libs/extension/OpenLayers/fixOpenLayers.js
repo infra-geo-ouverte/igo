@@ -1,11 +1,10 @@
 require.config({
     paths: {
-        "fixOpenLayersRequire": "libs/extension/OpenLayers/fixOpenLayers"
+        "fixOpenLayersRequire": "libs/extension/OpenLayers/DrawFeatureEx"
     },
     shim: {
         'fixOpenLayersRequire': {
             deps: [
-				'libs/extension/OpenLayers/DrawFeatureEx', 
 				'libs/extension/OpenLayers/CircleToMeasure', 
 				'libs/extension/OpenLayers/MeasureCircle', 
 				'libs/extension/OpenLayers/resetLayersZIndex', 
