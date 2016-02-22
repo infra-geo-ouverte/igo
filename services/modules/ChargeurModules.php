@@ -185,6 +185,17 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 		        	return false;
 		        }
 			}
+
+			//Par défaut
+			if(is_null($permis) && isset($configGlobal->permissions['*'])){
+				$identifiant = $configGlobal->permissions['*'];
+				if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
+					$permis = $identifiant->modules[$espaceDeNoms];		
+					if($permis === false || is_object($permis)){
+						return $permis;
+					} 
+				}
+			}
 		}
 
 		//anonyme
