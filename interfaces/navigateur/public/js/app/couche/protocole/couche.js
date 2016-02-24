@@ -103,6 +103,14 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             attribution += '</span>';                           
         }
 
+        var layerActif = Aide.obtenirParametreURL("layeractif");
+        if(layerActif){
+            layerActif = layerActif.split(',');
+            if(layerActif.indexOf(opt.nom) !== -1){
+                opt.active = true;
+            }
+        }
+
         this._optionsOL = $.extend({ 
             isBaseLayer: Aide.toBoolean(opt.fond),
             minScale: opt.echelleMin, //todo: defaultMapOptions.resolutions[11] || this.carte.getResolutionForZoom(opt.niveauZoomMin), //echelleMin: grand nombre
@@ -192,6 +200,17 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     Couche.prototype.obtenirGroupe = function() { 
         return this.options.groupe;
     };
+
+    /** 
+    * Obtenir le nom de la couche
+    * @method 
+    * @name Couche#obtenirNom
+    * @returns {String} Nom de la couche
+    */
+    Couche.prototype.obtenirNom = function() { 
+        return this.options.nom;
+    };
+
 
     /** 
     * Obtenir l'identifiant de la couche

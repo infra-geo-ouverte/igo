@@ -23,6 +23,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
      * @property {Dictionnaire} options Options de la carte.
      */
     function Carte(options) {
+        this.isReady = false;
         this.gestionCouches = new GestionCouches(this);
         this.options = options || {};
         this._init();
