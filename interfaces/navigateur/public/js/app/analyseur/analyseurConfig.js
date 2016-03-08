@@ -613,7 +613,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             contexteUrl = Aide.obtenirConfig('uri.api')+"contexteCode/" + contexteCode;
         } else {
             this.fin.couches = true;
-            this._analyserContexte();
+            setTimeout(function () {
+                that.igo.nav.carte.gestionCouches.ajouterCouches(that.listCouchesApresContexte);
+                that._analyserContexte();
+            }, 1);
+
             return true;
         }
 
