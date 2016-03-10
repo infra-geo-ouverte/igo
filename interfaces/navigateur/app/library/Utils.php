@@ -357,4 +357,14 @@ class Utils{
             return $contenu;
     }
     
+    /**
+     * Remplace les lettres avec accent par leur équivalent sans accent, dans une chaine de caractères.
+     *
+     * @link http://stackoverflow.com/questions/27680624/compare-two-string-and-ignore-but-not-replace-accents-php
+     * @param  string $string La chaine de caractères.
+     * @return string La chaine de caractères avec les accents enlevés.
+     */
+    static function enleverAccents($chaine) {
+        return strtolower(trim(preg_replace('~[^0-9a-z]+~i', '-', preg_replace('~&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i', '$1', htmlentities($chaine, ENT_QUOTES, 'UTF-8'))), ' '));
+    }
 }

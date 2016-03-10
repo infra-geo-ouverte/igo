@@ -8,8 +8,7 @@
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
-
-define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte) {
+define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'html2canvas', 'html2canvassvg', 'es6promise', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte, Html2Canvas) {
     /**
      * Création de l'object Carte.
      * @constructor
@@ -282,6 +281,30 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 }
             }
         };
+    };
+
+    /**
+     * Permet d'exporter une image de la carte au format PNG.
+     * @method
+     * @name Carte#exporterImage
+     * @return {Image} Une version image PNG de la carte
+     */
+    Carte.prototype.exporterImage = function() {
+        var deferred = jQuery.Deferred();
+        var options = {};
+
+        Html2Canvas(this._carteOL.div).then(function(canvas) {
+            var image = new Image();
+            image.src = canvas.toDataURL("image/png");
+            image.onload = function () {
+                deferred.resolve(image);
+            }
+            image.onerror = function() {
+                deferred.reject();
+            };
+        });
+
+        return deferred.promise();
     };
 
     /**
