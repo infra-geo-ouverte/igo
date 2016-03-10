@@ -35,31 +35,11 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(
     RechercheMatricule.prototype.constructor = RechercheMatricule;
     
     RechercheMatricule.prototype.obtenirElementsRecherche = function() {
-        var that = this;
-        return [{
-            xtype: 'textfield',  
-            enforceMaxLength:true,   //Activer le maximum de caractère 
-            maxLength: 18,           //Maximum de caractères
-            maskRe:/[0-9.]/,         //Autoriser les chiffres seulement
-            fieldLabel: 'Texte',
-            hideLabel: true,
-            width: 200,
-            id: 'RechercheTitle' + this.options.id,
-            allowBlank: false,
-            blankText: 'Vous devez saisir au moins 1 chiffre...',
-            enableKeyEvents: true,
-            scope: this,
-            listeners: {
-                keyup: function(field, e) {
-                    var key = e.getKey();
-                    if (key == 13) {
-                        that.lancerRecherche();
-                    } 
-                }
-            }
-        }];
-    };
-     
+        var textField = Recherche.prototype.obtenirElementsRecherche.call(this);
+        textField[0].maskRe = /[0-9.]/;
+        return textField; 
+    }
+        
     /**
     * Appeler le service de la recherche par Matricule
     * @method
@@ -116,10 +96,6 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(
         
         //Définir les données séparément
         var numMatricule = Tabinfos[0];
-        //var xmin = parseFloat(Tabinfos[1]);
-        //var ymin = parseFloat(Tabinfos[2]);
-       //var xmax = parseFloat(Tabinfos[3]);
-        //var ymax = parseFloat(Tabinfos[4]);
         var pointx = parseFloat(Tabinfos[1]);
         var pointy = parseFloat(Tabinfos[2]);
         var projection = parseFloat(Tabinfos[3]); 
@@ -146,11 +122,11 @@ define(['limites', 'point', 'marqueurs', 'style', 'recherche','aide'], function(
          
         this.vecteur.zoomerMarqueurs();
          
-        var couche = this.carte.gestionCouches.obtenirCouchesParTitre("Cadastre rénové - bas niveau")[0];
-
-        if(couche !== undefined){
-            couche.activer();                   
-        }
+//        var couche = this.carte.gestionCouches.obtenirCouchesParTitre("Cadastre rénové - bas niveau")[0];
+//
+//        if(couche !== undefined){
+//            couche.activer();                   
+//        }
          
 
     };
