@@ -98,6 +98,9 @@ require.config({
                 getInfo: 'empty:',
                 handlebars: 'empty:',
                 IGODatePicker: 'empty:',
-                fixOpenLayersRequire: 'empty:'
+                fixOpenLayersRequire: 'empty:',
+                html2canvas: 'empty:',
+                html2canvassvg: 'empty:',
+                es6promise: 'empty:'
         }
 });
