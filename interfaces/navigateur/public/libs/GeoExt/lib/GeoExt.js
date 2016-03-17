@@ -112,6 +112,7 @@
             "GeoExt/widgets/UrlLegend.js",
             "GeoExt/widgets/WMSLegend.js",
             "GeoExt/widgets/VectorLegend.js",
+            "GeoExt/widgets/ArcgisLegend.js",
             "GeoExt/widgets/LegendPanel.js",
             "GeoExt/widgets/ZoomSlider.js",
             "GeoExt/widgets/grid/FeatureSelectionModel.js",

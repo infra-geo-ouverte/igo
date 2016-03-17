@@ -174,31 +174,16 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
         if (args.couche.options.wms_timeextent) {        
             // This is a layer from the MSP map file. In which case we read the msp metadata.
             // Create the DatePicker
-            var timeExtentArray = args.couche.options.wms_timeextent.split("/");							
-            var startDate = Fonctions.createDateFromIsoString(timeExtentArray[0]);
-            var endDate=null;
-            var allowIntervals=null;
-            if(timeExtentArray.length>1){
-                endDate = Fonctions.createDateFromIsoString(timeExtentArray[1]);
-                allowIntervals = true;
-            }
-            else{
-                endDate = null;
-                allowIntervals = false;
-            }
-            
-            if(args.couche.options.wms_timeAllowIntervals){
-                allowIntervals = Aide.toBoolean(args.couche.options.wms_timeAllowIntervals);
-            }
-            
+            var periode = Fonctions.obtenirPeriodeTemps(args.couche.options.wms_timeextent);
+      
             var datePicker = new DateTimeIntervalPicker({
                 id : 'datePicker',
                 layer : args.couche._layer,
-                allowIntervals : allowIntervals,
-                minStartDate : startDate,
-                maxEndDate : endDate,
+                allowIntervals : periode.allowIntervals,
+                minStartDate : periode.min,
+                maxEndDate : periode.max,
                 mapServerTimeString : args.couche.options.wms_timedefault,
-                precision : args.couche.options.wms_timeprecision || 'minute'
+                precision : args.couche.options.wms_timeprecision || periode.precision
             });
 
             return {

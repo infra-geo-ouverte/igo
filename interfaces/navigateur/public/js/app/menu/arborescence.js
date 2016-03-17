@@ -107,7 +107,12 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
         if(coucheSpan){
             var caseInput = coucheSpan.parent().parent().find("input");
             if(caseInput){
-                caseInput.click();
+                if(caseInput[0].disabled){
+                    caseInput.prop('checked', true);
+                    couche.activer();
+                } else {
+                    caseInput.click();
+                }
             }
         }
     };

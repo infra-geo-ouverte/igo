@@ -60,7 +60,7 @@ define([], function(){
                         html += "<p style=\"padding:10px;\">" + messageErreur + "</p>"
                         $("#igoInstance").html(html);
                     }
-                }, 1000);
+                }, 1500);
             }
 
             throw new Error("Le module '" + err.requireModules + "' n'a pas été chargé: " + err.originalError.target.src);

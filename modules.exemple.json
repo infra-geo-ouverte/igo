@@ -1,10 +1,9 @@
 {
-	"demo": {
-	    "options": {
-			"repository": "git@github.com:infra-geo-ouverte/module-demo.git",
-			"branch": "master",
-			"directory": "modules/demo/"
-	    }
-	}
+	"specifique": {
+		"options": {
+			"repository": "[git]",
+ 			"branch": "master",
+			"directory": "modules/specifique/"
+ 	    }
+ 	}
 }
-

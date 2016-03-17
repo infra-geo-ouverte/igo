@@ -216,13 +216,13 @@ igo.initConfigs = function(grunt){
                 mode: '770'
             },
             cacheDossier: {
-                src: ['interfaces/navigateur/app/cache/', 'pilotage/app/cache/']
+                src: ['interfaces/navigateur/app/cache/']
             },
             cacheFichier: {
                 options: {
                     mode: '660'
                 },
-                src: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*']
+                src: ['interfaces/navigateur/app/cache/*']
             }
         },
         shell: {
@@ -295,7 +295,7 @@ igo.initConfigs = function(grunt){
             }
         },
         clean: {
-            cache: ['interfaces/navigateur/app/cache/*', 'pilotage/app/cache/*']
+            cache: ['interfaces/navigateur/app/cache/*']
         },
         watch: {
             scripts: {
@@ -339,14 +339,19 @@ igo.includeModules = function(grunt, modules){
     if(!modules){
         return false;
     }
+
+    var base = '';
+    if(grunt['projectPath']){
+        base = grunt['projectPath'] + '/'; 
+    }
     for (var key in modules) {
         var mod = modules[key];
         if(!mod.options){
             continue;
         }
-        if(grunt.file.isDir(mod.options.directory) && grunt.file.isFile(mod.options.directory + '/Gruntfile.js')){
+        if(grunt.file.isDir(base + mod.options.directory) && grunt.file.isFile(base + mod.options.directory + '/Gruntfile.js')){
             require("grunt-load-gruntfile")(grunt);
-            grunt.loadGruntfile(mod.options.directory);
+            grunt.loadGruntfile(base + mod.options.directory);
         } 
     }; 
 }
@@ -373,12 +378,12 @@ igo.initTasks = function(grunt){
 
     grunt.registerTask('default', ['libs', 'build', 'cache']);
     grunt.registerTask('build', ['buildIgo', 'buildLibs']);
-    grunt.registerTask('buildIgo', ['requirejs']);
+    grunt.registerTask('buildIgo', 'build les js Igo', ['requirejs']);
     grunt.registerTask('buildLibs', ['shell:buildOpenLayers', 'uglify:LayerTreeBuilder', 'uglify:WMSBrowser', 'uglify:GeoExt', 'uglify:GeoExtDebug']);
     grunt.registerTask('cache', ['clean:cache', 'chmod:cacheDossier', 'chmod:cacheFichier']);
     grunt.registerTask('libs', ['shell:bowerinstall']);
-    grunt.registerTask('doc', ['jsdoc']);
-    grunt.registerTask('qUnit', ['shell:qUnit']);
+    grunt.registerTask('doc', 'Génération de la documentation', ['jsdoc']);
+    grunt.registerTask('qUnit', 'Lancer les tests unitaires', ['shell:qUnit']);
     grunt.registerTask('notify', ['notify:watch']);
     grunt.registerTask('surveiller', ['watch:scripts']);
     grunt.registerTask('gruntConfig', ['copy:gruntConfig']);

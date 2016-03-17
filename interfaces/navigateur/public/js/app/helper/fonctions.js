@@ -244,30 +244,30 @@ define([], function() {
     };
     
     Fonctions.createDateFromIsoString = function(isoDateString){		
-	var date = new Date();
-	var strArray = isoDateString.split("-");
-	switch(strArray.length){
-            case 0:
-                alert("Le format de la date pour cette couche n'est pas supporté.");
+    	var date = new Date();
+    	var strArray = isoDateString.split("-");
+    	switch(strArray.length){
+                case 0:
+                    alert("Le format de la date pour cette couche n'est pas supporté.");
+                    break;
+                case 1:
+                    date.setUTCFullYear(strArray[0]);
+                    break;
+                case 2:
+                    date.setUTCFullYear(strArray[0]);
+                    date.setUTCMonth(strArray[1] - 1);
                 break;
-            case 1:
-                date.setUTCFullYear(strArray[0]);
-                break;
-            case 2:
-                date.setUTCFullYear(strArray[0]);
-                date.setUTCMonth(strArray[1] - 1);
-            break;
-            case 3:     
-                if(strArray[2].split("T")[1]){
-                    date.setUTCHours(strArray[2].split("T")[1].split(":")[0]);
-                }
-                date.setUTCDate(strArray[2].split("T")[0]);
-                date.setUTCMonth(strArray[1] - 1);
-                date.setUTCFullYear(strArray[0]);
-                break;
-	}
-        
-	return date;
+                case 3:     
+                    if(strArray[2].split("T")[1]){
+                        date.setUTCHours(strArray[2].split("T")[1].split(":")[0]);
+                    }
+                    date.setUTCDate(strArray[2].split("T")[0]);
+                    date.setUTCMonth(strArray[1] - 1);
+                    date.setUTCFullYear(strArray[0]);
+                    break;
+    	}
+            
+    	return date;
     };    
     
     Fonctions.rgbToHex = function(r, g, b){
@@ -289,6 +289,83 @@ define([], function() {
         return mesure*metresParUniteDepart/metresParUniteConvertie;
     };
     
+    
+    Fonctions.obtenirPeriodeTemps = function(isoTimeString){
+                   
+            var timeExtentArray = isoTimeString.split("/");							
+            var startDate = this.createDateFromIsoString(timeExtentArray[0]);
+            var endDate=null;
+            var allowIntervals=null;
+            var defautPrecision;
+            if(timeExtentArray.length>1){
+                endDate = this.createDateFromIsoString(timeExtentArray[1]);
+                allowIntervals = true;
+                if(timeExtentArray[2]){
+                    switch (timeExtentArray[2][timeExtentArray[2].length-1]){
+                        case 'S':
+                            defautPrecision = 'seconde';
+                        break;
+                        case 'M':
+                            defautPrecision = 'minute';
+                        break;
+                        case 'H':
+                            defautPrecision = 'heure';
+                        break;
+                        case 'D':
+                            defautPrecision = 'jour';
+                        break;
+                        case 'M':
+                            defautPrecision = 'mois';
+                        break;
+                        case 'Y':
+                            defautPrecision = 'annee';
+                        break;
+                    }
+                }
+            } else{
+                endDate = null;
+                allowIntervals = false;
+            }
+            
+             if(!defautPrecision){
+                var strArray = timeExtentArray[0].split("-");
+                var heureArray;
+                switch(strArray.length){
+                    case 1:
+                        defautPrecision = 'annee';
+                        break;
+                    case 2:
+                        defautPrecision = 'mois';
+                        break;
+                    case 3:   
+                        defautPrecision = 'jour';
+                        if(strArray[2].split("T")[1]){
+                            heureArray = strArray[2].split("T")[1].split(':');
+                        }
+                        break;
+                }
+                if(heureArray){
+                    switch(heureArray.length){
+                        case 1:
+                            defautPrecision = 'heure';
+                            break;
+                        case 2:
+                            defautPrecision = 'minute';
+                            break;
+                        case 3:   
+                            defautPrecision = 'seconde';
+                            break;
+                    }
+                }
+            }
+            
+              return {min: startDate,
+                      max: endDate,
+                      allowIntervals: allowIntervals,
+                      precision: defautPrecision};
+    };
+    
+   
     Fonctions.obtenirMetresParUnite = function(unite){
         var metres;
         switch(unite) {

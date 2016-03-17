@@ -58,6 +58,13 @@ interface IIGOModule {
 	 */
 	public function obtenirConfiguration();
 
+	/**
+	 * Obtient la liste des dépendances du module.
+	 *
+	 * @return array
+	 */
+	public function obtenirDependances();
+
     /**
 	 * Retour la liste de tous les services inclus par le module qui implémente l'interface spécifiée
 	 *

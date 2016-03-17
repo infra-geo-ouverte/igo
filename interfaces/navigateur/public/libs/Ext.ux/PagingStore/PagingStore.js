@@ -423,7 +423,11 @@ Ext.ux.data.PagingXmlStore = Ext.extend(Ext.ux.data.PagingStore, {
 Ext.reg('pagingxmlstore', Ext.ux.data.PagingXmlStore);
 
 Ext.ux.data.PagingArrayStore = Ext.extend(Ext.ux.data.PagingStore, {
-    constructor: Ext.data.ArrayStore.prototype.constructor,
+    constructor: function(config) {
+        Ext.ux.data.PagingArrayStore.superclass.constructor.call(this, Ext.apply(config, {
+            reader: new Ext.data.ArrayReader(config)
+        }));
+    },
     loadData: function (data, append) {
         if (this.expandData === true) {
             var r = [];

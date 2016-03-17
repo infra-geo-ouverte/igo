@@ -29,6 +29,7 @@ define(['aide'], function(Aide) {
         
         if(lienExt && Aide.toBoolean(lienExt) !== true){
             lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
+            lienExt = Aide.utiliserProxy(lienExt);
             this.parse({responseText: "<iframe style='width:800px; height:800px;' src='"+lienExt+"'></iframe>"});
             return true; 
         }  
