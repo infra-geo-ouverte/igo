@@ -292,8 +292,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
     Carte.prototype.exporterImage = function() {
         var deferred = jQuery.Deferred();
         var options = {};
+        
+        window.html2canvas = Html2Canvas;
 
-        Html2Canvas(this._carteOL.div).then(function(canvas) {
+        Html2Canvas(this._carteOL.div, {
+            useCORS: true,
+            allowTaint: true
+          }).then(function(canvas) {
             var image = new Image();
             image.src = canvas.toDataURL("image/png");
             image.onload = function () {
