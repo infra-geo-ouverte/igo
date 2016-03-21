@@ -330,12 +330,16 @@ class IgoController extends ControllerBase {
      * vérifie si URL ou nom du service est permis selon config.php.
      */
     public function verifierPermis($szUrl, $restService=false){
-        return obtenirPermisUrl($szUrl, $restService) !== false;
+        return self::obtenirPermisUrl($szUrl, $restService) !== false;
     }
 
-    public function obtenirPermisUrl($szUrl, $restService=false){
+    private function obtenirPermisUrl($szUrl, $restService=false){
         //vérifier URL 
         //Services
+   
+        //$f = fopen ('/var/systemes/igo_unit/interfaces/navigateur/api/controller.txt', 'w');
+        //fwrite($f, $szUrl ."\n"); 
+        
         $url = "";
 
         $serviceRep = array(
@@ -343,7 +347,12 @@ class IgoController extends ControllerBase {
             "test" => false
         );
 
+  
         $session = $this->getDI()->getSession();
+    
+       //fwrite ($f, new Phalcon\Debug\Dump())->variable($session, " session")."\n";
+       //fwrite($f,  var_dump($session) ."\n");
+            
         
         if($session->has("info_utilisateur") && isset($this->config['permissions'])) {
             //utilisateur
@@ -380,7 +389,10 @@ class IgoController extends ControllerBase {
 
         //general
         if (($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
+         
             $servicesExternes = $this->config['servicesExternes'];
+           //fwrite($f, implode(",", $servicesExternes) ."\n");
+            
             $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes, $restService);
         }
 
@@ -405,11 +417,17 @@ class IgoController extends ControllerBase {
                 $szUrl = array("url" => $serviceRep["url"]);    
             }
         }
-
+  
+        
+        //fwrite($f, implode(",", $szUrl) ."\n"); 
+        //fclose ($f);
         return $szUrl;
+
     }
-    
-     /**
+
+
+
+ /**
      * Obtenir Chaine de connexion au site securise
      * @param ??? $service
      * @param ??? $restService
@@ -419,8 +437,8 @@ class IgoController extends ControllerBase {
     public function obtenirChaineConnexion($service, $restService=false){  
         global $app;
        
-        $permisUrl = $this->obtenirPermisUrl($service, $restService);
-        
+        $permisUrl = self::obtenirPermisUrl($service, $restService);
+           
         if($permisUrl === false){
             http_response_code(403);
             die("Vous n'avez pas les droits pour ce service.");
@@ -443,7 +461,7 @@ class IgoController extends ControllerBase {
             }
 
             if(!empty($permisUrl['connexion'])){
-                $crypt = $app->getDI()->get("crypt");
+                $crypt = $this->getDI()->get("crypt");
                 $chaine = explode(",", $crypt->decryptBase64(urldecode($permisUrl['connexion'])));
                 $auth['user'] = ltrim(trim($chaine[0]), " user:");
                 $auth['pass'] = ltrim(trim($chaine[1]), " pass:");
@@ -552,7 +570,6 @@ class IgoController extends ControllerBase {
 
         return $ch;
     }
-
     private function verifieDomaineRegexFunc($service, $arrayRegex) {
         foreach ($arrayRegex as $regex) {
             if ($regex[0] === '#' || $regex[0] === '/') {
