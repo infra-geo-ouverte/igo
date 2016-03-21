@@ -805,8 +805,6 @@ try {
         $igoController = new IgoController();
         $auth = $igoController->obtenirChaineConnexion($service, $restService);  
         
-        $url = $auth['url'];    
-
         $authtmp['auth'] = $auth;
         $options = array_merge($options, $authtmp);
         
