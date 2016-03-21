@@ -201,6 +201,7 @@ class ConnexionController extends Controller{
     
     public function anonymeAction($estAuthentifier = FALSE){
         $configuration = $this->getDI()->get("config");
+
         if($configuration->application->authentification->permettreAccesAnonyme){
             if(!$this->session->has("info_utilisateur")) {
                 $this->session->set("info_utilisateur", new SessionController());
@@ -226,7 +227,9 @@ class ConnexionController extends Controller{
                     $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$nomProfilAnonyme}'")->toArray();
                 }
             }
+           
             return $this->redirigeVersPage();        
+        
         } else {
             $this->dispatcher->forward(array(
                 "controller" => "error",
@@ -236,9 +239,10 @@ class ConnexionController extends Controller{
     }
     
     private function redirigeVersPage(){ 
-        
-        $page = $this->obtenirPageRedirection();
 
+        $configuration = $this->getDI()->get("config");
+        $page = $this->obtenirPageRedirection();
+       
         if ($page) {
             if(!$configuration->application->authentification->activerSelectionRole){
                 $this->session->remove("page");
