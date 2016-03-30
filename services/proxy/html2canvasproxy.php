@@ -11,8 +11,6 @@ error_reporting(0);
 
 $config = include __DIR__ . '/../../config/config.php';
 
-
-var_dump($_REQUEST); die;
 $domainsWhitelist = null;
 
 if(isset($config['html2canvas'])) {
