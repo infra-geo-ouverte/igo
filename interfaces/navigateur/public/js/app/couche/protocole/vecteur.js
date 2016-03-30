@@ -35,6 +35,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.listeOccurences = [];
         this.styles={};
         this.templates={};
+        this.defautOptions.rafraichissementPermis = true;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
@@ -165,6 +166,23 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
     /** 
+    * Obtenir la liste des occurences pas sélectionnées.
+    * @method 
+    * @name Couche.Vecteur#obtenirOccurencesNonSelectionnees
+    * @returns {Tableau} Tableau de {@link Occurence}
+    */
+    Vecteur.prototype.obtenirOccurencesNonSelectionnees = function() { 
+        var occurences=[];
+        $.each(this.obtenirOccurences(), function(key, value){
+            if(!value.selectionnee){
+                occurences.push(value);
+            };
+        });
+        return occurences;
+    };
+    
+    
+    /** 
     * Obtenir l'occurence ayant l'id entré en paramètre.
     * @method 
     * @name Couche.Vecteur#obtenirOccurenceParId
@@ -205,13 +223,11 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.deselectionnerTout = function(opt) { 
-        var that=this;
+        
         var opt = opt || {};
-        $.each(this.obtenirOccurencesSelectionnees(), function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-                that.deselectionnerOccurence(value);
-            }
-        });
+        var occurences = this.obtenirOccurencesSelectionnees();
+        this.processThis('deselectionnerOccurence',occurences,opt);
+
     };
     
       /** 
@@ -221,34 +237,58 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.selectionnerTout = function(opt) { 
-        var that=this;
-        var opt = opt || {};    
-         $.each(this.obtenirOccurences(), function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-                that.selectionnerOccurence(value);
-            }
-        });
+        
+        var opt = opt || {};
+        var occurences = this.obtenirOccurences();
+        this.processThis('selectionnerOccurence', occurences, opt);
+
     };
-    
-       /** 
+
+
+    /**
+    * Effectuer une méthode sans rafraichir la couche.
+    * @method
+    * @name Couche.Vecteur#processThis
+    * @param {func} la méthode a effectuer
+    * @param {param} Array contenant le paramètre d'une méthode de This (Vecteur)
+                      OU l'objet contenant la méthode
+    * @param {opt} exceptions
+    */
+    Vecteur.prototype.processThis = function(func, param, opt){
+        var that=this;
+        this.options.rafraichissementPermis = false;
+
+        if(this[func] !== undefined){
+            $.each(param, function(key, value){
+                if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
+                    that[func](value);
+                }
+            });
+        }
+        else{
+            $.each(param, function(key, value){
+                value[func](opt);
+            });
+        }
+
+        this.options.rafraichissementPermis = true;
+        this.rafraichir();
+    }
+
+       /**
     * Inverser la sélection des occurences
     * @method 
     * @name Couche.Vecteur#selectionnerInverse
     * @param {Opt} Possibilité de passer une option
     */
     Vecteur.prototype.selectionnerInverse = function(opt) { 
-        var that=this;
-        var opt = opt || {}; 
-        //todo: throw error si trop occurences... 
-          $.each(this.obtenirOccurences(), function(key, value){
-            if(!opt.exceptions || $.inArray(value, opt.exceptions) === -1){
-             if(value.selectionnee){
-                 that.deselectionnerOccurence(value);
-               } else{
-                 that.selectionnerOccurence(value);
-            }  
-         }}); 
         
+        var opt = opt || {};
+        var selectionPassee = this.obtenirOccurencesSelectionnees();
+        var selectionFutur = this.obtenirOccurencesNonSelectionnees();
+        this.processThis('deselectionnerOccurence', selectionPassee, opt);
+        this.processThis('selectionnerOccurence', selectionFutur, opt);
+
     };
     
     /** 
@@ -318,6 +358,10 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
         this.listeOccurences.push(occurence);
         if(!opt.existe){
+            if(!this._layer.map){
+                console.warn("Cette couche n'est pas associée à la carte, l'ajout d'occurrence n'est pas permis.");
+                return false;
+            }
             occurence._feature.utilisateur=true;
             this._layer.addFeatures(occurence._feature);
         };
@@ -447,17 +491,49 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     };
     
 
-    Vecteur.prototype.cacherOccurence = function(occurence) { 
-        if(!occurence || occurence.vecteur !== this){return false};
-        occurence.cacher();
+
+    Vecteur.prototype.cacherOccurence = function(occurence,tousLesStyles) {
+        
+         var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+
+        if(Array.isArray(occurence)){
+            $.each(occurence, function(index, value){
+                value.cacher(tousStyles);
+            })
+        }else{
+            if(!occurence || occurence.vecteur !== this){return false};
+            occurence.cacher(tousStyles);
+        }
     };
 
-    Vecteur.prototype.afficherOccurence = function(occurence) { 
-        if(!occurence || occurence.vecteur !== this){return false};
-        occurence.afficher();
+    Vecteur.prototype.cacherTout = function(tousLesStyles) {
+
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        var selection = this.obtenirOccurences();
+        this.processThis('cacher', selection, tousLesStyles);
+
     };
-    
-    /** 
+
+    Vecteur.prototype.afficherOccurence = function(occurence, tousStyles) {
+
+        var tousStyles = tousLesStyles===undefined?false:tousLesStyles;
+
+        if(Array.isArray(occurence)){
+            this.processThis('afficher', occurence, tousStyles);
+        }else{
+            if(!occurence || occurence.vecteur !== this){return false};
+            occurence.afficher(tousStyles);
+        }
+    };
+
+    Vecteur.prototype.afficherTout = function(tousLesStyles) {
+
+        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        var selection = this.obtenirOccurences();
+        this.processThis('afficher', selection, tousLesStyles);
+
+    };
+    /**
      * Obtenir l'emprise de toutes les occurences de la couche
      * @method 
      * @name Couche.Vecteur#obtenirLimites
@@ -612,13 +688,19 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     * @name Couche.Vecteur#rafraichir
     */
     Vecteur.prototype.rafraichir = function(occurence) { 
-        if(!occurence){
-            this._layer.redraw();  
+        
+        if(this.options.rafraichissementPermis){
+            if(!occurence){
+                this._layer.redraw();  
+                this.rafraichirLegende();
+                this.declencher({type: "vecteurRafraichi", vecteur:this, occurence: occurence});
+                return true;
+            }
+            this._layer.drawFeature(occurence._feature);
             this.rafraichirLegende();
+            this.declencher({type: "vecteurRafraichi", vecteur:this, occurence: occurence});
             return true;
-        }
-        this._layer.drawFeature(occurence._feature);
-        this.rafraichirLegende();
+        }      
     };
     
     Vecteur.prototype.rafraichirLegende = function() {
@@ -651,7 +733,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
       
         return true;
     };
-    
+
     Vecteur.Controles = function(_){
         this._ = _;
         if (this._.options.simplificationZoom) {
@@ -677,114 +759,50 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
     };
    
-    Vecteur.Controles.prototype.activerDeplacement = function(opt) {
-        opt = opt || {};
-        if (!this._dragControl) {
-            this._dragControl = new OpenLayers.Control.DragFeature(this._._layer, {onStart: this._debutDeplacement, onDrag: this._deplacement, onComplete: this._finDeplacement, scope: this});
-            this._.carte._getCarte().addControl(this._dragControl);
-        };
-       /* if(opt.combinaisonClique){
-            this._dragControl.handlers['drag'].stopDown = false;
-            this._dragControl.handlers['drag'].stopUp = false;
-            this._dragControl.handlers['drag'].stopClick = false;
-            this._dragControl.handlers['feature'].stopDown = false;
-            this._dragControl.handlers['feature'].stopUp = false;
-            this._dragControl.handlers['feature'].stopClick = false;
-        } else {
-            this._dragControl.handlers['drag'].stopDown = true;
-            this._dragControl.handlers['feature'].stopDown = true;
-            this._dragControl.handlers['feature'].stopClick = true;
-        };*/
-        this._dragControl.activate();
+    Vecteur.Controles.prototype.activerDeplacement = function() {
+        this._.carte.controles.activerDeplacementVecteur(this._);
     };
-    
+
+    Vecteur.Controles.prototype.activerEdition = function(options) {
+        this._.carte.controles.activerEdition(this._, options);
+    };
+
+    Vecteur.Controles.prototype.activerDessin = function(options) {
+        this._.carte.controles.activerDessin(this._, options);
+    };
+
     Vecteur.Controles.prototype.desactiverDeplacement = function() {
-        if (this._dragControl) {
-            this._dragControl.deactivate();
-        }
+        this._.carte.controles.desactiverDeplacementVecteur();
+
     };
-    
-    Vecteur.Controles.prototype._debutDeplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        that._.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
+
+    Vecteur.Controles.prototype.desactiverEdition = function() {
+        this._.carte.controles.desactiverEdition();
     };
-    
-    
-    Vecteur.Controles.prototype._deplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        occurence.x = feature.geometry.x;
-        occurence.y = feature.geometry.y;
-        that._.declencher({ type: "deplacementOccurence", occurence: occurence }); 
+
+    Vecteur.Controles.prototype.desactiverDessin = function() {
+        this._.carte.controles.desactiverDessin();
     };
-    
-    Vecteur.Controles.prototype._finDeplacement = function(feature) {
-        var that = this.scope;
-        var occurence = that._.obtenirOccurenceParId(feature.id);
-        occurence.x = feature.geometry.x;
-        occurence.y = feature.geometry.y;
-        that._.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
-    };
-    
 
     Vecteur.Controles.prototype.activerSelection = function(opt) { //ajouter? au lieu d'activer? separer en 2?
         opt = opt || {};
-        if(this._.obtenirDeclencheur('occurenceClique', null, this._selection).length){
-            return false;
-        } 
-        this._.ajouterDeclencheur('occurenceClique', this._selection, {scope: this});
-        
-        //todo: vérifier si selectionnable...ou force:
-       /* opt = opt || {};
         if (!this._.options.selectionnable && !opt.force){return false};
-        
-        if (opt.local !== undefined && opt.local) {
-            if (!this._selectControl) {
-                this._selectControl = new OpenLayers.Control.SelectFeature(this._._layer, {onSelect: this._._.controles._selection, scope: this});
-                this._.carte._getCarte().addControl(this._selectControl);
-            };
-            this._selectControl.activate();
-            return true;
-        }
-        
-        var selectControle = this._._.controles._selectControle;
-        if (!selectControle) {
-            selectControle = this._._.controles.initSelection();
-        };
-        
-        if(selectControle.layers.lastIndexOf(this._._layer) === -1){
-            selectControle.addLayer(this._._layer);
-        }
-
-        if(selectControle.active){
-            selectControle.activate();
-        }  */
+        if(!this._.obtenirDeclencheur('occurenceClique', null, this._selection).length){
+            this._.ajouterDeclencheur('occurenceClique', this._selection, {scope: this});
+        } 
+        return true;
     };
     
     Vecteur.Controles.prototype.desactiverSelection = function() { //retirer
-        this._.carte.enleverDeclencheur('occurenceClique', null, this._selection);
-      /*  opt = opt || {};
-        if (!opt.local !== undefined && opt.local) {
-            if (this._selectControl) {
-                this._selectControl.deactivate();
-            }
-            return true;
-        }  
-        
-        var selectControle = this._._.controles._selectControle;
-        if (selectControle && selectControle.active) {
-            selectControle.deactivate();
-            selectControle.layers.remove(this._._layer);
-            if(selectControle.layers.length !== 0) {
-                selectControle.activate();
-            }
-        }*/
+        this._.enleverDeclencheur('occurenceClique', null, this._selection);
     };
     
     Vecteur.Controles.prototype._selection = function(e) {
         var that = e.options.scope;
         if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
+        if(e.occurence.obtenirInteraction('selectionnable') === false){
+            return false;
+        }
         if (!Aide.obtenirNavigateur().obtenirCtrl()) { 
             that._.carte.gestionCouches.deselectionnerToutesOccurences();
         }
@@ -793,50 +811,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         } else {
             e.occurence.vecteur.selectionnerOccurence(e.occurence);
         }
-        //that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
     };
-    
-  /*  Vecteur.Controles.prototype.activerClique = function() {   
-        this._.carte.ajouterDeclencheur('occurenceClique', this._clique, {scope: this});
-    };
-    
-    Vecteur.Controles.prototype.desactiverClique = function() { 
-        this._.carte.enleverDeclencheur('occurenceClique', null, this._clique);
-    };
-
-    Vecteur.Controles.prototype._clique = function(e) {
-        var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
-        that._.declencher({ type: "occurenceClique", occurence: e.occurence }); 
-    };
-    
-    Vecteur.Controles.prototype.activerMouseover = function() {   
-        this._.carte.ajouterDeclencheur('occurenceMouseover', this._mouseover, {scope: this});
-    };
-    
-    Vecteur.Controles.prototype.desactiverMouseover = function() { 
-        this._.carte.enleverDeclencheur('occurenceMouseover', null, this._mouseover);
-    };
-
-    Vecteur.Controles.prototype._mouseover = function(e) {
-        var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
-        that._.declencher({ type: "occurenceMouseover", occurence: e.occurence }); 
-    };
-
-    Vecteur.Controles.prototype.activerMouseout = function() {   
-        this._.carte.ajouterDeclencheur('occurenceMouseout', this._mouseout, {scope: this});
-    };
-    
-    Vecteur.Controles.prototype.desactiverMouseout = function() { 
-        this._.carte.enleverDeclencheur('occurenceMouseout', null, this._mouseout);
-    };
-
-    Vecteur.Controles.prototype._mouseout = function(e) {
-        var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};  
-        that._.declencher({ type: "occurenceMouseout", occurence: e.occurence }); 
-    };*/
     
     return Vecteur;
     

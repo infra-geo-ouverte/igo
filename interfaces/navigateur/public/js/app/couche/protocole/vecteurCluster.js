@@ -102,6 +102,10 @@ define(['vecteur', 'occurence', 'aide', 'style', 'cluster'], function(Vecteur, O
     
     VecteurCluster.prototype.appliquerCluster = function(){ 
         var listFeatures = [];
+        if(!this._layer.map){
+            console.warn("Cette couche n'est pas associée à la carte, impossible d'appliquer les clusters.");
+            return false;
+        }
         $.each(this.listeOccurences, function(key, value){
             listFeatures.push(value._feature);	
         });

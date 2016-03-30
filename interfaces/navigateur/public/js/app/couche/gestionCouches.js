@@ -37,10 +37,10 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @name GestionCouches#ajouterCouches
     * @param {Tableau} couches Tableau de {@link Couche} à ajouter
     */
-    GestionCouches.prototype.ajouterCouches = function(couches) {
+    GestionCouches.prototype.ajouterCouches = function(couches, opt) {
         var that=this;
         $.each(couches, function(key, value){
-            that.ajouterCouche(value);
+            that.ajouterCouche(value, opt);
         });
     };
     
@@ -51,11 +51,11 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @param {Couche} couche La couche à ajouter
     * @exception Vérification de la validité de la couche en paramètre
     */
-    GestionCouches.prototype.ajouterCouche = function(couche) {
+    GestionCouches.prototype.ajouterCouche = function(couche, opt) {
         if (couche instanceof Couche) {
             couche.definirCarte(this.carte);
             couche._ = this;
-            couche._ajoutCallback(this, this._ajouterCoucheCallback);
+            couche._ajoutCallback(this, this._ajouterCoucheCallback, opt);
         } else {
             throw new Error("Igo.Carte.ajouterCouche(couche) a besoin d'un objet de type Igo.Couches");
         }
@@ -69,20 +69,27 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     * @name GestionCouches#_ajouterCoucheCallback
     * @param {Couche} couche
     */
-    GestionCouches.prototype._ajouterCoucheCallback = function(couche) {
+    GestionCouches.prototype._ajouterCoucheCallback = function(couche, opt) {
         var that = this;
+        opt = opt || {};
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            setTimeout(function() {
-                that.carte._carteOL.addLayer(couche._getLayer());
-                couche.definirOrdreAffichage();
-                if (couche.estFond()){
-                    couche.desactiver(!Aide.toBoolean(couche.options.active));
-                }
-                that.declencher({ type: "ajouterCouche", couche: couche }); 
-                couche.declencher({ type: "coucheAjoutee" }); 
-            }, 1);
+            this._ajouterCoucheCallbackEnd(couche, opt);
         };
+    };
+
+    GestionCouches.prototype._ajouterCoucheCallbackEnd = function(couche, opt) {
+        this.carte._carteOL.addLayer(couche._getLayer());
+        couche.definirOrdreAffichage();
+        if (couche.estFond()){
+            couche.desactiver(!Aide.toBoolean(couche.options.active));
+        }
+        if(opt.callback){
+            var scopeCallback = opt.scopeCallback || couche;
+            opt.callback.call(scopeCallback);
+        }
+        this.declencher({ type: "ajouterCouche", couche: couche }); 
+        couche.declencher({ type: "coucheAjoutee" }); 
     };
 
     /** 
@@ -142,6 +149,23 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     };
     
     /** 
+    * Obtenir la liste des couches ayant le nom donné en paramètre.
+    * @method 
+    * @name GestionCouches#obtenirCouchesParNom
+    * @param {String} nom Nom recherché
+    * @returns {Tableau} Tableau de {@link Couche}
+    */
+    GestionCouches.prototype.obtenirCouchesParNom = function(nom) {
+        var couches = [];
+        $.each(this.listeCouches, function(index, value){
+            if(value.obtenirNom() === nom){
+                couches.push(value);
+            }
+        });
+        return couches;
+    };
+
+    /** 
     * Obtenir la liste des couches avec l'aide d'un regex
     * @method 
     * @name GestionCouches#trouverCouches
@@ -152,6 +176,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         opt = opt || {};
         var testerTitre = opt.testerTitre !== false ? true : false;
         var testerGroupe = opt.testerGroupe !== false ? true : false;
+        var testerNom = opt.testerNom !== false ? true : false;
         
         if(typeof regex === "string"){
             var ignorerCase = opt.ignorerCase !== false ? 'i' : '';
@@ -172,7 +197,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         
         var couches = [];
         $.each(this.listeCouches, function(index, value){
-            if((testerTitre && regex.test(value.obtenirTitre())) || (testerGroupe && regex.test(value.obtenirGroupe()))){
+            if((testerTitre && regex.test(value.obtenirTitre())) || (testerGroupe && regex.test(value.obtenirGroupe())) || (testerNom && regex.test(value.obtenirNom()))){
                 couches.push(value);
             }
         });
@@ -195,6 +220,18 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         return couches;
     };
     
+
+    GestionCouches.prototype.obtenirCoucheDeBaseActive = function() {
+        var coucheActive = false;
+        $.each(this.obtenirCouchesDeBase(), function(index, value){
+            if(value.estActive()){
+                coucheActive = value;
+                return false;
+            } 
+        });
+        return coucheActive;
+    };
+
     /** 
     * Obtenir la liste des couches étant du type donné en paramètre.
     * @method 
@@ -360,7 +397,9 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     };
     
     GestionCouches.prototype.ajouterOccurenceSurvol = function(occurence){
-        $('.olMapViewport').css('cursor','pointer');            
+        if(!this.carte.curseur){
+            $('.olMapViewport').css('cursor','pointer');
+        }            
         var index = this.obtenirListeOccurencesSurvols().indexOf(occurence);
         if (index === -1) {
             occurence.appliquerStyle('courant', true);

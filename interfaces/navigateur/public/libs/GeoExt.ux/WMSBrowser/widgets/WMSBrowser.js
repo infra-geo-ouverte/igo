@@ -636,7 +636,11 @@ GeoExt.ux.WMSBrowser = Ext.extend(Ext.Panel, {
         this.currentUrl = url;
 
         // add the GetCapabilities parameters to the url
-        var params = OpenLayers.Util.getParameterString(this.capabilitiesParams);        
+        var tempParams = jQuery.extend({}, this.capabilitiesParams);
+        if(url.search("version=") !== -1){
+            delete tempParams.version;
+        }
+        var params = OpenLayers.Util.getParameterString(tempParams);        
         url = OpenLayers.Util.urlAppend(url, params);
         
         

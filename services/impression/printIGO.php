@@ -142,7 +142,7 @@ try {
     $kml = filter_input(INPUT_POST, 'vecteurs');
     $auteurNom = filter_input(INPUT_GET,'printNomAuteur', FILTER_SANITIZE_STRING);
     $aszTitles = explode($_SEPARATOR, filter_input(INPUT_GET, 'TITLE',FILTER_SANITIZE_STRING));
-
+     
     $hasbaselayer = filter_input(INPUT_GET, 'HASBASELAYER',FILTER_VALIDATE_BOOLEAN);
     if($hasbaselayer === null){
         $hasbaselayer = false;
@@ -329,13 +329,13 @@ try {
         $szLegendTitle = $aszTitles[$i];
 
         $igoController = new IgoController();
-
-        $szUrl = $igoController->verifierPermis($szURL);
-        if($szURL===false){
+             
+        $szUrl = $igoController->verifierPermis($szURL);  
+        if($szUrl===false){   
             $erreurs[] = array('message'=>"L'Url $szURL n'est pas permis.", 'niveau'=>'eleve');
             continue;
         }
-
+        
         if($showLegend){
 
             if($hasbaselayer === false || $i != 0){
@@ -344,7 +344,7 @@ try {
 
                 // Requete a GetLegendGraphic
                 $resource = curl_file_get_contents($getLegendGraphic);
-
+                 
                 if((strpos($resource, '<?xml')!==false)||($resource === 'Forbidden')||(strpos($resource, 'Erreur') !== false)){
                     $erreurs[] = array('message'=>"$getLegendGraphic a échoué.<br> Message d'erreur:<br>" . $resource, 'niveau'=>'eleve');
                     continue; 
@@ -396,7 +396,7 @@ try {
                 }
             }
         }
-
+        
         $oLayer = ms_newLayerObj($oMap);
         $oLayer->set("name", $szLayer);
         $oLayer->set("type", MS_LAYER_RASTER);
@@ -949,7 +949,7 @@ function validateParams(&$erreurs){
                        'printTitle','printComments'/*,'printPaper'*/,
                        /*'printOrientation',*/'printUnits',
                        'printOutputFormat', 'force', 'height', 'width', 'showLegendGraphics');
-
+                  
     foreach($aszParams as $szParam){
         if($szParam != 'force'){
             if (!isset($_GET[$szParam])){

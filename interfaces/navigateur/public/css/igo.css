@@ -60,9 +60,6 @@ img.olTileImage {
 .apropos {
     background-image:url(../images/toolbar/onebit_25.png) !important;
 }
-.gentillyboom {
-    background-image:url(../images/toolbar/hazard_radioactive2.png) !important;
-}
 .getinfo {
     background-image:url(../images/toolbar/info.png) !important;
 }
@@ -434,4 +431,8 @@ div.olControlMousePosition {
     position: relative;
     top: 3px;
     left: 5px;
+}
+
+#occurencesResultatsWindow .x-panel-body {
+    overflow: auto;
 }

@@ -53,11 +53,9 @@ define(['aide'], function(Aide) {
                 this.declencheurs[type] = [];
             }
             
-            if (options.avant == true || options.avant == 'true' ){
-                options.avant = true;
-            } else {
-                options.avant = false;
-            };
+            if(options.avant){
+                options.avant = Aide.toBoolean(options.avant);    
+            }
             
             if (typeof(action) !== "function"){
                 action = new Function("e", "return " + action + ";");
@@ -87,10 +85,6 @@ define(['aide'], function(Aide) {
             if (!event.target){
                 event.target = this;
             }
-            
-            if (!event.avant){
-                event.avant = false;
-            }
 
             if (!event.type){
                 throw new Error("La propriété 'type' de l'événement est manquant.");
@@ -100,7 +94,7 @@ define(['aide'], function(Aide) {
                 var declencheurs = this.declencheurs[event.type].slice();
                 for (var i=0, len=declencheurs.length; i < len; i++){
                     if(!declencheurs[i]){break};
-                    if(event.avant === declencheurs[i].options.avant){
+                    if(event.avant === undefined || event.avant === declencheurs[i].options.avant || (declencheurs[i].options.avant === undefined && event.avant === false)){
                         var options = declencheurs[i].options;
                         
                         //Si un filtre est défini

@@ -18,11 +18,9 @@ git clone https://github.com/infra-geo-ouverte/igo.git  <br />
 
 ** Changer le groupe de ces dossiers par l'usager de votre serveur Web  <br />
 chgrp www-data /var/www/html/igo/interfaces/navigateur/app/cache  <br />
-chgrp www-data /var/www/html/igo/pilotage/app/cache  
 
 ** Donner le droit d'écriture à ces dossiers  <br />
 chmod 775 /var/www/html/igo/interfaces/navigateur/app/cache  <br />
-chmod 775 /var/www/html/igo/pilotage/app/cache  <br />
 
 ## Cloner les librairies
 cd igo <br /> 
@@ -33,6 +31,8 @@ git clone https://github.com/infra-geo-ouverte/igo-lib.git librairie
 cp config/config.exempleSimple.php config/config.php  <br /> 
 Modifier le fichier config/config.php
 
+## Compiler les js pour la prod
+Voir igo/interfaces/navigateur/build/readme.txt
 
 ## Modification de la configuration d'Apache
 ```

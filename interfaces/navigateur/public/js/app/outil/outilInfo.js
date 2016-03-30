@@ -43,12 +43,12 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     };
 
     OutilInfo.prototype.activerEvent = function () {
-        this.carte.ajouterDeclencheur('desactiverClique', this.releverBouton, {scope: this});
+        this.carte.ajouterDeclencheur('desactiverClique', this.relever, {scope: this});
         this.carte.ajouterDeclencheur("clique", this.cliqueCarte, {scope: this});
     };
 
     OutilInfo.prototype.desactiverEvent = function () {
-        this.carte.enleverDeclencheur('desactiverClique', this.releverBouton);
+        this.carte.enleverDeclencheur('desactiverClique', this.relever);
         this.carte.enleverDeclencheur("clique", this.cliqueCarte);
     };
 
@@ -269,6 +269,10 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                 
             } else {
                 //Appliquer Url WMS GetFeatureInfo
+                var timeExtent;
+                if(oCoucheObtnInfo.layer._layer && oCoucheObtnInfo.layer._layer.params){
+                    timeExtent = oCoucheObtnInfo.layer._layer.params.TIME;
+                }
                 jqXHRs.push($.ajax({
                     url: Aide.utiliserProxy(decodeURIComponent(oCoucheObtnInfo.url)),
                     data: {
@@ -286,6 +290,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                         FEATURE_COUNT: 100,
                         WIDTH: this.carte._carteOL.size.w,
                         HEIGHT: this.carte._carteOL.size.h,
+                        TIME: timeExtent,
                         _encodage: encodage,
                         xsl_template: xslTemplate
                     },

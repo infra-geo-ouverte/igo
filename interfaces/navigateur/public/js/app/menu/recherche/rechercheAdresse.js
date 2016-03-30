@@ -84,10 +84,15 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             ]
         });
 
-        var styles = {defaut: {visible: false}, select: style};
+        var survolStyle = style.cloner();
+        survolStyle.definirPropriete('opacite', 0.8);
+
+        var styles = {defaut: {visible: false}, select: style, survol: survolStyle};
+        if(this.options.idResultatTable){
+            styles.defaut = style;
+        }
 
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
-
     };
    
     RechercheAdresse.prototype.ajouterOccurences = function(e) {
@@ -124,7 +129,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
 
         this.traiterResultatVecteur(vecteur, responseJSON.nombreResultat); 
     };
-
+    
     RechercheAdresse.prototype.traiterResultatVecteur = function(vecteur, nombreResultats) {
         nombreResultats = nombreResultats || vecteur.listeOccurences.length ;
             

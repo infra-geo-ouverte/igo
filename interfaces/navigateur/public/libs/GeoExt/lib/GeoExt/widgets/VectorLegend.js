@@ -74,7 +74,7 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
      *  name.  Default is ``"Untitled "``.  Prefix will be appended with a
      *  number that corresponds to the index of the rule (1 for first rule).
      */
-    untitledPrefix: "Untitled ",
+    untitledPrefix: "Sans titre ",
     
     /** api: config[clickableSymbol]
      *  ``Boolean``
@@ -268,6 +268,9 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
      *  Determine the symbol type given a feature.
      */
     symbolTypeFromFeature: function(feature) {
+        if(!feature.geometry){
+            return false;
+        }
         var match = feature.geometry.CLASS_NAME.match(/Point|Line|Polygon/);
         return (match && match[0]) || "Point";
     },
@@ -410,6 +413,13 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                 applies = applies && (this.currentScaleDenominator < rule.maxScaleDenominator);
             }
         }
+
+        var renderer = this.createRuleRenderer(rule);
+        var title = this.createRuleTitle(rule);  
+        if(!renderer){
+            title.html = "";
+        }
+        
         return {
             xtype: "panel",
             layout: "column",
@@ -420,8 +430,8 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                 border: false
             },
             items: [
-                this.createRuleRenderer(rule),
-                this.createRuleTitle(rule)
+                renderer,
+                title
             ],
             listeners: {
                 render: function(comp){
@@ -438,6 +448,21 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                 scope: this
             }
         };
+    },
+
+    /** private: method[mergeOptions]
+     */
+    mergeOptions: function(obj1, obj2) {
+        var obj3 = {};
+        for (var attrname in obj1) { 
+            obj3[attrname] = obj1[attrname]; 
+        }
+        for (var attrname in obj2) { 
+            if(obj2[attrname] !== undefined){
+                obj3[attrname] = obj2[attrname];
+            }
+        }
+        return obj3;
     },
 
     /** private: method[createRuleRenderer]
@@ -461,7 +486,22 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
                     break;
                 }
             }
+            if(!this.layer.styleMap.styles.default.defaultsPerSymbolizer){
+                var defaultStyle = this.layer.styleMap.styles.default.defaultStyle;
+                symbolizer = this.mergeOptions(defaultStyle, symbolizer);
+            }
             symbolizers = [symbolizer];
+            if(symbolizers[0].display === 'none'){
+                return false;
+            } else if (symbolizers[0].externalGraphic){
+                var diviseur = symbolizers[0].graphicHeight/20;
+                if (diviseur){
+                    symbolizers[0].graphicHeight = symbolizers[0].graphicHeight/diviseur;
+                    symbolizers[0].graphicWidth = symbolizers[0].graphicWidth/diviseur;  
+                    symbolizers[0].graphicXOffset = undefined;
+                    symbolizers[0].graphicYOffset = undefined;
+                }
+            }
         } else {
             var Type;
             outer: for (var i=0, ii=types.length; i<ii; ++i) {
@@ -611,8 +651,13 @@ GeoExt.VectorLegend = Ext.extend(GeoExt.LayerLegend, {
         var ruleEntry = this.getRuleEntry(rule);
         if (ruleEntry) {
             ruleEntry.removeAll();
-            ruleEntry.add(this.createRuleRenderer(rule));
-            ruleEntry.add(this.createRuleTitle(rule));
+            var renderer = this.createRuleRenderer(rule);
+            var title = this.createRuleTitle(rule);
+            if(!renderer){
+                title.html = "";
+            }
+            ruleEntry.add(renderer);
+            ruleEntry.add(title);
             ruleEntry.doLayout();
         }
     },

@@ -290,6 +290,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             Aide.afficherMessage({titre: "Recherche", message:'Veillez entrer un texte à chercher'});
             return false;
         }
+        this.textUser = textUser;
         Aide.afficherMessageChargement({message: 'Recherche en cours, patientez un moment...'});
         this.reinitialiserVecteur();
         var texte = '';
@@ -340,13 +341,17 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     };
 
     Recherche.prototype.traiterResultatVecteur = function(vecteur){
+        this.declencher({type: "resultatRecherche", vecteur: vecteur, texteRecherche: this.textUser});
+
         vecteur.garderHistorique = true;
+        
         var occurence = vecteur.obtenirOccurences()[0];
         if(!occurence){
             return false;
-        }
+        }      
         vecteur.zoomerOccurence(occurence, this.options.zoom);
         occurence.selectionner();
+        
         if(this.options.idResultatTable){
             var nav = Aide.obtenirNavigateur();
             var panneauTable = nav.obtenirPanneauParId(this.options.idResultatTable, -1);
@@ -354,7 +359,20 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             if (panneauTable.obtenirTypeClasse() === 'PanneauTable') {
                 panneauTable.ouvrirTableVecteur(vecteur);
             } else if(panneauTable.obtenirTypeClasse() === 'PanneauOnglet'){
-                var nouvelleTable = new PanneauTable({reductible: false, fermable: true});        
+                var paginer = panneauTable.options.paginer?panneauTable.options.paginer:false;
+                var limite = panneauTable.options.paginer_limite?parseInt(panneauTable.options.paginer_limite):undefined;
+                var debut = panneauTable.options.paginer_debut?parseInt(panneauTable.options.paginer_debut):undefined;              
+                
+                var nouvelleTable = new PanneauTable({
+                    reductible: false, 
+                    fermable: true,
+                    paginer : paginer,
+                    paginer_debut: debut,
+                    paginer_limite: limite,
+                    outils_auto:true,
+                    outils_selectionSeulement: true                                                        
+                });        
+
                 panneauTable.ajouterPanneau(nouvelleTable);
                 nouvelleTable.ouvrirTableVecteur(vecteur);
                 panneauTable.activerPanneau(nouvelleTable);        
@@ -373,7 +391,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             visible = true;
         };
         
-        var vecteur = new Vecteur({active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});         
+        var vecteur = new Vecteur({legende: false, active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});         
         if(callback){
             vecteur.ajouterDeclencheur("coucheAjoutee", callback, {scope: this, params: paramsCallback});
         }
@@ -427,7 +445,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         $(this.resultatPanneau.items.items[0].body.dom).find('#suivantRecherche')
             .click($.proxy(this.appelSuivant, this));
         $(this.resultatPanneau.items.items[0].body.dom).find('li.rechercheResultatsListe')
-                .click($.proxy(this.eventResultatClique, this));
+            .click($.proxy(this.eventResultatClique, this))
+            .mouseover($.proxy(this.eventResultatMouseover, this))
+            .mouseout($.proxy(this.eventResultatMouseout, this));
     };
 
     Recherche.prototype.eventResultatClique = function(e) {
@@ -441,6 +461,24 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         occurence.selectionner();
     };
     
+    Recherche.prototype.eventResultatMouseover = function(e) {
+        var id = $(e.target).parents('.rechercheResultatsListe').data('id');
+        var occurence = this.vecteur.obtenirOccurenceParId(id);
+        if(!occurence){
+            return false;
+        }
+        occurence.appliquerStyle('courant', true);
+    };
+
+    Recherche.prototype.eventResultatMouseout = function(e) {
+        var id = $(e.target).parents('.rechercheResultatsListe').data('id');
+        var occurence = this.vecteur.obtenirOccurenceParId(id);
+        if(!occurence){
+            return false;
+        }
+        occurence.appliquerStyle('courant', false);
+    };
+
     /**
      * Préfixe de la recherche
      * @method
@@ -583,6 +621,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      */
     Recherche.prototype.reinitialiserRecherche = function(){
         this.reinitialiserVecteur();
+        this.textUser = undefined;
         $.each(this._panel.items.items, function(index, item){
            if(item.xtype == "textfield" || item.xtype == "numberfield" || item.xtype == "combo"){
                item.reset();

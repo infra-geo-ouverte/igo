@@ -4,7 +4,7 @@ require.ajouterConfig({
     }
 });
 
-define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, Metadonnee, PanneauTable, DateTimeIntervalPicker) {
+define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPicker'], function(ContexteMenu, Aide, Fonctions, PanneauTable, DateTimeIntervalPicker) {
   
     function ContexteMenuArborescence(options){
         this.options = options || {};   
@@ -17,7 +17,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             frontText : "avant",
             backText : "arrière",
             closeText : "Fermer",
-            mspMetadataText : "Informations sur la couche"
+            metadataText : "Informations sur la couche"
         };
         this.init();
     };
@@ -60,6 +60,22 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             couche: layer,
             nodeHtml: nodeHtml
         };
+    };
+
+
+    ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
+        var that=args.scope;
+        if (args.couche.options.metadonnee) {
+            return {
+                id: 'arborescenceMetadonnee',
+                text : that.locale.metadataText,
+                handler : function() {
+                    require(['metadonnee'], function(Metadonnee){
+                        Metadonnee.getLayerCapabilities(args.couche);
+                    });
+                }
+            };
+        }
     };
 
     ContexteMenuArborescence.prototype.initStyleSubmenu = function(args){ 
@@ -158,31 +174,16 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
         if (args.couche.options.wms_timeextent) {        
             // This is a layer from the MSP map file. In which case we read the msp metadata.
             // Create the DatePicker
-            var timeExtentArray = args.couche.options.wms_timeextent.split("/");							
-            var startDate = Fonctions.createDateFromIsoString(timeExtentArray[0]);
-            var endDate=null;
-            var allowIntervals=null;
-            if(timeExtentArray.length>1){
-                endDate = Fonctions.createDateFromIsoString(timeExtentArray[1]);
-                allowIntervals = true;
-            }
-            else{
-                endDate = null;
-                allowIntervals = false;
-            }
-            
-            if(args.couche.options.wms_timeAllowIntervals){
-                allowIntervals = Aide.toBoolean(args.couche.options.wms_timeAllowIntervals);
-            }
-            
+            var periode = Fonctions.obtenirPeriodeTemps(args.couche.options.wms_timeextent);
+      
             var datePicker = new DateTimeIntervalPicker({
                 id : 'datePicker',
                 layer : args.couche._layer,
-                allowIntervals : allowIntervals,
-                minStartDate : startDate,
-                maxEndDate : endDate,
+                allowIntervals : periode.allowIntervals,
+                minStartDate : periode.min,
+                maxEndDate : periode.max,
                 mapServerTimeString : args.couche.options.wms_timedefault,
-                precision : args.couche.options.wms_timeprecision || 'minute'
+                precision : args.couche.options.wms_timeprecision || periode.precision
             });
 
             return {
@@ -259,20 +260,6 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
             };
         }
     };
-
-    ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
-        var that=args.scope;
-        if (args.couche.options.metadonnee) {
-             return {
-                id: 'arborescenceMetadonnee',
-                text : that.locale.mspMetadataText,
-                handler : function() {
-                    Metadonnee.getLayerCapabilities(args.couche);
-                }
-             };
-        }
-    };
-        
         
     ContexteMenuArborescence.prototype.initActiverImportationSubmenu = function(args){ 
         if (args.couche.options.importationWFS) {
@@ -361,7 +348,20 @@ define(['contexteMenu', 'aide', 'fonctions', 'metadonnee', 'panneauTable', 'date
                         });
                         
                         if(!existe){
-                            var nouvelleTable = new PanneauTable({reductible: false, fermable: true});        
+
+                           //aller chercher les options passées dans le XML
+                           //TODO faire une méthode pour ça
+                            var options = {reductible: false,
+                                            fermable: true,
+                                            paginer: Aide.toBoolean(panneauTable.options.paginer),
+                                            paginer_debut: panneauTable.options.paginer_debut,
+                                            paginer_limite: panneauTable.options.paginer_limite,
+                                            outils_auto: Aide.toBoolean(panneauTable.options.outils_auto),
+                                            outils_contenupage: Aide.toBoolean(panneauTable.options.outils_contenupage),
+                                            outils_selectionSeulement: Aide.toBoolean(panneauTable.options.outils_selectionSeulement)
+                                          };
+
+                            var nouvelleTable = new PanneauTable(options);
                             panneauTable.ajouterPanneau(nouvelleTable);
                             panneauTable.activerPanneau(nouvelleTable);
                             nouvelleTable.ouvrirTableVecteur(args.couche);                       

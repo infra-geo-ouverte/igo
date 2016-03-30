@@ -308,6 +308,18 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
                 }
             }
             
+            if(args.occurencesSelectionnees.length === 1 && args.occurencesSelectionnees[0]._obtenirGeometrie() === undefined ){
+                 var submenuCreeGeometrie = {
+                    id: 'creeGeo',
+                    text: "Créer la geométrie ici!",
+                    handler: function(){
+                        args.occurencesSelectionnees[0].majGeometrie(args.point);
+                    }
+                };
+                
+                subSelection.menu.items.push(submenuCreeGeometrie);
+            }
+            
             
             return subSelection;         
         }

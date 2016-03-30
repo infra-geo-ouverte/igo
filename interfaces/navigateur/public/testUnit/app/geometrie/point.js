@@ -1,7 +1,13 @@
-require(['point'], function (Point) {
+require(['point', 'limites'], function (Point, Limites) {
 
     module('Point',{
         setup: function() {
+            Igo = {
+                Geometrie: {
+                    Point: Point,
+                    Limites: Limites
+                }
+            }
             this.point = new Point(-7933887.5829941, 5909591.6735735);
         }
     });
@@ -190,13 +196,7 @@ require(['point'], function (Point) {
         strictEqual(pD1.y, 5909581.6735735, "Déplacer en 3857 - y");
         strictEqual(p3.x, -75, 'Déplacer en 4326 - x');
         strictEqual(p3.y, 45, 'Déplacer en 4326 - y');
-        
-        var lonlatMove;
-        p3._feature = {move: function(p){lonlatMove = p;}}
-        p3.deplacer(p1);
-        strictEqual(lonlatMove.lon, -75, '_feature.move - lon');
-        strictEqual(lonlatMove.lat, 45, '_feature.move - lat');
-        
+              
         throws(
             function(){
               this.point.deplacer(p1);
@@ -209,7 +209,7 @@ require(['point'], function (Point) {
             function(){
               this.point.deplacer();
             },
-            new Error("Point.deplacer : L'argument n'est pas un point"),
+            new Error("Point.deplacer : L'argument est obligatoire"),
             "Erreur: Argument invalide"
         );
     }); 

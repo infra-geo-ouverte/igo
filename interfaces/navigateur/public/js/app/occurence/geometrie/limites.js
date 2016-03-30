@@ -6,7 +6,7 @@
  * @requires aide
  * @requires point
  */
-define(['aide', 'point'], function(Aide, Point) {
+define(['geometrie', 'aide', 'point'], function(Geometrie, Aide, Point) {
     /** 
      * Création de l'object Geometrie.Limites.
      * @constructor
@@ -28,6 +28,7 @@ define(['aide', 'point'], function(Aide, Point) {
      * @property {string} projection Projection du point (Format EPSG)
      */
     function Limites(gauche, bas, droite, haut, proj) {
+        Geometrie.apply(this, [proj]);
         this.gauche = Number(gauche);
         this.bas = Number(bas);
         this.droite = Number(droite);
@@ -36,54 +37,10 @@ define(['aide', 'point'], function(Aide, Point) {
         if (!this.gauche || !this.bas || !this.droite || !this.haut) {
             throw new Error("new Limites : Paramètre absent");
         }
-
-        if (!proj) {
-            var nav = Aide.obtenirNavigateur();
-            if (nav && nav.carte) {
-                proj = nav.carte.obtenirProjection();
-            } else {
-                proj = 'EPSG:3857';
-            }
-        } else if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("new Limites : Projection EPSG invalide");
-        }
-        this.projection = proj;
     }
 
-    /**
-    * Obtenir le type de la classe
-    * @method
-    * @name Limites#obtenirTypeClasse
-    * @returns {String} Type de l'outil
-    */
-    Limites.prototype.obtenirTypeClasse = function(){
-        return this.constructor.toString().match(/function ([A-Z]{1}[a-zA-Z]*)/)[1];
-    };
-    
-    /** 
-     * Obtenir la projection de la géométrie
-     * @method
-     * @name Geometrie.Limites#obtenirProjection
-     * @returns {String} Projection EPSG
-     */
-    Limites.prototype.obtenirProjection = function() {
-        return this.projection;
-    };
-
-    /** 
-     * Définir la projection à la géométrie
-     * @method
-     * @param {String} proj Projection EPSG
-     * @name Geometrie.Limites#definirProjection
-     * @throws Limites.definirProjection : Projection EPSG invalide
-     * @example Limites.definirProjection('EPSG:4326');
-     */
-    Limites.prototype.definirProjection = function(proj) {
-        if (typeof proj !== "string" || proj.toUpperCase().substr(0, 5) !== 'EPSG:' || proj.substr(5) !== proj.substr(5).match(/[0-9]+/)[0]) {
-            throw new Error("Limites.definirProjection : Projection EPSG invalide");
-        }
-        this.projection = proj;
-    };
+    Limites.prototype = Object.create(Geometrie.prototype);
+    Limites.prototype.constructor = Limites;
 
     /** 
      * Vérifier si la limite contient le point.

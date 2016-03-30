@@ -112,7 +112,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             }
     
             if(this.options.mode){
-                Couche.prototype._ajoutCallback.call(this, target, callback, optCalback);
+                Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
             }
         } else {
             this._layer = this.options.layerOL;
@@ -153,9 +153,14 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     
     WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCalback){
         var that=this;
-
-        if(!response){
-            this._getCapabilitiesError();
+        if(!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length)){
+            var errorMessage;
+            if(response){
+                errorMessage = {
+                    responseText: response.getElementsByTagName("BODY")[0].textContent
+                }
+            }
+            this._getCapabilitiesError(errorMessage);
             return false;
         }
         var xml=new OpenLayers.Format.WMSCapabilities().read(response);
@@ -203,10 +208,19 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         } else {
                             xmlOptions = {
                                 titre: value.title,
-                                droit: value.attribution ? value.attribution.href : undefined,
                                 echelleMin: value.minScale,
                                 echelleMax: value.maxScale
                             };
+
+                            if(value.attribution){
+                                xmlOptions.droitTitre = value.attribution.title;
+                                xmlOptions.droitLien = value.attribution.href;
+                                if(value.attribution.logo){
+                                    xmlOptions.droitLogo = value.attribution.logo.href;
+                                    xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                                    xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                                }
+                            }
 
                             if(value.dataURL && value.dataURL.format === 'igo'){ //"wms_dataurl_format" "igo"
                                 var idMeta = value.dataURL.href;
@@ -231,7 +245,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
                             if(value.dimensions.time){
                                 xmlOptions.wms_timeextent = value.dimensions.time.values[0];
-                                xmlOptions.wms_timedefault = value.dimensions.time.defaults;
+                                xmlOptions.wms_timedefault = value.dimensions.time.default;
                             }
                             target.ajouterCouche(new WMS(xmlOptions));
                         } 
@@ -245,11 +259,19 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 } else if (iCL===1){
                     xmlOptions = {
                         titre: value.title,
-                        droit: value.attribution ? value.attribution.href : undefined,
                         echelleMin: value.minScale,
                         echelleMax: value.maxScale,
                         groupe: "Couches WMS ajoutées" 
                     };
+                    if(value.attribution){
+                        xmlOptions.droitTitre = value.attribution.title;
+                        xmlOptions.droitLien = value.attribution.href;
+                        if(value.attribution.logo){
+                            xmlOptions.droitLogo = value.attribution.logo.href;
+                            xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                            xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                        }
+                    }
                     if (len===1){
                             return false;
                     };
@@ -277,8 +299,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
     WMS.prototype._getCapabilitiesError = function(response, target, callback, optCalback){
         response = response || {};
-        if(response.status != 200){    
-            Aide.afficherMessageConsole('Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText);
+        if(response.status != 200){
+            var message = 'Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText;
+            console.log(message);
+            Aide.afficherMessageConsole(message);
             return false;
         }
         if(BrowserDetect.browser == "Explorer"){
@@ -303,7 +327,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         if(this.options.mode === 'getCapabilities'){
             this._getCapabilities(target, callback, optCallback);
         }else {
-            Couche.prototype._ajoutCallback.call(this,target, callback, optCallback);
+            Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
         }
     };
     
