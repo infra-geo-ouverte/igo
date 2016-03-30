@@ -379,9 +379,40 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             }
             
         }
-        oWindowMeasr.show();
+        this.oWindowMeasr = oWindowMeasr;
+        this.afficher();
     };
     
+    /**
+     * Afficher la fenêtre de l'outil
+     * @method
+     * @returns {bool} true/false si la fenêtre a été affiché ou non
+     */
+    OutilMesure.prototype.afficher = function() {
+        
+        if(this.oWindowMeasr)
+        {
+            this.oWindowMeasr.show();
+            return true;
+        }
+        else
+            return false;
+    };
+    
+    /**
+     * Masquer la fenêtre de l'outil
+     * @method
+     * @returns {bool} true/false si la fenêtre a été masqué ou non
+     */
+    OutilMesure.prototype.cacher = function() {
+        if(this.oWindowMeasr)
+        {
+            this.oWindowMeasr.hide();
+            return true;
+        }
+        else 
+            return false;
+    };
 
 
     return OutilMesure;
