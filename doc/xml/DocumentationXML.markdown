@@ -2007,9 +2007,3 @@ Configuration maximale
 
 ```xml
 ```
-
-
-----------
-
-
-----------
