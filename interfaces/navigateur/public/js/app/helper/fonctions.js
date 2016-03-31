@@ -64,6 +64,9 @@ define([], function() {
                        infoTemplate = {};
                        titre = defautTitre;
                     } else {
+                        if(value[0].vecteur.options.estInterrogeable === false){
+                            return true;
+                        }
                         infoTemplate = value[0].vecteur.templates.info || {};
                         titre = value[0].vecteur.obtenirTitre();
                     }
@@ -232,10 +235,26 @@ define([], function() {
                         value.occurencesGeoJSON.alias = value.alias;
                         html = args[key](value.occurencesGeoJSON);
                     }
-                    oResultWindow.items.get(0).add({
+                    var pan = oResultWindow.items.get(0);
+                    if(pan.items.getCount() === 0){
+                        pan.add({
                         title: value.titre,
                         html: html
                      });
+                     }
+                     else{ //Tri alphabétique des onglets
+                         var newIndex = 0;
+                         $.each(pan.items.items, function(index, tabPan){
+                             if(value.titre > tabPan.title){
+                                 newIndex = index+1;
+                             }
+                         });
+                         
+                         pan.insert(newIndex, {
+                            title: value.titre,
+                            html: html
+                         });
+                     }
 
                 });
                 oResultWindow.show();
