@@ -249,6 +249,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             header   : titre,
             width    : colTemplate.largeur,
             sortable : colTemplate.triable,
+            hideable : colTemplate.masquable,
             alignement : colTemplate.alignement,
             dataIndex: base + colTemplate.propriete,
             renderer : renduDirty,
