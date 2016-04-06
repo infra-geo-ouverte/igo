@@ -134,6 +134,7 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     'infoAction': couche.options.infoAction,
                     'infoUrl': couche.options.infoUrl,
                     'infoGabarit': couche.options.infoGabarit,
+                    'extraParams': couche.options.extraParams,
                     'estInterrogable': couche.options.estInterrogable,
                     'url': couche.options.url,
                     'nom': couche.options.nom,
@@ -234,18 +235,6 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                     'y': Math.floor(point.y)
                 });
 
-//                var prmt = [];
-//                var lonlat = this.carte._carteOL.getLonLatFromPixel(this.px);
-//                var point = new Point(lonlat.lon, lonlat.lat).projeter('EPSG:4326');
-//
-//                prmt.push({
-//                    'name': oCoucheObtnInfo.nom,
-//                    'projection': 'EPSG:4326',
-//                    'x': point.x,
-//                    'y': point.y
-//                });
-
-
                 var infoUrlFormat = this.formatUrl(oCoucheObtnInfo.infoUrl, [prmt[0].name, prmt[0].projection, prmt[0].x, prmt[0].y]);
 
                 if (oCoucheObtnInfo.infoAction !== undefined) {
@@ -268,32 +257,50 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
                 }
                 
             } else {
-                //Appliquer Url WMS GetFeatureInfo
+                //Appliquer Time extent WMS GetFeatureInfo 
                 var timeExtent;
                 if(oCoucheObtnInfo.layer._layer && oCoucheObtnInfo.layer._layer.params){
                     timeExtent = oCoucheObtnInfo.layer._layer.params.TIME;
                 }
+                //Trouver filter WMS GetFeatureInfo
+                var filterParams = {};
+                if(oCoucheObtnInfo.layer._layer && oCoucheObtnInfo.layer._layer.params){
+                     $.each(oCoucheObtnInfo.layer._layer.params, function (name, value)
+                        {
+                            if (name !== 'LAYERS' && name !== 'TRANSPARENT' && name !== 'FORMAT' && name !== 'SRS' && name !== 'SERVICE' &&
+                                    name !== 'VERSION' && name !== 'STYLES' && name !== 'REQUEST') {
+                            filterParams =  $.extend({}, filterParams, filterParams[name] = value );
+                            }
+                        });
+                }
+                
+                //Appliquer Url WMS GetFeatureInfo 
+                 var getInfoData = {
+                            LAYERS: oCoucheObtnInfo.nom,
+                            SERVICE: 'WMS',
+                            REQUEST: "GetFeatureInfo",
+                            EXCEPTIONS: "application/vnd.ogc.se_xml",
+                            VERSION: oCoucheObtnInfo.version,
+                            SRS: this.carte._carteOL.getProjection(),
+                            BBOX: this.carte._carteOL.getExtent().toBBOX(),
+                            QUERY_LAYERS: oCoucheObtnInfo.nom,
+                            X: Math.floor(this.px.x),
+                            Y: Math.floor(this.px.y),
+                            INFO_FORMAT: coucheInfoFormat,
+                            FEATURE_COUNT: 100,
+                            WIDTH: this.carte._carteOL.size.w,
+                            HEIGHT: this.carte._carteOL.size.h,
+                            TIME: timeExtent,
+                            _encodage: encodage,
+                            xsl_template: xslTemplate
+                        };
+                
+                  //Appliquer filtre en plus du WMS GetFeatureInfo
+                  getInfoData =  $.extend({}, getInfoData, filterParams );
+                
                 jqXHRs.push($.ajax({
-                    url: Aide.utiliserProxy(decodeURIComponent(oCoucheObtnInfo.url)),
-                    data: {
-                        LAYERS: oCoucheObtnInfo.nom,
-                        SERVICE: 'WMS',
-                        REQUEST: "GetFeatureInfo",
-                        EXCEPTIONS: "application/vnd.ogc.se_xml",
-                        VERSION: oCoucheObtnInfo.version,
-                        SRS: this.carte._carteOL.getProjection(),
-                        BBOX: this.carte._carteOL.getExtent().toBBOX(),
-                        QUERY_LAYERS: oCoucheObtnInfo.nom,
-                        X: Math.floor(this.px.x),
-                        Y: Math.floor(this.px.y),
-                        INFO_FORMAT: coucheInfoFormat,
-                        FEATURE_COUNT: 100,
-                        WIDTH: this.carte._carteOL.size.w,
-                        HEIGHT: this.carte._carteOL.size.h,
-                        TIME: timeExtent,
-                        _encodage: encodage,
-                        xsl_template: xslTemplate
-                    },
+                    url: Aide.utiliserProxy(decodeURIComponent(oCoucheObtnInfo.url )),
+                    data:getInfoData ,
                     context: this,
                     dataType: coucheDataType,
                     beforeSend: function (jqXHR) {
