@@ -336,9 +336,6 @@ class IgoController extends ControllerBase {
     private function obtenirPermisUrl($szUrl, $restService=false){
         //vérifier URL 
         //Services
-   
-        //$f = fopen ('/var/systemes/igo_unit/interfaces/navigateur/api/controller.txt', 'w');
-        //fwrite($f, $szUrl ."\n"); 
         
         $url = "";
 
@@ -350,10 +347,6 @@ class IgoController extends ControllerBase {
   
         $session = $this->getDI()->getSession();
     
-       //fwrite ($f, new Phalcon\Debug\Dump())->variable($session, " session")."\n";
-       //fwrite($f,  var_dump($session) ."\n");
-            
-        
         if($session->has("info_utilisateur") && isset($this->config['permissions'])) {
             //utilisateur
             if(($session->info_utilisateur->identifiant) && isset($this->config->permissions[$session->info_utilisateur->identifiant]) && isset($this->config->permissions[$session->info_utilisateur->identifiant]->servicesExternes)){
@@ -391,7 +384,6 @@ class IgoController extends ControllerBase {
         if (($serviceRep["test"] === false || $serviceRep["url"] === true) && isset($this->config['servicesExternes'])) {
          
             $servicesExternes = $this->config['servicesExternes'];
-           //fwrite($f, implode(",", $servicesExternes) ."\n");
             
             $serviceRep = self::verifieDomaineFunc($serviceRep, $szUrl, $servicesExternes, $restService);
         }
@@ -418,9 +410,6 @@ class IgoController extends ControllerBase {
             }
         }
   
-        
-        //fwrite($f, implode(",", $szUrl) ."\n"); 
-        //fclose ($f);
         return $szUrl;
 
     }
