@@ -149,8 +149,6 @@ PanneauEntete, PanneauInfo, PanneauMenu, PanneauOnglet et PanneauTable*.
 |minDimension|Hauteur ou largeur (voir attribut dimension) minimale du panneau.|Non|Nombre entier|*100*|
 |maxDimension|Hauteur ou largeur (voir attribut dimension) maximale du panneau.|Non|Nombre entier|*750*|
 |ouvert|Indique si le panneau est ouvert ou fermé lors de l'affichage initial du navigateur.|Non|Booléen|*true*|
-|reductible|Indique si le panneau peut être réduit|Non|Booléen|*false*|
-|fermable|Indique si le panneau peut être fermé|Non|Booléen|*false*
 
 
 PanneauAccordeon
@@ -353,7 +351,6 @@ Permet la définition d'un panneau appelé à contenir un tableau.
 |outils_selectionSeulement	| Permet d'activer l'outil d'affichage de sélection seulement	| Non		| Booléen	| *false* |
 |outils_auto   | Permet d'activer l'outil de zoom automatique sur la sélection | Non		| Booléen		| *false* |
 |outils_contenupage   | Permet d'activer l'outil de d'affichage du contenu de la page seulement | Non	| Booléen	| *false* |
-|activerEdition|Indique si l'édition est permise|Non|Booléen|*false*|
 
 *Exemples*
 
@@ -997,6 +994,18 @@ infobulle="Dessin/Annotations" visible="true" actif="true"/>
 
 ![](media/image21.png)
 
+
+outilExportCSV
+-----------
+
+
+Permet d'exporter les données d'un panneauTable en fichier csv. Inclus dans le panneauTable.
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
+
 outilExportGPX
 -----------
 
@@ -1478,7 +1487,7 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |droit	| Indique les droits de la couche (Copyrights)	| Non		| Chaîne alphanumérique	| 		|
 |metadonnee| Lien vers les métadonnées			| Non		| URL			|		|
 |ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier|
-|estInterrogeable|Indique si le getInfo doit être fait sur cette couche | Non | Booléen | *true* |
+|estInterrogeable|Indique si le getInfo doit être fait sur cette couche | Non | Booléen | true |
 
 blanc
 -----
@@ -2007,224 +2016,3 @@ Configuration maximale
 
 ```xml
 ```
-
-
-----------
-
-
-----------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
