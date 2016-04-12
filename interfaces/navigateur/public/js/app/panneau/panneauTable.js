@@ -1,4 +1,4 @@
-define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu) {
+define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'outilExportCSV',  'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu, OutilExportCSV) {
 
     function PanneauTable(options) {
         this.options = options || {};
@@ -505,6 +505,8 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                         that.rafraichir();
                     }
                 }));
+                
+                outils.push(new OutilExportCSV({donnees: this.donnees.listeOccurences, colonnes: this.template.colonnes, titreFichier: this.options.titre})); 
             }
 
             var menuSelection = new OutilMenu({titre: 'Sélection'});
