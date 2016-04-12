@@ -380,7 +380,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             
         }
         this.oWindowMeasr = oWindowMeasr;
-        this.afficher();
+        this.afficherFenetre();
     };
     
     /**
@@ -388,7 +388,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
      * @method
      * @returns {bool} true/false si la fenêtre a été affiché ou non
      */
-    OutilMesure.prototype.afficher = function() {
+    OutilMesure.prototype.afficherFenetre = function() {
         
         if(this.oWindowMeasr)
         {
@@ -404,7 +404,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
      * @method
      * @returns {bool} true/false si la fenêtre a été masqué ou non
      */
-    OutilMesure.prototype.cacher = function() {
+    OutilMesure.prototype.cacherFenetre = function() {
         if(this.oWindowMeasr)
         {
             this.oWindowMeasr.hide();
