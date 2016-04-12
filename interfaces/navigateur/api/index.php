@@ -167,6 +167,27 @@ try {
         }
     });
 
+    $app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
+
+    function redirigerRequetesHtml2Canvas() {
+        global $app;
+
+        if(!utilisateurActuelEstAuthentifie()) {
+            return envoyerResponse(401, "", "Non-Autorisees");  
+        }
+
+        $cheminServices = '../../../services';
+        $cheminProxy = $cheminServices . '/proxy/html2canvasproxy.php';
+
+        if(file_exists($cheminProxy)) {
+            ob_end_clean();
+            ob_start();
+            include $cheminProxy;
+            $contenu = ob_get_contents();
+            die($contenu);
+        }
+    };
+
     /**
      *
      * @param int $contexteId
