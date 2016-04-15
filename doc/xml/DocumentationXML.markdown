@@ -994,6 +994,18 @@ infobulle="Dessin/Annotations" visible="true" actif="true"/>
 
 ![](media/image21.png)
 
+
+outilExportCSV
+-----------
+
+
+Permet d'exporter les données d'un panneauTable en fichier csv. Inclus dans le panneauTable.
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
+
 outilExportGPX
 -----------
 
@@ -1474,7 +1486,8 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |ordreAffichage| Ordre d'affichage de la couche		| Non		| Nombre entier		| *Valeurs par défaut d’OpenLayers*|
 |droit	| Indique les droits de la couche (Copyrights)	| Non		| Chaîne alphanumérique	| 		|
 |metadonnee| Lien vers les métadonnées			| Non		| URL			|		|
-|ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier||
+|ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier|
+|estInterrogeable|Indique si le getInfo doit être fait sur cette couche | Non | Booléen | true |
 
 blanc
 -----
