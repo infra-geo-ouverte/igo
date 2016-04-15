@@ -401,12 +401,14 @@ couches disponibles à l’affichage sur la carte.
 
 |Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
 |---------------|-----------------------|---------------|-----------------|-------------|
-|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique||
+|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique| |
+|retirerCheckboxPremNiveau| Permet de retirer les checkbox de premier niveau dans l'arborescence | non | true | false |
+|identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false |
 
 *Exemple*
 
 ```xml
-<element-accordeon classe="Arborescence"/>
+ <element-accordeon classe="Arborescence" retirerCheckboxPremNiveau="true" identifierSousSelection="true"/>
 ```
 
 *Aperçu*
