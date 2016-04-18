@@ -48,5 +48,19 @@ abstract class AuthentificationController extends Controller{
      * Retourne : bool
      */
     abstract public function estPilote();
+
+    /*
+     * Libre au developpeur d'implémenter cette fonction
+     * selon ses critères pour l'utilisateur.
+     * Retourne : String
+     */
+    abstract public function obtenirPrenom();
+
+    /*
+     * Libre au developpeur d'implémenter cette fonction
+     * selon ses critères pour l'utilisateur.
+     * Retourne : String
+     */
+    abstract public function obtenirNom();
             
 }
