@@ -151,6 +151,9 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
                             else{
                                 Aide.afficherMessage("Message", "S.V.P. Sélectionner un fichier.", "OK", "MESSAGE"); 
                             }
+                            
+                            //Permet de réinialiser le panneau afin de permettre la resélection du même fichier.
+                            this.reset();
                         }
                     }
                 },
