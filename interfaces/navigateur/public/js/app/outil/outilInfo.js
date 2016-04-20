@@ -45,11 +45,33 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     OutilInfo.prototype.activerEvent = function () {
         this.carte.ajouterDeclencheur('desactiverClique', this.relever, {scope: this});
         this.carte.ajouterDeclencheur("clique", this.cliqueCarte, {scope: this});
+        
+        //Désactiver la sélection sur les couches vecteur afin de permettre en tout temps le getInfo à travers une géométrie
+        var couches = this.carte.gestionCouches.obtenirCouchesParType("Vecteur");
+        
+        $.each(couches, function(index, couche) {
+            if(couche.options.selectionnable)
+            {
+                couche.controles.desactiverSelection();
+            }
+        });
+        
     };
 
     OutilInfo.prototype.desactiverEvent = function () {
         this.carte.enleverDeclencheur('desactiverClique', this.relever);
         this.carte.enleverDeclencheur("clique", this.cliqueCarte);
+        
+        //Réactiver la sélection sur les couches vecteur
+        var couches = this.carte.gestionCouches.obtenirCouchesParType("Vecteur");
+        
+        $.each(couches, function(index, couche) {
+            if(couche.options.selectionnable)
+            {
+                couche.controles.activerSelection();
+            }
+        });
+        
     };
 
     /** 
