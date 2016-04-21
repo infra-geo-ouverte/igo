@@ -296,6 +296,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         }
             
         this._getLayer().setVisibility(true);
+        this.gererStyleParentEnfantSelect();
     };
     
     /** 
@@ -312,6 +313,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
            return;
         }
         this._getLayer().setVisibility(false);
+        this.gererStyleParentEnfantSelect();
     };
     
     
