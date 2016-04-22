@@ -101,9 +101,9 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             
             $.each(value.placeListe, function(keyPlace, place){
                 if(place.type === 'Municipalité'){
-                    value.lieu = place.nom;
-                } else if (place.type === 'Lieu'){
                     value.municipalite = place.nom;
+                } else if (place.type === 'Lieu'){
+                    value.lieu = place.nom;
                 }
             });
             vecteur.creerOccurence(point, value);
@@ -131,7 +131,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         };
         
         vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
-            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.municipalite});
+            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.lieu});
         }, 
         {scope: this});
         vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){
