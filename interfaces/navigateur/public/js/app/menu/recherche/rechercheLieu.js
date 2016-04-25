@@ -131,7 +131,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         };
         
         vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
-            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.lieu});
+            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.lieu, aFermerBouton: false});
         }, 
         {scope: this});
         vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){

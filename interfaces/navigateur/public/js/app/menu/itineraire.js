@@ -605,7 +605,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         };
         
         this.vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
-            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.titre});
+            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.titre, aFermerBouton: false});
         }, 
         {scope: this});
         this.vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){
