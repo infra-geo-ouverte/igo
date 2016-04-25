@@ -9,6 +9,8 @@ class AuthentificationLdap extends AuthentificationController {
     protected $estAdmin;
     protected $estPilote;
     protected $igo_utilisateur;
+    protected $prenom;
+    protected $nom;
     
     protected $messageErreur = "";
 
@@ -185,7 +187,10 @@ class AuthentificationLdap extends AuthentificationController {
             //throw new Exception("Could not find user in ldap.");
             return false;
         }
-    
+        
+        $this->prenom = isset($userEntries[0]["givenname"][0]) ? $userEntries[0]["givenname"][0] : $identifiant;;
+        $this->nom = isset($userEntries[0]["sn"][0]) ? $userEntries[0]["sn"][0] : "";
+       
         $this->identifiant = $identifiant;
         $this->profils = isset($userEntries[0]["groupmembership"]) ? $userEntries[0]["groupmembership"] : "";
         
@@ -211,4 +216,13 @@ class AuthentificationLdap extends AuthentificationController {
         }
         $this->motDePasseValide = $ldapbind2;
     }
+
+    public function obtenirNom(){
+        return $this->nom;
+    }
+
+    public function obtenirPrenom(){
+        return $this->prenom;
+    }
+
 }

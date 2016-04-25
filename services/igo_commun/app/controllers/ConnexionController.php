@@ -20,6 +20,8 @@ class ConnexionController extends Controller{
                     $this->session->set("info_utilisateur", $utilisateur);
                 }
                 $this->session->get("info_utilisateur")->identifiant = $authentificationModule->obtenirIdentifiantUtilisateur();
+                $this->session->get("info_utilisateur")->prenom  = $authentificationModule->obtenirPrenom();
+                $this->session->get("info_utilisateur")->nom  = $authentificationModule->obtenirNom();
                 $this->session->get("info_utilisateur")->estAuthentifie = $authentificationModule->estAuthentifie();
                 $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
                 $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();                       
@@ -81,7 +83,8 @@ class ConnexionController extends Controller{
             }
             $this->session->get("info_utilisateur")->estAuthentifie = true;
             $this->session->get("info_utilisateur")->identifiant = $username;
-
+            $this->session->get("info_utilisateur")->prenom  = $authentificationModule->obtenirPrenom();
+            $this->session->get("info_utilisateur")->nom  = $authentificationModule->obtenirNom();
             $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
             $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();
 
@@ -174,8 +177,21 @@ class ConnexionController extends Controller{
         $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";       
 
         $pageAccueil = $configuration->application->authentification->deconnectionAccueil;
+
+        if(isset($xmlAuth->deconnectionHttpsAccueil) && $xmlAuth->deconnectionHttpsAccueil !== false && substr($_SERVER["HTTP_REFERER"],0,8) === "https://"){
+            $pageAccueil = $xmlAuth->deconnectionHttpsAccueil;
+            if(isset($xmlAuth->directAccueil) && $xmlAuth->directAccueil === 'true'){
+              $response = new \Phalcon\Http\Response();
+              return $response->redirect($pageAccueil, true);
+            }
+        }
+
         if(isset($xmlAuth->deconnectionAccueil) && $xmlAuth->deconnectionAccueil !== false){
             $pageAccueil = $xmlAuth->deconnectionAccueil;
+            if(isset($xmlAuth->directAccueil) && $xmlAuth->directAccueil === 'true'){
+              $response = new \Phalcon\Http\Response();
+              return $response->redirect($pageAccueil, true);
+            }
         }
 
         $this->session->destroy();
@@ -226,10 +242,13 @@ class ConnexionController extends Controller{
     }
     
     private function redirigeVersPage(){ 
-        
+
+        $configuration = $this->getDI()->get("config");
         $page = $this->obtenirPageRedirection();
         if ($page) {
-            $this->session->remove("page");
+            if(!$configuration->application->authentification->activerSelectionRole){
+                $this->session->remove("page");
+            }
             $response = new \Phalcon\Http\Response();
             $response->redirect($page, true);
             return $response;            

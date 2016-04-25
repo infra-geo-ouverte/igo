@@ -47,4 +47,12 @@ class AuthentificationTest extends AuthentificationController {
         
     }
 
+    public function obtenirNom(){
+        return $this->nom;
+    }
+
+    public function obtenirPrenom(){
+        return $this->prenom;
+    }
+
 }

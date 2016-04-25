@@ -39,6 +39,16 @@ class SessionController {
      */
     public $profilActif;
 
+     /*
+     * type : string
+     */
+    public $nom;
+
+     /*
+     * type : string
+     */
+    public $prenom;
+
     public function __construct() {
 
         $this->identifiant = null;
@@ -48,6 +58,8 @@ class SessionController {
         $this->profils = null;
         $this->estAuthentifie = false;
         $this->profilActif = null;
+        $this->prenom = null;
+        $this->nom = null;
     }
     
     /**

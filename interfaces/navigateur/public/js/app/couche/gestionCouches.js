@@ -438,6 +438,43 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
                 
             if(!couche.estFond() && couche.estActive()){
                 couche.desactiver();
+                couche.gererStyleParentEnfantSelect();
+            }
+        }); 
+    };
+    
+    /**
+     * Désélectionner toutes les couches WMTS qui ne sont pas des fonds de carte
+     * @method
+     * @name GestionCouches#deselectionnerCouchesWMTS
+     * 
+     */
+    GestionCouches.prototype.deselectionnerCouchesWMTS = function(){
+      
+        var tabCouches = this.obtenirCouchesParType("WMTS");
+        
+        $.each(tabCouches, function(index, couche){
+                
+            if(!couche.estFond() && couche.estActive()){
+                couche.desactiver();
+            }
+        }); 
+    };
+    
+    /**
+     * Désélectionner toutes les couches WMTS qui ne sont pas des fonds de carte
+     * @method
+     * @name GestionCouches#deselectionnerCouchesWMTS
+     * 
+     */
+    GestionCouches.prototype.deselectionnerCouchesWMTS = function(){
+      
+        var tabCouches = this.obtenirCouchesParType("WMTS");
+        
+        $.each(tabCouches, function(index, couche){
+                
+            if(!couche.estFond() && couche.estActive()){
+                couche.desactiver();
             }
         }); 
     };
