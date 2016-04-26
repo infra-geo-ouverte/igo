@@ -1332,28 +1332,48 @@ actif="true"/>
 ![](media/image29.png)
 
 
-outilZoomRectangle
-------------------
+outilZoomPreselection
+---------------------
 
-Permet la définition d'un outil de zoom de la carte sur une région ou un
-point défini(e) à l'aide de la souris.
+Permet la définition d'un outil de recadrage/zoom de la carte sur une
+région (municipalités, MRC, RAGQ, etc.) sélectionnée préalablement à
+partir d'une liste.
+
 
 *Attributs ou valeurs spécifiques*
 
 | Nom   | Description                                 | Obligatoire | Valeurs possibles     | Valeur défaut |
 |-------|---------------------------------------------|-------------|-----------------------|---------------|
-|id	|					|		|			|*idZoomBoxIn (si type = avant)*, *idZoomBoxOut (si type = arriere)*
-|type	|Type de l'outil. Sert à déterminer si le zoom effectué est vers l'avant (in) ou l'arrière (out).|Oui|*arriere / avant*||
-|icone	|					|		|			|*zoomin (si type = avant)*, *zoomout (si type = arriere)*|
-|infobulle|					|		|			|*Zoom avant: cliquer sur la carte ou utiliser le bouton gauche de la souris et déplacer pour former un rectangle de zoom (si type = avant)*, *Zoom arrière: cliquer sur la carte ou utiliser le bouton gauche de la souris et déplacer pour former un rectangle de zoom (si type = arriere)*|
+|id	|					|		|			|*recherche\_par\_region\_adm\ (si type = region-adm)*, *recherche\_par\_mrc (si type = mrc)*, *recherche\_par\_mun (si type = mun)*, *recherche\_par\_hydro (si type = hydro)*|
+|type	|Type de l'outil. Sert à déterminer le type de région à afficher dans la liste.|Oui|*region-adm / mrc / mun / hydro*||
+|icone	|					|		|			|*zoom-reg-adm (si type = region-adm)*, *zoom-mrc (si type = mrc)*, *zoom-mun (si type = mun)*, *zoom-hydro (si type = hydro)*|
+|titre	|					|		|			|*Par région administrative (si type = region-adm)*, *Par MRC (si type = mrc)*, *Par municipalité (si type = mun)*, *Par hydrographie (si type = hydro)*|
+|etiquette| attribut à utiliser pour afficher dans l'étiquette |Non| string |res_nm_reg mrs_nm_reg mus_nm_mun |
+|texteForm| Texte à afficher dans le formulaire| Non | string | |
+|fieldLabel | Titre du combobox à afficher | Non | String | |
+|requestParametre| Nom du service d'obtention des données | Non | string |
+|service | url du service | Non | String| |
 
-*Exemple*
+*Exemple*s
 ```xml
-<outil classe="OutilZoomRectangle" type="avant">
-<outil id="btnZoomRectangle" classe="OutilZoomRectangle"
-type="arriere" icone="images/toolbar/search\_remove.png" titre="Zoom
-arrière" infobulle="Zoom arrière" visible="true" actif="true"/>
+<outil classe="OutilZoomPreselection" type="mrc"/>
+<outil id="btnZoomPreselection" classe="OutilZoomPreselection"
+type="mun" icone="images/toolbar/zoom\_mun.png" titre="Zoom
+municipalité" infobulle="Zoom municipalité" visible="true"
+actif="true"/>
 ```
+
+```xml
+<outil classe="OutilZoomPreselection" type="mrc"/>
+<outil id="btnZoomPreselection" classe="OutilZoomPreselection"
+type="mun" icone="images/toolbar/zoom\_mun.png" titre="Zoom
+municipalité" infobulle="Zoom municipalité" visible="true"
+actif="true"/>
+```
+*Personnalisé:
+```xml
+ <outil classe="OutilZoomPreselection" type="cs" id="recherche_par_cs" titre="Par centre de services" icone="zoom-mrc" etiquette="desc_fran" 
+                           texteForm="un centre de services" fieldLabel="Centre de services" requestParametre="obtenirCS" service="/lien_du_service/proxy.php"/>    
 
 *Aperçu*
 

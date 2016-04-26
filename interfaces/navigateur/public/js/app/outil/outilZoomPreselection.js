@@ -37,6 +37,8 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                 fieldLabel: 'Hydrographie',
                 requestParametre: 'search_hydronyme'
             });
+        } else if (this.options.type !== undefined){
+            this.defautOptions = $.extend({},this.defautOptions);  
         } else {
             throw new Error("OutilZoomPreselection a besoin d'un type");
         }
@@ -254,7 +256,7 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                 }
             }
             proprieteOccurence['regle']="true";
-            var etiquette = proprieteOccurence.res_nm_reg||proprieteOccurence.mrs_nm_reg||proprieteOccurence.mus_nm_mun;
+            var etiquette = proprieteOccurence.res_nm_reg||proprieteOccurence.mrs_nm_reg||proprieteOccurence.mus_nm_mun || proprieteOccurence[this.options.etiquette];
            
             var style = new Style({               
                 etiquette:etiquette,
