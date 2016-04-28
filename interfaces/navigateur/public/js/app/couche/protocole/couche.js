@@ -159,9 +159,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
         
-        this._getLayer().events.register('loadstart', this, function(e){this.gererStyleParentEnfantSelect();this.afficherChargement();});
-        this._getLayer().events.register('loadend', this, function(e){this.masquerChargement()});
-        this._getLayer().events.register('visibilitychanged', this, function(e){this.gererStyleParentEnfantSelect();this._visibiliteChangee();});
+        this._getLayer().events.register('loadstart', this, function(e){this.gererStyleParentEnfantSelect();this.gererIndentifierAGetInfo();this.afficherChargement();});
+        this._getLayer().events.register('loadend', this, function(e){this.masquerChargement();});
+        this._getLayer().events.register('visibilitychanged', this, function(e){this.gererStyleParentEnfantSelect();this.gererIndentifierAGetInfo();this._visibiliteChangee();});
     };
     
     /** 
@@ -297,6 +297,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             
         this._getLayer().setVisibility(true);
         this.gererStyleParentEnfantSelect();
+        this.gererIndentifierAGetInfo();
     };
     
     /** 
@@ -314,6 +315,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         }
         this._getLayer().setVisibility(false);
         this.gererStyleParentEnfantSelect();
+        this.gererIndentifierAGetInfo();
     };
     
     
@@ -476,7 +478,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         
         var idPanneauArbo =panneauArborescence.obtenirId();
         $("#"+idPanneauArbo).find("input:checked").parents("ul").prev().css('background-color', 'rgb(211, 211, 211)');
-        $("#"+idPanneauArbo).find("input:checked").find("input:checked")
+       
         $("#"+idPanneauArbo).find("div").each(
             function(index,elem){
                 if($(elem).css('background-color') == 'rgb(211, 211, 211)')
@@ -487,6 +489,35 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             }
         );
     };   
+    
+    /**
+     * Obtenir la valeur à savoir si la couche a un getInfo
+     * @method
+     * @name #Couche#gererIndentifierAGetInfo
+     */
+    Couche.prototype.gererIndentifierAGetInfo = function() {
+        
+         var panneauArborescence = Aide.obtenirNavigateur().obtenirPanneauxParType("Arborescence",3)[0];
+        
+        if(panneauArborescence === undefined || panneauArborescence.options.identifierGetInfo !== "true")
+            return false;            
+        
+        
+        if(this.options.aGetInfo && this.options.aGetInfo === true) {
+            var div = this.obtenirElementDivArbo();
+        
+            var $layerArboGetInfo = $(div).find(".layerArboGetInfo");
+            if($layerArboGetInfo.length){
+                if($(div).find("input:checked").length == 1)
+                    $layerArboGetInfo.show();
+                else
+                    $layerArboGetInfo.hide();
+          
+          } else if(div){
+              $(div).find(".x-tree-node-indent").before('<img class="layerArboGetInfo" style="position: absolute;height: 15px;padding-top: 2px;padding-left: 15px" src="'+ Aide.utiliserBaseUri("images/toolbar/info.png")+'" alt="Cette couche à un getInfo">');
+          }         
+      }
+    };
     
     return Couche;
 });

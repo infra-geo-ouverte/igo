@@ -209,7 +209,8 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                             xmlOptions = {
                                 titre: value.title,
                                 echelleMin: value.minScale,
-                                echelleMax: value.maxScale
+                                echelleMax: value.maxScale,
+                                aGetInfo: value.queryable
                             };
 
                             if(value.attribution){
@@ -261,6 +262,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         titre: value.title,
                         echelleMin: value.minScale,
                         echelleMax: value.maxScale,
+                        aGetInfo: value.queryable,
                         groupe: "Couches WMS ajoutées" 
                     };
                     if(value.attribution){
