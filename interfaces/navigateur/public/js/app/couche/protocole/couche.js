@@ -503,7 +503,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             return false;            
         
         
-        if(this.options.aGetInfo && this.options.aGetInfo === true) {
+        if(this.options.aGetInfo && (this.options.aGetInfo === true  || this.options.aGetInfo == "true")) {
             var div = this.obtenirElementDivArbo();
         
             var $layerArboGetInfo = $(div).find(".layerArboGetInfo");
