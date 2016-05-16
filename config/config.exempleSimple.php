@@ -58,7 +58,7 @@ return array(
         'regex'         =>  array(
             "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi")."#",
             "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi")."#",
-            "#".preg_quote("http://geogratis.gc.ca/services/elevation/cdsm/altitude")."#",
+            "#".preg_quote("http://geogratis.gc.ca/services/elevation/cdsm/altitude")."#"
         )
     ),
     // les configurations permettent d'appeler un fichier xml en mode rest et d'associer une clé avec un lien vers un fichier
