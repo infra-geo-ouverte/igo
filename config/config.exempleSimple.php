@@ -46,6 +46,7 @@ return array(
                                                             . "http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi"),
         'OutilZoomPreselection'  => array('service' => '[zoomPreSelection]'), // [] -> Fait référence à servicesExternes->zoomPreSelection
         'OutilAide'     => array ('lien' => "guides/guide.pdf"),
+        'PanneauInfo'   => array('urlServiceElevation' => 'http://geogratis.gc.ca/services/elevation/cdsm/altitude'),
         'WMS'     =>  array(
             'infoFormat' => "application/vnd.ogc.gml"
         )
@@ -56,7 +57,8 @@ return array(
         //Les urls externes utilisés dans l'application doivent correspondre à un regex pour être permis
         'regex'         =>  array(
             "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi")."#",
-            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi")."#"
+            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi")."#",
+            "#".preg_quote("http://geogratis.gc.ca/services/elevation/cdsm/altitude")."#",
         )
     ),
     // les configurations permettent d'appeler un fichier xml en mode rest et d'associer une clé avec un lien vers un fichier
