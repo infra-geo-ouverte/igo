@@ -61,18 +61,18 @@ define(['outil', 'aide', 'browserDetect', 'WMS'], function(Outil, Aide, BrowserD
                     fieldLabel: 'Lien',
                     name: 'lien'
                 }],
-                buttons: [/*{
-                    text: 'Ajouter au presse papier',
+                buttons: [{
+                    text: 'Ajouter aux favoris',
                     formBind: true,
-                    id:'pressePapier',
+                    id:'favoris',           
                     handler: function(btn, e){
-                        var lien = Ext.getCmp('msgLien');
-                        var bCopied = ClipBoard( lien.getValue() );
-                        if(!bCopied){
-                            alert("Le lien n'a pu être ajouté au presse-papier parce que votre navigateur n'y a pas accès.  Vous pouvez changer cette configuration dans les options de votre navigateur.");
+                            var lien = Ext.getCmp('msgLien');
+                            var bCopied = lien.getValue();
+                            if (BrowserDetect.browser === "Explorer") { // IE Favorite
+                                window.external.AddFavorite(bCopied, document.title);
+                            }
                         }
-                    }
-                },*/{
+                },{
                     text: 'Envoyer par courriel',
                     formBind: true,
                     handler: function() {
@@ -107,6 +107,14 @@ define(['outil', 'aide', 'browserDetect', 'WMS'], function(Outil, Aide, BrowserD
                 items: this.frmWizardContexte,
                 modal: true
             });
+        }
+        
+        var fav = Ext.getCmp('favoris');
+
+        if (BrowserDetect.browser === "Explorer") {
+            fav.setVisible(true);
+        } else {
+            fav.setVisible(false);
         }
         
         this.windowWizardContexte.show();
