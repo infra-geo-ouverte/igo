@@ -159,9 +159,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
         
-        this._getLayer().events.register('loadstart', this, function(e){this.afficherChargement()});
+        this._getLayer().events.register('loadstart', this, function(e){this.gererStyleParentEnfantSelect();this.afficherChargement();});
         this._getLayer().events.register('loadend', this, function(e){this.masquerChargement()});
-        this._getLayer().events.register('visibilitychanged', this, function(e){this._visibiliteChangee()});
+        this._getLayer().events.register('visibilitychanged', this, function(e){this.gererStyleParentEnfantSelect();this._visibiliteChangee();});
     };
     
     /** 
@@ -296,6 +296,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         }
             
         this._getLayer().setVisibility(true);
+        this.gererStyleParentEnfantSelect();
     };
     
     /** 
@@ -312,6 +313,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
            return;
         }
         this._getLayer().setVisibility(false);
+        this.gererStyleParentEnfantSelect();
     };
     
     
@@ -458,6 +460,33 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             type: this.estActive() ? "activee": "desactivee"
         }); 
     }
+    
+    /**
+     * Aficher/Masquer un style gris sur le style parent pour indiquer que des couches enfants sont sélectionnées.
+     * @method
+     * @name Couche#gererStyleParentEnfantSelect
+     */
+    Couche.prototype.gererStyleParentEnfantSelect = function()
+    {
+        
+        var panneauArborescence = Aide.obtenirNavigateur().obtenirPanneauxParType("Arborescence",3)[0];
+        
+        if(panneauArborescence === undefined || panneauArborescence.options.identifierSousSelection !== "true")
+            return false;            
+        
+        var idPanneauArbo =panneauArborescence.obtenirId();
+        $("#"+idPanneauArbo).find("input:checked").parents("ul").prev().css('background-color', 'rgb(211, 211, 211)');
+        $("#"+idPanneauArbo).find("input:checked").find("input:checked")
+        $("#"+idPanneauArbo).find("div").each(
+            function(index,elem){
+                if($(elem).css('background-color') == 'rgb(211, 211, 211)')
+                {
+                    if($(elem).next().find("input:checked").length == 0)
+                    $(elem).css('background-color', '');
+                }
+            }
+        );
+    };   
     
     return Couche;
 });

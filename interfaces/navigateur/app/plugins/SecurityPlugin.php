@@ -29,7 +29,7 @@ class SecurityPlugin extends Plugin
             $authObligatoire = isset($_GET['force-auth']) ? $_GET['force-auth'] : false;
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
 
-            $authObligatoire = ($authObligatoire || $this->estAuthentificationRequise($configuration))? true:false;            
+            $authRequise = ($authObligatoire || $this->estAuthentificationRequise($configuration))? true:false;            
 
             if(isset($this->getDi()->getConfig()->configurations[$configuration])){
                 $file = $this->getDi()->getConfig()->configurations[$configuration];
@@ -39,11 +39,11 @@ class SecurityPlugin extends Plugin
             if((!file_exists($file) && !curl_url_exists($file))){
                 return $this->forwardToErrorPage();
             }
-            if($authObligatoire && !$this->estAuthentifie() && (!$this->estAnonyme() || ($this->estAnonyme() && (!isset($user->persistant) || $user->persistant == false)))){
+            if(($authObligatoire || $authRequise) && !$this->estAuthentifie() && (!$this->estAnonyme() || ($this->estAnonyme() && (!isset($user->persistant) || $user->persistant == false)))){
                 return $this->forwardToLoginPage();
-            } else if($authObligatoire && $this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
+            } else if($authRequise && $this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
                 return $this->forwardToRolePage();
-            } else if (!$authObligatoire && !$this->estAuthentifie()){
+            } else if (!$authRequise && !$this->estAuthentifie()){
                 $authentificationModule = $this->getDI()->get("authentificationModule");
                 if(!$this->session->has("info_utilisateur")) {
                     $this->session->set("info_utilisateur", new SessionController());
@@ -144,6 +144,7 @@ class SecurityPlugin extends Plugin
         } else { //url externe
             $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
         }              
+
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
         } else{

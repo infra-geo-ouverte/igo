@@ -72,6 +72,7 @@ require.config({
                 outilZoomEtendueMaximale: 'js/app/outil/outilZoomEtendueMaximale',
                 outilZoomPreselection: 'js/app/outil/outilZoomPreselection',
                 outilZoomRectangle: 'js/app/outil/outilZoomRectangle',
+                outilExportCSV: 'js/app/outil/outilExportCSV',
                 panneau: 'js/app/panneau/panneau',
                 panneauAccordeon: 'js/app/panneau/panneauAccordeon',
                 panneauCarte: 'js/app/panneau/panneauCarte',
