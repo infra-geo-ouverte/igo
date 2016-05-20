@@ -17,9 +17,16 @@ try {
      * 
      * @param string $configuration
      */
-    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {  
+    $app->get('/configuration/{configuration}', 'configuration');
+
+
+    function configuration($configuration){  
+
+        global $di;
+        global $app;
 
         $config = $di->getConfig();
+
         $debug = $config->application->debug;
         $configArray = explode(".", $configuration);
         $configKey = $configArray[0];
@@ -165,8 +172,8 @@ try {
         }else{       
             return envoyerResponse(404, "Not Found", "L'encodage '{$encoding}' n'est pas supporté!");
         }
-    });
-
+    };
+    
     $app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
 
     function redirigerRequetesHtml2Canvas() {
@@ -202,6 +209,7 @@ try {
         return $igoContexte;
     }
 
+     
     /**
      *
      * @param string $contexteCode Ex : "gouvouvert"
@@ -397,8 +405,14 @@ try {
      * @param int $coucheId
      * @return
      */
-    $app->get('/couche/{coucheId}', function($coucheId) use($di, $app){
+    $app->get('/couche/{coucheId}', 'couche');
+
+
+    function couche ($coucheId){
         
+        global $di;
+        global $app;
+
         $config = $di->getConfig();
         $authentificationModule = obtenirAuthentificationModule();
         $arrayCoucheId = explode(",", $coucheId);
@@ -461,25 +475,37 @@ try {
 
         $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
         echo json_encode($reponse);
-    }); 
+    }; 
     
     /**
      *
      * @param ??? $contexteCode
      */
-    $app->get('/contexteCode/{contexteCode}', function($contexteCode) use($app, $di){
+    $app->get('/contexteCode/{contexteCode}', 'contexteCode');
+
+    function contexteCode($contexteCode){
+
+        global $app;
+        global $di;
+
         $contexte = obtenirContexteParCode($contexteCode);
         obtenirInfoContexte($contexte, $app, $di);
-    });
+    };
 
     /**
      *
      * @param int $contexteId
      */
-    $app->get('/contexte/{contexteId:[0-9]+}', function($contexteId) use($app, $di){
+    $app->get('/contexte/{contexteId:[0-9]+}', 'contexte');
+
+    function contexte($contexteId) {
+
+        global $di;
+        global $app;
+
         $contexte = obtenirContexte($contexteId);
         obtenirInfoContexte($contexte, $app, $di);
-    });
+    };
 
 
     /**
@@ -493,7 +519,7 @@ try {
         global $app;
          //Services  
         $igoController = new IgoController();
-
+        
         $permisUrl = $igoController->obtenirPermisUrl($service, $restService);
         
         if($permisUrl === false){
@@ -736,6 +762,7 @@ try {
         // Based on https://github.com/eslachance/php-transparent-proxy Copyright (c) 2011, Eric-Sebastien Lachance <eslachance@gmail.com>
         // Based on post_request from http://www.jonasjohn.de/snippets/php/post-request.htm
         global $ip;
+
         // Convert the data array into URL Parameters like a=b&foo=bar etc.
         $data = http_build_query($data);
         $datalength = strlen($data);
@@ -832,6 +859,7 @@ try {
      * @return
      */
     function proxyNavigateur($service) {
+      
         //todo: http://php.net/manual/en/function.curl-setopt.php
         global $app;
         $config = $app->getDI()->get("config");
@@ -863,9 +891,10 @@ try {
         unset($paramsGet['_url']);
         unset($paramsPost['_client_IP']);
         unset($paramsGet['_client_IP']);
-            
+       
         //Session
         $session = $app->getDI()->getSession();
+
         if(!$session->has("info_utilisateur")){
             header('Content-Type: text/html; charset=utf-8');
             http_response_code(401);
@@ -972,6 +1001,7 @@ try {
             //TODO en faire une option?
             $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $url);
         }
+
         proxyRequestNavigateur($url, $paramsPost, $method, $options);
     };    
     
