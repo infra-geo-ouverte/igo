@@ -401,12 +401,14 @@ couches disponibles à l’affichage sur la carte.
 
 |Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
 |---------------|-----------------------|---------------|-----------------|-------------|
-|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique||
+|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique| |
+|retirerCheckboxPremNiveau| Permet de retirer les checkbox de premier niveau dans l'arborescence | non | true | false |
+|identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false |
 
 *Exemple*
 
 ```xml
-<element-accordeon classe="Arborescence"/>
+ <element-accordeon classe="Arborescence" retirerCheckboxPremNiveau="true" identifierSousSelection="true"/>
 ```
 
 *Aperçu*
@@ -1653,7 +1655,8 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
 |infoGabarit | Indique l'emplacement du script [Handlebars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte ([exemple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exemple.html),[ exemple simple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exempleSimple.html)) | Non|  URL|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
+|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL| |
+|afficherMessageErreurUtilisateur| Permettre d'afficher un message générique à l'utilisateur quand la couche est en erreur. | Non | "True" | |
 
 *Exemples*
 ```xml

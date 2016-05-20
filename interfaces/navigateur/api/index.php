@@ -26,7 +26,6 @@ try {
         global $app;
 
         $config = $di->getConfig();
-
         $debug = $config->application->debug;
         $configArray = explode(".", $configuration);
         $configKey = $configArray[0];
@@ -209,7 +208,6 @@ try {
         return $igoContexte;
     }
 
-     
     /**
      *
      * @param string $contexteCode Ex : "gouvouvert"
@@ -508,56 +506,7 @@ try {
     };
 
 
-    /**
-     * Obtenir Chaine de connexion au site securise
-     * @param ??? $service
-     * @param ??? $restService
-     * @return ??? $auth
-     */
-     
-    function obtenirChaineConnexion($service, $restService){  
-        global $app;
-         //Services  
-        $igoController = new IgoController();
-        
-        $permisUrl = $igoController->obtenirPermisUrl($service, $restService);
-        
-        if($permisUrl === false){
-            http_response_code(403);
-            die("Vous n'avez pas les droits pour ce service.");
-        } 
-
-       //Decrypter la chaine de connexion
-        if (!empty($permisUrl['connexion']) || !empty($permisUrl['user'])) {
-            $auth = array();
-            if(!empty($permisUrl['user'])) {
-                $auth['user'] = $permisUrl['user']; 
-            }
-            if(!empty($permisUrl['pass'])) {
-                $auth['pass'] = $permisUrl['pass']; 
-            }
-            if(!empty($permisUrl['methode'])) {
-                $auth['method'] = $permisUrl['methode']; 
-            }
-
-            if(!empty($permisUrl['connexion'])){
-                $crypt = $app->getDI()->get("crypt");
-                $chaine = explode(",", $crypt->decryptBase64(urldecode($permisUrl['connexion'])));
-                $auth['user'] = ltrim(trim($chaine[0]), " user:");
-                $auth['pass'] = ltrim(trim($chaine[1]), " pass:");
-                if (empty($auth['pass'])) {
-                    header('Content-Type: text/html; charset=utf-8');
-                    http_response_code(401);
-                    die("Votre clé n'est pas décryptée correctement.");
-                }
-            }
-           
-        }
-       
-          $auth['url'] = $permisUrl['url'];
-          return $auth;            
-    }
-    
+   
 
 
     /**
@@ -762,7 +711,6 @@ try {
         // Based on https://github.com/eslachance/php-transparent-proxy Copyright (c) 2011, Eric-Sebastien Lachance <eslachance@gmail.com>
         // Based on post_request from http://www.jonasjohn.de/snippets/php/post-request.htm
         global $ip;
-
         // Convert the data array into URL Parameters like a=b&foo=bar etc.
         $data = http_build_query($data);
         $datalength = strlen($data);
@@ -859,7 +807,6 @@ try {
      * @return
      */
     function proxyNavigateur($service) {
-      
         //todo: http://php.net/manual/en/function.curl-setopt.php
         global $app;
         $config = $app->getDI()->get("config");
@@ -891,19 +838,18 @@ try {
         unset($paramsGet['_url']);
         unset($paramsPost['_client_IP']);
         unset($paramsGet['_client_IP']);
-       
+            
         //Session
         $session = $app->getDI()->getSession();
-
         if(!$session->has("info_utilisateur")){
             header('Content-Type: text/html; charset=utf-8');
             http_response_code(401);
             die("Vous devez être connecté pour utiliser ce service");
         }
         
-        $auth = obtenirChaineConnexion ($service, $restService);   
-        $url = $auth['url'];    
-
+        $igoController = new IgoController();
+        $auth = $igoController->obtenirChaineConnexion($service, $restService);  
+        
         $authtmp['auth'] = $auth;
         $options = array_merge($options, $authtmp);
         
@@ -1001,7 +947,6 @@ try {
             //TODO en faire une option?
             $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $url);
         }
-
         proxyRequestNavigateur($url, $paramsPost, $method, $options);
     };    
     
@@ -1013,7 +958,7 @@ try {
      * @param
      * @return
      */
-    function proxyRequestNavigateur($url, $data, $method, $options) {        
+    function proxyRequestNavigateur($url, $data, $method, $options) {         
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -1060,80 +1005,11 @@ try {
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
 
-        if (!empty($options['auth'])) {
-            $auth = $options['auth'];
-            if (isset($auth['method']) && isset($auth['user']) && isset($auth['pass'])) { 	
-            	 //On obtient le payload (objectif chercher dans le payload les url securisees)
-                $postdata = file_get_contents ("php://input"); 
-             
-                //Seul le post xml de zoo est modifié
-                if (!empty ($postdata) && strpos ($postdata, 'wps:Execute') !== false) {
-                    $doc = new DOMDocument();
-                    $doc->loadXML ($postdata);
-                    $domList = $doc->getElementsByTagNameNS ('*', '*');
-                   //on navigue dans tout le payload
-                    for ($i = 0; $i < $domList->length; $i++) {
-                        if ($domList->item ($i)->tagName === 'wps:Reference') {
-                            $xmlurl = $domList->item ($i)->getAttribute ('xlink:href');
-                            $partsxml = parse_url ($xmlurl);
-                            //les credentials a ajouter dans le xml on verifié s il y en as
-                            if (isset ($xmlurl) && $partsxml['scheme'] === 'https') {
-                                if ($xmlurl !== $url ) {
-                                 //les credentials des urls qu on as pas 
-                                    $authxml = obtenirChaineConnexion ($partsxml['scheme'] . '://' . $partsxml['host'] . $partsxml['path'], $restService=false);
-                                    if (isset ($authxml['user']) && isset ($authxml['pass'])) {
-                                        $urlxml = $partsxml['scheme'] . '://' . $authxml['user'] . ':' . $authxml['pass'] . '@' . $partsxml['host'] . $partsxml['path'] . '?' . $partsxml['query'];
-                                    }
-                                    $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
-                                    $postdata = $xmlpost;
-                                }
-                                //les credentials de zoo on possede deja dans le xml est modifié
-                                if ($xmlurl === $url) {
-                                    $urlxml = $partsxml['scheme'] . '://' . $auth['user'] . ':' . $auth['pass'] . '@' . $partsxml['host'] . $partsxml['path'];
-                                    $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
-                                    $postdata = $xmlpost;
-                                }
-                            }
-                        }
-                    }
-
-                    curl_setopt ($ch, CURLOPT_POST, 1);
-                    curl_setopt ($ch, CURLOPT_POSTFIELDS, $postdata);
-                       
-                }
-      
-            	//Necessaire pour le SSL sinon on voit pas les couches dans 
-            	//la list des couche disponible analyse spatial
-            	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  2);
-                
-                                
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);  
-                
-                switch ($auth['method']) {
-                    case "BASIC":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                        break;
-                    case "NTLM":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
-                        break;
-                    case "GSSNEGOTIATE":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);
-                        break;
-                    case "DIGEST":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
-                        break;
-                    default:
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-                        break;
-                }
-
-                curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ':' . $auth['pass']);
-            }
-        }
-
+         $igoController = new IgoController();
+         $ch = $igoController->proxyChaineConnexion($ch, $url, $method, $options);  
+   
+       
+        
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

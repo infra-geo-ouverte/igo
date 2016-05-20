@@ -101,9 +101,9 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             
             $.each(value.placeListe, function(keyPlace, place){
                 if(place.type === 'Municipalité'){
-                    value.lieu = place.nom;
-                } else if (place.type === 'Lieu'){
                     value.municipalite = place.nom;
+                } else if (place.type === 'Lieu'){
+                    value.lieu = place.nom;
                 }
             });
             vecteur.creerOccurence(point, value);

@@ -332,6 +332,8 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     };
     
     WMS.prototype._validerChargement = function(e, a){
+        var that = this;
+        
         if(e.object.div.innerHTML.indexOf("olImageLoadError")>-1){
             $.ajax({
                 url: Aide.utiliserProxy(decodeURIComponent($('<textarea/>').html(/src="(.*)"/.exec(e.object.div.innerHTML)[1]).text())),
@@ -343,6 +345,12 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 async:false,
                 context:this,
                 success:function(response) {
+                    
+                    if(this.options.afficherMessageErreurUtilisateur === "true"){
+                       this.gestionErreurWMS(this);
+                       return false;
+                    }
+                    
                     var message = '<b>'+this.options.titre +':</b><br>';
                     
                     if(typeof response === 'object'){        
@@ -357,19 +365,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                     }
                 },
                 error:function(e){
-                    var message = '<b>'+ e.statusText +':</b><br>';
-                    Aide.afficherMessageConsole(message);
-                    /*var response = e.responseXML;
-                    
-                    if(typeof response === 'object'){     
-                        var tagError = response.getElementsByTagName("ServiceException");
-                        if(tagError){
-                            message += tagError.item(0).textContent;
-                            Aide.afficherMessageConsole(message);
-                        }
-                    } else {
-                        Aide.afficherMessageConsole(message);
-                    }*/
+                  that.gestionErreurWMS(e);
                 }
             
             });
@@ -379,6 +375,18 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     WMS.prototype.rafraichir = function() { 
         if(this._layer){
             this._layer.redraw(true);  
+        }
+    };
+    
+    WMS.prototype.gestionErreurWMS = function(e) {
+        
+        if(this.options.afficherMessageErreurUtilisateur === "true") {
+            Aide.afficherMessage({titre: this.obtenirGroupe(), message: "La couche d'information " + this.obtenirTitre() + " n'est actuellement pas disponible."});
+            this.desactiver();
+        }
+        else {      
+            var message = '<b>'+ e.statusText +':</b><br>';
+            Aide.afficherMessageConsole(message);
         }
     };
     
