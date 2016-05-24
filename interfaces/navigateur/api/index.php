@@ -17,7 +17,13 @@ try {
      * 
      * @param string $configuration
      */
-    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {  
+    $app->get('/configuration/{configuration}', 'configuration');
+
+
+    function configuration($configuration){  
+
+        global $di;
+        global $app;
 
         $config = $di->getConfig();
         $debug = $config->application->debug;
@@ -165,8 +171,8 @@ try {
         }else{       
             return envoyerResponse(404, "Not Found", "L'encodage '{$encoding}' n'est pas supporté!");
         }
-    });
-
+    };
+    
     $app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
 
     function redirigerRequetesHtml2Canvas() {
@@ -397,8 +403,14 @@ try {
      * @param int $coucheId
      * @return
      */
-    $app->get('/couche/{coucheId}', function($coucheId) use($di, $app){
+    $app->get('/couche/{coucheId}', 'couche');
+
+
+    function couche ($coucheId){
         
+        global $di;
+        global $app;
+
         $config = $di->getConfig();
         $authentificationModule = obtenirAuthentificationModule();
         $arrayCoucheId = explode(",", $coucheId);
@@ -461,25 +473,37 @@ try {
 
         $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
         echo json_encode($reponse);
-    }); 
+    }; 
     
     /**
      *
      * @param ??? $contexteCode
      */
-    $app->get('/contexteCode/{contexteCode}', function($contexteCode) use($app, $di){
+    $app->get('/contexteCode/{contexteCode}', 'contexteCode');
+
+    function contexteCode($contexteCode){
+
+        global $app;
+        global $di;
+
         $contexte = obtenirContexteParCode($contexteCode);
         obtenirInfoContexte($contexte, $app, $di);
-    });
+    };
 
     /**
      *
      * @param int $contexteId
      */
-    $app->get('/contexte/{contexteId:[0-9]+}', function($contexteId) use($app, $di){
+    $app->get('/contexte/{contexteId:[0-9]+}', 'contexte');
+
+    function contexte($contexteId) {
+
+        global $di;
+        global $app;
+
         $contexte = obtenirContexte($contexteId);
         obtenirInfoContexte($contexte, $app, $di);
-    });
+    };
 
 
    
