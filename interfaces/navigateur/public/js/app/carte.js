@@ -1035,6 +1035,10 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         //todo: créer si pas de couche? avertissement?
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
 
+        if(couche && typeof couche.activer==='function'){
+            couche.activer(true);
+        }
+
         if (options.releverBoutonOutil !== false) {
             var boutonActif = Ext.ButtonToggleMgr.getPressed('carte');
             if (boutonActif) {
