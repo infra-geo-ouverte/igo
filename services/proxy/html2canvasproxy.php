@@ -23,7 +23,7 @@ if(isset($config['html2canvas'])) {
 
 //setup
 define('JSLOG', 'console.log'); //Configure alternative function log, eg. console.log, alert, custom_function
-define('PATH', '../app/cache/html2canvasproxy_images');//relative folder where the images are saved
+define('PATH', sys_get_temp_dir() . "/html2canvas/");//relative folder where the images are saved
 define('CCACHE', 60 * 5 * 1000);//Limit access-control and cache, define 0/false/null/-1 to not use "http header cache"
 define('TIMEOUT', 30);//Timeout from load Socket
 define('MAX_LOOP', 10);//Configure loop limit for redirect (location header)
