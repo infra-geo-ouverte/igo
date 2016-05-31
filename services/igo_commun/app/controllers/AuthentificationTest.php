@@ -7,6 +7,8 @@ class AuthentificationTest extends AuthentificationController {
     protected $motDePasseValide;
     protected $motDePasseExpire;
     protected $messageErreur = "";
+    protected $nom;
+    protected $prenom;
 
     public function obtenirMessageErreur() {
         return $this->messageErreur;
