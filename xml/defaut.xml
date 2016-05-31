@@ -1,4 +1,4 @@
-<navigateur authentification="true" titre="IGO">
+<navigateur authentification="false" titre="IGO">
     <presentation>
            <panneaux>
                 <panneau classe="PanneauCarte"  />
