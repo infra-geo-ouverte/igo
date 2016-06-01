@@ -155,7 +155,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      */
     Recherche.prototype.obtenirLienPDF = function() {
         return  "<a href=\'#here\' onclick=\'window.open(\"" +
-                Aide.utiliserBaseUri("guides/200_Guide_Localisation_GeoCOG_V10_OMSC-ANALYSTE.pdf") +
+                Aide.utiliserBaseUri("guides/GO_Navigateur_guide.pdf") +
                 "\");\'>" +
                 "Cliquer ici pour avoir plus de détails...</a><br><br>";
     };
