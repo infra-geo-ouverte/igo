@@ -61,6 +61,14 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
             listeners: {
                 afterrender: function(e) {
                     that.callbackCreation();       
+                },
+                afterlayout: function(){
+                    //Si premier affichage, gérer l'affichage des niveau
+                    if(this.premier === undefined)
+                    {
+                        that.gererAffichageNiveau();
+                        this.premier = true;
+                    }
                 }
             }
         });
@@ -107,7 +115,12 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
         if(coucheSpan){
             var caseInput = coucheSpan.parent().parent().find("input");
             if(caseInput){
-                caseInput.click();
+                if(caseInput[0].disabled){
+                    caseInput.prop('checked', true);
+                    couche.activer();
+                } else {
+                    caseInput.click();
+                }
             }
         }
     };
@@ -242,6 +255,17 @@ define(['panneau', 'contexteMenuArborescence', 'layerTreeBuilderBuild'], functio
 
     Arborescence.prototype.fermerRecherche = function() {
        this.window_recherche.hide();
+    };
+    
+    /**
+     * Gérer l'affichage des niveaux selon les paramètres fournis dans les options
+     * @method
+     * @name Arborescence#gererAffichageNiveau
+     */
+    Arborescence.prototype.gererAffichageNiveau = function(){
+        //Option pour retirer le checkbox du niveau répertoire
+        if(this.options.retirerCheckboxPremNiveau == "true")
+            $("#tree_panneau").find(".x-tree-node-icon").not('.gx-tree-layer-icon').next(".x-tree-node-cb").remove();
     };
 
     return Arborescence;

@@ -613,7 +613,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             contexteUrl = Aide.obtenirConfig('uri.api')+"contexteCode/" + contexteCode;
         } else {
             this.fin.couches = true;
-            this._analyserContexte();
+            setTimeout(function () {
+                that.igo.nav.carte.gestionCouches.ajouterCouches(that.listCouchesApresContexte);
+                that._analyserContexte();
+            }, 1);
+
             return true;
         }
 
@@ -660,6 +664,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         if(layernamePermis){
             layernamePermis = layernamePermis.split(',');
         }
+        var layerActif = Aide.obtenirParametreURL("layeractif");
+        if(layerActif){
+            layerActif = layerActif.split(',');
+        }
         $.each(couches, function(key, couche) {
             var layername = couche.mf_layer_name || couche.mf_layer_meta_name;
             if(layernamePermis){
@@ -667,6 +675,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                     return true;
                 }
                 couche.est_active = true;
+            } else if (layerActif){
+                if(layerActif.indexOf(layername) !== -1){
+                    couche.est_active = true;
+                }
             }
             var options = {
                 id: couche.couche_id,

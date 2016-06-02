@@ -8,3 +8,14 @@ OpenLayers.Map.prototype.resetLayersZIndex = function() {
         }
     }
 };
+
+OpenLayers.Map.prototype.setLayerZIndex = function (layer, zIdx) {
+	var type = 'Overlay';
+	if(layer.CLASS_NAME === "OpenLayers.Layer.Vector" || layer.CLASS_NAME === "OpenLayers.Layer.Markers"){
+		type = "Vecteur";
+	}
+	layer.setZIndex(
+	    this.Z_INDEX_BASE[layer.isBaseLayer ? 'BaseLayer' : type]
+	    + zIdx * 5 
+    );
+};

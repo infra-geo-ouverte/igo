@@ -401,12 +401,14 @@ couches disponibles à l’affichage sur la carte.
 
 |Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
 |---------------|-----------------------|---------------|-----------------|-------------|
-|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique||
+|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique| |
+|retirerCheckboxPremNiveau| Permet de retirer les checkbox de premier niveau dans l'arborescence | non | true | false |
+|identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false |
 
 *Exemple*
 
 ```xml
-<element-accordeon classe="Arborescence"/>
+ <element-accordeon classe="Arborescence" retirerCheckboxPremNiveau="true" identifierSousSelection="true"/>
 ```
 
 *Aperçu*
@@ -826,7 +828,7 @@ OutilZoomPreselection et OutilZoomRectangle*.
 |id	|Identifiant de l'outil. Est utilisé pour accéder à celui-ci. Doit être unique.|Non|Chaîne alphanumérique|*outil*|
 |classe	|Nom de la classe qui implémente l'outil.	|Non	|Les classes prédéfinies sont :  *OutilAide*, *OutilAjoutWMS*, *OutilAnalyseSpatiale*, *OutilDeplacement*, *OutilDessin*, *OutilHistoriqueNavigation*, *OutilInfo*, *OutilMesure*, *OutilDeplacerCentre*, *OutilPartagerCarte*, *OutilReporterBug*, *OutilZoomEtendueMaximale*, *OutilZoomPreselection*, *OutilZoomRectangle*  ou Classe personnalisée (voir attribut urlModule)|*Outil*|
 |urlModule|Url du fichier Javascript contenant la classe définissant un panneau personnalisé.|Seulement pour les panneaux personnalisés|URL||
-|icone|Icône de l'outil. Est affiché sur le bouton dans la barre d'outils.|Non|URL ou Classe CSS prédéfinie :  *aide*, *apropos*, *back*, *bug*, *deletefeature*, *drawpoint*, *drawline*, *drawpolygon*, *gentillyboom*, *getinfo*, *measrCircle*, *measrlinear*, *measrpolgn*, *modifyfeature*, *moveto*, *next*, *pan*, *print*, *zoomfull*, *zoomin*, *zoomout*, *zoom-hydro*, *zoom-mrc*, *zoom-mun*, *zoom-reg-adm*|titre|Titre de l'outil. Est affiché à droite du bouton dans la barre d'outils.|Non|Chaîne alphanumérique||
+|icone|Icône de l'outil. Est affiché sur le bouton dans la barre d'outils.|Non|URL ou Classe CSS prédéfinie :  *aide*, *apropos*, *back*, *bug*, *deletefeature*, *drawpoint*, *drawline*, *drawpolygon*, *getinfo*, *measrCircle*, *measrlinear*, *measrpolgn*, *modifyfeature*, *moveto*, *next*, *pan*, *print*, *zoomfull*, *zoomin*, *zoomout*, *zoom-hydro*, *zoom-mrc*, *zoom-mun*, *zoom-reg-adm*|titre|Titre de l'outil. Est affiché à droite du bouton dans la barre d'outils.|Non|Chaîne alphanumérique||
 |infobulle|Infobulle de l'outil. Est affiché lorsque le curseur de la souris est placée sur le bouton dans la barre d'outils.|Non|Chaîne alphanumérique||
 |visible|Indique si le bouton est visible ou non dans la barre d'outils lors de l'affichage initial du navigateur.|Non|Booléen|*true*|
 |actif|Indique si le bouton est actif ou non (grisé) dans la barre d'outils lors de l'affichage initial du navigateur.|Non|Booléen|*true*|
@@ -993,6 +995,18 @@ infobulle="Dessin/Annotations" visible="true" actif="true"/>
 ![](media/image20.png)
 
 ![](media/image21.png)
+
+
+outilExportCSV
+-----------
+
+
+Permet d'exporter les données d'un panneauTable en fichier csv. Inclus dans le panneauTable.
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
 
 outilExportGPX
 -----------
@@ -1474,7 +1488,8 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |ordreAffichage| Ordre d'affichage de la couche		| Non		| Nombre entier		| *Valeurs par défaut d’OpenLayers*|
 |droit	| Indique les droits de la couche (Copyrights)	| Non		| Chaîne alphanumérique	| 		|
 |metadonnee| Lien vers les métadonnées			| Non		| URL			|		|
-|ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier||
+|ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier|
+|estInterrogeable|Indique si le getInfo doit être fait sur cette couche | Non | Booléen | true |
 
 blanc
 -----
@@ -1640,7 +1655,8 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
 |infoGabarit | Indique l'emplacement du script [Handlebars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte ([exemple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exemple.html),[ exemple simple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exempleSimple.html)) | Non|  URL|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
+|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL| |
+|afficherMessageErreurUtilisateur| Permettre d'afficher un message générique à l'utilisateur quand la couche est en erreur. | Non | "True" | |
 
 *Exemples*
 ```xml

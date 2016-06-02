@@ -82,8 +82,25 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 				die('Erreur lors du chargement du module \'' . $nomDossier . '\': ' . $e->getMessage());
 			}
 	    }
+
+	    $this->verifierDependancesModules();
 	}
 
+	/**
+	 * Vérifier que chaque module à tous les autres modules également
+	 * chargés dont il dépend.
+	 */
+	private function verifierDependancesModules() {
+		foreach ($this->modules as $module) {
+			$dependances = $module->obtenirDependances();
+
+			foreach ($dependances as $dependance) {
+				if(!array_key_exists($dependance, $this->definitionModules)) {
+					throw new \Exception("Le module " . $module->obtenirNom() . " dépend du module " . $dependance);
+				}
+			}
+		}
+	}
 
 	public function verifierModulePermission($espaceDeNoms, $estNomDossier=false) {
 		return $this->obtenirModuleConfig($espaceDeNoms, $estNomDossier) !== false;		
@@ -167,6 +184,17 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 		        if($permis === false){
 		        	return false;
 		        }
+			}
+
+			//Par défaut
+			if(is_null($permis) && isset($configGlobal->permissions['*'])){
+				$identifiant = $configGlobal->permissions['*'];
+				if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
+					$permis = $identifiant->modules[$espaceDeNoms];		
+					if($permis === false || is_object($permis)){
+						return $permis;
+					} 
+				}
 			}
 		}
 

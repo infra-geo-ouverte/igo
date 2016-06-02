@@ -19,13 +19,14 @@ define(['couche', 'aide'], function(Couche, Aide) {
      * @requires google
      * @param {String} [options.titre="Google"] Nom de la couche
      * @param {String} [options.nom="route"] Type de la carte {terrain | satellite | hybride | route}.
+     * @param {Boolean} [options.useTiltImages="false"] Utilisation des images à 45°.
      * @returns {Couche.Google} Instance de {@link Couche.Google}
     */
     function Google(options){
             this.options = options || {};
             this.options.fond = true;
             this.options.opaciteSlider = false;
-            
+    
             this._optionsOL = {
                 sphericalMercator: true, 
                 numZoomLevels: 20,
@@ -72,6 +73,16 @@ define(['couche', 'aide'], function(Couche, Aide) {
             this.options.titre, 
             this._optionsOL
         );
+
+        if((!this.options.useTiltImages) && (type === google.maps.MapTypeId.SATELLITE)){
+        
+            var nav = Aide.obtenirNavigateur();
+        
+            nav.evenements.ajouterDeclencheur('ajouterCouche', function(e){
+                e.couche._layer.mapObject.setTilt(0);
+                this.enleverDeclencheur(e.type, e.options.id);
+            }, {id: this._layer.id+'desactiveTilt'});
+        }
     };
 
     Google.prototype._ajoutCallback = function(target, callback, optCallback){

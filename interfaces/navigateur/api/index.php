@@ -17,7 +17,13 @@ try {
      * 
      * @param string $configuration
      */
-    $app->get('/configuration/{configuration}', function($configuration) use($di, $app) {  
+    $app->get('/configuration/{configuration}', 'configuration');
+
+
+    function configuration($configuration){  
+
+        global $di;
+        global $app;
 
         $config = $di->getConfig();
         $debug = $config->application->debug;
@@ -165,7 +171,28 @@ try {
         }else{       
             return envoyerResponse(404, "Not Found", "L'encodage '{$encoding}' n'est pas supporté!");
         }
-    });
+    };
+    
+    $app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
+
+    function redirigerRequetesHtml2Canvas() {
+        global $app;
+
+        if(!utilisateurActuelEstAuthentifie()) {
+            return envoyerResponse(401, "", "Non-Autorisees");  
+        }
+
+        $cheminServices = '../../../services';
+        $cheminProxy = $cheminServices . '/proxy/html2canvasproxy.php';
+
+        if(file_exists($cheminProxy)) {
+            ob_end_clean();
+            ob_start();
+            include $cheminProxy;
+            $contenu = ob_get_contents();
+            die($contenu);
+        }
+    };
 
     /**
      *
@@ -376,8 +403,14 @@ try {
      * @param int $coucheId
      * @return
      */
-    $app->get('/couche/{coucheId}', function($coucheId) use($di, $app){
+    $app->get('/couche/{coucheId}', 'couche');
+
+
+    function couche ($coucheId){
         
+        global $di;
+        global $app;
+
         $config = $di->getConfig();
         $authentificationModule = obtenirAuthentificationModule();
         $arrayCoucheId = explode(",", $coucheId);
@@ -440,77 +473,40 @@ try {
 
         $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
         echo json_encode($reponse);
-    }); 
+    }; 
     
     /**
      *
      * @param ??? $contexteCode
      */
-    $app->get('/contexteCode/{contexteCode}', function($contexteCode) use($app, $di){
+    $app->get('/contexteCode/{contexteCode}', 'contexteCode');
+
+    function contexteCode($contexteCode){
+
+        global $app;
+        global $di;
+
         $contexte = obtenirContexteParCode($contexteCode);
         obtenirInfoContexte($contexte, $app, $di);
-    });
+    };
 
     /**
      *
      * @param int $contexteId
      */
-    $app->get('/contexte/{contexteId:[0-9]+}', function($contexteId) use($app, $di){
+    $app->get('/contexte/{contexteId:[0-9]+}', 'contexte');
+
+    function contexte($contexteId) {
+
+        global $di;
+        global $app;
+
         $contexte = obtenirContexte($contexteId);
         obtenirInfoContexte($contexte, $app, $di);
-    });
+    };
 
 
-    /**
-     * Obtenir Chaine de connexion au site securise
-     * @param ??? $service
-     * @param ??? $restService
-     * @return ??? $auth
-     */
-     
-    function obtenirChaineConnexion($service, $restService){  
-        global $app;
-         //Services  
-        $igoController = new IgoController();
-
-        $permisUrl = $igoController->obtenirPermisUrl($service, $restService);
-        
-        if($permisUrl === false){
-            http_response_code(403);
-            die("Vous n'avez pas les droits pour ce service.");
-        } 
-
-       //Decrypter la chaine de connexion
-        if (!empty($permisUrl['connexion']) || !empty($permisUrl['user'])) {
-            $auth = array();
-            if(!empty($permisUrl['user'])) {
-                $auth['user'] = $permisUrl['user']; 
-            }
-            if(!empty($permisUrl['pass'])) {
-                $auth['pass'] = $permisUrl['pass']; 
-            }
-            if(!empty($permisUrl['methode'])) {
-                $auth['method'] = $permisUrl['methode']; 
-            }
-
-            if(!empty($permisUrl['connexion'])){
-                $crypt = $app->getDI()->get("crypt");
-                $chaine = explode(",", $crypt->decryptBase64(urldecode($permisUrl['connexion'])));
-                $auth['user'] = ltrim(trim($chaine[0]), " user:");
-                $auth['pass'] = ltrim(trim($chaine[1]), " pass:");
-                if (empty($auth['pass'])) {
-                    header('Content-Type: text/html; charset=utf-8');
-                    http_response_code(401);
-                    die("Votre clé n'est pas décryptée correctement.");
-                }
-            }
-           
-        }
-       
-          $auth['url'] = $permisUrl['url'];
-          return $auth;            
-    }
-    
+   
 
 
     /**
@@ -851,9 +847,9 @@ try {
             die("Vous devez être connecté pour utiliser ce service");
         }
         
-        $auth = obtenirChaineConnexion ($service, $restService);   
-        $url = $auth['url'];    
-
+        $igoController = new IgoController();
+        $auth = $igoController->obtenirChaineConnexion($service, $restService);  
+        
         $authtmp['auth'] = $auth;
         $options = array_merge($options, $authtmp);
         
@@ -962,7 +958,7 @@ try {
      * @param
      * @return
      */
-    function proxyRequestNavigateur($url, $data, $method, $options) {        
+    function proxyRequestNavigateur($url, $data, $method, $options) {         
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -1009,80 +1005,11 @@ try {
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
 
-        if (!empty($options['auth'])) {
-            $auth = $options['auth'];
-            if (isset($auth['method']) && isset($auth['user']) && isset($auth['pass'])) { 	
-            	 //On obtient le payload (objectif chercher dans le payload les url securisees)
-                $postdata = file_get_contents ("php://input"); 
-             
-                //Seul le post xml de zoo est modifié
-                if (!empty ($postdata) && strpos ($postdata, 'wps:Execute') !== false) {
-                    $doc = new DOMDocument();
-                    $doc->loadXML ($postdata);
-                    $domList = $doc->getElementsByTagNameNS ('*', '*');
-                   //on navigue dans tout le payload
-                    for ($i = 0; $i < $domList->length; $i++) {
-                        if ($domList->item ($i)->tagName === 'wps:Reference') {
-                            $xmlurl = $domList->item ($i)->getAttribute ('xlink:href');
-                            $partsxml = parse_url ($xmlurl);
-                            //les credentials a ajouter dans le xml on verifié s il y en as
-                            if (isset ($xmlurl) && $partsxml['scheme'] === 'https') {
-                                if ($xmlurl !== $url ) {
-                                 //les credentials des urls qu on as pas 
-                                    $authxml = obtenirChaineConnexion ($partsxml['scheme'] . '://' . $partsxml['host'] . $partsxml['path'], $restService=false);
-                                    if (isset ($authxml['user']) && isset ($authxml['pass'])) {
-                                        $urlxml = $partsxml['scheme'] . '://' . $authxml['user'] . ':' . $authxml['pass'] . '@' . $partsxml['host'] . $partsxml['path'] . '?' . $partsxml['query'];
-                                    }
-                                    $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
-                                    $postdata = $xmlpost;
-                                }
-                                //les credentials de zoo on possede deja dans le xml est modifié
-                                if ($xmlurl === $url) {
-                                    $urlxml = $partsxml['scheme'] . '://' . $auth['user'] . ':' . $auth['pass'] . '@' . $partsxml['host'] . $partsxml['path'];
-                                    $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
-                                    $postdata = $xmlpost;
-                                }
-                            }
-                        }
-                    }
-
-                    curl_setopt ($ch, CURLOPT_POST, 1);
-                    curl_setopt ($ch, CURLOPT_POSTFIELDS, $postdata);
-                       
-                }
-      
-            	//Necessaire pour le SSL sinon on voit pas les couches dans 
-            	//la list des couche disponible analyse spatial
-            	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  2);
-                
-                                
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);  
-                
-                switch ($auth['method']) {
-                    case "BASIC":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                        break;
-                    case "NTLM":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
-                        break;
-                    case "GSSNEGOTIATE":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);
-                        break;
-                    case "DIGEST":
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
-                        break;
-                    default:
-                        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-                        break;
-                }
-
-                curl_setopt($ch, CURLOPT_USERPWD, $auth['user'] . ':' . $auth['pass']);
-            }
-        }
-
+         $igoController = new IgoController();
+         $ch = $igoController->proxyChaineConnexion($ch, $url, $method, $options);  
+   
+       
+        
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -77,12 +77,46 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             };
         }
 
+        var attribution;
+        if(typeof opt.droit === 'string'){
+            attribution = opt.droit.trim();
+        } else if(opt.droitTitre || opt.droitLogo){
+            var attribution = '<span>';
+
+            if(opt.droitLien){
+                attribution += '<a target="_blank" href="'+opt.droitLien+'">';
+            } 
+            if(opt.droitLogo){    
+                attribution += '<img width="'+opt.droitLogoLargeur+'" height="'+opt.droitLogoHauteur+'" src="'+opt.droitLogo+'">';
+            }
+
+            if(opt.droitLien){
+                attribution += '</a>&nbsp;<a target="_blank" href="'+opt.droitLien+'">';
+            } 
+            
+            attribution += opt.droitTitre;
+
+            if(opt.droitLien){
+                attribution += '</a>';
+            } 
+
+            attribution += '</span>';                           
+        }
+
+        var layerActif = Aide.obtenirParametreURL("layeractif");
+        if(layerActif){
+            layerActif = layerActif.split(',');
+            if(layerActif.indexOf(opt.nom) !== -1){
+                opt.active = true;
+            }
+        }
+
         this._optionsOL = $.extend({ 
             isBaseLayer: Aide.toBoolean(opt.fond),
             minScale: opt.echelleMin, //todo: defaultMapOptions.resolutions[11] || this.carte.getResolutionForZoom(opt.niveauZoomMin), //echelleMin: grand nombre
             maxScale: opt.echelleMax, //|| this.carte.getResolutionForZoom(opt.niveauZoomMax), //echelleMax: petit nombre
             group: opt.groupe,
-            attribution: opt.droit,
+            attribution: attribution,
             typeContexte: opt.typeContexte,
             displayInLayerSwitcher: Aide.toBoolean(opt.visible),
             legende: Aide.toBoolean(opt.legende),
@@ -125,9 +159,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
         
-        this._getLayer().events.register('loadstart', this, function(e){this.afficherChargement()});
+        this._getLayer().events.register('loadstart', this, function(e){this.gererStyleParentEnfantSelect();this.afficherChargement();});
         this._getLayer().events.register('loadend', this, function(e){this.masquerChargement()});
-        this._getLayer().events.register('visibilitychanged', this, function(e){this._visibiliteChangee()});
+        this._getLayer().events.register('visibilitychanged', this, function(e){this.gererStyleParentEnfantSelect();this._visibiliteChangee();});
     };
     
     /** 
@@ -166,6 +200,17 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     Couche.prototype.obtenirGroupe = function() { 
         return this.options.groupe;
     };
+
+    /** 
+    * Obtenir le nom de la couche
+    * @method 
+    * @name Couche#obtenirNom
+    * @returns {String} Nom de la couche
+    */
+    Couche.prototype.obtenirNom = function() { 
+        return this.options.nom;
+    };
+
 
     /** 
     * Obtenir l'identifiant de la couche
@@ -251,6 +296,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         }
             
         this._getLayer().setVisibility(true);
+        this.gererStyleParentEnfantSelect();
     };
     
     /** 
@@ -267,6 +313,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
            return;
         }
         this._getLayer().setVisibility(false);
+        this.gererStyleParentEnfantSelect();
     };
     
     
@@ -413,6 +460,33 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
             type: this.estActive() ? "activee": "desactivee"
         }); 
     }
+    
+    /**
+     * Aficher/Masquer un style gris sur le style parent pour indiquer que des couches enfants sont sélectionnées.
+     * @method
+     * @name Couche#gererStyleParentEnfantSelect
+     */
+    Couche.prototype.gererStyleParentEnfantSelect = function()
+    {
+        
+        var panneauArborescence = Aide.obtenirNavigateur().obtenirPanneauxParType("Arborescence",3)[0];
+        
+        if(panneauArborescence === undefined || panneauArborescence.options.identifierSousSelection !== "true")
+            return false;            
+        
+        var idPanneauArbo =panneauArborescence.obtenirId();
+        $("#"+idPanneauArbo).find("input:checked").parents("ul").prev().css('background-color', 'rgb(211, 211, 211)');
+        $("#"+idPanneauArbo).find("input:checked").find("input:checked")
+        $("#"+idPanneauArbo).find("div").each(
+            function(index,elem){
+                if($(elem).css('background-color') == 'rgb(211, 211, 211)')
+                {
+                    if($(elem).next().find("input:checked").length == 0)
+                    $(elem).css('background-color', '');
+                }
+            }
+        );
+    };   
     
     return Couche;
 });

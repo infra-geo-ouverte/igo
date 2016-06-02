@@ -38,11 +38,35 @@ define(['outil', 'aide'], function(Outil, Aide) {
         Outil.prototype._init.call(this);
         if(this.options.couche){
             if(typeof this.options.couche === "string"){
-                this.options.couche = this.carte.gestionCouches.obtenirCoucheParId(this.options.couche);
+                var couche = this.carte.gestionCouches.obtenirCoucheParId(this.options.couche);
+
+                //problème de synchro avec firefox. La couche n'existe pas encore.
+                if(typeof couche == 'undefined'){
+                    var that = this
+                    var nav = Aide.obtenirNavigateur();
+
+                    nav.evenements.ajouterDeclencheur('ajouterCouche', function(e){
+                        if(e.couche.options.id == e.options.nomCouche){
+                            that.options.couche = e.couche;
+                            that.couche = that.options.couche;
+                            if(that.parent){
+                                that.parent.activer();
+                            } else {
+                                that.activer();
+                            }
+                            this.enleverDeclencheur(e.type, e.options.id)
+                        }
+                    }, {id: that.options.id+'ActiverOutil', nomCouche: this.options.couche});
+                }
+                else{
+                    this.options.couche = couche;
+                }
+
             }
             if(this.options.couche && this.options.couche.obtenirTypeClasse && (this.options.couche.obtenirTypeClasse() === "Vecteur" || this.options.couche.obtenirTypeClasse() === "VecteurCluster" || this.options.couche.obtenirTypeClasse() === "WFS")){
                 this.couche = this.options.couche;
-            } else {
+            } 
+            else {
                 this.options.couche = undefined;
             }
         }
@@ -72,6 +96,7 @@ define(['outil', 'aide'], function(Outil, Aide) {
             return true;
         }
         
+
         if(!nav.evenements.obtenirDeclencheur('initArborescence', 'outilEditionAjouterContexteSubmenu').length){
             nav.evenements.ajouterDeclencheur('initArborescence', function(e){
                 that._ajouterContexteSubmenu(e.target.contexteMenu);

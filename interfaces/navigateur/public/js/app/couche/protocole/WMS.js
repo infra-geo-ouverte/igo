@@ -153,9 +153,14 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     
     WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCalback){
         var that=this;
-
-        if(!response){
-            this._getCapabilitiesError();
+        if(!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length)){
+            var errorMessage;
+            if(response){
+                errorMessage = {
+                    responseText: response.getElementsByTagName("BODY")[0].textContent
+                }
+            }
+            this._getCapabilitiesError(errorMessage);
             return false;
         }
         var xml=new OpenLayers.Format.WMSCapabilities().read(response);
@@ -203,10 +208,19 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         } else {
                             xmlOptions = {
                                 titre: value.title,
-                                droit: value.attribution ? value.attribution.href : undefined,
                                 echelleMin: value.minScale,
                                 echelleMax: value.maxScale
                             };
+
+                            if(value.attribution){
+                                xmlOptions.droitTitre = value.attribution.title;
+                                xmlOptions.droitLien = value.attribution.href;
+                                if(value.attribution.logo){
+                                    xmlOptions.droitLogo = value.attribution.logo.href;
+                                    xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                                    xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                                }
+                            }
 
                             if(value.dataURL && value.dataURL.format === 'igo'){ //"wms_dataurl_format" "igo"
                                 var idMeta = value.dataURL.href;
@@ -245,11 +259,19 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 } else if (iCL===1){
                     xmlOptions = {
                         titre: value.title,
-                        droit: value.attribution ? value.attribution.href : undefined,
                         echelleMin: value.minScale,
                         echelleMax: value.maxScale,
                         groupe: "Couches WMS ajoutées" 
                     };
+                    if(value.attribution){
+                        xmlOptions.droitTitre = value.attribution.title;
+                        xmlOptions.droitLien = value.attribution.href;
+                        if(value.attribution.logo){
+                            xmlOptions.droitLogo = value.attribution.logo.href;
+                            xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                            xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                        }
+                    }
                     if (len===1){
                             return false;
                     };
@@ -277,8 +299,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
     WMS.prototype._getCapabilitiesError = function(response, target, callback, optCalback){
         response = response || {};
-        if(response.status != 200){    
-            Aide.afficherMessageConsole('Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText);
+        if(response.status != 200){
+            var message = 'Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText;
+            console.log(message);
+            Aide.afficherMessageConsole(message);
             return false;
         }
         if(BrowserDetect.browser == "Explorer"){
@@ -308,6 +332,8 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     };
     
     WMS.prototype._validerChargement = function(e, a){
+        var that = this;
+        
         if(e.object.div.innerHTML.indexOf("olImageLoadError")>-1){
             $.ajax({
                 url: Aide.utiliserProxy(decodeURIComponent($('<textarea/>').html(/src="(.*)"/.exec(e.object.div.innerHTML)[1]).text())),
@@ -319,6 +345,12 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 async:false,
                 context:this,
                 success:function(response) {
+                    
+                    if(this.options.afficherMessageErreurUtilisateur === "true"){
+                       this.gestionErreurWMS(this);
+                       return false;
+                    }
+                    
                     var message = '<b>'+this.options.titre +':</b><br>';
                     
                     if(typeof response === 'object'){        
@@ -333,19 +365,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                     }
                 },
                 error:function(e){
-                    var message = '<b>'+ e.statusText +':</b><br>';
-                    Aide.afficherMessageConsole(message);
-                    /*var response = e.responseXML;
-                    
-                    if(typeof response === 'object'){     
-                        var tagError = response.getElementsByTagName("ServiceException");
-                        if(tagError){
-                            message += tagError.item(0).textContent;
-                            Aide.afficherMessageConsole(message);
-                        }
-                    } else {
-                        Aide.afficherMessageConsole(message);
-                    }*/
+                  that.gestionErreurWMS(e);
                 }
             
             });
@@ -355,6 +375,18 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     WMS.prototype.rafraichir = function() { 
         if(this._layer){
             this._layer.redraw(true);  
+        }
+    };
+    
+    WMS.prototype.gestionErreurWMS = function(e) {
+        
+        if(this.options.afficherMessageErreurUtilisateur === "true") {
+            Aide.afficherMessage({titre: this.obtenirGroupe(), message: "La couche d'information " + this.obtenirTitre() + " n'est actuellement pas disponible."});
+            this.desactiver();
+        }
+        else {      
+            var message = '<b>'+ e.statusText +':</b><br>';
+            Aide.afficherMessageConsole(message);
         }
     };
     
