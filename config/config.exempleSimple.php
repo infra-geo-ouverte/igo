@@ -43,7 +43,7 @@ return array(
     'navigateur' => array(
         'OutilRapporterBogue'    => array('lien' => 'http://geoegl.msp.gouv.qc.ca/mantis/login_page.php'),
         'OutilAjoutWMS'         => array('urlPreenregistre' => "http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi,"
-                                                            . "http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi"),
+                                                            . "http://geoegl.msp.gouv.qc.ca/cgi-wms/igo_gouvouvert.fcgi"),
         'OutilZoomPreselection'  => array('service' => '[zoomPreSelection]'), // [] -> Fait référence à servicesExternes->zoomPreSelection
         'OutilAide'     => array ('lien' => "guides/guide.pdf"),
         'WMS'     =>  array(
@@ -56,7 +56,7 @@ return array(
         //Les urls externes utilisés dans l'application doivent correspondre à un regex pour être permis
         'regex'         =>  array(
             "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi")."#",
-            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/gouvouvertqc.fcgi")."#"
+            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/igo_gouvouvert.fcgi")."#"
         )
     ),
     // les configurations permettent d'appeler un fichier xml en mode rest et d'associer une clé avec un lien vers un fichier
