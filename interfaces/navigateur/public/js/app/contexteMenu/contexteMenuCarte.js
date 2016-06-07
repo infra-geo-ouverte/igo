@@ -264,10 +264,12 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
     };
     
     ContexteMenuCarte.prototype.initSelectionSubmenu = function(args){
+        var that=args.scope;
         if(args.occurencesSelectionnees.length !== 0){
                  
             var type = "";
             var memeType = true;
+            var typePolygone = true;
             $.each(args.occurencesSelectionnees, function(index, occurence){   
                if(type === ""){
                    type=occurence.type;
@@ -277,6 +279,11 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
                        memeType = false;
                    }
                }                
+               
+               if(type !== 'MultiPolygone' &&  type !== 'Polygone') {
+                   typePolygone = false;
+               }
+                   
             });
             
             var subSelection =  {
@@ -300,12 +307,39 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
                 }
             });        
             
+            
             if(memeType){
                 var submenuCopieVers = args.scope.initSubMenuCopieVers("-1", args.occurencesSelectionnees, type);
                 
                 if(submenuCopieVers){
                     subSelection.menu.items.push(submenuCopieVers);
                 }
+                
+                if(typePolygone === true)
+                {
+                    subSelection.menu.items.push({
+                        id: 'selectionPerimetre',
+                        text: "Périmètre",
+                        handler: function(){
+                            var perimetre = 0;
+                            $.each(args.occurencesSelectionnees, function(index, occurence){   
+                                 perimetre += occurence.obtenirPerimetre();
+                            });
+                            Aide.afficherMessage('Périmètre', perimetre + ' ' + that.options.carte._carteOL.getUnits());
+                        }
+                    });      
+                    subSelection.menu.items.push({
+                        id: 'selectionSuperficie',
+                        text: 'Superficie',
+                        handler: function(){
+                            var superficie = 0;
+                            $.each(args.occurencesSelectionnees, function(index, occurence){   
+                                 superficie += occurence.obtenirSuperficie();
+                            });
+                            Aide.afficherMessage('Superficie', superficie + ' ' + that.options.carte._carteOL.getUnits() + "²");
+                        }
+                    });                                                     
+                }    
             }
             
             if(args.occurencesSelectionnees.length === 1 && args.occurencesSelectionnees[0]._obtenirGeometrie() === undefined ){
