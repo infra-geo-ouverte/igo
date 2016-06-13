@@ -1577,6 +1577,7 @@ Permet la définition d'une couche provenant d’un service de carte tuilé
 |url	|URL du service de carte tuilé		      	|Oui	    	|URL 		    	|  		|
 |nom	|Nom de la couche                             	|Oui	    	|Chaîne alphanumérique  |		|
 |titre	|           Titre de la couche			|Oui		|Chaîne alphanumérique	|		|
+|format	|Format des image (png,jpg)	 			|Non		|Chaîne alphanumérique	|png		|
 |impressionUrl|   URL du service à utiliser pour l’impression|   Non	|URL			|		|
 |impressionNom|   Nom de la couche pour l’impression	|           Non	|Chaîne alphanumérique	|		|
 
@@ -1592,6 +1593,7 @@ nom="carte\_gouv\_qc\_ro@EPSG\_3857" titre="Gouvernement du Québec"
 protocole="TMS" fond="true" echelleMin="6000000" echelleMax="1"
 groupe="Test" visible="true" active="faux" opacite="100"
 ordreAffichage="1"
+format="jpg"
 impressionUrl="http://spssogl97d.sso.msp.gouv.qc.ca/cgi-wms/carte\_gouv\_qc.fcgi?"
 impressionNom="CARTE\_GOUV\_QC"/>
 ```
