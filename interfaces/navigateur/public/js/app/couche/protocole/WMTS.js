@@ -29,7 +29,6 @@ define(['couche', 'aide'], function(Couche, Aide) {
         }
         this._optionsOL = this.options._optionsOL || {
             name: options.titre,
-            url: options.url,
             layer: options.nom, 
             matrixSet: options.matrixSet,
             format: options.format==null ? "image/png" : "image/"+options.format,
@@ -39,7 +38,9 @@ define(['couche', 'aide'], function(Couche, Aide) {
         if(Aide.toBoolean(this.options.utiliserProxy)){
             this.options.url=Aide.utiliserProxy(this.options.url, true);
         }
-        
+
+        this.options.version = this.options.version==null ? "1.0.0" : this.options.version;
+    
         this._init();
     };
     
@@ -55,9 +56,53 @@ define(['couche', 'aide'], function(Couche, Aide) {
     */
     WMTS.prototype._init = function(){
         Couche.prototype._init.call(this);
-        this._layer = new OpenLayers.Layer.WMTS(
-            this._optionsOL
-        );
+
+         var that = this;
+
+         OpenLayers.Request.GET({
+            url: that.options.url,                 
+            params: {
+                SERVICE: "WMTS",
+                VERSION: this.options.version,
+                REQUEST: "GetCapabilities",
+            },
+            async:false,//TODO faire fonctionner asynchrone
+            success: function(request) {
+
+                var doc = request.responseXML;
+                if (!doc || !doc.documentElement) {
+                    doc = request.responseText;
+                }
+                
+                var layerWMTS;    
+                try{
+                    var reader = new OpenLayers.Format.WMTSCapabilities();
+                    var capabilities = reader.read(doc);
+                     layerWMTS = reader.createLayer(capabilities, 
+                                        that._optionsOL);
+                }
+                catch(e){
+                    Aide.afficherMessageConsole('La création du layer WMTS '+that.options.titre+' a échoué.'
+                                +'Erreur:'+e,'eleve');
+                }
+               
+                if(layerWMTS){
+                    that._layer = layerWMTS;
+                }
+                else{
+                    //Créer une couche bidon pour permettre la fin du chargement
+                    var fakeOption = $.extend({},that._optionsOL, {url:that.options.url});
+                    that._layer = new OpenLayers.Layer.WMTS(
+                        fakeOption
+                    ); 
+                }
+                
+            },
+            failure: function() {
+                Aide.afficherMessageConsole("La requête GetCapabilities au service :"+that.options.url+', pour la couche:'+that.options.titre+' a échoué.','eleve')
+            }
+        });  
+
     };
     
     return WMTS;
