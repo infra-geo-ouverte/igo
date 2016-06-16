@@ -13,7 +13,7 @@ class ConnexionController extends Controller{
           
             if (!$succes) {
                 
-                $this->setSessionErrors();
+                $this->setErrors();
               
                 if(isset($configuration->application->authentification->authentificationUri)){
                     return $this->response->redirect($configuration->application->authentification->authentificationUri, TRUE);
@@ -56,9 +56,9 @@ class ConnexionController extends Controller{
         $this->view->setVar("titre", "Authentification");
     
         if($this->session->has("erreurs")){
-            $this->setSessionErrors();
+            $this->setErrors();
         }else{
-            $this->view->setVar("erreurs", []);
+            $this->deleteErrors();
         }
         
         $this->view->setVar("permettreAccesAnonyme", $configuration->application->authentification->permettreAccesAnonyme);
@@ -80,11 +80,11 @@ class ConnexionController extends Controller{
             $password = $request->getPost('password', null);
             $succes = $this->getDI()->get("authentificationModule")->authentification($username, $password);
             if (!$succes) {
-                $this->setSessionErrors();
+                $this->setErrors();
                 return $this->redirigeVersPage();
             }
             else{
-                $this->deleteSessionErrors();
+                $this->deleteErrors();
             }
 
             if (!$this->session->has("info_utilisateur")) {
@@ -104,7 +104,7 @@ class ConnexionController extends Controller{
                     isset($configuration->application->estPilotage) && 
                     $configuration->application->estPilotage === true) {
                 $this->session->remove("info_utilisateur");
-                $this->session->setSessionErrors(["Droits insuffisants"]);
+                $this->session->setErrors(["Droits insuffisants"]);
                 return $this->redirigeVersPage();
             }
 
@@ -291,7 +291,13 @@ class ConnexionController extends Controller{
         }
     }
 
-    private function setSessionErrors($erreurs = []){
+    /**
+     * Défini les erreurs dans la session et la variable "erreurs" pour la vue.
+     * 
+     * @param  array $erreurs Tableau d'erreurs à ajouter
+     */
+
+    private function setErrors($erreurs = []){
 
         $sessionErrors = [];
         if($this->session->has('erreurs')){
@@ -310,7 +316,11 @@ class ConnexionController extends Controller{
 
     }
 
-    private function deleteSessionErrors(){
+    /**
+     * Supprime les erreurs dans la session et la variable erreurs pour la vue
+     */
+
+    private function deleteErrors(){
         $this->session->set("erreurs", []);
         $this->view->setVar("erreurs", []);
     }
