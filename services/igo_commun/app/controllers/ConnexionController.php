@@ -57,9 +57,7 @@ class ConnexionController extends Controller{
         $this->view->setVar("permettreAccesAnonyme", $configuration->application->authentification->permettreAccesAnonyme);
         $this->view->setVar("roleUri", $configuration->application->baseUri. "connexion/role");
         $this->view->setVar("anonymeUri", $configuration->application->baseUri. "connexion/anonyme");       
-        $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";
-
-        $this->session->set("erreur","");        
+        $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";    
     }
 
     public function roleAction() {
