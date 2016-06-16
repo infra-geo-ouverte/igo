@@ -41,7 +41,9 @@ class ConnexionController extends Controller{
         //L'utilisateur est déjà authentifié
         if($authentificationModule->estAuthentifie()){
             //Passer à la page de choix du profil
-            return $this->roleAction();
+            return $this->dispatcher->forward(array(
+                "action" => "role"
+            ));
         }
         
         //Paramètres pour l'affichage de la page de connexion
