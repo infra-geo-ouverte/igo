@@ -212,7 +212,7 @@ class AuthentificationLdap extends AuthentificationController {
         if(strlen($motDePasse) == 0){
             $ldapbind2 = false;
         }else{
-            $ldapbind2 = ldap_bind($ldapcon2, $userEntries[0]["dn"], $motDePasse);
+            $ldapbind2 = @ldap_bind($ldapcon2, $userEntries[0]["dn"], $motDePasse);
         }
         $this->motDePasseValide = $ldapbind2;
 
