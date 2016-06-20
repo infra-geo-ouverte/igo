@@ -1223,7 +1223,7 @@ la carte" visible="true" actif="true"/>
 ![](media/image26.png)
 
 
-outilReporterBogue
+outilRapporterBogue
 ------------------
 
 Permet la définition d'un outil de soumission d'anomalie. Lorsqu'on
@@ -1242,8 +1242,8 @@ moyen disponible pour soumettre une anomalie) est affiché.
 
 *Exemple*s
 ```xml
-<outil classe="OutilReporterBogue">
-<outil id="btnRapporterAnomalie" classe="OutilReporterBogue"
+<outil classe="OutilRapporterBogue">
+<outil id="btnRapporterAnomalie" classe="OutilRapporterBogue"
 icone="images/toolbar/bug-small.png" titre="RapporterAnomalie"
 infobulle="Rapporter une anomalie" visible="true" actif="true"
 lien="http://www.google.ca"/>
