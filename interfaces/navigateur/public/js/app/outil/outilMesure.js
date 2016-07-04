@@ -413,6 +413,25 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         else 
             return false;
     };
+    
+    /**
+     * Positionner la fenêtre selon les coordonnées gauche, haut
+     * @method
+     * @param {integer} gauche Coordonnée de position gauche de la fenêtre
+     * @param {integer} haut Coordonnée de la position droite de la fenêtre
+     */
+    OutilMesure.prototype.positionnerFenetre = function(gauche,haut) {
+        this.oWindowMeasr.setPosition(gauche, haut);
+    };
+    
+    /**
+     * Obtenir l'objet de la fenêtre
+     * @method
+     * @returns {object} Objet Ext de la fenêtre
+     */
+    OutilMesure.prototype.obtenirFenetre = function() {
+        return this.oWindowMeasr;
+    }
 
 
     return OutilMesure;

@@ -48,7 +48,10 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
                        // ['TIGER', 'TIGER'],
                         ['pgdump', 'PGDump', 'sql']
                         //['VRT', 'VRT']       
-                        ]
+                        ],
+            libelleFormatOutput: 'Format Output',
+            exampleCoordonnee: true,
+            titreFenetre: "Exportation de occurences sélectionnées"
         });
         
         this.oOutputFormatStore = new Ext.data.SimpleStore({
@@ -173,7 +176,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
 
         var myWin = new Ext.Window({
             id     : 'myWin',
-            title  : "Exportation de occurences sélectionnées",
+            title  : this.options.titreFenetre,
             autoHeight : true,
             autoWidth: true,
             items  : [myuploadform],
@@ -352,7 +355,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
         var szDefaultOutputFormat = this.oOutputFormatStore.data.items[0].data.value;
         var oOutputFormatComboBox = new Ext.form.ComboBox({
             id : 'exportOutputFormat',
-            fieldLabel: 'Format Output',
+            fieldLabel: this.options.libelleFormatOutput,
             store: this.oOutputFormatStore,
             valueField: 'value',
             value: szDefaultOutputFormat,
@@ -392,7 +395,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
         var szDefaultEPSG = this.oEPSGStore.data.items[0].data.value;
         var oEPSGComboBox = new Ext.form.ComboBox({
             id : 'exportEPSGOutput',
-            fieldLabel: 'Système de coordonnée <br>Ex. :'+this.oEPSGStore.data.items[0].data.exemple,
+            fieldLabel: 'Système de coordonnées'+(this.options.exampleCoordonnee === true ?  '<br>Ex. :'+ this.oEPSGStore.data.items[0].data.exemple : ""),
             store: this.oEPSGStore,
             valueField: 'value',
             value: szDefaultEPSG,

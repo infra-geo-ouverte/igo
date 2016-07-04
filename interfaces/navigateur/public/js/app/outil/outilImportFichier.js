@@ -140,7 +140,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     anchor: '95%',
                     allowBlank: false,
                     xtype: 'fileuploadfield',                   
-                    id: 'upload',
+                    id: 'uploadOutilImportFichier',
                     emptyText: 'Sélectionner un fichier...',
                     fieldLabel: 'Fichier',
                     buttonText: 'Parcourir',
@@ -271,7 +271,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             var data = new FormData();
                             
                             //Obtenir le fichier d'upload
-                            var file = jQuery('input[id^="upload"]')[1].files[0];
+                            var file = jQuery('input[id^="uploadOutilImportFichier"]')[1].files[0];
                             var extension = file.name.split(".")[file.name.split(".").length-1];
                             var filename = file.name.split(".")[0];
                             //Exception pour le format GPX, le service ogre ne fonctionne pas bien, on utilise donc togeojson
@@ -295,7 +295,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                 data.append('upload', file);
 
                                 //Ne pas afficher les erreurs
-                                //data.append("skipFailures",'');
+                                data.append("skipFailures",'');
 
                                //Projection de la carte
                                 //data.append("targetSrs", that.projection);
@@ -403,6 +403,27 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                             feat.geometry.coordinates.splice(posToPop, 1);
                         });         
                     }
+                }
+                
+                //Illiminé les doublons de coordonnées pour chaque géométrie de type polygone
+                if(feat.geometry.type === "Polygon")
+                {
+                    var coordPrec = "";
+                    var coordIndexToPop = new Array();
+                    $.each(feat.geometry.coordinates, function(index, geom){
+                        $.each(geom, function(ind, coord){                   
+                        //Si égale à la coordonnée précédente
+                            if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
+                                coordIndexToPop.push(ind);
+                        }else{
+                            //Sinon si coordonnée à 3dimensions, on retire la dimension "z"
+                            if(coord.length === 3) {
+                                coord.pop();
+                            }
+                            }                 
+                            coordPrec = coord;    
+                        });  
+                    });
                 }
             }
         });
