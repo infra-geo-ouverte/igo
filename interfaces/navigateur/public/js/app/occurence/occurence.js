@@ -787,7 +787,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
                 case "MultiPolygone":
                     return new MultiPolygone(this.polygones, this.obtenirProjection());
                 case "MultiLigne":
-                    return new MultiLignes(this.lignes, this.obtenirProjection());
+                    return new MultiLigne(this.lignes, this.obtenirProjection());
                 case "MultiPoints":
                     return new MultiPoints(this.points, this.obtenirProjection());
                 case "Collection":
