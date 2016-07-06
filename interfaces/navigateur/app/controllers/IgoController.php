@@ -183,6 +183,7 @@ class IgoController extends ControllerBase {
             $this->config->uri->navigateur = $elAttributes->aliasUri . 'public/';
             $this->config->application->baseUri = $this->config->uri->navigateur;
         } else if(isset($elAttributes->baseUri)){
+           
             if(isset($elAttributes->libUri)){
                 $this->config->uri->librairies = $elAttributes->baseUri . $elAttributes->libUri;
             }
@@ -193,11 +194,12 @@ class IgoController extends ControllerBase {
                 $this->config->uri->api = $elAttributes->baseUri . $elAttributes->apiUri;
             }
             if(isset($elAttributes->modulesUri)){
-                $this->config->uri->modules = $elAttributes->modulesUri;
+                $this->config->uri->modules = (string) $elAttributes->modulesUri;
             }        
 
-            $this->config->uri->navigateur = $elAttributes->baseUri;
+            $this->config->uri->navigateur = (string) $elAttributes->baseUri;
             $this->config->application->baseUri = $this->config->uri->navigateur;
+
         }
 
         if(isset($elAttributes->mapserver)){
