@@ -11,9 +11,9 @@ class AuthentificationExterne extends AuthentificationController {
     protected $igo_utilisateur;
     protected $nom;
     protected $prenom;
-    protected $messageErreur = "Erreur d'authentification";
+    protected $messageErreur = ["Erreur d'authentification"];
 
-    public function obtenirMessageErreur() {
+    public function obtenirMessagesErreur() {
         return $this->messageErreur;
     }
 

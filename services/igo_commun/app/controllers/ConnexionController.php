@@ -5,16 +5,21 @@ class ConnexionController extends Controller{
     
     public function indexAction() {
         $authentificationModule = $this->getDI()->get("authentificationModule");        
-
+        
         $configuration = $this->getDI()->get("config");
         if(isset($configuration->application->authentification->authentificationExterne) && $configuration->application->authentification->authentificationExterne){
+            
             $succes = $authentificationModule->authentification(null, null);
+          
             if (!$succes) {
-                $this->session->set("erreur", $authentificationModule->obtenirMessageErreur());
+                
+                $this->setErrors();
+              
                 if(isset($configuration->application->authentification->authentificationUri)){
                     return $this->response->redirect($configuration->application->authentification->authentificationUri, TRUE);
                 }
             } else {
+
                 if (!$this->session->has("info_utilisateur")) {
                     $utilisateur = new SessionController();
                     $this->session->set("info_utilisateur", $utilisateur);
@@ -29,7 +34,7 @@ class ConnexionController extends Controller{
                 $this->session->get("info_utilisateur")->estAnonyme  = false; 
             }              
         }
-            
+         
          //Vérifier si on doit se rappeler où on voulait aller
         $request = new Phalcon\Http\Request();
         $uri = $request->getURI();
@@ -40,18 +45,20 @@ class ConnexionController extends Controller{
         
         //L'utilisateur est déjà authentifié
         if($authentificationModule->estAuthentifie()){
+       
             //Passer à la page de choix du profil
             return $this->dispatcher->forward(array(
                 "action" => "role"
             ));
         }
-        
+       
         //Paramètres pour l'affichage de la page de connexion
         $this->view->setVar("titre", "Authentification");
-        if($this->session->has("erreur")){
-            $this->view->setVar("erreur", $this->session->get("erreur"));
+    
+        if($this->session->has("erreurs")){
+            $this->setErrors();
         }else{
-            $this->view->setVar("erreur", "");
+            $this->deleteErrors();
         }
         
         $this->view->setVar("permettreAccesAnonyme", $configuration->application->authentification->permettreAccesAnonyme);
@@ -73,8 +80,11 @@ class ConnexionController extends Controller{
             $password = $request->getPost('password', null);
             $succes = $this->getDI()->get("authentificationModule")->authentification($username, $password);
             if (!$succes) {
-                $this->session->set("erreur", $this->getDI()->get("authentificationModule")->obtenirMessageErreur());
+                $this->setErrors();
                 return $this->redirigeVersPage();
+            }
+            else{
+                $this->deleteErrors();
             }
 
             if (!$this->session->has("info_utilisateur")) {
@@ -94,7 +104,7 @@ class ConnexionController extends Controller{
                     isset($configuration->application->estPilotage) && 
                     $configuration->application->estPilotage === true) {
                 $this->session->remove("info_utilisateur");
-                $this->session->set("erreur", "Droits insuffisants");
+                $this->session->setErrors(["Droits insuffisants"]);
                 return $this->redirigeVersPage();
             }
 
@@ -279,6 +289,40 @@ class ConnexionController extends Controller{
         }else{
             $this->session->remove('page');
         }
+    }
+
+    /**
+     * Défini les erreurs dans la session et la variable "erreurs" pour la vue.
+     * 
+     * @param  array $erreurs Tableau d'erreurs à ajouter
+     */
+
+    private function setErrors($erreurs = []){
+
+        $sessionErrors = [];
+        if($this->session->has('erreurs')){
+            $sessionErrors = $this->session->get('erreurs');
+            if(is_string($sessionErrors)){
+                $sessionErrors = [$sessionErrors];
+            }
+        }
+
+        $authErrors = $this->getDI()->get("authentificationModule")->obtenirMessagesErreur();
+
+        $errorsMerge = array_unique(array_merge($sessionErrors, $authErrors, $erreurs),SORT_LOCALE_STRING);
+
+        $this->session->set("erreurs", $errorsMerge);
+        $this->view->setVar("erreurs", $errorsMerge);
+
+    }
+
+    /**
+     * Supprime les erreurs dans la session et la variable erreurs pour la vue
+     */
+
+    private function deleteErrors(){
+        $this->session->set("erreurs", []);
+        $this->view->setVar("erreurs", []);
     }
     
 }

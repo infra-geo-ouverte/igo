@@ -7,7 +7,7 @@ abstract class AuthentificationController extends Controller{
      * Fonction retournant le dernier message d'erreur à afficher 
      * en cas d'erreur lors de l'authentification.
      */
-    abstract public function obtenirMessageErreur();        
+    abstract public function obtenirMessagesErreur();        
 
     /*
      * Fonction publique permettant l'authentification à un serveur LDAP.

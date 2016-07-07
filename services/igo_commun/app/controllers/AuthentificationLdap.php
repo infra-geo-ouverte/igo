@@ -12,10 +12,10 @@ class AuthentificationLdap extends AuthentificationController {
     protected $prenom;
     protected $nom;
     
-    protected $messageErreur = "";
+    protected $messagesErreur = [];
 
-    public function obtenirMessageErreur(){
-        return $this->messageErreur;
+    public function obtenirMessagesErreur(){
+        return $this->messagesErreur;
     }
 
     /*
@@ -39,8 +39,8 @@ class AuthentificationLdap extends AuthentificationController {
     /*
      * Fonction publique permettant l'authentification à un serveur LDAP.
      * Paramètres : identifiant, mot de passe
-     * Définit un message d'erreur dans la variable $this->messageErreur
-     * $this->messageErreur est utilisé pour afficher un message expliquant
+     * Définit un message d'erreur dans la variable $this->messagesErreur
+     * $this->messagesErreur est utilisé pour afficher un message expliquant
      * pourquoi l'authentification à échouée.
      */
     public function authentification($identifiant, $motDePasse){
@@ -49,13 +49,13 @@ class AuthentificationLdap extends AuthentificationController {
         
         /* On s'authentifie dans le LDAP */
         $this->authentifierLDAP($identifiant, $motDePasse);
-    
+        
         if($this->motDePasseExpire){
-            $this->messageErreur = "Votre mot de passe est expiré. Veuillez le changer pour avoir accès au système!";
+            $this->messagesErreur[] = "Votre mot de passe est expiré. Veuillez le changer pour avoir accès au système!";
             return false;
         }
         if(!$this->motDePasseValide){
-            $this->messageErreur = "L'authentification a échouée.";            
+            $this->messagesErreur[] = "L'authentification a échouée.";            
         }
 
         if($this->motDePasseValide) {
@@ -212,9 +212,14 @@ class AuthentificationLdap extends AuthentificationController {
         if(strlen($motDePasse) == 0){
             $ldapbind2 = false;
         }else{
-            $ldapbind2 = ldap_bind($ldapcon2, $userEntries[0]["dn"], $motDePasse);
+            $ldapbind2 = @ldap_bind($ldapcon2, $userEntries[0]["dn"], $motDePasse);
         }
         $this->motDePasseValide = $ldapbind2;
+
+        if($this->motDePasseValide){
+            $this->messagesErreur = [];
+        }
+
     }
 
     public function obtenirNom(){

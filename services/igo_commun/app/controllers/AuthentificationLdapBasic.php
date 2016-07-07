@@ -21,21 +21,16 @@ class AuthentificationLdapBasic extends AuthentificationLdap {
      */
     public function authentification($identifiant, $motDePasse) {
         $valide = false;
-        $ignorerErreurs = false;
 
         if($identifiant === null && $motDePasse === null) {
            if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
               $identifiant = trim($_SERVER['PHP_AUTH_USER']);
               $motDePasse = trim($_SERVER['PHP_AUTH_PW']);
-           } else {
-              $ignorerErreurs = true;
-           }
+           } 
         }
 
-        $valide = parent::authentification($identifiant, $motDePasse);
-
-        if($ignorerErreurs) {
-           $this->messageErreur = "";
+        if($identifiant !== null && $motDePasse !== null) {
+          $valide = parent::authentification($identifiant, $motDePasse);
         }
 
         return $valide;

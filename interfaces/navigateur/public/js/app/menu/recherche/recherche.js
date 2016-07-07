@@ -23,6 +23,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      * @requires recherche
      * @param {string} [options.recherchePrefixe] Prefixe de la recherche
      * @param {string} [options.typeRecherche] Type de la recherche
+     * @param {string} [options.lienAide] Lien URL vers une aide 
      * @returns {Panneau.Recherche} Instance de {@link Panneau.Recherche}
      * @property {dictionnaire} options Liste des options de la couche
      * @property {Couche.Vecteur} vecteur Vecteur pour le résultat de la recherche
@@ -39,7 +40,8 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             sauvegarder: true,
             id: 'recherche',
             init: false,
-            zoom: 15
+            zoom: 15,
+            lienAide: Aide.utiliserBaseUri("guides/IGO_Navigateur_guide.pdf")
         };
     };
 
@@ -155,7 +157,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      */
     Recherche.prototype.obtenirLienPDF = function() {
         return  "<a href=\'#here\' onclick=\'window.open(\"" +
-                Aide.utiliserBaseUri("guides/IGO_Navigateur_guide.pdf") +
+                this.obtenirLienAide() +
                 "\");\'>" +
                 "Cliquer ici pour avoir plus de détails...</a><br><br>";
     };
@@ -632,6 +634,10 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             this.definirResultat(this.obtenirAideHTML());
         }
     };
+
+    Recherche.prototype.obtenirLienAide = function (){
+        return (typeof this.options.lienAide == undefined)?this.defautOptions.lienAide:this.options.lienAide;
+    }
     
     return Recherche;
 
