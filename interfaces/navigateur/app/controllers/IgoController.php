@@ -332,10 +332,10 @@ class IgoController extends ControllerBase {
      * vérifie si URL ou nom du service est permis selon config.php.
      */
     public function verifierPermis($szUrl, $restService=false){
-        return self::obtenirPermisUrl($szUrl, $restService) !== false;
+        return $this->obtenirPermisUrl($szUrl, $restService) !== false;
     }
 
-    private function obtenirPermisUrl($szUrl, $restService=false){
+    public function obtenirPermisUrl($szUrl, $restService=false){
         //vérifier URL 
         //Services
         
