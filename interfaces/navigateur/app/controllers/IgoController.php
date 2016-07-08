@@ -338,6 +338,8 @@ class IgoController extends ControllerBase {
     public function obtenirPermisUrl($szUrl, $restService=false){
         //vérifier URL 
         //Services
+       
+        $szUrl = $this->removeDblBackSlash($szUrl);
         
         $url = "";
 
@@ -346,7 +348,6 @@ class IgoController extends ControllerBase {
             "test" => false
         );
 
-  
         $session = $this->getDI()->getSession();
     
         if($session->has("info_utilisateur") && isset($this->config['permissions'])) {
@@ -605,4 +606,25 @@ class IgoController extends ControllerBase {
         return $serviceRep;
     }
 
+
+    /**
+     * Obtenir une url sans double backslash. Permet ainsi de résoudre
+     * correctement les regex pour les urls permis.
+     * @param ??? $url url à vérifier
+     * @return ??? $resultat url sans double backslash
+     */
+    private function removeDblBackSlash($url){
+
+       $resultat = preg_replace('/(?<!http:|https:)\/\//i', '/',$url);
+
+        if(preg_match('/(?<!http:|https:)\/\//i',$resultat) === 1){
+            $resultat = $this->removeDblBackSlash($resultat);
+        }
+
+        if($resultat === null){
+            $resultat = $url;
+        }
+
+        return $resultat;
+    }
 }
