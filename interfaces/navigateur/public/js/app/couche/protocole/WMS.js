@@ -226,6 +226,9 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                                 var idMeta = value.dataURL.href;
                                 var igoClassMeta = idMeta;
                                 xmlOptions.metadonnee = igoClassMeta; //"wms_dataurl_href" "/path/to/metdata3.xml" ou numéro de la metadata
+                            } else if (value.dataURL && value.dataURL.format === 'text/html'){
+                                xmlOptions.metadonneeLien = value.dataURL.href;
+                                xmlOptions.metadonnee = true;
                             }
 
                             $.extend(xmlOptions, that.options);
