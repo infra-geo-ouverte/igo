@@ -137,54 +137,36 @@ class AuthentificationLdap extends AuthentificationController {
 
     }
 
-    /*
-     * Fonction identifiant un utilisateur à un LDAP
-     * Cette fonction met à jour la variable $this->profil
-     * Retourne true en cas de succes, sinon retourne false.
-     */
-    private function authentifierLDAP($identifiant, $motDePasse){
-        $configuration = $this->getDI()->get("config");
+    /**
+    *
+    * @param string $ldapHost
+    * @param string $ldapPort
+    * @param string $identifiant CN
+    * @param string $mdp
+    * @param string $organisation Ex : o=MSP
+    */
+    private function tenterAuthentificationLDAP($ldapHost, $ldapPort, $identifiant, $mdp, $organisation){
 
-        $ldapInterne = $configuration->application->authentification->ldap->interne; 
-        $ldapExterne = $configuration->application->authentification->ldap->externe; 
-        $ldapPort = $configuration->application->authentification->ldap->port;
-    
-        // Determiner si utilisateur interne ou externe
-        if(!isset($configuration->application->authentification->ldap->host)){
-            if(strlen($identifiant) === 8){
-                $ldapHost = $ldapExterne;
-            }else{
-                $ldapHost = $ldapInterne;
-            }
-        } else {
-            $ldapHost = $configuration->application->authentification->ldap->host;
-        }
-    
         // Se connecter a LDAP
         $ldapconn = ldap_connect( $ldapHost, $ldapPort );
         if(!$ldapconn) {
-            //throw new Exception("Could not connect to LDAP");
             return false;
         }
     
         // Bind anonyme a LDAP
         $bind = ldap_bind($ldapconn);
         if (!$bind) {
-            //throw new Exception("Could not bind to LDAP");
             return false;            
         }        
     
         // Rechercher nom unique de l'utilisateur
-        $organisation = $configuration->application->authentification->ldap->organisation;
         $filter = "(&(cn={$identifiant})(objectclass=person))";
         $searchUser = ldap_search($ldapconn, $organisation, $filter);
-        if (!$searchUser) {
-            //throw new Exception("Erreur lors de la recherche ldap: LDAP-Error: %s<br>\n" .  ldap_error($ldapconn));			
+        if (!$searchUser) {     
             return false;
         }
-        $userEntries = ldap_get_entries($ldapconn, $searchUser);		
+        $userEntries = ldap_get_entries($ldapconn, $searchUser);        
         if(count($userEntries) != 2 || $userEntries["count"] != 1){
-            //throw new Exception("Could not find user in ldap.");
             return false;
         }
         
@@ -209,15 +191,53 @@ class AuthentificationLdap extends AuthentificationController {
     
         // Valider le mot de passe
         $ldapcon2 = ldap_connect($ldapHost, $ldapPort);
-        if(strlen($motDePasse) == 0){
+        if(strlen($mdp) == 0){
             $ldapbind2 = false;
         }else{
-            $ldapbind2 = @ldap_bind($ldapcon2, $userEntries[0]["dn"], $motDePasse);
+            $ldapbind2 = @ldap_bind($ldapcon2, $userEntries[0]["dn"], $mdp);
         }
         $this->motDePasseValide = $ldapbind2;
 
         if($this->motDePasseValide){
             $this->messagesErreur = [];
+        }
+        return true;
+    }
+
+    /*
+     * Fonction identifiant un utilisateur à un LDAP
+     * Cette fonction met à jour la variable $this->profil
+     * Retourne true en cas de succes, sinon retourne false.
+     */
+    private function authentifierLDAP($identifiant, $motDePasse){
+
+        $configuration = $this->getDI()->get("config");
+
+        $ldapHosts = [];
+
+        if(isset($configuration->application->authentification->ldap->interne)){
+          $ldapHosts[] = $configuration->application->authentification->ldap->interne;  
+        }
+
+        if(isset($configuration->application->authentification->ldap->externe)){
+          $ldapHosts[] = $ldapExterne = $configuration->application->authentification->ldap->externe;  
+        }
+        
+        if(isset($configuration->application->authentification->ldap->host)){
+            $ldapHosts[] = $configuration->application->authentification->ldap->host;  
+        }
+        
+        $ldapPort = $configuration->application->authentification->ldap->port;
+  
+        $organisation = $configuration->application->authentification->ldap->organisation;
+
+        $authentificationAReussie = false;
+
+        foreach($ldapHosts as $ldapHost){
+            if($this->tenterAuthentificationLDAP($ldapHost, $ldapPort, $identifiant, $motDePasse, $organisation)){
+                break;
+            }
+      
         }
 
     }
