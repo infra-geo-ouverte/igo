@@ -46,7 +46,7 @@ GeoExt.ux.tree.WMSBrowserRootNode = Ext.extend(Ext.tree.AsyncTreeNode, {
      */
     constructor: function(config) {
 
-        var url_init_msp =  Igo.nav.barreOutils.obtenirOutilsParType('OutilAjoutWMS')[0]._MyWMSBrowser.Store.data.first().data.url+ "?service=WMS&request=GetCapabilities&version=1.1.1";
+        var url_init_msp =  Igo.nav.barreOutils.obtenirOutilsParType('OutilAjoutWMS')[0]._MyWMSBrowser.Store.data.first().data.url;
         url_init_msp = Igo.Aide.utiliserProxy(url_init_msp);
 
         Ext.apply(this, config);
