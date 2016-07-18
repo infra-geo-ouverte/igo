@@ -135,7 +135,8 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 SERVICE: "WMS",
                 VERSION: this.options.version || this.defautOptions.version,
                 REQUEST: "GetCapabilities",
-                _encodage: this.options.encodage //"wms_encoding" "ISO-8859-1"
+                _encodage: this.options.encodage, //"wms_encoding" "ISO-8859-1"
+                t: +new Date
             },
             //crossDomain: true, //utilisation du proxy
             async:false,
