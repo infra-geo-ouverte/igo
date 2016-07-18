@@ -246,9 +246,9 @@ igo.initConfigs = function(grunt){
                     return 'bower install';
                 }
             },
-            bowerupdate: {
+            cleanLibs: {
                 command: function () {
-                    return 'bower update';
+                    return 'bash cleanLibs.sh';
                 }
             },
             buildOpenLayers: {
@@ -381,7 +381,8 @@ igo.initTasks = function(grunt){
     grunt.registerTask('buildIgo', 'build les js Igo', ['requirejs']);
     grunt.registerTask('buildLibs', ['shell:buildOpenLayers', 'uglify:LayerTreeBuilder', 'uglify:WMSBrowser', 'uglify:GeoExt', 'uglify:GeoExtDebug']);
     grunt.registerTask('cache', ['clean:cache', 'chmod:cacheDossier', 'chmod:cacheFichier']);
-    grunt.registerTask('libs', ['shell:bowerinstall']);
+    grunt.registerTask('cleanLibs', ['shell:cleanLibs']);
+    grunt.registerTask('libs', ['shell:bowerinstall', 'cleanLibs']);
     grunt.registerTask('doc', 'Génération de la documentation', ['jsdoc']);
     grunt.registerTask('qUnit', 'Lancer les tests unitaires', ['shell:qUnit']);
     grunt.registerTask('notify', ['notify:watch']);

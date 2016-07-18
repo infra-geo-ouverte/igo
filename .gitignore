@@ -15,6 +15,7 @@ nbproject/
 /node_modules/
 /librairie/
 /pilotage/
+/bower_components/
 
 /configGrunt.json
 /modules.json
