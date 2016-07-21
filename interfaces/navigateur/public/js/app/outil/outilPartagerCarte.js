@@ -61,7 +61,18 @@ define(['outil', 'aide', 'browserDetect', 'WMS'], function(Outil, Aide, BrowserD
                     fieldLabel: 'Lien',
                     name: 'lien'
                 }],
-                buttons: [{
+                buttons: [/*{
+                    text: 'Ajouter au presse papier',
+                    formBind: true,
+                    id:'pressePapier',
+                    handler: function(btn, e){
+                        var lien = Ext.getCmp('msgLien');
+                        var bCopied = ClipBoard( lien.getValue() );
+                        if(!bCopied){
+                            alert("Le lien n'a pu être ajouté au presse-papier parce que votre navigateur n'y a pas accès.  Vous pouvez changer cette configuration dans les options de votre navigateur.");
+                        }
+                    }
+                },*/{
                     text: 'Ajouter aux favoris',
                     formBind: true,
                     id:'favoris',           
