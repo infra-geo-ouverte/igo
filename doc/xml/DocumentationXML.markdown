@@ -403,12 +403,13 @@ couches disponibles à l’affichage sur la carte.
 |---------------|-----------------------|---------------|-----------------|-------------|
 |idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique| |
 |retirerCheckboxPremNiveau| Permet de retirer les checkbox de premier niveau dans l'arborescence | non | true | false |
-|identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false |
+|identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false
+|identifierGetInfo| Permet d'ajout l'icône du getInfo à gauche de la couche lorsque celle-ci est cochée et qu'elle contient un getInfo | Non | true | false | 
 
 *Exemple*
 
 ```xml
- <element-accordeon classe="Arborescence" retirerCheckboxPremNiveau="true" identifierSousSelection="true"/>
+ <element-accordeon classe="Arborescence" retirerCheckboxPremNiveau="true" identifierSousSelection="true" identifierGetInfo="true"/>
 ```
 
 *Aperçu*
