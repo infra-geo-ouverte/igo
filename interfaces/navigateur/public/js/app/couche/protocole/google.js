@@ -88,7 +88,7 @@ define(['couche', 'aide'], function(Couche, Aide) {
     Google.prototype._ajoutCallback = function(target, callback, optCallback){
         var that=this;
         var options = $.extend({}, that.defautOptions, Aide.obtenirConfig(that.obtenirTypeClasse()), that.options);
-        var googleConnexion = options.url ? window.location.protocol + options.url : window.location.protocol + '//maps.google.com/maps/api/js?sensor=false';
+        var googleConnexion = options.url ? window.location.protocol + options.url : window.location.protocol + '//maps.google.com/maps/api/js?';
         if(options.client){
             googleConnexion += "&client=" + options.client;
             if(options.signature){
