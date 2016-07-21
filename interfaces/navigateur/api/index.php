@@ -1005,11 +1005,20 @@ try {
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
 
-         $igoController = new IgoController();
-         $ch = $igoController->proxyChaineConnexion($ch, $url, $method, $options);  
-   
-       
-        
+        $strCookie="";
+
+        foreach ($_COOKIE as $key => $value) {
+            $strCookie .= $key.'='.$value.';';
+        }
+
+        if($strCookie!=''){
+            session_write_close();
+            curl_setopt( $ch, CURLOPT_COOKIE, $strCookie ); 
+        }
+
+        $igoController = new IgoController();
+        $ch = $igoController->proxyChaineConnexion($ch, $url, $method, $options);  
+           
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
