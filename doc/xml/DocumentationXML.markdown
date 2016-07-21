@@ -254,13 +254,15 @@ l'échelle et la projection de la carte.
 
 |Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
 |---------------|-----------------------|---------------|-----------------|-------------|
-|id		|			|		|		|*info-panneau*|
-|titre		|			|		|		|*Informations additionnelles*|
-|position	|			|		|		|*sud*|
-|dimension	|Hauteur du panneau.	|		|		|*75*|
-|minDimension	|Hauteur minimale du panneau.|		|		|*75*|
-|maxDimension	|Hauteur maximale du panneau.|		|		|*400*|
-|ouvert		|			|		|		|*false*|
+|id		|			|Non|		|*info-panneau*|
+|titre		|			|Non|		|*Informations additionnelles*|
+|position	|			|Non|		|*sud*|
+|dimension	|Hauteur du panneau.	|Non|		|*75*|
+|minDimension	|Hauteur minimale du panneau.|Non|		|*75*|
+|maxDimension	|Hauteur maximale du panneau.|Non|		|*400*|
+|ouvert		|			|Non|		|*false*|
+|projection		|Afficher dans la liste les projections comme code EPSG ou leurs nom commun|Non|code, nom|*code*|
+|elevation		|Afficher l'altitude à une position dans la carte. (Ajout dans le config.php est nécessaire pour identifié le service api d'élévation)|Non|Booléen		|*false*|
 
 *Exemples*
 
@@ -268,7 +270,7 @@ l'échelle et la projection de la carte.
 <panneau classe="PanneauInfo">
 	<panneau id="panInfo" titre="Exemple PanneauInfo" classe="PanneauInfo"
 	position="sud" dimension="200" minDimension="100" maxDimension="300"
-	ouvert="false"/>
+	ouvert="false" projection="nom" elevation="true" />
 </panneau>
 ```
 
