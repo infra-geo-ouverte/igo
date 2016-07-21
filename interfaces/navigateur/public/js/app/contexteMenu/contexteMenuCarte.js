@@ -309,14 +309,9 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
             
             
             if(memeType){
-                var submenuCopieVers = args.scope.initSubMenuCopieVers("-1", args.occurencesSelectionnees, type);
-                
-                if(submenuCopieVers){
-                    subSelection.menu.items.push(submenuCopieVers);
-                }
-                
                 if(typePolygone === true)
                 {
+                    subSelection.menu.items.push('-');
                     subSelection.menu.items.push({
                         id: 'selectionPerimetre',
                         text: "Périmètre",
@@ -340,6 +335,14 @@ define(['contexteMenu', 'point', 'polygone', 'occurence', 'aide', 'analyseurGML'
                         }
                     });                                                     
                 }    
+
+                var submenuCopieVers = args.scope.initSubMenuCopieVers("-1", args.occurencesSelectionnees, type);
+                
+                if(submenuCopieVers){
+                    subSelection.menu.items.push('-');
+                    subSelection.menu.items.push(submenuCopieVers);
+                }
+                
             }
             
             if(args.occurencesSelectionnees.length === 1 && args.occurencesSelectionnees[0]._obtenirGeometrie() === undefined ){
