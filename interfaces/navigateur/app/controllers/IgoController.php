@@ -483,7 +483,7 @@ class IgoController extends ControllerBase {
        
         if (!empty ($options['auth'])) {
             $auth = $options['auth'];
-            if (isset ($auth['method']) && isset ($auth['user']) && isset ($auth['pass'])) {
+            if (isset ($auth['user']) && isset ($auth['pass'])) {
                 //On obtient le payload (objectif chercher dans le payload les url securisees)
                 $postdata = file_get_contents ("php://input");
                 //Seul le post xml de zoo est modifié

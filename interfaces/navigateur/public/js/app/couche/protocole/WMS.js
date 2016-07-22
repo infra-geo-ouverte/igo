@@ -129,26 +129,26 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     */
     WMS.prototype._getCapabilities = function(target, callback, optCalback){
         var tjrsProxy = this.options.encodage ? true : false;
+        var that=this;
         $.ajax({
-            url: Aide.utiliserProxy(this.options.url, tjrsProxy),//this.options.url.split('?')[0],
+            url: Aide.utiliserProxy(that.options.url, tjrsProxy),//this.options.url.split('?')[0],
             data: {
                 SERVICE: "WMS",
-                VERSION: this.options.version || this.defautOptions.version,
+                VERSION: that.options.version || that.defautOptions.version,
                 REQUEST: "GetCapabilities",
-                _encodage: this.options.encodage, //"wms_encoding" "ISO-8859-1"
+                _encodage: that.options.encodage, //"wms_encoding" "ISO-8859-1"
                 t: +new Date
             },
-            //crossDomain: true, //utilisation du proxy
-            async:false,
-            context:this,
+            async:true,
+            context:that,
             dataType:'xml',
             dataFilter: function(response, type){
               return jQuery.trim(response);
             },
             success:function(response) {
-                this._getCapabilitiesSuccess(response, target, callback, optCalback);
+                that._getCapabilitiesSuccess(response, target, callback, optCalback);
             },
-            error:function(e){this._getCapabilitiesError(e, target, callback, optCalback);}
+            error:function(e){that._getCapabilitiesError(e, target, callback, optCalback);}
         });
     };
     
@@ -348,7 +348,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         VERSION: this.options.version,
                         REQUEST: "GetMap"
                     },
-                async:false,
+                async:true,
                 context:this,
                 success:function(response) {
                     

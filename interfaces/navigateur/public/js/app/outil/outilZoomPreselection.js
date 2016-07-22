@@ -70,7 +70,7 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
                     epsg:epsg
                 },
                 //crossDomain: true, //utilisation du proxy
-                async:false,
+                async:true,
                 context:this,
                 success:this.coordonneesZoomSuccess,
                 dataType:'json',

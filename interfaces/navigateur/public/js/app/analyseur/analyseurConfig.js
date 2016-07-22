@@ -72,7 +72,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                     this._chargementConfigSuccess(data);
                 },
                 error: this._chargementConfigError,
-                async: false,
+                async: true,
                 dataType: 'json'
             });
         }
