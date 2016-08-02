@@ -129,6 +129,15 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
                 propriete: 'adresseLibre'
             }]
         };
+        
+        vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
+            e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.lieu, aFermerBouton: false});
+        }, 
+        {scope: this});
+        vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){
+            e.occurence.fermerInfobulle();
+        }, 
+        {scope: this});
 
         this.traiterResultatVecteur(vecteur, responseJSON.nombreResultat);      
     };

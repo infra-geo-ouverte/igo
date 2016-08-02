@@ -483,7 +483,7 @@ class IgoController extends ControllerBase {
        
         if (!empty ($options['auth'])) {
             $auth = $options['auth'];
-            if (isset ($auth['method']) && isset ($auth['user']) && isset ($auth['pass'])) {
+            if (isset ($auth['user']) && isset ($auth['pass'])) {
                 //On obtient le payload (objectif chercher dans le payload les url securisees)
                 $postdata = file_get_contents ("php://input");
                 //Seul le post xml de zoo est modifié
@@ -501,8 +501,10 @@ class IgoController extends ControllerBase {
                                 if ($xmlurl !== $url) {
                                     //les credentials des urls qu on as pas 
                                     $authxml = $this->obtenirChaineConnexion ($partsxml['scheme'] . '://' . $partsxml['host'] . $partsxml['path'], $restService = false);
-                                    if (isset ($authxml['user']) && isset ($authxml['pass'])) {
+                                    if (isset ($authxml['user']) && isset ($authxml['pass']) && isset($partsxml['host']) && isset($partsxml['path']) && isset ( $partsxml['query'])) {
                                         $urlxml = $partsxml['scheme'] . '://' . $authxml['user'] . ':' . $authxml['pass'] . '@' . $partsxml['host'] . $partsxml['path'] . '?' . $partsxml['query'];
+                                    } else if (isset ($authxml['user']) && isset ($authxml['pass']) && isset($partsxml['host']) && isset($partsxml['path'])) {
+                                        $urlxml = $partsxml['scheme'] . '://' . $authxml['user'] . ':' . $authxml['pass'] . '@' . $partsxml['host'] . $partsxml['path'] ;
                                     }
                                     $xmlpost = str_replace ($xmlurl, $urlxml, $postdata);
                                     $postdata = $xmlpost;

@@ -66,7 +66,7 @@ define(['couche', 'aide'], function(Couche, Aide) {
                 VERSION: this.options.version,
                 REQUEST: "GetCapabilities",
             },
-            async:false,//TODO faire fonctionner asynchrone
+            async: false,
             success: function(request) {
 
                 var doc = request.responseXML;
