@@ -1007,7 +1007,7 @@ try {
 
 
         if(isset($_COOKIE['sessionIGO']) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
-            $strCookie=$_COOKIE['sessionIGO'];
+            $strCookie = "sessionIGO=" . $_COOKIE['sessionIGO'];
             session_write_close();
             curl_setopt( $ch, CURLOPT_COOKIE, $strCookie ); 
         }
