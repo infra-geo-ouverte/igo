@@ -68,12 +68,12 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 		$repertoireModules = $configGlobal->application->modules;
 		$dossiers = $this->filterDossiersModules($repertoireModules);
 
+
 	    foreach($dossiers as $nomDossier) {
 	        $dossierAbsolu = $repertoireModules . '/' . $nomDossier;
 
 			try {
 				$configurationModule = $this->chargerConfiguration($dossierAbsolu);
-				
 				if($this->verifierModulePermission($nomDossier, true)) {
 					$uri = $configGlobal->uri->modules . '/' . $nomDossier;
 					$this->chargerModule($configurationModule, $nomDossier, $dossierAbsolu, $uri);
@@ -125,8 +125,9 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			}	
 		}
 
+
 		//Pas connecté
-		if(!isset($session['info_utilisateur'])){
+		if(!isset($session->info_utilisateur)){
 			return false;
 		}
 
@@ -145,10 +146,11 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			}
 		}
 
+
 		if(isset($configGlobal->permissions)){
 			//utilisateur
-			if ($session['info_utilisateur']->estAuthentifie && isset($configGlobal->permissions[$session['info_utilisateur']->identifiant])){
-				$identifiant = $configGlobal->permissions[$session['info_utilisateur']->identifiant];
+			if ($session->info_utilisateur->estAuthentifie && isset($configGlobal->permissions[$session->info_utilisateur->identifiant])){
+				$identifiant = $configGlobal->permissions[$session->info_utilisateur->identifiant];
 				if(isset($identifiant->modules) && isset($identifiant->modules[$espaceDeNoms])){
 					$permis = $identifiant->modules[$espaceDeNoms];		
 					if($permis === false || is_object($permis)){
@@ -157,8 +159,8 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 				}
 			}
 			//Profils
-			if(isset($session['info_utilisateur']->profils)){
-		        foreach ($session['info_utilisateur']->profils as $key => $value) {
+			if(isset($session->info_utilisateur->profils)){
+		        foreach ($session->info_utilisateur->profils as $key => $value) {
                     if(is_array($value)){
                         $idValue = $value["id"];
                         $profil = $value["libelle"];
@@ -166,7 +168,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
                         $idValue = $value->id;
                         $profil = $value->libelle;
                     }
-		            if(!isset($session['info_utilisateur']->profilActif) || $idValue == $session['info_utilisateur']->profilActif){
+		            if(!isset($session->info_utilisateur->profilActif) || $idValue == $session->info_utilisateur->profilActif){
 		                if(isset($profil) && isset($configGlobal->permissions[$profil])){
 		                    $modules = $configGlobal->permissions[$profil]->modules;
 		                    if(isset($modules[$espaceDeNoms])){
@@ -337,6 +339,7 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 	 * @return void
 	 */
 	private function chargerModule($configurationModule, $nomDossierModule, $cheminRacine, $uri) {
+
 	    $cheminClasseModule = $cheminRacine . '/Module.php';
 
 	    if(file_exists($cheminClasseModule)) {
@@ -375,7 +378,6 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			'className' => $nomClasse,
 			'path' => $cheminClasseModule
 		);
-
 		array_push($this->modules, $module);
 	}
 
