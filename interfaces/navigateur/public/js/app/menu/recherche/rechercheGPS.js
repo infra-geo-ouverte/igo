@@ -5,7 +5,7 @@
  * @version 1.0
  * @requires recherche
  */
-define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, Aide, Point, Style, Limites) {
+define(['recherche', 'aide', 'point', 'polygone', 'occurence', 'style', 'limites'], function(Recherche, Aide, Point, Polygone, Occurence, Style, Limites) {
       /** 
      * Création de l'object Panneau.RechercheGPS.
      * Objet à ajouter à un objet localisation.
@@ -62,6 +62,12 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             iconeOffsetX: -10,
             iconeOffsetY: -34,
             filtres: [ {
+                    filtre: "[cercleIncertitude]==true",
+                    style: {
+                        opacite: 0.3,
+                        visible: true
+                    }
+                }, {
                     filtre: "[coteCertitude]>0",
                     style: {icone: Aide.utiliserBaseUri('images/marqueur/marker-yellow.png')}
                 }, {
@@ -76,12 +82,22 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         var survolStyle = style.cloner();
         survolStyle.definirPropriete('opacite', 0.8);
 
-        var styles = {defaut: {visible: false}, select: style, survol: survolStyle};
+        var defautStyle = new Style({
+            filtres: [ {
+                    filtre: "[cercleIncertitude]==true",
+                    style: {
+                        opacite: 0.3,
+                        visible: true
+                    }
+                }
+            ]
+        })
+
+        var styles = {defaut: defautStyle, select: style, survol: survolStyle};
         if(this.options.idResultatTable){
             styles.defaut = style;
         }
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
-
     };
    
     RechercheGPS.prototype.ajouterOccurences = function(e) {
@@ -91,6 +107,13 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         if (responseJSON.localisation && responseJSON.localisation.point.x && responseJSON.localisation.point.y) {
             point = new Point(responseJSON.localisation.point.x, responseJSON.localisation.point.y);
             vecteur.creerOccurence(point, responseJSON);
+
+            if(responseJSON.rayonIncertitude){
+                var cercleOL = OpenLayers.Geometry.Polygon.createRegularPolygon(point._obtenirGeomOL(), responseJSON.rayonIncertitude, 50);
+                var cercle = new Occurence(new Polygone(cercleOL), {cercleIncertitude: true});
+                cercle.definirInteraction(false);
+                vecteur.ajouterOccurence(cercle);
+            }
         } else {
             this.definirResultat('Aucun résultat');
             return false;
@@ -133,7 +156,11 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         var resultat = this.ajouterPagination(nombreResultats);
         resultat += "<font color='blue'><u id='convertirRechercheGPS' class='rechercheResultatsListe'>Convertir les coordonnées GPS</u></font></br></br>";
         
-        resultat += "<h4><u>" + occurence.proprietes.patternCoordInput + "</br></u>("+occurence.proprietes.formatCoordInput+")</h4>";
+        resultat += "<h4><u>" + occurence.proprietes.patternCoordInput + "</u>";
+        if (occurence.proprietes.rayonIncertitude && occurence.proprietes.coteCertitude ){
+            resultat += "</br>Certitude de " + occurence.proprietes.coteCertitude + "% dans un rayon de " +occurence.proprietes.rayonIncertitude + " m"; 
+        }
+        resultat += "</br>("+occurence.proprietes.formatCoordInput+")</h4>";
         resultat += "<li data-id='" + occurence.id + 
                 "' class='rechercheResultatsListe'><font color='blue'><b>» </b><u>";
         
