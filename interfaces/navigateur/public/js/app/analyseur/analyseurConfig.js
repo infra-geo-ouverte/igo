@@ -376,7 +376,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
     */
     AnalyseurConfig.prototype._analyserContexte = function() {
         if (this.fin.panneaux && this.fin.couches && this.fin.actions) {
-            if(window.arboLoading === false) {
+            if(!window.arboLoading) {
                 var contexte = new Contexte();
                 contexte.charger();
                 this._fin();
