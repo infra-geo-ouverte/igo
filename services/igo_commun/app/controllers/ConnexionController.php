@@ -107,28 +107,29 @@ class ConnexionController extends Controller{
                 $this->session->setErrors(["Droits insuffisants"]);
                 return $this->redirigeVersPage();
             }
+        }
 
-            $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
+        $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
 
-            if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
-                $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
-                if(isset($anonymeProfil)){
-                    array_merge($profils, $anonymeProfil->toArray());
-                }
-            }
-            
-            $this->session->get("info_utilisateur")->profils = $profils;
-            
-            if($configuration->application->authentification->activerSelectionRole){
-                if(count($profils) === 1){
-                    $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
-                    return $this->redirigeVersPage();
-                }
-                if(!count($profils)){
-                    return $this->anonymeAction(TRUE);
-                }
+        if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
+            $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+            if(isset($anonymeProfil)){
+                array_merge($profils, $anonymeProfil->toArray());
             }
         }
+        
+        $this->session->get("info_utilisateur")->profils = $profils;
+        
+        if($configuration->application->authentification->activerSelectionRole){
+            if(count($profils) === 1){
+                $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
+                return $this->redirigeVersPage();
+            }
+            if(!count($profils)){
+                return $this->anonymeAction(TRUE);
+            }
+        }
+        
         //L'utilisateur doit sélectionner son rôle
         $profilObligatoire = isset($_GET['force-profil']) ? $_GET['force-profil'] : false;
         if(isset($this->session->get("info_utilisateur")->estAuthentifie) && $this->session->get("info_utilisateur")->estAuthentifie && 
