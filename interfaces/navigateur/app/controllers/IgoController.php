@@ -451,6 +451,9 @@ class IgoController extends ControllerBase {
             if(!empty($permisUrl['cainfo'])) {
                 $auth['cainfo'] = $permisUrl['cainfo']; 
             }
+            if(!empty($permisUrl['verifypeer'])) {
+                $auth['verifypeer'] = $permisUrl['verifypeer']; 
+            }
 
             if(!empty($permisUrl['connexion'])){
                 $crypt = $this->getDI()->get("crypt");
@@ -533,7 +536,17 @@ class IgoController extends ControllerBase {
                     curl_setopt ($ch, CURLOPT_CAINFO, $auth['cainfo']);
                 }
                 
-                curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 1);
+                //Verify peer pour le SSL 1 par défaut, 0 si dans config 'verifypeer' => 'Off' (pas de vérification)  
+                if (isset ($auth['verifypeer'])) {
+                    if ($auth['verifypeer'] == 'Off') {
+                        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                    } else {
+                        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 1);
+                    }
+                } else {
+                    curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 1);
+                }
+
                 curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 2);
               
                 curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
