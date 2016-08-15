@@ -537,12 +537,8 @@ class IgoController extends ControllerBase {
                 }
                 
                 //Verify peer pour le SSL 1 par défaut, 0 si dans config 'verifypeer' => 'Off' (pas de vérification)  
-                if (isset ($auth['verifypeer'])) {
-                    if ($auth['verifypeer'] == 'Off') {
-                        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                    } else {
-                        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 1);
-                    }
+                if (isset ($auth['verifypeer']) && $auth['verifypeer'] == 'Off') {
+                    curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
                 } else {
                     curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 1);
                 }
