@@ -116,6 +116,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             }
         } else {
             this._layer = this.options.layerOL;
+            this.options.url = this._layer.url;
+            this.options.nom = this._layer.params.LAYERS.toString();
+            this.options.titre = this._layer.name;
+            this.options.version = this._layer.params.VERSION;
         }
 
         this._layer.events.register('loadend',this,this._validerChargement);
