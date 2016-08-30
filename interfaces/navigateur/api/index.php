@@ -1005,13 +1005,9 @@ try {
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
 
-        $strCookie="";
 
-        foreach ($_COOKIE as $key => $value) {
-            $strCookie .= $key.'='.$value.';';
-        }
-
-        if($strCookie!=''){
+        if(isset($_COOKIE['sessionIGO']) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
+            $strCookie = "sessionIGO=" . $_COOKIE['sessionIGO'];
             session_write_close();
             curl_setopt( $ch, CURLOPT_COOKIE, $strCookie ); 
         }

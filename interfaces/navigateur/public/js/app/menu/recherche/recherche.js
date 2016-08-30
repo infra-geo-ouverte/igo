@@ -40,6 +40,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             sauvegarder: true,
             id: 'recherche',
             init: false,
+            infobulleSurvol: false,
             zoom: 15,
             lienAide: Aide.utiliserBaseUri("guides/IGO_Navigateur_guide.pdf")
         };
@@ -379,6 +380,17 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                 nouvelleTable.ouvrirTableVecteur(vecteur);
                 panneauTable.activerPanneau(nouvelleTable);        
             }
+        }
+
+        if(this.options.infobulleSurvol){             
+            vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
+                e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.adresseLibre, aFermerBouton: false});
+            }, 
+            {scope: this});
+            vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){
+                e.occurence.fermerInfobulle();
+            }, 
+            {scope: this});
         }
     }
 
