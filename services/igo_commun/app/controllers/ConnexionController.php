@@ -107,9 +107,12 @@ class ConnexionController extends Controller{
                 $this->session->setErrors(["Droits insuffisants"]);
                 return $this->redirigeVersPage();
             }
+        }
 
+        $profils = $this->session->get("info_utilisateur")->profils;
+        if(!isset($profils)){
             $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
-
+        
             if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
                 $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
                 if(isset($anonymeProfil)){
@@ -129,6 +132,7 @@ class ConnexionController extends Controller{
                 }
             }
         }
+        
         //L'utilisateur doit sélectionner son rôle
         $profilObligatoire = isset($_GET['force-profil']) ? $_GET['force-profil'] : false;
         if(isset($this->session->get("info_utilisateur")->estAuthentifie) && $this->session->get("info_utilisateur")->estAuthentifie && 
