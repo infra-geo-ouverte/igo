@@ -108,10 +108,10 @@ class ChargeurModules extends \Phalcon\DI\Injectable {
 			}	
 		}
 
-		//Pas connecté
-		if(!isset($session['info_utilisateur'])){
-			return false;
-		}
+//		//Pas connecté
+//		if(!isset($session['info_utilisateur'])){
+//			return false;
+//		}
 
 		$permis = null;
 		$permisXml = false;
