@@ -22,11 +22,13 @@ define(['aide'], function(Aide) {
             }
             if(lienExt && Aide.toBoolean(lienExt) !== true){
                 lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
-                window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
+//                window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
+//                window.open(lienExt);
+                this.parse({responseText: "<iframe style='width:500px; height:500px;' src='"+lienExt+"'></iframe>"});
                 return true;
             }
         }
-        
+                
         if(lienExt && Aide.toBoolean(lienExt) !== true){
             lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
             lienExt = Aide.utiliserProxy(lienExt);
@@ -51,12 +53,12 @@ define(['aide'], function(Aide) {
         var oMetadataWindow = new Ext.Window({
             title    : 'Information de la couche ',
             closable : true,
-            width: 800,
-            autoHeight: true, 
+            width: 500,
+            autoHeight: false, 
             border : false,
             modal: true,
             plain    : true,
-            resizable : true,
+            resizable : false,
             autoScroll: true,
             constrain: true,
             region: 'center'

@@ -362,7 +362,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
                 var paginer = panneauTable.options.paginer?panneauTable.options.paginer:false;
                 var limite = panneauTable.options.paginer_limite?parseInt(panneauTable.options.paginer_limite):undefined;
                 var debut = panneauTable.options.paginer_debut?parseInt(panneauTable.options.paginer_debut):undefined;              
-                
+
                 var nouvelleTable = new PanneauTable({
                     reductible: false, 
                     fermable: true,

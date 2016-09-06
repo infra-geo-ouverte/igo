@@ -154,7 +154,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {data: data});
 
     };
-   
+
     RechercheGoogle.prototype.ajouterOccurences = function(e) {
         var vecteur = e.target;
         var data = e.options.params.data;
@@ -164,7 +164,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             var y = value.geometry.location.lat(); 
             var point = new Point(x, y);
             var northEast = value.geometry.viewport.getNorthEast();
-            var southWest = value.geometry.viewport.getSouthWest()
+            var southWest = value.geometry.viewport.getSouthWest();
             var limites = new Limites(southWest.lng(), southWest.lat(), southWest.lng(), northEast.lat());
             //var limites = new Limites(value.geometry.viewport.southwest.lng, value.geometry.viewport.southwest.lat, value.geometry.viewport.northeast.lng, value.geometry.viewport.northeast.lat);
             var projCarte = Aide.obtenirNavigateur().carte.obtenirProjection();

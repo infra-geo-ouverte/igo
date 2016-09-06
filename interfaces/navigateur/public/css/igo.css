@@ -5,9 +5,20 @@
     clear: left;
 }
 
-.multilineColumn .x-grid3-cell-inner {
+.multilineColumn,.x-grid3-cell-inner {
 	white-space:  normal !important;
 }
+
+/*.x-grid3-cell-inner,.x-grid3-hd-inner{overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;padding:3px 3px 3px 5px;white-space:normal}*/
+
+.x-grid3-hd.x-grid3-cell.x-grid3-td-0.x-grid3-cell-first {width:30% !important;}
+.x-grid3-hd.x-grid3-cell.x-grid3-td-1 {width:50% !important;}
+.x-grid3-hd.x-grid3-cell.x-grid3-td-2.x-grid3-cell-last {width:20% !important;}
+
+.x-grid3-col.x-grid3-cell.x-grid3-td-0.x-grid3-cell-first {width:30% !important;}
+.x-grid3-col.x-grid3-cell.x-grid3-td-1 {width:50% !important;}
+.x-grid3-col.x-grid3-cell.x-grid3-td-2.x-grid3-cell-last {width:20% !important;}
+
 .olLayerGrid .olTileImage {
     -webkit-transition: none;
     -moz-transition: none;

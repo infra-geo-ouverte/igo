@@ -65,7 +65,7 @@ define(['contexteMenu', 'aide', 'fonctions', 'panneauTable', 'dateTimeIntervalPi
 
     ContexteMenuArborescence.prototype.initMetadonneeSubmenu = function(args){ 
         var that=args.scope;
-        if (args.couche.options.metadonnee) {
+        if (args.couche.options.metadonnee || args.couche.options.metadonneeExterne) {
             return {
                 id: 'arborescenceMetadonnee',
                 text : that.locale.metadataText,

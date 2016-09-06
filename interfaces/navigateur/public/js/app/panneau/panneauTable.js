@@ -100,7 +100,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     });
 
 
-            ide.obtenirNavigateur().evenements.ajouterDeclencheur('occurenceSelectionnee', function(e) {
+            Aide.obtenirNavigateur().evenements.ajouterDeclencheur('occurenceSelectionnee', function(e) {
                 e.options.scope.desactiverDessin();
             }, {
                 scope: this,

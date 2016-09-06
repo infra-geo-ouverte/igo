@@ -79,7 +79,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             styles.defaut = style;
         }
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
-
+        
     };
    
     RechercheLieu.prototype.ajouterOccurences = function(e) {
