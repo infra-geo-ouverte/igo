@@ -23,7 +23,6 @@ define(['aide'], function(Aide) {
             if(lienExt && Aide.toBoolean(lienExt) !== true){
                 lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
 //                window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
-//                window.open(lienExt);
                 this.parse({responseText: "<iframe style='width:500px; height:500px;' src='"+lienExt+"'></iframe>"});
                 return true;
             }
