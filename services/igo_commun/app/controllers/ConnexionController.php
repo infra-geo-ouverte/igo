@@ -109,24 +109,27 @@ class ConnexionController extends Controller{
             }
         }
 
-        $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
-
-        if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
-            $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
-            if(isset($anonymeProfil)){
-                array_merge($profils, $anonymeProfil->toArray());
-            }
-        }
+        $profils = $this->session->get("info_utilisateur")->profils;
+        if(!isset($profils)){
+            $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
         
-        $this->session->get("info_utilisateur")->profils = $profils;
-        
-        if($configuration->application->authentification->activerSelectionRole){
-            if(count($profils) === 1){
-                $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
-                return $this->redirigeVersPage();
+            if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
+                $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                if(isset($anonymeProfil)){
+                    array_merge($profils, $anonymeProfil->toArray());
+                }
             }
-            if(!count($profils)){
-                return $this->anonymeAction(TRUE);
+            
+            $this->session->get("info_utilisateur")->profils = $profils;
+            
+            if($configuration->application->authentification->activerSelectionRole){
+                if(count($profils) === 1){
+                    $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
+                    return $this->redirigeVersPage();
+                }
+                if(!count($profils)){
+                    return $this->anonymeAction(TRUE);
+                }
             }
         }
         
