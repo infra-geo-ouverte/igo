@@ -1,4 +1,4 @@
-<?php
+<?php header('Content-Type: text/html; charset=UTF-8');
 
 $layername = $_GET["layername"];
 if (empty($layername)) {
