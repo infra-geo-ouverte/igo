@@ -11,8 +11,8 @@ define(['navigateur','panneau','point','marqueurs','outil', 'aide','occurence', 
         this.controleBox.setMap(this.carte._carteOL);
         this.defautOptions = $.extend({}, this.defautOptions, {
             //controle: this.carte.gestionCouches.controles.initSelection(),
-            icone: Aide.obtenirCheminRacine()+'images/toolbar/gui-pointer.gif',
-            id: 'idSelectionMulktiplePG',
+            icone: Aide.obtenirCheminRacine()+'images/toolbar/info.png',
+            id: 'idSelectionMultiplePG',
             groupe: 'carte',
             _allowDepress: true,
             infobulle: 'Sélection spatiale: Dessiner un rectangle en conservant le bouton gauche enfoncé ou cliquer sur la carte'
