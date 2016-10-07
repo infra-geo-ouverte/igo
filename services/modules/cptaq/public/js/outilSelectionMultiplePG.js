@@ -69,7 +69,7 @@ define(['navigateur','panneau','point','marqueurs','outil', 'aide','occurence', 
 
         for(var l=0; l<layers.length; ++l) {
             var layer = layers[l];
-            if (layer.estActive() && layer.options.selectionmultiplepg) {
+            if (layer.estActive() && layer.estDansPortee() && layer.options.selectionmultiplepg) {
 //                var url =  this.options.url + "?bbox=" + minXY.lon + "," + minXY.lat + "," + maxXY.lon + "," + maxXY.lat +  //bbox pour utiliser avec ST_MakeEnvelope
                 var url =  this.options.url + "?bbox=" + minXY.lon + " " + minXY.lat + ", " + maxXY.lon + " " + maxXY.lat + 
                 "&epsg=" + this.carte.projection.substr(5) + 
@@ -85,7 +85,7 @@ define(['navigateur','panneau','point','marqueurs','outil', 'aide','occurence', 
                         that.OutilSelectionMultiplePG(result);
                         var vecteur = that.carte.gestionCouches.obtenirCouchesParTitre('Sélection spatiale')[0];
                         Recherche.prototype.traiterResultatVecteur.call(that, vecteur);
-                        vecteur.zoomerOccurences();
+                        //vecteur.zoomerOccurences();
 //                        alert(result);
                     },
                     failure: function ( result, request ) {
