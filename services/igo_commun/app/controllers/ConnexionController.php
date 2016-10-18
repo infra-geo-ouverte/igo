@@ -2,19 +2,20 @@
 use Phalcon\Mvc\Controller;
 
 class ConnexionController extends Controller{
-    
+
     public function indexAction() {
-        $authentificationModule = $this->getDI()->get("authentificationModule");        
-        
+        $authentificationModule = $this->getDI()->get("authentificationModule");
+
         $configuration = $this->getDI()->get("config");
-        if(isset($configuration->application->authentification->authentificationExterne) && $configuration->application->authentification->authentificationExterne){
-            
+        if(isset($configuration->application->authentification->authentificationExterne) &&
+        $configuration->application->authentification->authentificationExterne){
+
             $succes = $authentificationModule->authentification(null, null);
-          
+
             if (!$succes) {
-                
+
                 $this->setErrors();
-              
+
                 if(isset($configuration->application->authentification->authentificationUri)){
                     return $this->response->redirect($configuration->application->authentification->authentificationUri, TRUE);
                 }
@@ -29,42 +30,42 @@ class ConnexionController extends Controller{
                 $this->session->get("info_utilisateur")->nom  = $authentificationModule->obtenirNom();
                 $this->session->get("info_utilisateur")->estAuthentifie = $authentificationModule->estAuthentifie();
                 $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
-                $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();                       
+                $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();
                 $this->session->get("info_utilisateur")->profils = $authentificationModule->obtenirProfils();
-                $this->session->get("info_utilisateur")->estAnonyme  = false; 
-            }              
+                $this->session->get("info_utilisateur")->estAnonyme  = false;
+            }
         }
-         
+
          //Vérifier si on doit se rappeler où on voulait aller
         $request = new Phalcon\Http\Request();
         $uri = $request->getURI();
-        if(substr($uri, -strlen("/connexion/")) !== "/connexion/"){    
+        if(substr($uri, -strlen("/connexion/")) !== "/connexion/"){
             //Stocker l'url de redirection dans la session
             $this->definirPageRedirection($uri);
         }
-        
+
         //L'utilisateur est déjà authentifié
         if($authentificationModule->estAuthentifie()){
-       
+
             //Passer à la page de choix du profil
             return $this->dispatcher->forward(array(
                 "action" => "role"
             ));
         }
-       
+
         //Paramètres pour l'affichage de la page de connexion
         $this->view->setVar("titre", "Authentification");
-    
+
         if($this->session->has("erreurs")){
             $this->setErrors();
         }else{
             $this->deleteErrors();
         }
-        
+
         $this->view->setVar("permettreAccesAnonyme", $configuration->application->authentification->permettreAccesAnonyme);
         $this->view->setVar("roleUri", $configuration->application->baseUri. "connexion/role");
-        $this->view->setVar("anonymeUri", $configuration->application->baseUri. "connexion/anonyme");       
-        $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";    
+        $this->view->setVar("anonymeUri", $configuration->application->baseUri. "connexion/anonyme");
+        $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";
     }
 
     public function roleAction() {
@@ -98,30 +99,26 @@ class ConnexionController extends Controller{
             $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
             $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();
 
-            //L'utilisateur tente d'accéder au pilotage et il n'a pas le droit
-            if (!$this->session->get("info_utilisateur")->estAdmin &&
-                    !$this->session->get("info_utilisateur")->estPilote &&
-                    isset($configuration->application->estPilotage) && 
-                    $configuration->application->estPilotage === true) {
-                $this->session->remove("info_utilisateur");
-                $this->session->setErrors(["Droits insuffisants"]);
-                return $this->redirigeVersPage();
-            }
-        }
-
-        $profils = $this->session->get("info_utilisateur")->profils;
-        if(!isset($profils)){
             $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
-        
             if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
-                $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->nomProfilAnonyme}'");
+                $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->profilAnonyme->nom}'");
                 if(isset($anonymeProfil)){
                     array_merge($profils, $anonymeProfil->toArray());
                 }
             }
             
             $this->session->get("info_utilisateur")->profils = $profils;
-            
+
+            //L'utilisateur tente d'accéder au pilotage et il n'a pas le droit
+            if (!$this->session->get("info_utilisateur")->estAdmin &&
+                    !$this->session->get("info_utilisateur")->estPilote &&
+                    isset($configuration->application->estPilotage) &&
+                    $configuration->application->estPilotage === true) {
+                $this->session->remove("info_utilisateur");
+                $this->session->setErrors(["Droits insuffisants"]);
+                return $this->redirigeVersPage();
+            }
+
             if($configuration->application->authentification->activerSelectionRole){
                 if(count($profils) === 1){
                     $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
@@ -132,12 +129,12 @@ class ConnexionController extends Controller{
                 }
             }
         }
-        
+
         //L'utilisateur doit sélectionner son rôle
         $profilObligatoire = isset($_GET['force-profil']) ? $_GET['force-profil'] : false;
-        if(isset($this->session->get("info_utilisateur")->estAuthentifie) && $this->session->get("info_utilisateur")->estAuthentifie && 
+        if(isset($this->session->get("info_utilisateur")->estAuthentifie) && $this->session->get("info_utilisateur")->estAuthentifie &&
             ($profilObligatoire || $configuration->application->authentification->activerSelectionRole)){
-            
+
             $configuration = $this->getDI()->get("config");
             $accessTotalUri = "";
             if($configuration->application->authentification->activerSelectionRole === false){
@@ -161,7 +158,7 @@ class ConnexionController extends Controller{
            $this->session->get("info_utilisateur")->profilActif = $request->getPost('profil', null);
         }
         return $this->redirigeVersPage();
-    }     
+    }
 
     public function accesTotalAction() {
         $request = new \Phalcon\Http\Request();
@@ -169,8 +166,8 @@ class ConnexionController extends Controller{
            $this->session->get("info_utilisateur")->profilActif = null;
         }
         return $this->redirigeVersPage();
-    }          
-    
+    }
+
     public function deconnexionAction() {
         $xmlConfig = $this->session->get('configXml');
         $xmlAuth = (object) array();
@@ -188,7 +185,7 @@ class ConnexionController extends Controller{
             }
         }
 
-        $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";       
+        $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";
 
         $pageAccueil = $configuration->application->authentification->deconnectionAccueil;
 
@@ -217,9 +214,10 @@ class ConnexionController extends Controller{
         $this->view->setVar("pageRedirection", $pageRedirection);
         $this->view->setVar("seConnecter", $seConnecter);
         $this->view->setVar("pageAccueil", $pageAccueil);
-    }    
-    
+    }
+
     public function anonymeAction($estAuthentifier = FALSE){
+
         $configuration = $this->getDI()->get("config");
         if($configuration->application->authentification->permettreAccesAnonyme){
             if(!$this->session->has("info_utilisateur")) {
@@ -233,9 +231,9 @@ class ConnexionController extends Controller{
             if($configuration->offsetExists("database")) {
                 $nomProfilAnonyme = $this->session->get('nomProfilAnonyme');
                 if($nomProfilAnonyme === null){
-                    $nomProfilAnonyme = $configuration->application->authentification->nomProfilAnonyme;
+                    $nomProfilAnonyme = $configuration->application->authentification->profilAnonyme->nom;
                 }
-                    
+
                 if($configuration->application->authentification->activerSelectionRole){
                     $profilAnonyme = IgoProfil::findFirst("nom = '{$nomProfilAnonyme}'");
                     if($profilAnonyme){
@@ -246,16 +244,21 @@ class ConnexionController extends Controller{
                     $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$nomProfilAnonyme}'")->toArray();
                 }
             }
-            return $this->redirigeVersPage();        
-        } else {
+            return $this->redirigeVersPage();
+        }
+        else if (isset($this->getDI()->get("config")->pageRedirectionAnonyme) && $estAuthentifier){
+            $this->definirPageRedirection($this->getDI()->get("config")->pageRedirectionAnonyme);
+            $this->redirigeVersPage();
+        }
+        else {
             $this->dispatcher->forward(array(
                 "controller" => "error",
                 "action" => "error403"
             ));
         }
     }
-    
-    private function redirigeVersPage(){ 
+
+    private function redirigeVersPage(){
 
         $configuration = $this->getDI()->get("config");
         $page = $this->obtenirPageRedirection();
@@ -265,15 +268,15 @@ class ConnexionController extends Controller{
             }
             $response = new \Phalcon\Http\Response();
             $response->redirect($page, true);
-            return $response;            
+            return $response;
         }else{
             $response = new \Phalcon\Http\Response();
             $configuration = $this->getDI()->get("config");
             $response->redirect($configuration->application->baseUri, true);
-            return $response;        
+            return $response;
         }
     }
-    
+
     /**
      * Page vers laquelle rediriger l'utilisateur une fois qu'il s'est correctement authentifié
      * @return string
@@ -286,7 +289,7 @@ class ConnexionController extends Controller{
             return '';
         }
     }
-    
+
     private function definirPageRedirection($page = ''){
         if($page){
             $this->session->set('page', $page);
@@ -297,7 +300,7 @@ class ConnexionController extends Controller{
 
     /**
      * Défini les erreurs dans la session et la variable "erreurs" pour la vue.
-     * 
+     *
      * @param  array $erreurs Tableau d'erreurs à ajouter
      */
 
@@ -328,5 +331,5 @@ class ConnexionController extends Controller{
         $this->session->set("erreurs", []);
         $this->view->setVar("erreurs", []);
     }
-    
+
 }

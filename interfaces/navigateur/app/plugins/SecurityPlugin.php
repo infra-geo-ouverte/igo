@@ -12,13 +12,13 @@ include $config->application->services->dir."fonctions.php";
 class SecurityPlugin extends Plugin
 {
     public function beforeExecuteRoute(Phalcon\Events\Event $event, Phalcon\Mvc\Dispatcher $dispatcher){
-        $authentificationModule = $this->getDI()->get("authentificationModule"); 
+        $authentificationModule = $this->getDI()->get("authentificationModule");
         if($authentificationModule == null){
             return;
         }
 
         $controller = $dispatcher->getControllerName();
-        $action = $dispatcher->getActionName();              
+        $action = $dispatcher->getActionName();
         $config = $this->getDI()->get("config");
 
         if($controller === "connexion" || $controller === "error"){
@@ -29,7 +29,7 @@ class SecurityPlugin extends Plugin
             $authObligatoire = isset($_GET['force-auth']) ? $_GET['force-auth'] : false;
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
 
-            $authRequise = ($authObligatoire || $this->estAuthentificationRequise($configuration))? true:false;            
+            $authRequise = ($authObligatoire || $this->estAuthentificationRequise($configuration))? true:false;
 
             if(isset($this->getDi()->getConfig()->configurations[$configuration])){
                 $file = $this->getDi()->getConfig()->configurations[$configuration];
@@ -51,14 +51,14 @@ class SecurityPlugin extends Plugin
                 $configurationSysteme = $this->getDI()->get("config");
                 if($configurationSysteme->offsetExists("database")) {
                     if($this->estRoleSelectionneRequis()){
-                        $profilAnonyme = IgoProfil::findFirst("nom = '{$configurationSysteme->application->authentification->nomProfilAnonyme}'");
+                        $profilAnonyme = IgoProfil::findFirst("nom = '{$configurationSysteme->application->authentification->profilAnonyme->nom}'");
                         if($profilAnonyme){
                             $this->session->get("info_utilisateur")->profils = array($profilAnonyme->toArray());
                             $this->session->get("info_utilisateur")->profilActif = $this->session->get("info_utilisateur")->profils[0]['id'];
                         }
-                    } else if(isset($configurationSysteme->application->authentification->nomProfilAnonyme)){
-                        $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configurationSysteme->application->authentification->nomProfilAnonyme}'")->toArray();
-                    } 
+                    } else if(isset($configurationSysteme->application->authentification->profilAnonyme->nom)){
+                        $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configurationSysteme->application->authentification->profilAnonyme->nom}'")->toArray();
+                    }
                 }
                 $this->session->get("info_utilisateur")->estAnonyme = true;
             } else if($this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
@@ -71,7 +71,7 @@ class SecurityPlugin extends Plugin
             if($this->estAnonyme()){
                 $this->session->get("info_utilisateur")->persistant = false;
             }
-        }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){    
+        }else if ($controller == "igo" && ($action == "contexte" || $action == "couche" || $action == "groupe")){
             if($this->estAnonyme()){
                 $user = $this->session->get("info_utilisateur");
                 if(isset($user->persistant) && $user->persistant === true){
@@ -79,18 +79,18 @@ class SecurityPlugin extends Plugin
                 } else {
                     $this->session->destroy();
                     $authentificationModule->deconnexion();
-                } 
-            }                 
-            if(!$this->estAnonyme() && !$this->estAuthentifie()){                
+                }
+            }
+            if(!$this->estAnonyme() && !$this->estAuthentifie()){
                 return $this->forwardToLoginPage();
             }else if($this->estRoleSelectionneRequis() && !$this->estRoleSelectionne()){
                 return $this->forwardToRolePage();
             }if($this->estAnonyme() && isset($config->application->authentification->permettreAccesAnonyme) && !$config->application->authentification->permettreAccesAnonyme){
                 return $this->forwardToUnauthorizedPage();
-            }            
-        }                    
+            }
+        }
     }
-    
+
     private function forwardToLoginPage(){
         $this->dispatcher->forward(array(
             "controller" => "connexion",
@@ -99,7 +99,7 @@ class SecurityPlugin extends Plugin
         ));
         return;
     }
-    
+
     private function forwardToErrorPage(){
         $this->dispatcher->forward(array(
             "controller" => "error",
@@ -107,24 +107,24 @@ class SecurityPlugin extends Plugin
         ));
         return;
     }
-    
+
     private function forwardToUnauthorizedPage(){
         $this->dispatcher->forward(array(
             "controller" => "error",
             "action" => "error403"
         ));
         return;
-    }    
+    }
     private function forwardToRolePage(){
         $this->dispatcher->forward(array(
             "controller" => "connexion",
             "action" => "role"
         ));
         return;
-    }    
-    
+    }
+
     private function estAuthentificationRequise($configuration){
-        
+
         if(!isset($this->getDi()->getConfig()->application->authentification) ||
            $this->getDi()->getConfig()->application->authentification == false){
             $authentification = false;
@@ -136,58 +136,58 @@ class SecurityPlugin extends Plugin
             $xmlPath = $this->getDi()->getConfig()->configurationsDir . $configuration . '.xml';
         }
         if(file_exists($xmlPath)){
-            $element = simplexml_load_file($xmlPath);   
-            if(isset($element->serveur) && isset($element->serveur->authentification) && isset($element->serveur->authentification->attributes()->nomProfilAnonyme)){
-               $this->getDi()->getConfig()->application->authentification->nomProfilAnonyme = (String) $element->serveur->authentification->attributes()->nomProfilAnonyme;
-               $this->session->set('nomProfilAnonyme', $this->getDi()->getConfig()->application->authentification->nomProfilAnonyme);
-            }         
+            $element = simplexml_load_file($xmlPath);
+            if(isset($element->serveur) && isset($element->serveur->authentification) && isset($element->serveur->authentification->attributes()->profilAnonyme->nom)){
+               $this->getDi()->getConfig()->application->authentification->profilAnonyme->nom = (String) $element->serveur->authentification->attributes()->profilAnonyme->nom;
+               $this->session->set('nomProfilAnonyme', $this->getDi()->getConfig()->application->authentification->profilAnonyme->nom);
+            }
         } else { //url externe
-            $element = simplexml_load_string(curl_file_get_contents($xmlPath)); 
-        }              
+            $element = simplexml_load_string(curl_file_get_contents($xmlPath));
+        }
 
         if(isset($element->attributes()->authentification)){
             $authentification = $element->attributes()->authentification;
         } else{
             $authentification = "true"; // Est-ce qu'on devrait forcer l'authentification par defaut? En attendant de décider, on le force par défaut.
-        }        
-        // Si la configuration demande que l'utilisateur soit authentifié et qu'il ne l'est pas encore, le rediriger vers la fenetre de connexion    
-        if($authentification == "true"){ 
+        }
+        // Si la configuration demande que l'utilisateur soit authentifié et qu'il ne l'est pas encore, le rediriger vers la fenetre de connexion
+        if($authentification == "true"){
             return true;
         }else{
             return false;
         }
 
-        
+
     }
-    
+
     private function estAuthentifie(){
         if($this->session->has("info_utilisateur")) {
             return $this->session->get("info_utilisateur")->estAuthentifie;
         }
         return false;
     }
-    
+
     private function estAnonyme(){
         if($this->session->has("info_utilisateur")) {
             return $this->session->get("info_utilisateur")->estAnonyme;
         }
         return false;
     }
-    
+
     private function estRoleSelectionneRequis(){
         if(isset($this->getDi()->getConfig()->application->authentification->activerSelectionRole)){
             return $this->getDi()->getConfig()->application->authentification->activerSelectionRole;
         }
         return false;
     }
-    
+
     private function estRoleSelectionne(){
         if($this->session->has("info_utilisateur")) {
             return !is_null($this->session->get("info_utilisateur")->profilActif);
         }
         return false;
     }
-    
+
     private function obtenirConfiguration($action, $dispatcher){
         if($action === "index"){
             $configuration = "defaut";
@@ -196,5 +196,5 @@ class SecurityPlugin extends Plugin
         }
         return $configuration;
     }
-    
+
 }
