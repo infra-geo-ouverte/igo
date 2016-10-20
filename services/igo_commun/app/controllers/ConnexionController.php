@@ -25,6 +25,7 @@ class ConnexionController extends Controller{
                     $utilisateur = new SessionController();
                     $this->session->set("info_utilisateur", $utilisateur);
                 }
+
                 $this->session->get("info_utilisateur")->identifiant = $authentificationModule->obtenirIdentifiantUtilisateur();
                 $this->session->get("info_utilisateur")->prenom  = $authentificationModule->obtenirPrenom();
                 $this->session->get("info_utilisateur")->nom  = $authentificationModule->obtenirNom();
@@ -79,7 +80,7 @@ class ConnexionController extends Controller{
 
             $username = $request->getPost('username', null);
             $password = $request->getPost('password', null);
-            $succes = $this->getDI()->get("authentificationModule")->authentification($username, $password);
+            $succes = $authentificationModule->authentification($username, $password);
             if (!$succes) {
                 $this->setErrors();
                 return $this->redirigeVersPage();
@@ -98,16 +99,7 @@ class ConnexionController extends Controller{
             $this->session->get("info_utilisateur")->nom  = $authentificationModule->obtenirNom();
             $this->session->get("info_utilisateur")->estAdmin = $authentificationModule->estAdmin();
             $this->session->get("info_utilisateur")->estPilote = $authentificationModule->estPilote();
-
-            $profils = $this->getDI()->get("authentificationModule")->obtenirProfils();
-            if (!$configuration->application->authentification->activerSelectionRole && $configuration->application->authentification->permettreAccesAnonyme) {
-                $anonymeProfil = IgoProfil::find("nom = '{$configuration->application->authentification->profilAnonyme->nom}'");
-                if(isset($anonymeProfil)){
-                    array_merge($profils, $anonymeProfil->toArray());
-                }
-            }
-            
-            $this->session->get("info_utilisateur")->profils = $profils;
+            $this->session->get("info_utilisateur")->profils = $authentificationModule->obtenirProfils();
 
             //L'utilisateur tente d'accéder au pilotage et il n'a pas le droit
             if (!$this->session->get("info_utilisateur")->estAdmin &&
@@ -119,20 +111,13 @@ class ConnexionController extends Controller{
                 return $this->redirigeVersPage();
             }
 
-            if($configuration->application->authentification->activerSelectionRole){
-                if(count($profils) === 1){
-                    $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
-                    return $this->redirigeVersPage();
-                }
-                if(!count($profils)){
-                    return $this->anonymeAction(TRUE);
-                }
-            }
+
         }
 
         //L'utilisateur doit sélectionner son rôle
         $profilObligatoire = isset($_GET['force-profil']) ? $_GET['force-profil'] : false;
-        if(isset($this->session->get("info_utilisateur")->estAuthentifie) && $this->session->get("info_utilisateur")->estAuthentifie &&
+        if(isset($this->session->get("info_utilisateur")->estAuthentifie) &&
+              $this->session->get("info_utilisateur")->estAuthentifie &&
             ($profilObligatoire || $configuration->application->authentification->activerSelectionRole)){
 
             $configuration = $this->getDI()->get("config");
@@ -146,9 +131,30 @@ class ConnexionController extends Controller{
             if(!$this->obtenirPageRedirection()){
                 $this->definirPageRedirection($request->getURI());
             }
+
+            if($configuration->application->authentification->activerSelectionRole){
+                $profils = $this->session->get("info_utilisateur")->profils;
+
+                if(!count($profils)){
+                    return $this->anonymeAction(TRUE);
+                }
+                else if (
+                  ($configuration->application->authentification->profilAnonyme->nom==$profils[0]['nom'])
+                  && (count($profils) === 1)
+                ){
+                  $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
+                  return $this->anonymeAction(TRUE);
+                }
+                else if(count($profils) === 1){
+                    $this->session->get("info_utilisateur")->profilActif = $profils[0]['id'];
+                    return $this->redirigeVersPage();
+                }
+            }
+
         } else{
             return $this->redirigeVersPage();
         }
+
         $configuration->application->baseUri = $configuration->uri->services . "igo_commun/public/";
     }
 
@@ -219,6 +225,7 @@ class ConnexionController extends Controller{
     public function anonymeAction($estAuthentifier = FALSE){
 
         $configuration = $this->getDI()->get("config");
+
         if($configuration->application->authentification->permettreAccesAnonyme){
             if(!$this->session->has("info_utilisateur")) {
                 $this->session->set("info_utilisateur", new SessionController());
@@ -246,9 +253,9 @@ class ConnexionController extends Controller{
             }
             return $this->redirigeVersPage();
         }
-        else if (isset($this->getDI()->get("config")->pageRedirectionAnonyme) && $estAuthentifier){
-            $this->definirPageRedirection($this->getDI()->get("config")->pageRedirectionAnonyme);
-            $this->redirigeVersPage();
+        else if (isset($configuration->application->authentification->profilAnonyme->pageRedirection) && $estAuthentifier){
+            $this->definirPageRedirection($configuration->application->authentification->profilAnonyme->pageRedirection);
+            return $this->redirigeVersPage();
         }
         else {
             $this->dispatcher->forward(array(
@@ -262,6 +269,7 @@ class ConnexionController extends Controller{
 
         $configuration = $this->getDI()->get("config");
         $page = $this->obtenirPageRedirection();
+
         if ($page) {
             if(!$configuration->application->authentification->activerSelectionRole){
                 $this->session->remove("page");
