@@ -14,13 +14,13 @@ try {
     $di->get('chargeurModules')->chargerApis($app);
 
     /**
-     * 
+     *
      * @param string $configuration
      */
     $app->get('/configuration/{configuration}', 'configuration');
 
 
-    function configuration($configuration){  
+    function configuration($configuration){
 
         global $di;
         global $app;
@@ -43,7 +43,7 @@ try {
         }
 
         if(!file_exists ($xmlPath) && !curl_url_exists($xmlPath)){
-            return envoyerResponse(404, "Not Found", "La configuration '{$configuration}' n'existe pas!");                    
+            return envoyerResponse(404, "Not Found", "La configuration '{$configuration}' n'existe pas!");
         }
 
         if($encoding === "json"){
@@ -69,18 +69,18 @@ try {
                 $avertissements = array();
                 foreach($result as $couche){
                     $coucheId =  $couche->attributes()->idbd->__toString();
-                          
-                    $igoVueCouche = is_numeric($coucheId) 
-                        ? IgoVueCouche::findFirst("id={$coucheId}") 
-                        : IgoVueCouche::findFirst("mf_layer_name='{$coucheId}'");     
-                  
+
+                    $igoVueCouche = is_numeric($coucheId)
+                        ? IgoVueCouche::findFirst("id={$coucheId}")
+                        : IgoVueCouche::findFirst("mf_layer_name='{$coucheId}'");
+
 
                     if(!$igoVueCouche){
-                        
-                        $avertissements[] = is_numeric($coucheId) 
+
+                        $avertissements[] = is_numeric($coucheId)
                             ? "La couche avec id : '{$coucheId}' n'existe pas!"
                             : "La couche avec mf_layer_name : '{$coucheId}' n'existe pas!";
-                        
+
                         $dom = dom_import_simplexml($couche);
                         $dom->parentNode->removeChild($dom);
                         continue;
@@ -100,7 +100,7 @@ try {
                                                             $config->mapserver['couchesCacheDir'] .
                                                             $igoVueCouche->mf_layer_name . '.map';
                             $protocole = 'WMS';
-                            
+
                             //Ne pas exposer la connexion
                             unset($igoVueCouche->connexion);
                         }else{
@@ -121,22 +121,22 @@ try {
                             if(!$couche->attributes()->$key){
                                 $couche->addAttribute($key, $value);
                             }
-                        }                        
+                        }
                     }else{
                          if ($debug){
                             $avertissements[] = "Vous n'avez pas les droits sur la couche {$igoVueCouche->mf_layer_meta_title} (id : {$igoVueCouche->id})";
-                        }                    
+                        }
                         $dom = dom_import_simplexml($couche);
-                        $dom->parentNode->removeChild($dom);       
+                        $dom->parentNode->removeChild($dom);
                     }
                 }
-                                
+
                 if(count($avertissements)){
                     foreach($avertissements as $value){
                         $element->addChild('avertissements', $value);
                     }
                 }
-                
+
                 $variableXml = array();
                 if(isset($config->variableXml)){
                     $variableXml = $config->variableXml;
@@ -144,42 +144,42 @@ try {
 
                 $json = json_encode($element);
                 $json = preg_replace_callback(
-                    "/\"{{(\w+?)}}\"/", 
+                    "/\"{{(\w+?)}}\"/",
                     function($m) use ($variableXml) {
                         if(!isset($variableXml[$m[1]])){
                             return "";
                         }
-                        return json_encode($variableXml[$m[1]]); 
+                        return json_encode($variableXml[$m[1]]);
                     },
                     $json
                 );
                 $json = preg_replace_callback(
-                    "/{{(\w+?)}}/", 
+                    "/{{(\w+?)}}/",
                     function($m) use ($variableXml) {
                         if(!isset($variableXml[$m[1]])){
                             return "";
                         }
-                        return json_encode($variableXml[$m[1]]); 
+                        return json_encode($variableXml[$m[1]]);
                     },
                     $json
                 );
-                echo $json;               
-            
+                echo $json;
+
             }else{
                 return envoyerResponse(404, "Not Found", "L'élément racine du fichier de configuration doit se nommer 'navigateur' !");
-            }                
-        }else{       
+            }
+        }else{
             return envoyerResponse(404, "Not Found", "L'encodage '{$encoding}' n'est pas supporté!");
         }
     };
-    
+
     $app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
 
     function redirigerRequetesHtml2Canvas() {
         global $app;
 
         if(!utilisateurActuelEstAuthentifie()) {
-            return envoyerResponse(401, "", "Non-Autorisees");  
+            return envoyerResponse(401, "", "Non-Autorisees");
         }
 
         $cheminServices = '../../../services';
@@ -203,7 +203,7 @@ try {
         global $app;
         $igoContexte = IgoContexte::findFirst("id={$contexteId}");
         if(!$igoContexte){
-            return envoyerResponse(404, "Not Found", "Le contexte '{$contexteId}' n'existe pas!");  
+            return envoyerResponse(404, "Not Found", "Le contexte '{$contexteId}' n'existe pas!");
         }
         return $igoContexte;
     }
@@ -217,11 +217,11 @@ try {
         global $app;
         $igoContexte = IgoContexte::findFirst("code='{$contexteCode}'");
         if(!$igoContexte){
-            return envoyerResponse(404, "Not Found", "Le contexte '{$contexteCode}' n'existe pas!");     
+            return envoyerResponse(404, "Not Found", "Le contexte '{$contexteCode}' n'existe pas!");
         }
         return $igoContexte;
     }
-    
+
     /**
      *
      * @return ???
@@ -245,7 +245,7 @@ try {
         $app->response->setContentType('application/json', 'UTF-8');
         $app->response->setContent(json_encode($error));
 
-        return $app->response->send();    
+        return $app->response->send();
     }
 
     /**
@@ -256,7 +256,7 @@ try {
         global $app;
         // Construire un tableau associatif de permissions avec le id de la couche ou groupe de couche comme clef.
         $authentificationModule = $app->getDI()->get("authentificationModule");
-        
+
         if($authentificationModule == null){
             return null;
         }
@@ -265,7 +265,7 @@ try {
             return envoyerResponse(401, "Unauthorized", "Vous n'êtes pas authentifié!");
         }
         return $authentificationModule;
-    }  
+    }
 
     /**
      * Indique si l'utilisateur courant est authentifié
@@ -279,7 +279,7 @@ try {
             return false;
         }
         return $session->get("info_utilisateur")->estAuthentifie;
-    }  
+    }
 
     /**
      * Indique si l'utilisateur courant est anonyme
@@ -331,8 +331,8 @@ try {
             if($nomProfilAnonyme === null){
                 $config = $app->getDI()->get("config");
                 if(isset($config->application->authentification)){
-                    $nomProfilAnonyme = $config->application->authentification->nomProfilAnonyme;
-                }      
+                    $nomProfilAnonyme = $config->application->authentification->profilAnonyme->nom;
+                }
             }
 
             if(isset($nomProfilAnonyme)){
@@ -342,8 +342,8 @@ try {
                     if(isset($tAP[0]) && isset($tAP[0]['id'])){
                         $anonymeId = $tAP[0]['id'];
                         if($anonymeId !== $profiLActif){
-                            return (string) '0,' . $anonymeId . ',' . $profiLActif;    
-                        }                        
+                            return (string) '0,' . $anonymeId . ',' . $profiLActif;
+                        }
                     }
                 }
             }
@@ -359,19 +359,19 @@ try {
 
         return (string) '0';
     }
-    
+
     /**
      *
      * @return
      */
     function obtenirPermission($couche_id){
         global $app;
-        
+
         if(is_null($app->getDI()->getConfig()->database)) {
             return null;
         }
-       
-        $conditions = "profil_id in (" . obtenirUtilisateurProfilsInQuery() . ") AND (couche_id = ?1)";        
+
+        $conditions = "profil_id in (" . obtenirUtilisateurProfilsInQuery() . ") AND (couche_id = ?1)";
         $parameters = array(1 => $couche_id);
         $permission = IgoVuePermissionsPourCouches::findFirst(array(
             $conditions,
@@ -382,13 +382,13 @@ try {
         return $permission;
 
     }
-    
+
     /**
      *
      * @param string $coucheId
      * @return
      */
-    function obtenirGroupeCouche($coucheId){ 
+    function obtenirGroupeCouche($coucheId){
         $igoGroupeCouches = IgoGroupeCouche::find("couche_id={$coucheId}");
 
         $in = array();
@@ -396,8 +396,8 @@ try {
             $in[] = $igoGroupeCouche->groupe_id;
         }
         return implode(',', $in);
-    } 
-    
+    }
+
     /**
      *
      * @param int $coucheId
@@ -407,7 +407,7 @@ try {
 
 
     function couche ($coucheId){
-        
+
         global $di;
         global $app;
 
@@ -432,20 +432,20 @@ try {
 
                 if($couche->connexion_type == 'POSTGIS' || $couche->connexion_type == null){
 
-                    $couche->mf_map_meta_onlineresource = 
+                    $couche->mf_map_meta_onlineresource =
                                                         $config->mapserver['host'].
                                                         $config->mapserver['mapserver_path'] .
                                                         $config->mapserver['executable'].
                                                         $config->mapserver['mapfileCacheDir'] .
                                                         $config->mapserver['couchesCacheDir'] .
                                                         $couche->mf_layer_name . '.map';
-                    $couche->protocole = 'WMS';  
-                    
+                    $couche->protocole = 'WMS';
+
                     //Ne pas exposer la connexion
                     unset($couche->connexion);
-                
+
                 }else{
-                
+
                     $couche->mf_map_meta_onlineresource = $couche->connexion;
                     $couche->protocole = $couche->connexion_type;
                     $couche->nom = $couche->mf_layer_name;
@@ -464,7 +464,7 @@ try {
             }
 
         }
-        
+
         if(count($avertissements)){
             $reponse = array('couches'=>$couches, 'avertissements'=>$avertissements);
         }else{
@@ -473,8 +473,8 @@ try {
 
         $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
         echo json_encode($reponse);
-    }; 
-    
+    };
+
     /**
      *
      * @param ??? $contexteCode
@@ -506,7 +506,7 @@ try {
     };
 
 
-   
+
 
 
     /**
@@ -527,12 +527,12 @@ try {
         } else {
             $order = "layer_a_order, mf_layer_meta_group_title, mf_layer_meta_title";
         }
-        
+
         $contexteId = $contexte->id;
         $contexteCouches = IgoVueContexteCoucheNavigateur::find(array(
-                "conditions"=>"contexte_id=$contexteId", 
+                "conditions"=>"contexte_id=$contexteId",
                 "order"=>$order
-            ));        
+            ));
 
         $authentificationModule = obtenirAuthentificationModule();
         $array = array();
@@ -579,7 +579,7 @@ try {
                         if($test==1&&isset($matches[1]))$couche->wms_timeextent = $matches[1];
                     }
                 }else{
-                    if ($debug){                 
+                    if ($debug){
                         $avertissements[] = "Vous n'avez pas les droits sur la couche '{$couche->mf_layer_meta_title}' (id : {$couche->couche_id})";
                     }
                 }
@@ -587,9 +587,9 @@ try {
         }
 
         $contexte->couches = $array;
-        
+
         if(count($avertissements)){
-            $contexte->avertissements = array('avertissements'=>$avertissements);    
+            $contexte->avertissements = array('avertissements'=>$avertissements);
         }
 
         $app->response->setContentType('application/json; charset=UTF-8')->sendHeaders();
@@ -618,7 +618,7 @@ try {
             $data = array();
             foreach($datain as $key => $value){
                 $data[strtoupper($key)] = $value;
-            }            
+            }
             $service = $filter->sanitize($data["SERVICE"], array("string", "upper"));
             $request = $filter->sanitize($data["REQUEST"], array("string", "upper"));
         }else{
@@ -626,7 +626,7 @@ try {
             error_log("not a get or a post?");
             return;
         }
-        
+
         if($service === "WMS"){
 
             $config = $app->getDI()->get("config");
@@ -638,7 +638,7 @@ try {
 
             $method = $httprequest->getMethod();
             $data = $httprequest->get();
-            $data["MAP"] = $igoContexte->getMapfilePath();          
+            $data["MAP"] = $igoContexte->getMapfilePath();
             $response = null;
             switch($request){
                 case "GETCAPABILITIES":
@@ -651,7 +651,7 @@ try {
                 case "GETLEGENDGRAPHIC":
                     $authentificationModule = obtenirAuthentificationModule();
                     if($authentificationModule === null){
-                        $response = proxy_request($mapserverPath, $data , $method);                        
+                        $response = proxy_request($mapserverPath, $data , $method);
                     }else{
                         if(isset($data["LAYERS"])){
                             $couches = explode(",", $data["LAYERS"]);
@@ -682,7 +682,7 @@ try {
                                 die("Forbidden");
                             }
                         }
-                        $response = proxy_request($mapserverPath, $data , $method);           
+                        $response = proxy_request($mapserverPath, $data , $method);
                     }
                     break;
                 default:
@@ -699,7 +699,7 @@ try {
             die("Seul les services WMS sont pris en charge par ce proxy.");
         }
     }
-    
+
     /**
      *
      * @param string
@@ -757,7 +757,7 @@ try {
                 // receive the results of the request
                 $result .= fgets($fp, 128);
             }
-        }else{ 
+        }else{
             return array(
                 'status' => 'err',
                 'error' => "$errstr ($errno)"
@@ -782,7 +782,7 @@ try {
     }
 
     $app->map('/service[/]?{service}',"proxyNavigateur")->via(array('GET','POST'));
-  
+
     /**
      *
      * @param
@@ -801,7 +801,7 @@ try {
         $ip = $tabIPs[0];
         return $ip;
     }
-    
+
     /**
      *
      * @return
@@ -826,7 +826,7 @@ try {
         if($files!=null) {
             $options['files'] = $files;
         }
-        
+
         $restService = true;
         if($service == null){
             $restService = false;
@@ -838,7 +838,7 @@ try {
         unset($paramsGet['_url']);
         unset($paramsPost['_client_IP']);
         unset($paramsGet['_client_IP']);
-            
+
         //Session
         $session = $app->getDI()->getSession();
         if(!$session->has("info_utilisateur")){
@@ -846,15 +846,15 @@ try {
             http_response_code(401);
             die("Vous devez être connecté pour utiliser ce service");
         }
-        
+
         $igoController = new IgoController();
-        $auth = $igoController->obtenirChaineConnexion($service, $restService);  
-        
+        $auth = $igoController->obtenirChaineConnexion($service, $restService);
+
         $authtmp['auth'] = $auth;
         $options = array_merge($options, $authtmp);
-        
+
         $url = $options['auth']['url'];
-   
+
         if(isset($url) && is_string($url) && $url !== ""){
             if(substr($url, 0, 1) === "/"){
                 $url = "http://localhost".$url;
@@ -948,8 +948,8 @@ try {
             $url = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $url);
         }
         proxyRequestNavigateur($url, $paramsPost, $method, $options);
-    };    
-    
+    };
+
     /**
      *
      * @param string $url
@@ -958,13 +958,13 @@ try {
      * @param
      * @return
      */
-    function proxyRequestNavigateur($url, $data, $method, $options) {         
+    function proxyRequestNavigateur($url, $data, $method, $options) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);  
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 
         if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
             curl_setopt($ch, CURLOPT_POST, 1 );
@@ -1009,22 +1009,22 @@ try {
         if(isset($_COOKIE['sessionIGO']) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
             $strCookie = "sessionIGO=" . $_COOKIE['sessionIGO'];
             session_write_close();
-            curl_setopt( $ch, CURLOPT_COOKIE, $strCookie ); 
+            curl_setopt( $ch, CURLOPT_COOKIE, $strCookie );
         }
 
         $igoController = new IgoController();
-        $ch = $igoController->proxyChaineConnexion($ch, $url, $method, $options);  
-           
+        $ch = $igoController->proxyChaineConnexion($ch, $url, $method, $options);
+
         $result = curl_exec ($ch);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-     
+
         curl_close ($ch);
 
         $contentsTypesAVerifier = array(
-            "application/xml", 
-            "application/vnd.ogc.wms_xml", 
-            "application/vnd.ogc.gml", 
+            "application/xml",
+            "application/vnd.ogc.wms_xml",
+            "application/vnd.ogc.gml",
             "text/xml; subtype=gml/3.1.1"
             );
 
@@ -1037,7 +1037,7 @@ try {
         }
 
         if(isset($options['encodage'])){
-            $contentType = $contentType . "; charset=" . $options['encodage']; 
+            $contentType = $contentType . "; charset=" . $options['encodage'];
         }
         header('Content-type: ' . $contentType);
 
