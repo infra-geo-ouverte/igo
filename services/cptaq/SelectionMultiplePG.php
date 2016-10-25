@@ -6,10 +6,23 @@
  * and open the template in the editor.
  */
 
+$layer = $_GET["layer"];
+if (empty($layer)) {
+	pg_close($dbconn);
+        die('layer manquant');
+}
 
 //$dbconn = pg_connect("host=geo-db-dev.cptaq.local dbname=adresse_quebec user=demeter password=D3m3t3r")
-$dbconn = pg_connect("host=10.17.2.41 dbname=geobase user=lecture password=lecture")        
+//$dbconn = pg_connect("host=10.17.2.41 dbname=geobase user=lecture password=lecture")
+
+if ($layer <> 'v_adresse_igo') {
+    $dbconn = pg_connect("host=svrvcartoprod1 dbname=geobase user=lecture password=lecture") 
     or die('Connexion impossible : ' . pg_last_error());
+} else {
+    $dbconn = pg_connect("host=geo-db.cptaq.local dbname=adresse_quebec user=demeter password=D3m3t3r") 
+    or die('Connexion impossible : ' . pg_last_error());    
+}
+
 
 $epsg = $_GET["epsg"];
 if (empty($epsg)) {
@@ -20,12 +33,6 @@ $bbox = $_GET["bbox"];
 if (empty($bbox)) {
 	pg_close($dbconn);
         die('bbox manquant');
-}
-
-$layer = $_GET["layer"];
-if (empty($layer)) {
-	pg_close($dbconn);
-        die('layer manquant');
 }
 
 $titre = $_GET["titre"];
@@ -44,10 +51,10 @@ $query =    'SELECT gid,
              valeur1, 
              valeur2,
              \'' . $titre . '\' as valeur3
-             
-             FROM (SELECT ST_Transform(ST_SetSRID(the_geom,32200), ' . $epsg . ') as geom, gid, valeur1, valeur2
-             FROM ' . $layer . '
-             WHERE ST_Intersects (the_geom, ST_SetSRID(ST_Transform(ST_SetSRID(ST_Envelope(\'LINESTRING(' .  $bbox . ')\'::geometry),' . $epsg . '),32200),-1))) as foo';
+
+             FROM (SELECT the_geom as geom, gid, valeur1, valeur2 
+             FROM (select * FROM  ' . $layer . ' where the_geom && ST_SetSRID(ST_Envelope(\'LINESTRING(' .  $bbox . ')\'::geometry),3857)) as foo2
+             WHERE ST_Intersects (the_geom, ST_SetSRID(ST_Envelope(\'LINESTRING(' .  $bbox . ')\'::geometry),3857))) as foo';
 
 //             Avec ST_MakeEnvelope
 //             WHERE ST_Intersects (ST_SetSRID(the_geom,32200) , ST_Transform(ST_MakeEnvelope(' . $bbox . ',' . $epsg . '),32200))) as foo';  
