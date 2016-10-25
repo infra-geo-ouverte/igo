@@ -13,7 +13,7 @@ try {
     //TODO
     //faire un module pour la retro-compatibilité, pour ce genre de code.
     if(isset($config->application->authentification->nomProfilAnonyme)){
-      $config->application->authentification->profil = array('nom'=>$config->application->authentification->nomProfilAnonyme);
+      $config->application->authentification->profilAnonyme = array('nom'=>$config->application->authentification->nomProfilAnonyme);
     }
 
  	$application->registerModules($di->get('chargeurModules')->obtenirDefinitionModules());
