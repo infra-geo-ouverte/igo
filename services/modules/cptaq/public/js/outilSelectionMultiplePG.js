@@ -69,15 +69,16 @@ define(['navigateur','panneau','point','marqueurs','outil', 'aide','occurence', 
 
         for(var l=0; l<layers.length; ++l) {
             var layer = layers[l];
-            if (layer.estActive() && layer.estDansPortee() && layer.options.selectionmultiplepg) {
+            if (layer.estActive() && layer.estDansPortee() && layer.options.selectionmultiplepg != null) {
 //                var url =  this.options.url + "?bbox=" + minXY.lon + "," + minXY.lat + "," + maxXY.lon + "," + maxXY.lat +  //bbox pour utiliser avec ST_MakeEnvelope
                 var url =  this.options.url + "?bbox=" + minXY.lon + " " + minXY.lat + ", " + maxXY.lon + " " + maxXY.lat + 
                 "&epsg=" + this.carte.projection.substr(5) + 
-                "&layer=" + layer.options.nom_table +
+                "&layer=" + layer.options.selectionmultiplepg +
                 "&titre=" + layer.options.titre;
                 
-                console.log(url);
-
+                //console.log(layer.options.selectionmultiplepg);
+                //alert(layer.options.selectionmultiplepg);
+                
                 Ext.Ajax.request({
                     url : url,
                     method: 'GET',   
@@ -137,6 +138,12 @@ define(['navigateur','panneau','point','marqueurs','outil', 'aide','occurence', 
                 propriete: 'Document'
             }]
         };
+        
+        //Retirer la sélection par numéro de dossier si existante
+        var vecteur = this.carte.gestionCouches.obtenirCouchesParTitre('Dossier sélectionné')[0];
+        if(vecteur !== undefined){vecteur.enleverTout();}
+        //vecteur.enleverTout();;
+
    };
 
     OutilSelectionMultiplePG.prototype.OutilSelectionMultiplePG = function(response){
@@ -173,7 +180,7 @@ define(['navigateur','panneau','point','marqueurs','outil', 'aide','occurence', 
 
             var wkt = new OpenLayers.Format.WKT();
             var featureOL = wkt.read(geom);          
-            var occurences = new Occurence(featureOL.geometry,{Couche: valeur3, Document: valeur1.replace("WWW",  Aide.obtenirCheminRacine()) ,Information: valeur2});
+            var occurences = new Occurence(featureOL.geometry,{Couche: valeur3, Document: valeur1.replace("PATH2ICON",  Aide.obtenirCheminRacine()) ,Information: valeur2});
             vecteur.ajouterOccurence(occurences);
         }
 
