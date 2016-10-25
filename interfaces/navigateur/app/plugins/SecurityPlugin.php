@@ -137,8 +137,8 @@ class SecurityPlugin extends Plugin
         }
         if(file_exists($xmlPath)){
             $element = simplexml_load_file($xmlPath);
-            if(isset($element->serveur) && isset($element->serveur->authentification) && isset($element->serveur->authentification->attributes()->profilAnonyme->nom)){
-               $this->getDi()->getConfig()->application->authentification->profilAnonyme->nom = (String) $element->serveur->authentification->attributes()->profilAnonyme->nom;
+            if(isset($element->serveur) && isset($element->serveur->authentification) && isset($element->serveur->authentification->children()->profilAnonyme->attributes()->nom)){
+               $this->getDi()->getConfig()->application->authentification->profilAnonyme->nom = (String) $element->serveur->authentification->children()->profilAnonyme->attributes()->nom;
                $this->session->set('nomProfilAnonyme', $this->getDi()->getConfig()->application->authentification->profilAnonyme->nom);
             }
         } else { //url externe
