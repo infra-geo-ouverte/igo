@@ -74,13 +74,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         opt = opt || {};
         if (couche._getLayer()) {
             this.listeCouches.push(couche);
-            if(couche.obtenirTypeClasse() === "WMS"){
-                setTimeout(function() {
-                    that._ajouterCoucheCallbackEnd(couche, opt);
-                }, 1)
-            } else {
-                this._ajouterCoucheCallbackEnd(couche, opt);
-            }
+            this._ajouterCoucheCallbackEnd(couche, opt);
         };
     };
 
@@ -155,6 +149,23 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
     };
     
     /** 
+    * Obtenir la liste des couches ayant le nom donné en paramètre.
+    * @method 
+    * @name GestionCouches#obtenirCouchesParNom
+    * @param {String} nom Nom recherché
+    * @returns {Tableau} Tableau de {@link Couche}
+    */
+    GestionCouches.prototype.obtenirCouchesParNom = function(nom) {
+        var couches = [];
+        $.each(this.listeCouches, function(index, value){
+            if(value.obtenirNom() === nom){
+                couches.push(value);
+            }
+        });
+        return couches;
+    };
+
+    /** 
     * Obtenir la liste des couches avec l'aide d'un regex
     * @method 
     * @name GestionCouches#trouverCouches
@@ -165,6 +176,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         opt = opt || {};
         var testerTitre = opt.testerTitre !== false ? true : false;
         var testerGroupe = opt.testerGroupe !== false ? true : false;
+        var testerNom = opt.testerNom !== false ? true : false;
         
         if(typeof regex === "string"){
             var ignorerCase = opt.ignorerCase !== false ? 'i' : '';
@@ -185,7 +197,7 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
         
         var couches = [];
         $.each(this.listeCouches, function(index, value){
-            if((testerTitre && regex.test(value.obtenirTitre())) || (testerGroupe && regex.test(value.obtenirGroupe()))){
+            if((testerTitre && regex.test(value.obtenirTitre())) || (testerGroupe && regex.test(value.obtenirGroupe())) || (testerNom && regex.test(value.obtenirNom()))){
                 couches.push(value);
             }
         });
@@ -426,9 +438,28 @@ define(['evenement', 'couche', 'blanc', 'limites', 'aide'], function(Evenement, 
                 
             if(!couche.estFond() && couche.estActive()){
                 couche.desactiver();
+                couche.gererStyleParentEnfantSelect();
             }
         }); 
     };
+    
+    /**
+     * Désélectionner toutes les couches WMTS qui ne sont pas des fonds de carte
+     * @method
+     * @name GestionCouches#deselectionnerCouchesWMTS
+     * 
+     */
+    GestionCouches.prototype.deselectionnerCouchesWMTS = function(){
+      
+        var tabCouches = this.obtenirCouchesParType("WMTS");
+        
+        $.each(tabCouches, function(index, couche){
+                
+            if(!couche.estFond() && couche.estActive()){
+                couche.desactiver();
+            }
+        }); 
+    };    
       
     /** 
      * Création de l'object GestionCouches.Controles

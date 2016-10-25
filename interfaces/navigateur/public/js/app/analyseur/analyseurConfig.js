@@ -1,16 +1,16 @@
-/** 
+/**
  * Module pour l'objet {@link AnalyseurConfig}.
  * @module analyseurConfig
- * @requires aide 
- * @requires navigateur 
- * @requires carte 
- * @requires contexte 
+ * @requires aide
+ * @requires navigateur
+ * @requires carte
+ * @requires contexte
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
 
 define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], function(Aide, Navigateur, Carte, Contexte, Evenement, Serveur) {
-    /** 
+    /**
      * Création de l'object AnalyseurConfig.
      * @constructor
      * @name AnalyseurConfig
@@ -18,9 +18,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
      * @alias analyseurConfig:AnalyseurConfig
      * @requires analyseurConfig
      * @param {object} options Liste des options possibles
-     * @param {object | string} [options.configuration='defaut'] La 
-     * configuration dans le format json en paramètre ou appelle l'api 
-     * ([api]/configuration/[options.configuration]) pour obtenir 
+     * @param {object | string} [options.configuration='defaut'] La
+     * configuration dans le format json en paramètre ou appelle l'api
+     * ([api]/configuration/[options.configuration]) pour obtenir
      * le json ou le xml.  (voir la documentation du XML)
      * @param {string} [options.configuration] todo: à complèter
      * @param {function} [options.callback] Function appelée lorsque l'initialisation
@@ -38,9 +38,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
     };
 
 
-    /** 
-     * Initialisation de l'object AnalyseurConfig. 
-     * @method 
+    /**
+     * Initialisation de l'object AnalyseurConfig.
+     * @method
      * @private
      * @name AnalyseurConfig#_init
     */
@@ -48,11 +48,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         this.options = $.extend({}, this.defautOptions, this.options);
     };
 
-    /** 
+    /**
      * Sert à charger le navigateur selon la configuration donnée lors de la création de {@link AnalyseurConfig}.
-     * Si la configuration est un string, appelle l'api ([api]/configuration/[options.configuration]) pour obtenir 
+     * Si la configuration est un string, appelle l'api ([api]/configuration/[options.configuration]) pour obtenir
      * le json ou le xml.
-     * @method 
+     * @method
      * @name AnalyseurConfig#charger
      * @returns {Navigateur} Le navigateur construit: @link Navigateur
     */
@@ -79,10 +79,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         return this.igo;
     };
 
-    /** 
-     * Fonction appelée si l'api retourne un erreur lors de l'obtention de la configuration. 
+    /**
+     * Fonction appelée si l'api retourne un erreur lors de l'obtention de la configuration.
      * Affiche les erreurs obtenues.
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_chargementError
     */
@@ -93,10 +93,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         Aide.afficherMessage("Erreur chargement de la configuration XML", message, null, 'ERROR');
     };
 
-    /** 
-     * Fonction appelée si la configuration est obtenue. 
+    /**
+     * Fonction appelée si la configuration est obtenue.
      * @param {object} config La configuration en format json ou xml
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_chargementConfigSuccess
     */
@@ -194,18 +194,18 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                 }
 
                 that.igo.nav.carte.gestionCouches.enleverToutesLesCouches();
-                that._analyserCouches(groupeCouches);                     
+                that._analyserCouches(groupeCouches);
             });
         }
     }
-    
-    /** 
+
+    /**
      * Convertie la configuration xml en json.
      * @param {object} xml Configuration dans le format xml.
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_chargementConfigSuccess
-     * @returns {object} Configuration dans le format json 
+     * @returns {object} Configuration dans le format json
     */
     AnalyseurConfig.prototype._xml2Json = function(xml) {
         var obj = {};
@@ -246,12 +246,12 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         return obj;
     };
 
-    /** 
+    /**
      * Obtenir les modules requis pour le json en paramètre
      * @param {object} json Partie de la configuration à analyser
      * @param {tableau} [modulesReq = []] Tableau des modules requis
      * @param {entier} [niveauForage = 1] Nombre de niveau du json à analyser
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserRequire
      * @returns {array} Tableau des modules requis
@@ -304,12 +304,12 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         return modulesReq;
     };
 
-    /** 
+    /**
      * Analyser la section "panneaux" de la config
      * @param {object} json Partie de la configuration concernant les panneaux
      * @param {Panneau|Navigateur} [panneauOccurence = Navigateur] Parent des panneaux
      * @method
-     * @private 
+     * @private
      * @name AnalyseurConfig#_analyserRequire
     */
     AnalyseurConfig.prototype._analyserPanneaux = function(json, panneauOccurence) {
@@ -368,17 +368,22 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         });
     };
 
-    /** 
+    /**
      * Charger le contexte enregistré
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserContexte
     */
     AnalyseurConfig.prototype._analyserContexte = function() {
         if (this.fin.panneaux && this.fin.couches && this.fin.actions) {
-            var contexte = new Contexte();
-            contexte.charger();
-            this._fin();
+            if(!window.arboLoading) {
+                var contexte = new Contexte();
+                contexte.charger();
+                this._fin();
+            } else {
+                var that = this;
+                setTimeout(function(){that._analyserContexte()}, 500);
+            }
         }
     };
 
@@ -396,12 +401,12 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         }
         this._analyserAvertissements();
     };
-    
-    /** 
+
+    /**
      * Analyser la section "outils" de la config
      * @param {object} json Partie de la configuration concernant les outils
      * @param {BarreOutil|OutilMenu} [outilOccurence] Parent des outils
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserOutils
     */
@@ -423,7 +428,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             } else {
                 arrayGroupeOutils = [json];
             }
-            
+
             arrayGroupeOutils = $.isArray(arrayGroupeOutils) ? arrayGroupeOutils : [arrayGroupeOutils];
             $.each(arrayGroupeOutils, function(key, groupeOutils) {
                 var listOutils = [];
@@ -456,7 +461,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                         }
                         if(options.actionScope){
                             options.actionScope = that._pathShortToLong(options.actionScope);
-                        }                   
+                        }
                         var outilOccurence = new Igo.Outils[classe](options);
                         listOutils.push(outilOccurence);
 
@@ -476,10 +481,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         });
     };
 
-    /** 
+    /**
      * Analyser la section "couches" de la config
      * @param {object} json Partie de la configuration concernant les couches
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserCouches
     */
@@ -508,14 +513,14 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                 if (!couches || !couches.couche) {
                     return true;
                 };
-                
+
                 var couchesOptions = couches["@attributes"] || couches["attributs"];
                 var propriete = $.isArray(couches.couche) ? couches.couche : [couches.couche];
                 $.each(propriete, function(key, couche) {
                     var options = couche["@attributes"] || couche["attributs"];
                     if(options.infoAction){
                         options.infoAction = that._pathShortToLong(options.infoAction);
-                    }   
+                    }
                     options.droit = options.droit || couche.droit;
                     options = $.extend({}, couchesOptions, options);
                     var classe = options.protocole;
@@ -528,21 +533,21 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                     }
                 });
             });
-            
+
             if (listCouches.length === 0 || !listCouches[0].estFond() || listCouches[0].obtenirTypeClasse()==='Google') {
                 that._ajouterCoucheBlanc(listCouches);
                 return true;
             }
-            
+
             that.listCouchesApresContexte = listCouchesApresContexte;
             that._analyserCouchesSuccess(listCouches);
         });
     };
 
-    /** 
+    /**
      * Appeler lorsque l'analyse des couches est terminée
      * @param {tableau} listCouches Tableau de {@link Couche} à ajouter à la carte
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserCouches
     */
@@ -555,10 +560,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         }
     };
 
-    /** 
+    /**
      * Ajouter la couche 'Blanc' lorsque la carte n'a pas de couche de fond.
      * @param {tableau} listCouches Tableau de {@link Couche} à ajouter à la carte
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_ajouterCoucheBlanc
     */
@@ -567,11 +572,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         this._analyserCouchesSuccess(listCouches);
     };
 
-    /** 
+    /**
      * Sert à charger le contexte de la BD. Utilise le contexte.attributes.id ou le contexte.attributes.code du json
      * Si id, appelle l'api ([api]/contexte/[contexte.attributes.id]) pour obtenir les couches de la bd.
      * Si code, appelle l'api ([api]/contexteCode/[contexte.attributes.code]) pour obtenir les couches de la bd.
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserContexteBD
     */
@@ -605,7 +610,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         } else if(this.options.contexteId) {
             contexteId = this.options.contexteId;
         }
-   
+
         var contexteUrl;
         if (contexteId && contexteId !== "null") {
             contexteUrl = Aide.obtenirConfig('uri.api')+"contexte/" + contexteId;
@@ -613,7 +618,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             contexteUrl = Aide.obtenirConfig('uri.api')+"contexteCode/" + contexteCode;
         } else {
             this.fin.couches = true;
-            this._analyserContexte();
+            setTimeout(function () {
+                that.igo.nav.carte.gestionCouches.ajouterCouches(that.listCouchesApresContexte);
+                that._analyserContexte();
+            }, 1);
+
             return true;
         }
 
@@ -629,10 +638,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         });
     };
 
-    /** 
-     * Fonction appelée si l'api retourne un erreur lors de l'obtention des couches du contexte. 
+    /**
+     * Fonction appelée si l'api retourne un erreur lors de l'obtention des couches du contexte.
      * Affiche les erreurs obtenues.
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserContexteBDError
     */
@@ -645,10 +654,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         this._analyserContexte();
     };
 
-    /** 
+    /**
      * Analyser les couches reçues de la BD
      * @param {object} data Json des couche à ajouter à la carte
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserContexteBDSuccess
     */
@@ -705,7 +714,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             if(Aide.obtenirConfig("uri.mapserver")){
                 if(Aide.obtenirConfig("uri.mapserver") !== true){
                     options.url = Aide.obtenirConfig("uri.mapserver") + options.url;
-                }            
+                }
             } else {
                 options.url = Aide.obtenirConfig("uri.api") + "wms/" + data.id;
             }
@@ -769,10 +778,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         return objet;
     }
 
-    /** 
+    /**
      * Analyser la section "declencheurs" de la config
      * @param {object} json Partie de la configuration concernant les déclencheurs
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserDeclencheurs
     */
@@ -796,10 +805,10 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         });
     };
 
-    /** 
+    /**
      * Analyser la section "actions" de la config
      * @param {object} json Partie de la configuration concernant les actions
-     * @method 
+     * @method
      * @private
      * @name AnalyseurConfig#_analyserActions
     */
@@ -821,7 +830,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                 if (aJSExt !== -1) {
                     source = source.substr(0, aJSExt);
                 }
-                
+
                 var paths = {};
                 paths[id] = source;
                 require.ajouterConfig({
@@ -837,11 +846,11 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
     };
 
 
-    /** 
+    /**
      * Sert à charger une couche de la bd selon son ID
      * Appelle l'api ([api]/couche/[coucheId]) pour obtenir les informations sur la couche
      * @param {string} coucheId Le ID de la couche
-     * @method 
+     * @method
      * @name AnalyseurConfig#_analyserCoucheBD
     */
     AnalyseurConfig.prototype._analyserCoucheBD = function(coucheId) {
@@ -854,12 +863,12 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
             dataType: 'json'
         });
     };
-    
-    /** 
+
+    /**
      * Sert à analyser les avertissements subvenus lors du chargement de la config
      * Affiche la liste des avertissements à l'utilisateur
      * @param {tableau} avertissements Tableau d'avertissements (string) à afficher.
-     * @method 
+     * @method
      * @name AnalyseurConfig#_analyserAvertissements
     */
     AnalyseurConfig.prototype._analyserAvertissements = function(avertissements){
@@ -873,7 +882,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                Aide.afficherMessageConsole(avertissement);
             });
 
-            
+
         }
     };
 

@@ -379,9 +379,59 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             }
             
         }
-        oWindowMeasr.show();
+        this.oWindowMeasr = oWindowMeasr;
+        this.afficherFenetre();
     };
     
+    /**
+     * Afficher la fenêtre de l'outil
+     * @method
+     * @returns {bool} true/false si la fenêtre a été affiché ou non
+     */
+    OutilMesure.prototype.afficherFenetre = function() {
+        
+        if(this.oWindowMeasr)
+        {
+            this.oWindowMeasr.show();
+            return true;
+        }
+        else
+            return false;
+    };
+    
+    /**
+     * Masquer la fenêtre de l'outil
+     * @method
+     * @returns {bool} true/false si la fenêtre a été masqué ou non
+     */
+    OutilMesure.prototype.cacherFenetre = function() {
+        if(this.oWindowMeasr)
+        {
+            this.oWindowMeasr.hide();
+            return true;
+        }
+        else 
+            return false;
+    };
+    
+    /**
+     * Positionner la fenêtre selon les coordonnées gauche, haut
+     * @method
+     * @param {integer} gauche Coordonnée de position gauche de la fenêtre
+     * @param {integer} haut Coordonnée de la position droite de la fenêtre
+     */
+    OutilMesure.prototype.positionnerFenetre = function(gauche,haut) {
+        this.oWindowMeasr.setPosition(gauche, haut);
+    };
+    
+    /**
+     * Obtenir l'objet de la fenêtre
+     * @method
+     * @returns {object} Objet Ext de la fenêtre
+     */
+    OutilMesure.prototype.obtenirFenetre = function() {
+        return this.oWindowMeasr;
+    }
 
 
     return OutilMesure;

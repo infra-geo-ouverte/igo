@@ -38,6 +38,9 @@ options.requireConfigFct = function(version, debug){
             hbars : "libs/require/src/hbars",
             handlebars: '{{this.config.uri.librairies}}/handlebars/handlebars',
             jquery: debug ? "{{this.config.uri.librairies}}/jquery/jquery" : "{{this.config.uri.librairies}}/jquery/jquery.min",
+            html2canvas: "{{this.config.uri.librairies}}/html2canvas/dist/html2canvas",
+            html2canvassvg: "{{this.config.uri.librairies}}/html2canvas/dist/html2canvas.svg",
+            es6promise: "{{this.config.uri.librairies}}/es6-promise/es6-promise.min",
             proj4js: 'libs/proj/Proj4js',
             epsgDef: 'libs/proj/epsgDef',
             build: "js/main-build"

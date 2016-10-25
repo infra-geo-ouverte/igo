@@ -8,8 +8,7 @@
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
-
-define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'libs/extension/OpenLayers/DrawFeatureEx', 'libs/extension/OpenLayers/CircleToMeasure', 'libs/extension/OpenLayers/MeasureCircle', 'libs/extension/OpenLayers/resetLayersZIndex'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte) {
+define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'html2canvas', 'html2canvassvg', 'es6promise', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte, html2canvas, html2canvassvg) {
     /**
      * Création de l'object Carte.
      * @constructor
@@ -24,6 +23,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
      * @property {Dictionnaire} options Options de la carte.
      */
     function Carte(options) {
+        this.isReady = false;
         this.gestionCouches = new GestionCouches(this);
         this.options = options || {};
         this._init();
@@ -111,7 +111,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         //this.gestionCouches.ajouterCouche(new Blanc({visible:true, active:true}));
 
         //Controles
-        this._carteOL.addControl(new OpenLayers.Control.Attribution());
+        this._carteOL.addControl(new OpenLayers.Control.Attribution({separator: ', '}));
         this._carteOL.addControl(new OpenLayers.Control.PanPanel());
         this._carteOL.addControl(new OpenLayers.Control.ZoomPanel());
         this._carteOL.addControl(new OpenLayers.Control.Navigation({
@@ -281,6 +281,69 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 }
             }
         };
+    };
+
+    /**
+     * Permet d'exporter un canvas de la carte
+     * @method
+     * @name Carte#exporterCanvas
+     * @return {Canvas} Une version canvas de la carte
+     */
+    Carte.prototype.exporterCanvas = function() {
+        var deferred = jQuery.Deferred();
+        var options = {
+            useCORS: true,
+            allowTaint: false,
+            proxy: Aide.obtenirConfig('uri.api') + '/proxy/html2canvas'
+        };
+
+        // Correctif pour support Internet Explorer et RequireJS
+        html2canvas.svg = html2canvassvg;
+        window.html2canvas = html2canvas;
+
+        html2canvas(this._carteOL.div, options).then(function(canvas) {
+            deferred.resolve(canvas);
+        })
+
+        return deferred.promise();
+    };
+
+    /**
+     * Permet d'exporter une image de la carte au format PNG.
+     * @method
+     * @name Carte#exporterImage
+     * @param {function} callbackPreprocesseurCanvas 
+     *        Callback de modification du canvas avant la convertion en image.
+     * @return {Image} Une version image PNG de la carte
+     */
+    Carte.prototype.exporterImage = function(callbackPreprocesseurCanvas) {
+        var deferred = jQuery.Deferred();
+        
+        this.exporterCanvas().then(function(canvas) {
+            var image = new Image();
+
+            try {
+                if(callbackPreprocesseurCanvas) {
+                    canvas = callbackPreprocesseurCanvas(canvas);
+                }
+
+                image.src = canvas.toDataURL("image/png");
+            } catch(e) {
+                deferred.reject(e);
+            }
+            
+            image.onload = function () {
+                deferred.resolve(image);
+            }
+            image.onerror = function(error) {
+                deferred.reject(error);
+            };
+
+        }).fail(function(erreur) {
+            deferred.reject(erreur);
+        });
+
+        return deferred.promise();
     };
 
     /**
@@ -971,6 +1034,10 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         options = options  || {};
         //todo: créer si pas de couche? avertissement?
         couche = couche === "active" ? this._.gestionCouches.coucheVecteurActive : couche;
+
+        if(couche && typeof couche.activer==='function'){
+            couche.activer(true);
+        }
 
         if (options.releverBoutonOutil !== false) {
             var boutonActif = Ext.ButtonToggleMgr.getPressed('carte');

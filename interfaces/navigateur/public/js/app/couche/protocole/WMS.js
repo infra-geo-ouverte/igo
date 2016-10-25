@@ -1,13 +1,13 @@
-/** 
+/**
  * Module pour l'objet {@link Couche.WMS}.
  * @module wms
- * @requires couche 
+ * @requires couche
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
 
 define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect) {
-    /** 
+    /**
      * Création de l'object Couche.WMS.
      * Pour la liste complète des paramètres, voir {@link Couche}
      * @constructor
@@ -27,11 +27,11 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         if(!this.options.layerOL){
             if (!this.options.url) {
                 throw new Error("Igo.WMS a besoin d'un url");
-            }   
-            
+            }
+
             if (!this.options.nom && !this.options.mode) {
                 throw new Error("Igo.WMS a besoin d'un nom");
-            }    
+            }
         }
 
         if(this.options.nom){
@@ -43,42 +43,42 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         if(Aide.toBoolean(this.options.utiliserProxy)){
             this.options.url=Aide.utiliserProxy(this.options.url, true);
         }
-        
+
         this.defautOptions.version = "1.1.1";
-        
+
         this._optionsOL = {
             queryable: true,
             singleTile: !Aide.toBoolean(this.options.multiTuile)
         };
-        
+
         if(!this.options.mode){
             this._init();
         }
     };
-    
+
     WMS.prototype = new Couche();
     WMS.prototype.constructor = WMS;
-    
-    /** 
+
+    /**
      * Initialisation de l'object WMS.
      * Appelé lors de la création.
-     * @method 
+     * @method
      * @private
      * @name Couche.WMS#_init
     */
-    WMS.prototype._init = function(target, callback, optCalback){   
+    WMS.prototype._init = function(target, callback, optCallback){
         if (!this.options.layerOL){
             Couche.prototype._init.call(this);
-            
+
             var transparence = this.options.transparence || true;
-            
+
             if(this.options.format === "jpeg" || this.options.format === "jpg"){
                 transparence = false;
             }
-            
+
             var parametreWMS = {
                 layers: this.options.nom,
-                transparent: transparence, 
+                transparent: transparence,
                 version: this.options.version
             };
             if (this.options.mapdir){
@@ -88,7 +88,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             this._layer = new OpenLayers.Layer.WMS(
                 this.options.titre||this.options.nom,
                 this.options.url,
-                parametreWMS, 
+                parametreWMS,
                 this._optionsOL
             );
 
@@ -110,59 +110,70 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                     this._layer.mergeNewParams(this.options.extraParams);
                 }
             }
-    
+
             if(this.options.mode){
                 Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
             }
         } else {
             this._layer = this.options.layerOL;
+            this.options.url = this._layer.url;
+            this.options.nom = this._layer.params.LAYERS.toString();
+            this.options.titre = this._layer.name;
+            this.options.version = this._layer.params.VERSION;
         }
-        
+
         this._layer.events.register('loadend',this,this._validerChargement);
     };
 
-    /** 
+    /**
      * Appelé lors de l'ajout de la couche à la carte si le mode GetCapabilities est activé.
-     * @method 
+     * @method
      * @private
      * @name Couche.WMS#_getCapabilities
     */
-    WMS.prototype._getCapabilities = function(target, callback, optCalback){
+    WMS.prototype._getCapabilities = function(target, callback, optCallback){
         var tjrsProxy = this.options.encodage ? true : false;
+        var that=this;
+        window.arboLoading = true;
         $.ajax({
-            url: Aide.utiliserProxy(this.options.url, tjrsProxy),//this.options.url.split('?')[0],
+            url: Aide.utiliserProxy(that.options.url, tjrsProxy),//this.options.url.split('?')[0],
             data: {
                 SERVICE: "WMS",
-                VERSION: this.options.version || this.defautOptions.version,
+                VERSION: that.options.version || that.defautOptions.version,
                 REQUEST: "GetCapabilities",
-                _encodage: this.options.encodage //"wms_encoding" "ISO-8859-1"
+                _encodage: that.options.encodage, //"wms_encoding" "ISO-8859-1"
+                t: +new Date
             },
-            //crossDomain: true, //utilisation du proxy
-            async:false,
-            context:this,
+            async:true,
+            context:that,
             dataType:'xml',
             dataFilter: function(response, type){
               return jQuery.trim(response);
             },
             success:function(response) {
-                this._getCapabilitiesSuccess(response, target, callback, optCalback);
+                that._getCapabilitiesSuccess(response, target, callback, optCallback);
             },
-            error:function(e){this._getCapabilitiesError(e, target, callback, optCalback);}
+            error:function(e){that._getCapabilitiesError(e, target, callback, optCallback);}
         });
     };
-    
-    WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCalback){
-        var that=this;
 
-        if(!response){
-            this._getCapabilitiesError();
+    WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCallback){
+        var that=this;
+        if(!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length)){
+            var errorMessage;
+            if(response){
+                errorMessage = {
+                    responseText: response.getElementsByTagName("BODY")[0].textContent
+                }
+            }
+            this._getCapabilitiesError(errorMessage);
             return false;
         }
         var xml=new OpenLayers.Format.WMSCapabilities().read(response);
         var iCL=0;
         var xmlOptions = {};
         var capabilityLayers, arrayLayers, len;
-        //InfoFormat absent dans le fichier contexte alors on le prend 
+        //InfoFormat absent dans le fichier contexte alors on le prend
         //dans le getCapabilities pour le nouveau GetInfo
         if(!this.options.infoFormat && xml.capability.request.getfeatureinfo !== undefined ){
            var arrayInfoFormat = xml.capability.request.getfeatureinfo.formats;
@@ -181,10 +192,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             len = arrayLayers.length;
             capabilityLayers=xml.capability.layers;
         }
-        $.each(capabilityLayers, function(key,value){ 
+        $.each(capabilityLayers, function(key,value){
             if((!that.options.nom) || jQuery.inArray(value.name, arrayLayers)>=0){
-                iCL++;              
-                if(!that.options._merge){                    
+                iCL++;
+                if(!that.options._merge){
 
                    var parcourirLayerXML = function(value, groupe, groupeNiveauBase){
                         var layers=value;
@@ -195,7 +206,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                                 groupe = groupe ? groupe+'/' : "";
                                 groupe += value.title;
                             }
-                            
+
                             layers = value.nestedLayers;
                             $.each(layers, function(key2, value2){
                                 parcourirLayerXML(value2, groupe, groupeNiveauBase);
@@ -203,15 +214,28 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         } else {
                             xmlOptions = {
                                 titre: value.title,
-                                droit: value.attribution ? value.attribution.href : undefined,
                                 echelleMin: value.minScale,
-                                echelleMax: value.maxScale
+                                echelleMax: value.maxScale,
+                                aGetInfo: value.queryable
                             };
+
+                            if(value.attribution){
+                                xmlOptions.droitTitre = value.attribution.title;
+                                xmlOptions.droitLien = value.attribution.href;
+                                if(value.attribution.logo){
+                                    xmlOptions.droitLogo = value.attribution.logo.href;
+                                    xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                                    xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                                }
+                            }
 
                             if(value.dataURL && value.dataURL.format === 'igo'){ //"wms_dataurl_format" "igo"
                                 var idMeta = value.dataURL.href;
                                 var igoClassMeta = idMeta;
                                 xmlOptions.metadonnee = igoClassMeta; //"wms_dataurl_href" "/path/to/metdata3.xml" ou numéro de la metadata
+                            } else if (value.dataURL && value.dataURL.format === 'text/html'){
+                                xmlOptions.metadonneeLien = value.dataURL.href;
+                                xmlOptions.metadonnee = true;
                             }
 
                             $.extend(xmlOptions, that.options);
@@ -234,7 +258,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                                 xmlOptions.wms_timedefault = value.dimensions.time.default;
                             }
                             target.ajouterCouche(new WMS(xmlOptions));
-                        } 
+                        }
                     };
 
                     parcourirLayerXML(value, that.options.groupe, that.options.groupeNiveauBase);
@@ -245,11 +269,20 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 } else if (iCL===1){
                     xmlOptions = {
                         titre: value.title,
-                        droit: value.attribution ? value.attribution.href : undefined,
                         echelleMin: value.minScale,
                         echelleMax: value.maxScale,
-                        groupe: "Couches WMS ajoutées" 
+                        aGetInfo: value.queryable,
+                        groupe: "Couches WMS ajoutées"
                     };
+                    if(value.attribution){
+                        xmlOptions.droitTitre = value.attribution.title;
+                        xmlOptions.droitLien = value.attribution.href;
+                        if(value.attribution.logo){
+                            xmlOptions.droitLogo = value.attribution.logo.href;
+                            xmlOptions.droitLogoLargeur = value.attribution.logo.width;
+                            xmlOptions.droitLogoHauteur = value.attribution.logo.height;
+                        }
+                    }
                     if (len===1){
                             return false;
                     };
@@ -265,20 +298,25 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 }
             }
         });
+
+        window.arboLoading = false;
         if(iCL===0){
             Aide.afficherMessageConsole("Couche(s) introuvable(s): " + this.options.nom);
             return false;
         }
         if(len===1 && that.options._merge){
             this.options=$.extend(xmlOptions, this.options);
-            this._init(target, callback, optCalback);
+            this._init(target, callback, optCallback);
         }
     }
 
-    WMS.prototype._getCapabilitiesError = function(response, target, callback, optCalback){
+    WMS.prototype._getCapabilitiesError = function(response, target, callback, optCallback){
+        window.arboLoading = false;
         response = response || {};
-        if(response.status != 200){    
-            Aide.afficherMessageConsole('Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText);
+        if(response.status != 200){
+            var message = 'Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText;
+            console.log(message);
+            Aide.afficherMessageConsole(message);
             return false;
         }
         if(BrowserDetect.browser == "Explorer"){
@@ -287,15 +325,15 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             xmlDoc.validateOnParse = false;
             xmlDoc.resolveExternals = false;
             var parsed=xmlDoc.loadXML(response.responseText);
-            
+
             if(!parsed) {
                 var myErr = xmlDoc.parseError;
                 Aide.afficherMessage('Erreur WMS: GetCapabilities', 'Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+myErr.reason, 'OK', 'ERREUR');
             } else {
-                this._getCapabilitiesSuccess(xmlDoc, target, callback, optCalback);
+                this._getCapabilitiesSuccess(xmlDoc, target, callback, optCallback);
             }
             return false;
-        } 
+        }
         Aide.afficherMessage('Erreur WMS: GetCapabilities', 'Le GetCapabilities pour \''+this.options.url+'\' a échoué.', 'OK', 'ERREUR');
     }
 
@@ -306,8 +344,10 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
         }
     };
-    
+
     WMS.prototype._validerChargement = function(e, a){
+        var that = this;
+
         if(e.object.div.innerHTML.indexOf("olImageLoadError")>-1){
             $.ajax({
                 url: Aide.utiliserProxy(decodeURIComponent($('<textarea/>').html(/src="(.*)"/.exec(e.object.div.innerHTML)[1]).text())),
@@ -316,12 +356,18 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                         VERSION: this.options.version,
                         REQUEST: "GetMap"
                     },
-                async:false,
+                async:true,
                 context:this,
                 success:function(response) {
+
+                    if(this.options.afficherMessageErreurUtilisateur === "true"){
+                       this.gestionErreurWMS(this);
+                       return false;
+                    }
+
                     var message = '<b>'+this.options.titre +':</b><br>';
-                    
-                    if(typeof response === 'object'){        
+
+                    if(typeof response === 'object'){
                         var tagError = response.getElementsByTagName("ServiceException");
                         if(tagError){
                             message += tagError.item(0).textContent;
@@ -333,31 +379,31 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                     }
                 },
                 error:function(e){
-                    var message = '<b>'+ e.statusText +':</b><br>';
-                    Aide.afficherMessageConsole(message);
-                    /*var response = e.responseXML;
-                    
-                    if(typeof response === 'object'){     
-                        var tagError = response.getElementsByTagName("ServiceException");
-                        if(tagError){
-                            message += tagError.item(0).textContent;
-                            Aide.afficherMessageConsole(message);
-                        }
-                    } else {
-                        Aide.afficherMessageConsole(message);
-                    }*/
+                  that.gestionErreurWMS(e);
                 }
-            
+
             });
         }
     };
-    
-    WMS.prototype.rafraichir = function() { 
+
+    WMS.prototype.rafraichir = function() {
         if(this._layer){
-            this._layer.redraw(true);  
+            this._layer.redraw(true);
         }
     };
-    
+
+    WMS.prototype.gestionErreurWMS = function(e) {
+
+        if(this.options.afficherMessageErreurUtilisateur === "true") {
+            Aide.afficherMessage({titre: this.obtenirGroupe(), message: "La couche d'information " + this.obtenirTitre() + " n'est actuellement pas disponible."});
+            this.desactiver();
+        }
+        else {
+            var message = '<b>'+ e.statusText +':</b><br>';
+            Aide.afficherMessageConsole(message);
+        }
+    };
+
     return WMS;
-    
+
 });

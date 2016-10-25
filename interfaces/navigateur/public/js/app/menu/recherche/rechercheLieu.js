@@ -1,4 +1,5 @@
-/** 
+
+     /** 
  * Module pour l'objet {@link Panneau.RechercheLieu}.
  * @module rechercheLieu
  * @author Marc-André Barbeau, MSP
@@ -79,7 +80,7 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             styles.defaut = style;
         }
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {responseJSON: responseJSON});
-        
+
     };
    
     RechercheLieu.prototype.ajouterOccurences = function(e) {
@@ -101,9 +102,9 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
             
             $.each(value.placeListe, function(keyPlace, place){
                 if(place.type === 'Municipalité'){
-                    value.lieu = place.nom;
-                } else if (place.type === 'Lieu'){
                     value.municipalite = place.nom;
+                } else if (place.type === 'Lieu'){
+                    value.lieu = place.nom;
                 }
             });
             vecteur.creerOccurence(point, value);
@@ -181,5 +182,4 @@ define(['recherche', 'aide', 'point', 'style', 'limites'], function(Recherche, A
     };
 
     return RechercheLieu;
-    
 });

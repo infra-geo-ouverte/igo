@@ -1,4 +1,4 @@
-define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu) {
+define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'outilExportCSV',  'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu, OutilExportCSV) {
 
     function PanneauTable(options) {
         this.options = options || {};
@@ -43,14 +43,14 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                             that.reconfigurerPaginationBarre(store);
                         },
                         rowmousedown:function(ceci,rowindex,e){
-                            
+
                                 Igo.nav.ctrlPressed = e.ctrlKey;
-                            
+
                         },
                         rowmouseup:function(ceci,rowindex,e){
-                           
+
                                 Igo.nav.ctrlPressed = e.ctrlKey;
-                           
+
                         }
                     }
                 };
@@ -92,21 +92,12 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         if(this.options.paginer === true || config.store.totalLength > config.store.lastOptions.params.limit){
             this.options.paginer = true;
             return new Ext.PagingToolbar({
-                        pageSize: config.store.lastOptions.params.limit,
-                        store: config.store,
-                        displayInfo: true,
-                        displayMsg: 'Affiche les occurences {0} à {1} de {2}',
-                        emptyMsg: "Aucune occurence"
-                    });
-
-
-            Aide.obtenirNavigateur().evenements.ajouterDeclencheur('occurenceSelectionnee', function(e) {
-                e.options.scope.desactiverDessin();
-            }, {
-                scope: this,
-                id: 'activerDessin-OutilExecuter'
+                pageSize: config.store.lastOptions.params.limit,
+                store: config.store,
+                displayInfo: true,
+                displayMsg: 'Affiche les occurences {0} à {1} de {2}',
+                emptyMsg: "Aucune occurence"
             });
-
         }
         else{
             return null;
@@ -249,6 +240,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             header   : titre,
             width    : colTemplate.largeur,
             sortable : colTemplate.triable,
+            hideable : colTemplate.masquable,
             alignement : colTemplate.alignement,
             dataIndex: base + colTemplate.propriete,
             renderer : renduDirty,
@@ -344,7 +336,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype.configurer = function(template, donnees){
         var that=this;
         this.desactiverDeclencheursVecteur(this.donnees);
-       
+
         this.template = template || this.template || {};
         this.donnees = donnees || this.donnees || [];
         this.donnees.panneauTable = this;
@@ -504,6 +496,8 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                         that.rafraichir();
                     }
                 }));
+
+                outils.push(new OutilExportCSV({donnees: this.donnees.listeOccurences, colonnes: this.template.colonnes, titreFichier: this.options.titre}));
             }
 
             var menuSelection = new OutilMenu({titre: 'Sélection'});
@@ -594,9 +588,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
             e.options.scope.selectionnerParOccurences([e.occurence], true);
         }
         else{
-            e.options.scope.selectionnerParOccurences([e.occurence]); 
+            e.options.scope.selectionnerParOccurences([e.occurence]);
         }*/
-        
+
     };
 
     PanneauTable.prototype._deselectionEvent = function(e){
@@ -656,14 +650,14 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     PanneauTable.prototype.selectionnerParOccurences = function(occurences, garderSelection, scroll, notifieVue){
         var that=this;
         garderSelection = typeof garderSelection == "undefined" ? Igo.nav.ctrlPressed : garderSelection;
-       
+
         $.each(occurences, function(key, value){
             if(!that._panel.store){return false;}
             var index = that._panel.store.indexOfId(value.id);
             if(index === -1){
                 return true;
             }
-            
+
             that.selectionnerParIndex(index, garderSelection, scroll, notifieVue);
 
         });
@@ -877,9 +871,9 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
 
     PanneauTable.Controles.prototype.activerSelection = function() {
         if(!this._._panel){return false;};
-        
+
          this._._panel.selModel.on('selectionchange', this._selection, this);
-        
+
     };
 
     PanneauTable.Controles.prototype.desactiverSelection = function() {
@@ -912,7 +906,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
     };
 
      PanneauTable.Controles.prototype.finSurvol = function(event,html) {
-       
+
         var index = this._._panel.getView().findRowIndex(html);
         if(index){
             var occu = this._.obtenirEnregistrementParIndex(index);
@@ -943,7 +937,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         }
     };
 
-   
+
     PanneauTable.Controles.prototype._selection = function(selection) {
 
         var selectionIGO = Array();
@@ -970,7 +964,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
         }
 
         this._.declencher({ type: "tableEnregistrementSelection", selection: selectionIGO, vecteur: vecteur });
-        
+
     };
 
 

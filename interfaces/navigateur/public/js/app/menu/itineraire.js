@@ -516,10 +516,24 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     Itineraire.Marqueurs.prototype.initEvent = function() {   
         this.initCliqueCarte();
         this.initCliqueMarqueurs();
+        this.initSurvolMarqueurs();
         this.initDeplacementMarqueurs();
+
     };
 
-    //
+    Itineraire.Marqueurs.prototype.initSurvolMarqueurs = function() {
+        if(this._.options.infobulleSurvol){         
+            this.vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
+                e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.titre, aFermerBouton: false});
+            }, 
+            {scope: this});
+            this.vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){
+                e.occurence.fermerInfobulle();
+            }, 
+            {scope: this});
+        }
+    }
+
     Itineraire.Marqueurs.prototype.initCliqueCarte = function() {
         var that=this;
         
@@ -680,6 +694,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var route = this._.trajet.vecteur.obtenirOccurences()[0];
 
         if (route) {
+            this.desactiverControles();
             if (this.depart) {
                 var pDepart = route.points[0];
                 this.depart.deplacer(pDepart);
@@ -701,6 +716,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 });
                 value.deplacer(nearestPoint);
             });
+            this.activerControles();
         }
     };
     
@@ -878,6 +894,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     };
 
     Itineraire.Trajet.prototype.zoomEndEvent = function(){
+        if(!this._.marqueurs){
+            return false;
+        }
         var depart = this._.marqueurs.depart;
         var arrivee = this._.marqueurs.arrivee;
         var intermediaires = this._.marqueurs.intermediaires;

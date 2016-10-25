@@ -128,7 +128,7 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
         }
               
         this._bouton = new Ext.Toolbar.Button(this._extOptions);
-        if(opt.actif){
+        if(Aide.toBoolean(opt.actif)){
             this.enfoncer();
         }
     };

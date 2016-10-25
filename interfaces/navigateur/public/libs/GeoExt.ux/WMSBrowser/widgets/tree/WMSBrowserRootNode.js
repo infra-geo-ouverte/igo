@@ -9,14 +9,6 @@
 
 Ext.namespace("GeoExt.ux.tree");
 
-
-	// Bogue fixe MSP, Nicolas 5 fev 2011
-        
-        //todo: changer url_init_msp et prendre le premier url dans liste.
-	var url_init_msp =  Igo.nav.barreOutils.obtenirOutilsParType('OutilAjoutWMS')[0]._MyWMSBrowser.Store.data.first().data.url+ "?service=WMS&request=GetCapabilities&version=1.1.1";
-	url_init_msp = Igo.Aide.utiliserProxy(url_init_msp);
-    // If IE, régler un bogue
-
 /*
  * @requires widgets/WMSBrowser.js
  * @requires widgets/tree/WMSBrowserTreePanel.js
@@ -53,6 +45,10 @@ GeoExt.ux.tree.WMSBrowserRootNode = Ext.extend(Ext.tree.AsyncTreeNode, {
     /** private: method[constructor]
      */
     constructor: function(config) {
+
+        var url_init_msp =  Igo.nav.barreOutils.obtenirOutilsParType('OutilAjoutWMS')[0]._MyWMSBrowser.Store.data.first().data.url;
+        url_init_msp = Igo.Aide.utiliserProxy(url_init_msp);
+
         Ext.apply(this, config);
         Ext.apply(this, {loader: new GeoExt.tree.WMSCapabilitiesLoader({
             //url: "__foo__",

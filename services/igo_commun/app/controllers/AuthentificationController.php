@@ -7,7 +7,7 @@ abstract class AuthentificationController extends Controller{
      * Fonction retournant le dernier message d'erreur à afficher 
      * en cas d'erreur lors de l'authentification.
      */
-    abstract public function obtenirMessageErreur();        
+    abstract public function obtenirMessagesErreur();        
 
     /*
      * Fonction publique permettant l'authentification à un serveur LDAP.
@@ -48,5 +48,19 @@ abstract class AuthentificationController extends Controller{
      * Retourne : bool
      */
     abstract public function estPilote();
+
+    /*
+     * Libre au developpeur d'implémenter cette fonction
+     * selon ses critères pour l'utilisateur.
+     * Retourne : String
+     */
+    abstract public function obtenirPrenom();
+
+    /*
+     * Libre au developpeur d'implémenter cette fonction
+     * selon ses critères pour l'utilisateur.
+     * Retourne : String
+     */
+    abstract public function obtenirNom();
             
 }
