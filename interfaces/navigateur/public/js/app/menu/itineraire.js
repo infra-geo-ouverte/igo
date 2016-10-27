@@ -938,13 +938,16 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             ;
         });
 
-        var url;
+        var url = this._.options.service;
         var graph = $('#rechercheType select').val(); //todo $variable
-        
+		if (graph !== 'voiture') {
+			url += '/' + graph;	
+        }
+
         if (sansInstructions) {
-            url = this._.options.service + "?graph=" + graph + "?output=json&compression=true&z=" + this._.carte.obtenirZoom() + loc;
+            url += "/viaroute?output=json&compression=true&z=" + this._.carte.obtenirZoom() + loc;
         } else {
-            url = this._.options.service + "?graph=" + graph + "?output=json&compression=true&instructions=true&z=" + this._.carte.obtenirZoom() + loc;
+            url += "/viaroute?output=json&compression=true&instructions=true&z=" + this._.carte.obtenirZoom() + loc;
         };
 
         if (!sansInstructions || this.ajaxItineraireComplete != false) {
@@ -1438,7 +1441,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         //todo: à remplacer par le glo v6 lorsque le reverse sera intégré 
         //var url = "http://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat="+pos.lat+"&lon="+pos.lon;          
         //var url = "http://spssogl97d.sso.msp.gouv.qc.ca/Services/itineraire.php?graph=locate&loc=" + pos.lat + "," + pos.lon;
-        var url = this._.options.service + "?graph=locate?loc=" + pos.y + "," + pos.x;
+        var url = this._.options.service + "/nearest?loc=" + pos.y + "," + pos.x;
         
         $.ajax({
             dataType: 'jsonp',
