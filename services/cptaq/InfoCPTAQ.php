@@ -5,7 +5,7 @@ if (empty($layername)) {
         die('layername manquant');
 }
         
-$dbconn = pg_connect("host=10.17.2.41 dbname=geobase user=lecture password=lecture")
+$dbconn = pg_connect("host=svrvcartoprod1 dbname=geobase user=lecture password=lecture")
     or die('Connexion impossible : ' . pg_last_error());
 
 $query = 'SELECT * FROM source where id = \'' . $layername . '\''; 
