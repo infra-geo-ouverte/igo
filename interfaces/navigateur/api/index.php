@@ -326,7 +326,7 @@ try {
         $profiLActif = utilisateurActuelProfilActif();
         $profils = utilisateurActuelProfils();
 
-        if(!is_null($profiLActif)) { 
+        if(!is_null($profiLActif)) {
             $nomProfilAnonyme = $app->session->get('nomProfilAnonyme');
             if($nomProfilAnonyme === null){
                 $config = $app->getDI()->get("config");
@@ -966,9 +966,10 @@ try {
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 
-        if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
+        $rawData = file_get_contents('php://input');
+        if(isset($rawData)){
             curl_setopt($ch, CURLOPT_POST, 1 );
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $GLOBALS['HTTP_RAW_POST_DATA'] );
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $rawData );
             curl_setopt($ch, CURLOPT_HTTPHEADER,  array('Content-Type: text/plain'));
         } else if ($method === 'POST') {
             if(isset($options['files'])){
@@ -1000,7 +1001,7 @@ try {
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $GLOBALS['HTTP_RAW_POST_DATA']);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $rawData);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:' . $_SERVER['CONTENT_TYPE'],
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
