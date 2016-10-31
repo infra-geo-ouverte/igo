@@ -130,11 +130,19 @@ define(['panneau', 'point', 'aide'], function(Panneau, Point, Aide) {
                 //panneau.scope.activerHorloge();
             },
             collapse: function(panneau) {
-                  panneau.scope.desactiverPositionElevation();
+                panneau.scope.desactiverPositionElevation();
                 //panneau.scope.desactiverHorloge();
             },
             afterrender: function(panneau) {
-                //panneau.scope.afficherHorloge();
+                if (Aide.toBoolean(panneau.scope.options.ouvert)) {
+                    setTimeout(function(){
+                        firstExpand=false;
+                        panneau.scope.initialiserEchelle();
+                        panneau.scope.initialiserPositionPointeur();
+                        panneau.scope.afficherProjectionAffichage();
+                        panneau.scope.initialiserPositionElevation();
+                    }, 1);
+                }
             }
         };
 
@@ -143,6 +151,11 @@ define(['panneau', 'point', 'aide'], function(Panneau, Point, Aide) {
     PanneauInfo.prototype = new Panneau();
     PanneauInfo.prototype.constructor = PanneauInfo;
     
+
+    PanneauInfo.prototype._init = function() {
+        Panneau.prototype._init.call(this);
+    }
+
     /** 
      * Afficher l'heure dans le panneau
      * @method 
