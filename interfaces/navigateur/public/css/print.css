@@ -1,0 +1,95 @@
+@media print {
+
+    #menu-panneau3,
+    #resultatRechercheTable,
+   .x-panel,
+   .x-toolbar,
+   .x-slider,
+   .x-layout-split,
+   .x-layout-collapsed,
+   .x-unselectable,
+   .x-tip,
+   .x-panel-tbar,
+   .x-window,
+   .x-shadow,
+   .olControlNoSelect,
+   .ext-el-mask
+    {
+     display: none !important;
+    }
+
+    #carte-panneau1,
+    #mapComponent,
+    #printLayer,
+    .x-panel-bwrap
+    {
+     display: block !important;
+    }
+
+    #carte-panneau1,
+    #mapComponent {
+      left: 0 !important;
+      background-color: white !important;
+      /*top: -100px !important;*/
+      /*left: -100px !important;*/
+      /* width: 1000px !important;*/
+      /*height: 1200px !important;*/
+    }
+
+    #printLayer {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: none !important;
+    }
+
+    #printLayer .centerH {
+      text-align: center;
+    }
+
+    #printLayer .printTitle {
+      width: 100%;
+      margin: auto;
+      text-align: center;
+      padding: 5px;
+      font-size: 18px;
+      text-shadow: #fff 0px 0px 2px;
+      font-weight: bold;
+    }
+
+    #printLayer .printLegend {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background-color: white;
+      max-width: 30%;
+    }
+
+    #printLayer .printDescription {
+      position: absolute;
+      bottom: 0;
+      font-size: 12px;
+      background-color: white;
+      max-width: 30%;
+    }
+
+    #printLayer .printInfo {
+      position: absolute;
+      bottom: 0;
+      text-align: center;
+      width: 100%;
+    }
+
+    #printLayer .printInfo div {
+      font-size: 12px;
+      background-color: white;
+      text-align: center;
+      display: inline;
+    }
+    .x-border-layout-ct {
+      background-color: white !important;
+      border: none !important;
+    }
+}

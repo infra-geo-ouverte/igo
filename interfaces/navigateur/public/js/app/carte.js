@@ -149,7 +149,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     return false;
                 }
 
-                if(occurence.obtenirInteraction('survol') === false){ 
+                if(occurence.obtenirInteraction('survol') === false){
                     return false;
                 }
                 that.gestionCouches.ajouterOccurenceSurvol(occurence);
@@ -174,7 +174,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     return false;
                 }
 
-                if(occurence.obtenirInteraction('survol') === false){ 
+                if(occurence.obtenirInteraction('survol') === false){
                     return false;
                 }
 
@@ -197,7 +197,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     return false;
                 }
 
-                if(occurence.obtenirInteraction('cliquable') === false){ 
+                if(occurence.obtenirInteraction('cliquable') === false){
                     return false;
                 }
 
@@ -208,12 +208,12 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     if(lastOccSurvol.id === occurence.id){
                         dessus = true;
                     }
-                }        
+                }
                 couche.declencher({
                     type: "occurenceClique",
                     occurence: occurence,
                     dessus: dessus
-                }); 
+                });
             },
             moveend: function() {
                 that.declencher({
@@ -312,13 +312,13 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
      * Permet d'exporter une image de la carte au format PNG.
      * @method
      * @name Carte#exporterImage
-     * @param {function} callbackPreprocesseurCanvas 
+     * @param {function} callbackPreprocesseurCanvas
      *        Callback de modification du canvas avant la convertion en image.
      * @return {Image} Une version image PNG de la carte
      */
     Carte.prototype.exporterImage = function(callbackPreprocesseurCanvas) {
         var deferred = jQuery.Deferred();
-        
+
         this.exporterCanvas().then(function(canvas) {
             var image = new Image();
 
@@ -331,7 +331,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             } catch(e) {
                 deferred.reject(e);
             }
-            
+
             image.onload = function () {
                 deferred.resolve(image);
             }
@@ -493,7 +493,20 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         return this._carteOL.resolution;
     };
 
-    Carte.prototype.obtenirEchelle = function() {
+    Carte.prototype.obtenirEchelle = function(approximative) {
+        if (approximative) {
+          var scale = this._carteOL.getScale();
+          scale = Math.round(scale);
+          if (scale < 10000) {
+            return scale;
+          }
+          scale = Math.round(scale/1000);
+          if (scale < 1000) {
+            return scale + 'K';
+          }
+          scale = Math.round(scale/1000);
+          return scale + 'M';
+        }
         return this._carteOL.getScale();
     };
 
@@ -731,17 +744,17 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     cacherVertex();
                     that._.curseur = 'move';
                     if(occurence){
-                        couche.declencher({ type: "debutDeplacementOccurence", occurence: occurence }); 
+                        couche.declencher({ type: "debutDeplacementOccurence", occurence: occurence });
                     }
-                }, 
+                },
                 onDrag: function(feature){
                     cacherVertex();
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence){
                         occurence.majGeometrie(feature.geometry, {lancerDeclencheur: false});
-                        couche.declencher({ type: "deplacementOccurence", occurence: occurence }); 
+                        couche.declencher({ type: "deplacementOccurence", occurence: occurence });
                     }
-                }, 
+                },
                 onComplete: function(feature){
                     if(that.controleEdition){
                         that.controleEdition.resetVertices();
@@ -751,9 +764,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     if(occurence){
                         occurence.majGeometrie(feature.geometry);
                         $olMapViewport.removeClass('olControlDragFeatureOver');
-                        couche.declencher({ type: "finDeplacementOccurence", occurence: occurence }); 
+                        couche.declencher({ type: "finDeplacementOccurence", occurence: occurence });
                     }
-                }, 
+                },
                 onEnter: function(feature){
                     var occurence = couche.obtenirOccurenceParId(feature.id);
                     if(occurence && occurence.obtenirInteraction('editable') === false){
@@ -824,24 +837,24 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             var modeEdit = 0;
             if(options.editVertex !== false){
                 modeEdit = OpenLayers.Control.ModifyFeature.RESHAPE ;
-            } 
+            }
             if(options.rotation){
                 modeEdit += OpenLayers.Control.ModifyFeature.ROTATE ;
-            } 
+            }
             if(options.editDimension){
                 modeEdit += OpenLayers.Control.ModifyFeature.RESIZE ;
-            } 
+            }
 
             if(modeEdit){
                 this.controleEdition = new OpenLayers.Control.ModifyFeature(couche._layer, {
                     mode: modeEdit
                 });
-                this._._carteOL.addControl(this.controleEdition); 
+                this._._carteOL.addControl(this.controleEdition);
                 this.controleEdition.optionsIgo = options;
                 this.controleEdition.coucheIgo = couche;
             }
         }
-        
+
         if(this.controleEdition){
             this.controleEdition.activate();
 
@@ -860,7 +873,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             couche.declencher({
                 type: 'controleEditionActiver'
             });
-            
+
             if (this.snap) {
                 this.activerSnap(couche);
             }
@@ -872,7 +885,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             if (this.vertex) {
                 this.dragVertex(this.vertex, pixel);
             }
-           
+
             if(this.feature){
                 var occ = new Occurence(this.feature.geometry);
                 couche.declencher({
@@ -961,7 +974,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             }
 
 
-            if(occurence.obtenirInteraction('editable') === false){ 
+            if(occurence.obtenirInteraction('editable') === false){
                 if(occurence.obtenirTypeGeometrie() === 'Point'){
                     //la carte n'est plus focus pour un déplacement
                     that.controleEdition.handlers.drag.dragend(e)
@@ -970,7 +983,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             }
 
             occurence._resetVertex = function(){if(that.controleEdition){that.controleEdition.resetVertices()}};
-            
+
             occurence._controle = that.controleEdition;
             that._editionEvents.oModifificationTerminee = that._editionEvents.oModifification;
             that._editionEvents.oModifification = occurence;
@@ -1011,7 +1024,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         this._editionEvents.fnVecteurOccurenceSelectionnee = function(e) {
              //e.options.scope._desactiverEventsEdition();
-            if (couche.obtenirOccurencesSelectionnees().length > 1) {       
+            if (couche.obtenirOccurencesSelectionnees().length > 1) {
                 couche.deselectionnerTout({exceptions: [e.occurence]});
             }
             if(e.occurence){
