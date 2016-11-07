@@ -66,7 +66,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
      * @private
      * @name Couche.WMS#_init
     */
-    WMS.prototype._init = function(target, callback, optCalback){
+    WMS.prototype._init = function(target, callback, optCallback){
         if (!this.options.layerOL){
             Couche.prototype._init.call(this);
 
@@ -131,7 +131,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
      * @private
      * @name Couche.WMS#_getCapabilities
     */
-    WMS.prototype._getCapabilities = function(target, callback, optCalback){
+    WMS.prototype._getCapabilities = function(target, callback, optCallback){
         var tjrsProxy = this.options.encodage ? true : false;
         var that=this;
         window.arboLoading = true;
@@ -151,13 +151,13 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
               return jQuery.trim(response);
             },
             success:function(response) {
-                that._getCapabilitiesSuccess(response, target, callback, optCalback);
+                that._getCapabilitiesSuccess(response, target, callback, optCallback);
             },
-            error:function(e){that._getCapabilitiesError(e, target, callback, optCalback);}
+            error:function(e){that._getCapabilitiesError(e, target, callback, optCallback);}
         });
     };
 
-    WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCalback){
+    WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCallback){
         var that=this;
         if(!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length)){
             var errorMessage;
@@ -306,11 +306,11 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
         }
         if(len===1 && that.options._merge){
             this.options=$.extend(xmlOptions, this.options);
-            this._init(target, callback, optCalback);
+            this._init(target, callback, optCallback);
         }
     }
 
-    WMS.prototype._getCapabilitiesError = function(response, target, callback, optCalback){
+    WMS.prototype._getCapabilitiesError = function(response, target, callback, optCallback){
         window.arboLoading = false;
         response = response || {};
         if(response.status != 200){
@@ -330,7 +330,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 var myErr = xmlDoc.parseError;
                 Aide.afficherMessage('Erreur WMS: GetCapabilities', 'Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+myErr.reason, 'OK', 'ERREUR');
             } else {
-                this._getCapabilitiesSuccess(xmlDoc, target, callback, optCalback);
+                this._getCapabilitiesSuccess(xmlDoc, target, callback, optCallback);
             }
             return false;
         }
