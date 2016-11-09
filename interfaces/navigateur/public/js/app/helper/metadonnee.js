@@ -22,8 +22,8 @@ define(['aide'], function(Aide) {
             }
             if(lienExt && Aide.toBoolean(lienExt) !== true){
                 lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
-//                window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
-                this.parse({responseText: "<iframe style='width:500px; height:500px;' scrollbars=yes; src='"+lienExt+"'></iframe>"});
+                window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
+//                this.parse({responseText: "<iframe style='width:500px; height:500px;' scrollbars=yes; src='"+lienExt+"'></iframe>"});
                 return true;
             }
         }
@@ -31,7 +31,7 @@ define(['aide'], function(Aide) {
         if(lienExt && Aide.toBoolean(lienExt) !== true){
             lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
             //lienExt = Aide.utiliserProxy(lienExt);
-            this.parse({responseText: "<iframe style='width:800px; height:800px;' src='"+lienExt+"'></iframe>"});
+            this.parse({responseText: "<iframe style='width:500px; height:500px;' src='"+lienExt+"'></iframe>"});
             return true; 
         }  
         return false;
@@ -50,7 +50,7 @@ define(['aide'], function(Aide) {
 
         // Ext.Window creation
         var oMetadataWindow = new Ext.Window({
-            title    : 'Information de la couche ',
+            title    : 'Information de la couche',
             closable : true,
             width: 500,
             autoHeight: false, 
