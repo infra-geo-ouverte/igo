@@ -74,7 +74,7 @@ define(['couche', 'aide'], function(Couche, Aide) {
             this._optionsOL
         );
 
-        if((!this.options.useTiltImages) && (type === google.maps.MapTypeId.SATELLITE)){
+        if(Aide.toBoolean(!this.options.useTiltImages) && (type === google.maps.MapTypeId.SATELLITE)){
         
             var nav = Aide.obtenirNavigateur();
         
