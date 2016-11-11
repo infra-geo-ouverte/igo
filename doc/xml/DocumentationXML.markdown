@@ -1240,7 +1240,7 @@ la carte" visible="true" actif="true"/>
 ![](media/image26.png)
 
 
-outilReporterBogue
+outilRapporterBogue
 ------------------
 
 Permet la définition d'un outil de soumission d'anomalie. Lorsqu'on
@@ -1259,8 +1259,8 @@ moyen disponible pour soumettre une anomalie) est affiché.
 
 *Exemple*s
 ```xml
-<outil classe="OutilReporterBogue">
-<outil id="btnRapporterAnomalie" classe="OutilReporterBogue"
+<outil classe="OutilRapporterBogue">
+<outil id="btnRapporterAnomalie" classe="OutilRapporterBogue"
 icone="images/toolbar/bug-small.png" titre="RapporterAnomalie"
 infobulle="Rapporter une anomalie" visible="true" actif="true"
 lien="http://www.google.ca"/>
@@ -1613,6 +1613,7 @@ Permet la définition d'une couche provenant d’un service de carte tuilé
 |url	|URL du service de carte tuilé		      	|Oui	    	|URL 		    	|  		|
 |nom	|Nom de la couche                             	|Oui	    	|Chaîne alphanumérique  |		|
 |titre	|           Titre de la couche			|Oui		|Chaîne alphanumérique	|		|
+|format	|Format des image (png,jpg)	 			|Non		|Chaîne alphanumérique	|png		|
 |impressionUrl|   URL du service à utiliser pour l’impression|   Non	|URL			|		|
 |impressionNom|   Nom de la couche pour l’impression	|           Non	|Chaîne alphanumérique	|		|
 
@@ -1628,6 +1629,7 @@ nom="carte\_gouv\_qc\_ro@EPSG\_3857" titre="Gouvernement du Québec"
 protocole="TMS" fond="true" echelleMin="6000000" echelleMax="1"
 groupe="Test" visible="true" active="faux" opacite="100"
 ordreAffichage="1"
+format="jpg"
 impressionUrl="http://spssogl97d.sso.msp.gouv.qc.ca/cgi-wms/carte\_gouv\_qc.fcgi?"
 impressionNom="CARTE\_GOUV\_QC"/>
 ```
