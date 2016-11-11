@@ -658,7 +658,7 @@ define([], function() {
             $divInfobulle.css({ 'top': options.y + 'px' });            
         } else {
             // Éviter que l'infobulle s'affiche en dehors de l'écran
-            var y = Math.round(this.obtenirNavigateur().carte.coordSouris.y) + this.obtenirNavigateur().obtenirPanneauxParType('PanneauCarte')[0]._panel.y - $divInfobulle.height();
+            var y = Math.round(this.obtenirNavigateur().carte.coordSouris.y) + this.obtenirNavigateur().obtenirPanneauxParType('PanneauCarte')[0]._panel.y - $divInfobulle.height() - 4;
             if (this.obtenirNavigateur().obtenirBarreOutils()){
                 y += this.obtenirNavigateur().obtenirBarreOutils()._panelContainer.getTopToolbar().getHeight();            
             }

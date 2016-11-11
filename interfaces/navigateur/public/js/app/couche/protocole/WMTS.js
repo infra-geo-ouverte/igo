@@ -29,7 +29,6 @@ define(['couche', 'aide'], function(Couche, Aide) {
         }
         this._optionsOL = this.options._optionsOL || {
             name: options.titre,
-            url: options.url,
             layer: options.nom, 
             matrixSet: options.matrixSet,
             format: options.format==null ? "image/png" : "image/"+options.format,
@@ -39,8 +38,13 @@ define(['couche', 'aide'], function(Couche, Aide) {
         if(Aide.toBoolean(this.options.utiliserProxy)){
             this.options.url=Aide.utiliserProxy(this.options.url, true);
         }
-        
-        this._init();
+
+        this.options.version = this.options.version==null ? "1.0.0" : this.options.version;
+
+        if(!this.options.mode){
+            this._init();
+        }
+
     };
     
     WMTS.prototype = new Couche();
@@ -54,10 +58,64 @@ define(['couche', 'aide'], function(Couche, Aide) {
      * @name Couche.WMTS#_init
     */
     WMTS.prototype._init = function(){
-        Couche.prototype._init.call(this);
-        this._layer = new OpenLayers.Layer.WMTS(
-            this._optionsOL
-        );
+    	if (!this.options.layerOL){
+	        Couche.prototype._init.call(this);
+
+	 		var opt = $.extend({}, this._optionsOL, {url: this.options.url});
+		    this._layer = new OpenLayers.Layer.WMTS(opt); 
+		}
+    };
+
+    WMTS.prototype._ajoutCallback = function(target, callback, optCallback){
+        if(this.options.mode === 'getCapabilities'){
+            this._getCapabilities(target, callback, optCallback);
+        }else {
+            Couche.prototype._ajoutCallback.call(this, target, callback, optCallback);
+        }
+    };
+
+  	WMTS.prototype._getCapabilities = function(target, callback, optCallback){
+        var that=this;
+
+		OpenLayers.Request.GET({
+            url: that.options.url,                 
+            params: {
+                SERVICE: "WMTS",
+                VERSION: this.options.version,
+                REQUEST: "GetCapabilities",
+            },
+            async: false,
+            success: function(request) {
+                var doc = request.responseXML;
+                if (!doc || !doc.documentElement) {
+                    doc = request.responseText;
+                }
+                
+                var layerWMTS;    
+                try{
+                    var reader = new OpenLayers.Format.WMTSCapabilities();
+                    var capabilities = reader.read(doc);
+                    layerWMTS = reader.createLayer(capabilities, 
+                                        that._optionsOL);
+                }
+                catch(e){
+                    Aide.afficherMessageConsole('La création du layer WMTS '+that.options.titre+' a échoué.'
+                                +'Erreur:'+e,'eleve');
+                }
+               
+                if(layerWMTS){
+                    that._layer = layerWMTS;
+                }
+                
+            	Couche.prototype._ajoutCallback.call(that, target, callback, optCallback);
+            },
+            failure: function() {
+                Aide.afficherMessageConsole("La requête GetCapabilities au service :"+that.options.url+', pour la couche:'+that.options.titre+' a échoué.','eleve');
+            }
+        });  
+
+
+
     };
     
     return WMTS;

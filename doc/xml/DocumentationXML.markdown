@@ -254,13 +254,15 @@ l'échelle et la projection de la carte.
 
 |Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
 |---------------|-----------------------|---------------|-----------------|-------------|
-|id		|			|		|		|*info-panneau*|
-|titre		|			|		|		|*Informations additionnelles*|
-|position	|			|		|		|*sud*|
-|dimension	|Hauteur du panneau.	|		|		|*75*|
-|minDimension	|Hauteur minimale du panneau.|		|		|*75*|
-|maxDimension	|Hauteur maximale du panneau.|		|		|*400*|
-|ouvert		|			|		|		|*false*|
+|id		|			|Non|		|*info-panneau*|
+|titre		|			|Non|		|*Informations additionnelles*|
+|position	|			|Non|		|*sud*|
+|dimension	|Hauteur du panneau.	|Non|		|*75*|
+|minDimension	|Hauteur minimale du panneau.|Non|		|*75*|
+|maxDimension	|Hauteur maximale du panneau.|Non|		|*400*|
+|ouvert		|			|Non|		|*false*|
+|projection		|Afficher dans la liste les projections comme code EPSG ou leurs nom commun|Non|code, nom|*code*|
+|elevation		|Afficher l'altitude à une position dans la carte. (Ajout dans le config.php est nécessaire pour identifié le service api d'élévation)|Non|Booléen		|*false*|
 
 *Exemples*
 
@@ -268,7 +270,7 @@ l'échelle et la projection de la carte.
 <panneau classe="PanneauInfo">
 	<panneau id="panInfo" titre="Exemple PanneauInfo" classe="PanneauInfo"
 	position="sud" dimension="200" minDimension="100" maxDimension="300"
-	ouvert="false"/>
+	ouvert="false" projection="nom" elevation="true" />
 </panneau>
 ```
 
@@ -401,12 +403,15 @@ couches disponibles à l’affichage sur la carte.
 
 |Nom		|Description		|Obligatoire	|Valeurs possibles|Valeur défaut|
 |---------------|-----------------------|---------------|-----------------|-------------|
-|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique||
+|idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique| |
+|retirerCheckboxPremNiveau| Permet de retirer les checkbox de premier niveau dans l'arborescence | non | true | false |
+|identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false
+|identifierGetInfo| Permet d'ajout l'icône du getInfo à gauche de la couche lorsque celle-ci est cochée et qu'elle contient un getInfo | Non | true | false | 
 
 *Exemple*
 
 ```xml
-<element-accordeon classe="Arborescence"/>
+ <element-accordeon classe="Arborescence" retirerCheckboxPremNiveau="true" identifierSousSelection="true" identifierGetInfo="true"/>
 ```
 
 *Aperçu*
@@ -826,7 +831,7 @@ OutilZoomPreselection et OutilZoomRectangle*.
 |id	|Identifiant de l'outil. Est utilisé pour accéder à celui-ci. Doit être unique.|Non|Chaîne alphanumérique|*outil*|
 |classe	|Nom de la classe qui implémente l'outil.	|Non	|Les classes prédéfinies sont :  *OutilAide*, *OutilAjoutWMS*, *OutilAnalyseSpatiale*, *OutilDeplacement*, *OutilDessin*, *OutilHistoriqueNavigation*, *OutilInfo*, *OutilMesure*, *OutilDeplacerCentre*, *OutilPartagerCarte*, *OutilReporterBug*, *OutilZoomEtendueMaximale*, *OutilZoomPreselection*, *OutilZoomRectangle*  ou Classe personnalisée (voir attribut urlModule)|*Outil*|
 |urlModule|Url du fichier Javascript contenant la classe définissant un panneau personnalisé.|Seulement pour les panneaux personnalisés|URL||
-|icone|Icône de l'outil. Est affiché sur le bouton dans la barre d'outils.|Non|URL ou Classe CSS prédéfinie :  *aide*, *apropos*, *back*, *bug*, *deletefeature*, *drawpoint*, *drawline*, *drawpolygon*, *gentillyboom*, *getinfo*, *measrCircle*, *measrlinear*, *measrpolgn*, *modifyfeature*, *moveto*, *next*, *pan*, *print*, *zoomfull*, *zoomin*, *zoomout*, *zoom-hydro*, *zoom-mrc*, *zoom-mun*, *zoom-reg-adm*|titre|Titre de l'outil. Est affiché à droite du bouton dans la barre d'outils.|Non|Chaîne alphanumérique||
+|icone|Icône de l'outil. Est affiché sur le bouton dans la barre d'outils.|Non|URL ou Classe CSS prédéfinie :  *aide*, *apropos*, *back*, *bug*, *deletefeature*, *drawpoint*, *drawline*, *drawpolygon*, *getinfo*, *measrCircle*, *measrlinear*, *measrpolgn*, *modifyfeature*, *moveto*, *next*, *pan*, *print*, *zoomfull*, *zoomin*, *zoomout*, *zoom-hydro*, *zoom-mrc*, *zoom-mun*, *zoom-reg-adm*|titre|Titre de l'outil. Est affiché à droite du bouton dans la barre d'outils.|Non|Chaîne alphanumérique||
 |infobulle|Infobulle de l'outil. Est affiché lorsque le curseur de la souris est placée sur le bouton dans la barre d'outils.|Non|Chaîne alphanumérique||
 |visible|Indique si le bouton est visible ou non dans la barre d'outils lors de l'affichage initial du navigateur.|Non|Booléen|*true*|
 |actif|Indique si le bouton est actif ou non (grisé) dans la barre d'outils lors de l'affichage initial du navigateur.|Non|Booléen|*true*|
@@ -993,6 +998,18 @@ infobulle="Dessin/Annotations" visible="true" actif="true"/>
 ![](media/image20.png)
 
 ![](media/image21.png)
+
+
+outilExportCSV
+-----------
+
+
+Permet d'exporter les données d'un panneauTable en fichier csv. Inclus dans le panneauTable.
+
+*Attributs ou valeurs spécifiques*
+
+Aucune
+
 
 outilExportGPX
 -----------
@@ -1305,6 +1322,11 @@ partir d'une liste.
 |type	|Type de l'outil. Sert à déterminer le type de région à afficher dans la liste.|Oui|*region-adm / mrc / mun / hydro*||
 |icone	|					|		|			|*zoom-reg-adm (si type = region-adm)*, *zoom-mrc (si type = mrc)*, *zoom-mun (si type = mun)*, *zoom-hydro (si type = hydro)*|
 |titre	|					|		|			|*Par région administrative (si type = region-adm)*, *Par MRC (si type = mrc)*, *Par municipalité (si type = mun)*, *Par hydrographie (si type = hydro)*|
+|etiquette| attribut à utiliser pour afficher dans l'étiquette |Non| string |res_nm_reg mrs_nm_reg mus_nm_mun |
+|texteForm| Texte à afficher dans le formulaire| Non | string | |
+|fieldLabel | Titre du combobox à afficher | Non | String | |
+|requestParametre| Nom du service d'obtention des données | Non | string |
+|service | url du service | Non | String| |
 
 *Exemple*s
 ```xml
@@ -1313,6 +1335,19 @@ partir d'une liste.
 type="mun" icone="images/toolbar/zoom\_mun.png" titre="Zoom
 municipalité" infobulle="Zoom municipalité" visible="true"
 actif="true"/>
+```
+
+```xml
+<outil classe="OutilZoomPreselection" type="mrc"/>
+<outil id="btnZoomPreselection" classe="OutilZoomPreselection"
+type="mun" icone="images/toolbar/zoom\_mun.png" titre="Zoom
+municipalité" infobulle="Zoom municipalité" visible="true"
+actif="true"/>
+```
+*Personnalisé:
+```xml
+ <outil classe="OutilZoomPreselection" type="cs" id="recherche_par_cs" titre="Par centre de services" icone="zoom-mrc" etiquette="desc_fran" 
+                           texteForm="un centre de services" fieldLabel="Centre de services" requestParametre="obtenirCS" service="/lien_du_service/proxy.php"/>         
 ```
 
 *Aperçu*
@@ -1474,7 +1509,8 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |ordreAffichage| Ordre d'affichage de la couche		| Non		| Nombre entier		| *Valeurs par défaut d’OpenLayers*|
 |droit	| Indique les droits de la couche (Copyrights)	| Non		| Chaîne alphanumérique	| 		|
 |metadonnee| Lien vers les métadonnées			| Non		| URL			|		|
-|ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier||
+|ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier|
+|estInterrogeable|Indique si le getInfo doit être fait sur cette couche | Non | Booléen | true |
 
 blanc
 -----
@@ -1642,7 +1678,8 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 |infoEncodage | Indique l'encodage voulu dans la fenêtre de résultats pour l' *OutilInfo* sur la couche | Non| Chaîne alphanumérique| *UTF-8*|
 |infoGabarit | Indique l'emplacement du script [Handlebars](https://github.com/wycats/handlebars.js#differences-between-handlebarsjs-and-mustache) avec l'extension *.html* qui sera apliqué dans la fenêtre de résultats sur l' *OutilInfo* après le clique sur la couche dans la carte ([exemple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exemple.html),[ exemple simple](https://github.com/bosthy/igo/blob/dev/interfaces/navigateur/public/template/handlebars.exempleSimple.html)) | Non|  URL|
 |infoUrl | Indique un url qui sera remplacer par l'url GetFeaturInfo de l' *OutilInfo* | Non| URL| |
-|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL|		|
+|infoAction | Indique l'emplacement du script qui reçevra le résultats json du GetFeatureInfo de l' *OutilInfo* après le clique sur la couche dans la carte l'affichage sera géré par le script| Non| URL| |
+|afficherMessageErreurUtilisateur| Permettre d'afficher un message générique à l'utilisateur quand la couche est en erreur. | Non | "True" | |
 
 *Exemples*
 ```xml

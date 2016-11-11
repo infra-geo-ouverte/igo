@@ -60,9 +60,6 @@ img.olTileImage {
 .apropos {
     background-image:url(../images/toolbar/onebit_25.png) !important;
 }
-.gentillyboom {
-    background-image:url(../images/toolbar/hazard_radioactive2.png) !important;
-}
 .getinfo {
     background-image:url(../images/toolbar/info.png) !important;
 }
@@ -125,13 +122,16 @@ ul.list {
     font-size: 11px;
     padding: 0 0 0 16px;
 }
-#currentMousePositionComponent, 
+
+#currentMousePositionElevation, 
 #currentScaleComponent, 
 #currentProjectionComponent, 
-#currentTimeComponent{
+#currentTimeComponent,
+#currentMousePositionComponent{
     float: left;
 }
-
+ 
+ 
 div.southPanel{
     padding: 0px 0px 0px 0px;
 }

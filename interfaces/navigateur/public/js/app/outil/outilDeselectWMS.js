@@ -40,6 +40,7 @@ define(['outil'], function(Outil) {
     */
     OutilDeselectWMS.prototype.executer =  function () {
         this.carte.gestionCouches.deselectionnerCouchesWMS();
+        this.carte.gestionCouches.deselectionnerCouchesWMTS();
     };
 
     return OutilDeselectWMS;

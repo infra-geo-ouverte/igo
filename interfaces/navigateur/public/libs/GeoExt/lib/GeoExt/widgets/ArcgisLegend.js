@@ -25,13 +25,21 @@ GeoExt.ArcgisLegend = Ext.extend(GeoExt.LayerLegend, {
                 url: this.getLegendUrl(layer),
                 success: function(response){
                     if(response && response.layers && response.layers.length){
+                        var layersName = layer.options.layers;
+                        var layersNameArray = [];
+                        if(layersName && layersName.search("show:") === 0){
+                            layersNameArray = layersName.substr(5).split(",");
+                        }
+
                         var html = "<div>";
                         $.each(response.layers, function(key, layer){
-                            html += "<span><b>" + layer.layerName + "</b></span><br/>"
-                            $.each(layer.legend, function(key2, style){
-                                html += "<img src=\" data:image/png;base64," + style.imageData + "\" />";
-                                html += "<span>" + style.label + "</span><br/>";
-                            });
+                            if (!layersName || layersNameArray.indexOf(String(key)) !== -1) {
+                                html += "<span><b>" + layer.layerName + "</b></span><br/>"
+                                $.each(layer.legend, function(key2, style){
+                                    html += "<img src=\" data:image/png;base64," + style.imageData + "\" />";
+                                    html += "<span>" + style.label + "</span><br/>";
+                                });
+                            }
                         });
                         html += "</div>"
                         that.add({

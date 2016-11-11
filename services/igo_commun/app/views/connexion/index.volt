@@ -1,8 +1,10 @@
 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2 bloc-connexion">
     <div class="row">
-        {% if erreur !== "" %}
-        <div class="alert alert-danger text-center col-xs-12 col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 login_error" role="alert">{{erreur}}</div>
-        {% endif  %}
+        {% if erreurs is iterable %}
+          {% for erreur in erreurs %}
+          <div class="alert alert-danger text-center col-xs-12 col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 login_error" role="alert">{{erreur}}</div>
+          {% endfor %}
+        {%endif%}
     </div>
     <form method='post' action="{{roleUri}}">
         <div class="row">

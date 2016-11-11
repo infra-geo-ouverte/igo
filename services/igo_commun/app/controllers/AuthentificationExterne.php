@@ -9,9 +9,11 @@ class AuthentificationExterne extends AuthentificationController {
     protected $estAdmin;
     protected $estPilote;
     protected $igo_utilisateur;
-    protected $messageErreur = "Erreur d'authentification";
+    protected $nom;
+    protected $prenom;
+    protected $messageErreur = ["Erreur d'authentification"];
 
-    public function obtenirMessageErreur() {
+    public function obtenirMessagesErreur() {
         return $this->messageErreur;
     }
 
@@ -27,6 +29,8 @@ class AuthentificationExterne extends AuthentificationController {
             $this->profilActif = "";
             $this->motDePasseExpire = false;
             $this->motDePasseValide = true;
+            $this->prenom = stristr($_SERVER['PHP_AUTH_USER'], "@", true);
+            $this->nom = '';
             return true;
         }else{
             return false;
@@ -58,6 +62,14 @@ class AuthentificationExterne extends AuthentificationController {
 
     public function deconnexion() {
         
+    }
+
+    public function obtenirNom(){
+        return $this->nom;
+    }
+
+    public function obtenirPrenom(){
+        return $this->nom;
     }
 
 }

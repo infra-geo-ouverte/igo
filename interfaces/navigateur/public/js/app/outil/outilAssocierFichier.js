@@ -69,10 +69,10 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
             html: "<div style=\"position:absolute;top:115px;left:25px;\" id=\"uploadForm\"></div>"
         });
 
-        var buttonVisualiser = new Ext.Button({
+        var buttonTelecharger = new Ext.Button({
             width: 80,
             cls: "fileButton",
-            text: "Visualiser",
+            text: "Télécharger",
             listeners : {
                 click : function(){
                     
@@ -123,11 +123,11 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
             style: "position: relative; float:right",
             cls: "uploadForm",
             width: 80,
-            items: [buttonVisualiser,
+            items: [buttonTelecharger,
                 {
                     xtype :'fileuploadfield',
                     inputType :'file',
-                    id: 'uploadDocument',
+                    id: 'uploadOutilAssocierFichier',
                     buttonOnly : true,
                     buttonText: "&nbsp; &nbsp; &nbsp; Ajouter&nbsp; &nbsp; &nbsp;&nbsp;", //width 80?
                     cls: "fileButton",
@@ -151,6 +151,9 @@ define(['aide', 'outil', 'fileUploadField'], function(Aide, Outil) {
                             else{
                                 Aide.afficherMessage("Message", "S.V.P. Sélectionner un fichier.", "OK", "MESSAGE"); 
                             }
+                            
+                            //Permet de réinialiser le panneau afin de permettre la resélection du même fichier.
+                            this.reset();
                         }
                     }
                 },

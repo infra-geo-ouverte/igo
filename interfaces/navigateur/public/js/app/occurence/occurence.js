@@ -1,4 +1,4 @@
-/** 
+/**
  * Module pour l'objet {@link Occurence}.
  * @module occurence
  * @author Marc-André Barbeau, MSP
@@ -14,7 +14,7 @@
  * @requires evenement
  */
 define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLigne', 'multiPolygone', 'collection', 'aide', 'evenement'], function(Limites, Style, Point, Ligne, Polygone, MultiPoint, MultiLigne, MultiPolygone, Collection, Aide, Evenement) {
-    /** 
+    /**
      * Création de l'object Occurence.
      * @constructor
      * @name Occurence
@@ -48,10 +48,10 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             proprietes = proprietes || vectorOL.attributes;
             if(!opt._keepFeature){
                 geometrie = vectorOL.geometry;
-            } 
+            }
         }
-        
-        var typeGeometrie = opt.typeGeometrie?opt.typeGeometrie:null;
+
+        var typeGeometrie = opt.typeGeometrie ? opt.typeGeometrie : null;
 
         this.styles = {};
         this._definirGeometrie(geometrie,typeGeometrie);
@@ -59,10 +59,12 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this.accepterModifications();
 
         this.selectionnee = false;
-        this.definirStyle(style);
+        if (style && !$.isEmptyObject(style)) {
+          this.definirStyle(style);
+        }
     };
 
-    /** 
+    /**
      * Indique si l'occurence est sélectionnée
      * @method
      * @name Occurence#estSelectionne
@@ -72,7 +74,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return this.selectionnee;
     };
 
-    /** 
+    /**
      * Selectionner l'occurence
      * @method
      * @name Occurence#selectionner
@@ -107,7 +109,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Déselectionner l'occurence
      * @method
      * @name Occurence#deselectionner
@@ -142,7 +144,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Indique si l'occurence est visible à l'écran
      * @method
      * @name Occurence#estVisible
@@ -152,7 +154,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return this._feature.onScreen();
     };
 
-    /** 
+    /**
      * Indique si l'occurence est affichée.
      * Il n'est pas nécessairement visible (peut être à l'extérieur de l'écran)
      * @method
@@ -163,7 +165,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return this._feature.getVisibility();
     };
 
-    /** 
+    /**
      * Obtenir le type de géométrie de l'occurence
      * @method
      * @name Occurence#obtenirTypeGeometrie
@@ -173,7 +175,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return this.type;
     };
 
-    /** 
+    /**
      * Obtenir les propriétés de l'occurence
      * @method
      * @name Occurence#obtenirProprietes
@@ -186,7 +188,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return this._feature.attributes;
     };
 
-    /** 
+    /**
      * Définir les propriétés de l'occurence
      * @method
      * @param {Dictionnaire} proprietes Propriétés de l'occurence
@@ -197,7 +199,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (proprietes && !$.isPlainObject(proprietes)) {
             throw new Error("Occurence.definirProprietes : Paramètre invalide");
         }
-              
+
         if (!this.proprietesOriginales) {
             this.modifiee = true;
             this.proprietesOriginales = $.extend(true, {}, this.obtenirProprietes());
@@ -211,7 +213,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Obtenir la valeur d'une propriété
      * @method
      * @name Occurence#obtenirPropriete
@@ -241,18 +243,18 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return obj;
     };
 
-    /** 
+    /**
      * Ajouter une propriété à l'occurence
      * @method
      * @name Occurence#definirPropriete
-     * @param {String} propriete Nom de la propriété 
+     * @param {String} propriete Nom de la propriété
      * @param {*} valeur Valeur de la propriété
      * @throws Occurence.definirPropriete : Nom de la propriété invalide
      */
     Occurence.prototype.definirPropriete = function(propriete, valeur) {
         if (typeof propriete !== 'string') {
             throw new Error("Occurence.definirPropriete : Nom de la propriété invalide");
-        }       
+        }
         var obj = this._feature.attributes;
         if (propriete[0] === '/') {
             propriete = propriete.substr(1);
@@ -325,7 +327,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (typeof propriete !== 'string') {
             throw new Error("Occurence.definirErreur : Nom de la propriété invalide");
         }
-        
+
         var obj = this.erreurs ? this.erreurs : this.erreurs={};
         var proprieteSplited = propriete.split('.');
         var dernierePropriete = proprieteSplited.pop();
@@ -344,7 +346,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         obj[dernierePropriete] = valeur;
     };
 
-    /** 
+    /**
      * Obtenir le style de l'occurence
      * @method
      * @name Occurence#obtenirStyle
@@ -367,7 +369,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return this.styles[regle];
     };
 
-    /** 
+    /**
      * Définir un style de l'occurence
      * @method
      * @name Occurence#definirStyle
@@ -379,7 +381,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         if (typeof regle !== 'string') {
             throw new Error("Occurence.definirStyle : Règle du style invalide");
         }
-             
+
         if (style && style.obtenirTypeClasse && style.obtenirTypeClasse() === 'Style') {
             this.styles[regle] = style.cloner();
             this.styles[regle].parent = this;
@@ -395,7 +397,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Changer le style de l'occurence
      * @method
      * @name Occurence#appliquerStyle
@@ -404,7 +406,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      */
     Occurence.prototype.appliquerStyle = function(regle, survol) {
         regle = regle || 'defaut';
-      
+
         if (typeof regle !== 'string') {
             throw new Error("Occurence.appliquerStyle : Règle du style invalide");
         } else if (regle === 'courant') {
@@ -430,11 +432,11 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             this._feature.style = this.styles[regle]._getStyleOptionsOL();
             this._feature.renderIntent = undefined;
         }
-        
+
         this.rafraichir();
     };
 
-    /** 
+    /**
      * Définir le style over. 4 possibilités, en ordre d'essai:
      * 1) Utilisation du style 'survol' de l'occurance
      * 2) Changer l'opacité à 0.6 du style 'courant' de l'occurance
@@ -492,7 +494,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         return true;
     };
 
-    /** 
+    /**
      * Obtenir la valeur d'une propriété du style
      * @method
      * @name Occurence.Occurence#obtenirProprieteStyle
@@ -516,7 +518,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     };
 
 
-    /** 
+    /**
      * Ajouter une propriété au style de l'occurence
      * @method
      * @name Style.Occurence#definirProprieteStyle
@@ -529,7 +531,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             throw new Error("Occurence.definirProprieteStyle : Nom de la propriété invalide");
         }
         regle = regle || 'courant';
-        regle = regle == 'courant' ? this.regleCourant : regle;      
+        regle = regle == 'courant' ? this.regleCourant : regle;
         if (this.obtenirStyle(regle)) {
             this.obtenirStyle(regle).definirPropriete(nom, valeur);
         } else if (this.obtenirStyle(regle, true, true)) {
@@ -549,20 +551,20 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this.appliquerStyle("courant")
     };
 
-    /** 
+    /**
      * Cacher l'occurence
      * @method
      * @name Occurence#cacher
      * @param {boolean} tousLesStyles Cacher l'occurence pour tous les styles ou seulement le style courant
      */
     Occurence.prototype.cacher = function(tousLesStyles) {
-      
+
         if(this.estAffichee()){
              this.definirProprieteStyle('visible', 'none', undefined);
             if (this.vecteur) {
                 this.vecteur.carte.gestionCouches.enleverOccurenceSurvol(this);
             }
-            
+
             if (tousLesStyles) {
                 //todo: faire une boucle sur tous les styles
                 this.definirProprieteStyle('visible', 'none', 'defaut');
@@ -571,17 +573,17 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Afficher l'occurence
      * @method
      * @name Occurence#afficher
      * @param {boolean} tousLesStyles Afficher l'occurence pour tous les styles ou seulement le style courant
      */
     Occurence.prototype.afficher = function(tousLesStyles) {
-                
+
         if(!this.estAffichee()){
             this.definirProprieteStyle('visible', undefined, undefined);
-            
+
             if (tousLesStyles) {
                 //todo: faire une boucle sur tous les styles
                 this.definirProprieteStyle('visible', undefined, 'defaut');
@@ -590,7 +592,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Rafraichir l'occurence sur la carte
      * @method
      * @name Occurence#rafraichir
@@ -604,7 +606,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Ouvrir une infobulle attachée à l'occurence
      * @method
      * @name Occurence#ouvrirInfobulle
@@ -673,7 +675,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
     };
 
 
-    /** 
+    /**
      * Fermer l'infobulle de l'occurence
      * @method
      * @name Occurence#fermerInfobulle
@@ -687,7 +689,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         }
     };
 
-    /** 
+    /**
      * Définir la géométrie de l'occurence
      * @method
      * @name Occurence#_definirGeometrie
@@ -742,7 +744,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             } else if (geometrie.CLASS_NAME === "OpenLayers.Geometry.Collection"){
                 this.type = "Collection";
                 geometrie = new Collection(geometrie);
-            } 
+            }
         } else if (geometrie._obtenirGeomOL) {
             var geomOL = geometrie._obtenirGeomOL();
             this._feature = new OpenLayers.Feature.Vector(geomOL);
@@ -754,7 +756,11 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return;
         }
 
-        $.extend(this, geometrie, Occurence.prototype);
+        $.extend(this, geometrie, {
+				'constructor': this.constructor,
+				'projeter': this.projeter,
+				'majGeometrie': this.majGeometrie
+		});
 
         if (!this.id) {
             var type = this.type ? this.type + '_' : '';
@@ -763,12 +769,12 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this._feature.id = this.id;
 
         this._feature.attributes = proprietes || {};
-        
+
         return this;
     };
 
-    /** 
-     * Obtenir la géométrie de l'occurence. 
+    /**
+     * Obtenir la géométrie de l'occurence.
      * C'est une copie de la géométrie. Les modifications ne sont pas réflétées à la géométrie.
      * @method
      * @name Occurence#_obtenirGeometrie
@@ -786,8 +792,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
                     return new Polygone(this.lignes, this.obtenirProjection());
                 case "MultiPolygone":
                     return new MultiPolygone(this.polygones, this.obtenirProjection());
-                case "MultiLignes":
-                    return new MultiLignes(this.lignes, this.obtenirProjection());
+                case "MultiLigne":
+                    return new MultiLigne(this.lignes, this.obtenirProjection());
                 case "MultiPoints":
                     return new MultiPoints(this.points, this.obtenirProjection());
                 case "Collection":
@@ -801,8 +807,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             return undefined;
         }
     };
-    
-    /** 
+
+    /**
      * Mise à jour de la géométrie de l'occurence
      * @method
      * @name Occurence#majGeometrie
@@ -825,7 +831,7 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
             this.vecteur._layer.addFeatures(this._feature);
             this.appliquerStyle(this.regleCourant, false);
         }
-        
+
         if(opt.lancerDeclencheur !== false){
             /**
              * Événement lancée lorsque l'occurence est modifiée
@@ -843,12 +849,12 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
                 this.vecteur.declencher({type: "vecteurOccurenceModifiee", occurence: this, modifGeometrie: geometrie, modifType: 'géométrie'});
             }
         }
-        
+
         return this;
     };
 
 
-    /** 
+    /**
      * Annuler les modifications apportées à l'occurence.
      * Retourner l'occurence dans l'état qu'elle était la dernière fois que les modifications ont été acceptées.
      * @method
@@ -870,8 +876,8 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this.enlevee = false;
     };
 
-    /** 
-     * Accepter les modifications apportées à l'occurence. 
+    /**
+     * Accepter les modifications apportées à l'occurence.
      * Elles ne pourront plus être annulées.
      * @method
      * @name Occurence#annulerModifications
@@ -885,19 +891,19 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
         this.ajoutee = false;
         this.enlevee = false;
     };
-    
-    
+
+
     /**
      * Projecter une occurrence dans une nouvelle projection
      * @method
      * @name Occurence#projeterOccurence
-     * @param {String} arg1 
+     * @param {String} arg1
      * Si !arg2, alors arg1 = Projection voulue. La projection source est la projection du polygone.
      * Si arg2, alors arg1 = Projection source
      * @param {String} [arg2] Projection voulue
      * @returns {Occurence} Occurence avec la nouvelle projection
      */
-    Occurence.prototype.projeter = function(arg1, arg2) {      
+    Occurence.prototype.projeter = function(arg1, arg2) {
         var geom = this._obtenirGeometrie().projeter(arg1, arg2);
         return this.cloner()._definirGeometrie(geom);
     };
@@ -908,19 +914,19 @@ define(['limites', 'style', 'point', 'ligne', 'polygone', 'multiPoint', 'multiLi
      * @name Occurence#cloner
      * return {Occurence} Occcurence clonée
      */
-    Occurence.prototype.cloner = function(garderStyleVecteur) {   
+    Occurence.prototype.cloner = function(garderStyleVecteur) {
         if(garderStyleVecteur){
             return new Occurence(this._obtenirGeometrie(), this.proprietes, this.obtenirStyle(this.regleCourant, true, true));
         }
         else{
             return new Occurence(this._obtenirGeometrie(), this.proprietes, this.styles);
-        } 
+        }
     };
-    
+
     /**
      * Réinitialiser les valeurs des attributs de l'occurence
      * @method
-     * @name Occurence#reinitialiserAttributs   
+     * @name Occurence#reinitialiserAttributs
      */
     Occurence.prototype.reinitialiserAttributs = function() {
         this.definirProprietes();

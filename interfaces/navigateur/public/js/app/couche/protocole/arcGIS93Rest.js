@@ -3,15 +3,16 @@ define(['couche', 'aide'], function(Couche, Aide) {
     function ArcGIS93Rest(options){
         this.options = options || {};
 
-        if (!this.options.titre || !this.options.url || !this.options.nom) {
+        if (!this.options.titre || !this.options.url) {
             throw new Error("Igo.ArcGIS93Rest a besoin d'un titre, d'un url et d'un nom");
         }
 
-        if(this.options.nom.substr(0,5) !== 'show:'){
+        if(this.options.nom && this.options.nom.substr(0,5) !== 'show:'){
         	this.options.nom = 'show:' + this.options.nom;
         }
 
         this._optionsOL = this.options._optionsOL || {
+            layers: this.options.nom, 
             maxZoomLevel: options.zoomMax==null?null:Number(options.zoomMax),
             minZoomLevel: options.zoomMin==null?null:Number(options.zoomMin),
             transparent: this.options.fond ? false : true
@@ -37,7 +38,6 @@ define(['couche', 'aide'], function(Couche, Aide) {
     */
     ArcGIS93Rest.prototype._init = function(){
         Couche.prototype._init.call(this);
-
         this._layer = new OpenLayers.Layer.ArcGIS93Rest(
             this.options.titre,
             this.options.url,

@@ -19,6 +19,8 @@
     "openlayers": "git@github.com:openlayers/openlayers.git#release-2.13",
     "extjs": "http://cdn.sencha.com/ext/gpl/ext-3.4.1.1-gpl.zip",
     "handlebars": "~3.0.0",
-    "r.js": "git@github.com:jrburke/r.js.git#2.1.18"
+    "r.js": "git@github.com:jrburke/r.js.git#2.1.18",
+    "html2canvas": "0.5.0-beta4",
+    "es6-promise": "~3.1.2"
   }
 }

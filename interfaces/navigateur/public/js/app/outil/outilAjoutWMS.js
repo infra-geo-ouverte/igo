@@ -134,50 +134,6 @@ define(['outil', 'aide'], function(Outil, Aide) {
         this._MyWMSBrowser.Window.show();
     };
 
-    /**
-     * Methode : saveContext
-     * Appelée lors d'un déclanchement d'un événement 'savecontext'.
-     *
-     * Ajoute la liste des serveurs wms dans l'object global de sauvegarde de 
-     *     contexte.
-     */
-    
-    //TODO Lancer MyWMSBrowser.saveContext pour partager Carte??
-    /*
-     * 
-     *     oMapComponent.on({"savecontext": sauvegardeContexte});
-    oMapComponent.on({"savecontext": MyWMSBrowser.saveContext});
-    oMapComponent.on({"loadcontext": MyWMSBrowser.loadContext});
-    main.js ligne 603
-     */
-    
-   /* MyWMSBrowser.saveContext = function() {
-        var options = { 'wmsservers': MyWMSBrowser.getWMSServersContext() };
-        goSauvegardeContexteJSON = 
-            OpenLayers.Util.applyDefaults(options, goSauvegardeContexteJSON);
-    };*/
-
-    /**
-     * Methode : getWMSServersContext
-     * Retourne la liste de serveurs wms contenu dans l'objet 'Store'.  Toutes les
-     *      urls sont retournées : celles du départ et celles ajoutées par
-     *      l'usager.
-     *
-     * Retourne:
-     * {Array} Liste d'urls des serveurs wms.
-     */
-   /* MyWMSBrowser.getWMSServersContext = function() {
-        var aszUrls = [];
-        var nUrls = MyWMSBrowser.Store.getCount();
-
-        for(var i=0; i<nUrls; i++) {
-            aszUrls.push(MyWMSBrowser.Store.getAt(i).get('url'));
-        }
-
-        return aszUrls;
-    };*/
-
-
     return OutilAjoutWMS;
     
 });

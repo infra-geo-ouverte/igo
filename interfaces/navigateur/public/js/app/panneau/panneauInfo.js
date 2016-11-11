@@ -5,7 +5,7 @@
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
-define(['panneau'], function(Panneau) {
+define(['panneau', 'point', 'aide'], function(Panneau, Point, Aide) {
      /** 
      * Création de l'object Panneau.PanneauInfo.
      * Pour la liste complète des paramètres, voir {@link Panneau}
@@ -26,8 +26,14 @@ define(['panneau'], function(Panneau) {
         
         this.options = options || {};
         this._timeUpdateCtrl=0;
-        var firstExpand=true;
+        this.projectionAffichage = this.options.projection || 'libelle';
         
+        if (this.options.projection == 'code'){
+            this.projectionAffichage = 'libelle';
+        }
+           
+        var firstExpand=true;
+      
         var epsgArray = new Array();
         
         for(var index in Proj4js.defs){
@@ -37,14 +43,14 @@ define(['panneau'], function(Panneau) {
                 var title = Proj4js.defs[index].match(/title=(\S*)/);
                 
                 var libelle = units!==null?index+'('+units[1]+')':index;
-                var info = title!==null?title[1]:index;
+                var nom = title!==null?title[1]:index;
                 
-                epsgArray.push([index, libelle, info]);
+                epsgArray.push([index, libelle, nom]);
             }
         }
             
         var projStore = new Ext.data.ArrayStore({id:0,
-            fields: ['code', 'libelle', 'info'],
+            fields: ['code', 'libelle', 'nom'],
             data: epsgArray
         });
    
@@ -54,6 +60,12 @@ define(['panneau'], function(Panneau) {
         },*/{
             id: 'currentMousePositionComponent',
             title: 'Position souris',
+            items:[{
+                    ctCls: 'x-form-field infoPosition'
+            }]
+        },{
+            id: 'currentMousePositionElevation',
+            title: 'Élevation',
             items:[{
                     ctCls: 'x-form-field infoPosition'
             }]
@@ -68,11 +80,11 @@ define(['panneau'], function(Panneau) {
             title: 'Projection',
             items:[{
                 id: 'currentProjectionComboBox',
-                tpl: '<tpl for="."><div ext:qtip="{libelle}. {info}" class="x-combo-list-item" style="text-align:center;">{libelle}</div></tpl>',
+                tpl: '<tpl for="."><div ext:qtip="{libelle}.{nom}" class="x-combo-list-item" style="text-align:center;">{' + this.projectionAffichage + '}</div></tpl>',
                 xtype: 'combo',
                 store: projStore ,
                 valueField: 'code',
-                displayField: 'libelle',
+                displayField: this.projectionAffichage,
                 typeAhead: true,
                 triggerAction: 'all',
                 selectOnFocus:true,
@@ -88,7 +100,7 @@ define(['panneau'], function(Panneau) {
                     }
                 }
             }]
-        }];
+        }]; 
         this.defautOptions.defaults = {
             split: true,
             height: 50,
@@ -97,7 +109,7 @@ define(['panneau'], function(Panneau) {
             maxSize: 200,
             margins: '0 0 0 0'
         };
-        
+           
         this.defautOptions.position = 'sud';
         this.defautOptions.id = 'info-panneau';
         this.defautOptions.titre = 'Informations additionnelles';
@@ -105,6 +117,7 @@ define(['panneau'], function(Panneau) {
         this.defautOptions.minDimension = 75;
         this.defautOptions.maxDimension = 400;
         this.defautOptions.ouvert = false;
+        this.defautOptions.elevation = false;
         this.defautOptions.listeners = {
             expand: function(panneau) {
                 if (firstExpand){
@@ -112,14 +125,24 @@ define(['panneau'], function(Panneau) {
                     panneau.scope.initialiserEchelle();
                     panneau.scope.initialiserPositionPointeur();
                     panneau.scope.afficherProjectionAffichage();
-                }
+                }  
+                  panneau.scope.initialiserPositionElevation();
                 //panneau.scope.activerHorloge();
             },
             collapse: function(panneau) {
+                panneau.scope.desactiverPositionElevation();
                 //panneau.scope.desactiverHorloge();
             },
             afterrender: function(panneau) {
-                //panneau.scope.afficherHorloge();
+                if (Aide.toBoolean(panneau.scope.options.ouvert)) {
+                    setTimeout(function(){
+                        firstExpand=false;
+                        panneau.scope.initialiserEchelle();
+                        panneau.scope.initialiserPositionPointeur();
+                        panneau.scope.afficherProjectionAffichage();
+                        panneau.scope.initialiserPositionElevation();
+                    }, 1);
+                }
             }
         };
 
@@ -128,6 +151,11 @@ define(['panneau'], function(Panneau) {
     PanneauInfo.prototype = new Panneau();
     PanneauInfo.prototype.constructor = PanneauInfo;
     
+
+    PanneauInfo.prototype._init = function() {
+        Panneau.prototype._init.call(this);
+    }
+
     /** 
      * Afficher l'heure dans le panneau
      * @method 
@@ -245,6 +273,66 @@ define(['panneau'], function(Panneau) {
         };
         
         
+    };
+    
+     /** 
+     * Activer le declencheur pauseSurvolCarte sur la carte
+     * @method 
+     * @private
+     * @name PanneauInfo#initialiserPositionElevation
+    */
+    PanneauInfo.prototype.initialiserPositionElevation = function(){
+        if (this.options.elevation){
+            this.carte.ajouterDeclencheur('pauseSurvolCarte', this.obtenirElevation, {scope: this.carte, id:"afficherElevation"});
+        } else {
+            this._getPanel().get("currentMousePositionElevation").setVisible(false);
+        }
+    };
+    
+       /** 
+     * Desactiver le declencheur pauseSurvolCarte sur la carte
+     * @method 
+     * @private
+     * @name PanneauInfo#desactiverPositionElevation
+    */
+    PanneauInfo.prototype.desactiverPositionElevation = function(){  
+        if (this.options.elevation){
+            this.carte.enleverDeclencheur('pauseSurvolCarte', this.obtenirElevation);
+        }
+    };
+  
+    
+      /** 
+     * Appel un servcie API Elevation et retourne l'information 
+     * dans le panneauInfo (Élevation) 
+     * @method 
+     * @private
+     * @name PanneauInfo#obtenirElevation
+    */
+    PanneauInfo.prototype.obtenirElevation = function(e) {
+               
+         //Valider que le service est défini dans le fichier de configuration
+        if(Aide.obtenirConfig('PanneauInfo').urlServiceElevation === undefined) {
+             Aide.afficherMessage("Erreur", "Vous devez ajouter un service d'API Élevation de Ressources naturelles Canada pour cet outil dans votre fichier de configuration.");
+             return false;
+        }
+            var geomt = new Point(e.x, e.y);
+            geomt = geomt.projeter('EPSG:4326');
+                $.get(Aide.utiliserProxy(decodeURIComponent(Aide.obtenirConfig('PanneauInfo').urlServiceElevation + '?lat=' + geomt.y + '&lon=' + geomt.x )), null, function (data, textStatus) {
+                    if (data.length > 0) {
+                       var elev = JSON.parse(data);
+                        var panneauInfo;
+                        var nav = Aide.obtenirNavigateur();
+                        panneauInfo = nav.obtenirPanneauxParType('PanneauInfo')[0];
+                        
+                        if (panneauInfo){
+                            $('#currentMousePositionElevation').find('.infoPosition').html('Altitude: ' + elev.altitude + '(m)');
+                        }
+                        clearTimeout(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
+                    } else {
+                        clearTimeout(Aide.obtenirNavigateur().carte._timerEvenementPauseSurvol);
+                    }
+                }, 'html'); 
     };
 
     return PanneauInfo;
