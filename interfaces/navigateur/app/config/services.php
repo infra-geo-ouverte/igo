@@ -318,13 +318,12 @@ $di->set('router', function(){
                   if(($di->get('session')->configuration) !== $di->get('dispatcher')->getParam("configuration")){    
                    //TODO: Faire que la deconnexion se fasse içi
                    $response = new \Phalcon\Http\Response();
-                   return $response->redirect('connexion/deconnexion', true);
-                   
+                   return $response->redirect('connexion/deconnexion', true);            
                      }
                 }
               
                 //On lit la configuration XML pour obtenir l'attribut module
-                //<navigateur authentification="true" module="AuthentificationLdap" titre="">
+                //<navigateur authentification="true" authentificationModule="AuthentificationLdap" titre="">
                 if (isset ($configKey)) {
                  
                 if (isset ($config->configurations[$configKey])) {

@@ -182,27 +182,11 @@ class AuthentificationBd extends AuthentificationController {
                 if ($mdp == ltrim (trim ($chaine))) {
                     $this->motDePasseValide = true;
                     $this->identifiant = $identifiant;
-                    $this->profils = "cn=GRAPP-VIG-OMSC_ANALYSTE,ou=VIG,ou=PROD,ou=APP,ou=SSO,o=MTMDET";
                 }
             }
         }
         
-        //        if (isset ($configuration->application->authentification->bd->users)) {
-        //            $bdUsers = $configuration->application->authentification->bd->users;
-        //        }
-        //
-        //        foreach ($bdUsers as $user => $encrypt) {
-        //            if ($user == $identifiant) {
-        //                if (empty ($encrypt)) {
-        //                   $this->motDePasseValide = false;
-        //                } else if (!empty($encrypt)){
-        //                    $chaine = $crypt->decryptBase64 (urldecode ($encrypt));
-        //                }
-        //                if ($mdp == ltrim (trim ($chaine))) {
-        //                    $this->motDePasseValide = true;
-        //                }
-        //            }
-        //        }
+       
 
         if (strlen ($mdp) == 0) {
              $this->motDePasseValide = false;
