@@ -319,7 +319,7 @@ $di->set('router', function(){
                    //TODO: Faire que la deconnexion se fasse içi
                    $response = new \Phalcon\Http\Response();
                    return $response->redirect('connexion/deconnexion', true);
-                  
+                   
                      }
                 }
               
@@ -339,8 +339,8 @@ $di->set('router', function(){
                     $element = simplexml_load_string (curl_file_get_contents ($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);
                 }
 
-                if (isset ($element->attributes ()->module)) {
-                    $module = $element->attributes ()->module;
+                if (isset ($element->attributes ()->authentificationModule)) {
+                    $module = $element->attributes ()->authentificationModule;
                 } else {
                     $module = "AuthentificationTest";
                 }
