@@ -215,21 +215,21 @@ class AuthentificationLdap extends AuthentificationController {
 
         $ldapHosts = [];
 
-        if(isset($configuration->application->authentification->ldap->interne)){
-          $ldapHosts[] = $configuration->application->authentification->ldap->interne;  
+        if(isset($configuration->application->authentification->module->ldap->interne)){
+          $ldapHosts[] = $configuration->application->authentification->module->ldap->interne;  
         }
 
-        if(isset($configuration->application->authentification->ldap->externe)){
-          $ldapHosts[] = $ldapExterne = $configuration->application->authentification->ldap->externe;  
+        if(isset($configuration->application->authentification->module->ldap->externe)){
+          $ldapHosts[] = $ldapExterne = $configuration->application->authentification->module->ldap->externe;  
         }
         
-        if(isset($configuration->application->authentification->ldap->host)){
-            $ldapHosts[] = $configuration->application->authentification->ldap->host;  
+        if(isset($configuration->application->authentification->module->ldap->host)){
+            $ldapHosts[] = $configuration->application->authentification->module->ldap->host;  
         }
         
-        $ldapPort = $configuration->application->authentification->ldap->port;
+        $ldapPort = $configuration->application->authentification->module->ldap->port;
   
-        $organisation = $configuration->application->authentification->ldap->organisation;
+        $organisation = $configuration->application->authentification->module->ldap->organisation;
 
         $authentificationAReussie = false;
 
