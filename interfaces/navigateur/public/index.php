@@ -14,6 +14,27 @@ try {
     //faire un module pour la retro-compatibilité, pour ce genre de code.
     if(isset($config->application->authentification->nomProfilAnonyme)){
       $config->application->authentification->profilAnonyme = array('nom'=>$config->application->authentification->nomProfilAnonyme);
+
+    }
+
+    
+    //retro-compatibilité de l'authentification multiple
+    if(!is_array(isset($config->application->authentification->module))){
+      switch($config->application->authentification->module){
+        case 'AuthentificationLdapBasic':
+        case 'AuthentificationLdap':
+          $config->application->authentification->module = array(array($config->application->authentification->module,
+                                                                 'config'=> $config->application->authentification->ldap));
+          break;
+        case 'AuthentificationBd':
+          $config->application->authentification->module = array(array($config->application->authentification->module,
+                                                                 'config'=> $config->application->authentification->bd));
+          break;
+        case 'AuthentificationExterne':
+          $config->application->authentification->module = array(array($config->application->authentification->module,
+                                                                 'config'=> array()));
+          break;
+      }
     }
 
  	$application->registerModules($di->get('chargeurModules')->obtenirDefinitionModules());
