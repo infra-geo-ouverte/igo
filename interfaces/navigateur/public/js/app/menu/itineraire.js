@@ -1,4 +1,4 @@
-/** 
+/**
  * Module pour l'objet {@link Panneau.Itineraire}.
  * @module itineraire
  * @author Marc-André Barbeau, MSP
@@ -13,10 +13,10 @@ require.ajouterConfig({
         autocomplete: 'libs/jquery/extensions/autocomplete/jquery.autocomplete.min'
     }
 });
-  
 
-define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 'style', 'outilItineraire', "hbars!template/itineraire", "css!css/itineraire", "css!css/autocomplete", 'autocomplete', 'encodedPolyline'], function(Aide, Panneau, Vecteur, Point, Ligne, Limites, Occurence, Style, OutilItineraire, Template) {
-    /** 
+
+define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 'style', 'outilItineraire', 'analyseurGeoJSON', "hbars!template/itineraire", "css!css/itineraire", "css!css/autocomplete", 'autocomplete', 'encodedPolyline'], function(Aide, Panneau, Vecteur, Point, Ligne, Limites, Occurence, Style, OutilItineraire, AnalyseurGeoJSON, Template) {
+    /**
      * Création de l'object Panneau.Itineraire.
      * Objet à ajouter à un panneauMenu.
      * @constructor
@@ -48,19 +48,19 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             })
         }];
         Panneau.prototype._init.call(this);
-        
+
         var that=this;
         var initVecteurs = function(){
             that._panel.removeListener('expand',initVecteurs);
             that.initVecteurs();
         };
-        this._panel.on("expand", initVecteurs);   
-        
-    };
-    
+        this._panel.on("expand", initVecteurs);
 
-    
-    Itineraire.prototype.initVecteurs = function() {        
+    };
+
+
+
+    Itineraire.prototype.initVecteurs = function() {
         this.proj4326 = "EPSG:4326";
         this.projCarte = this.carte.obtenirProjection();
 
@@ -68,7 +68,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         this.trajet = new Itineraire.Trajet(this);
         this.marqueurs = new Itineraire.Marqueurs(this);
         this.instructions = new Itineraire.Instructions(this);
-        this.resultatLocalisation = new Itineraire.ResultatLocalisation(this);        
+        this.resultatLocalisation = new Itineraire.ResultatLocalisation(this);
     };
 
 
@@ -82,9 +82,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             resume: $('#resume'),
             alternatifTitre: $('#resume h2'),
             descriptionBody: $('#myTable tbody')
-        };             
+        };
     };
-    
+
 
     Itineraire.Instructions.prototype.supprimerResume = function(keepAlternativeSwitch) {
         $('#resume table tbody').empty();
@@ -93,7 +93,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             $('#resume h2 .button').remove();
         }
     };
-    
+
     Itineraire.Instructions.prototype.afficherResultatItineraire = function() {
         $('#itineraire').show();
     };
@@ -101,7 +101,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     Itineraire.Instructions.prototype.cacherResultatItineraire = function() {
         $('#itineraire').hide();
     };
-    
+
     Itineraire.Instructions.prototype.formaterDistance = function(rDistance) {
         if (rDistance == 0) {
             return 'None';
@@ -136,12 +136,12 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         return rDuree + ' s';
     };
 
-    Itineraire.Instructions.prototype.afficherResume = function(resume, keepAlternativeSwitch) {
+    Itineraire.Instructions.prototype.afficherResume = function(resume, waypoints, keepAlternativeSwitch) {
         this.supprimerResume(keepAlternativeSwitch);
-        var rDistance = resume.total_distance;
-        var rDuree = resume.total_time;
-        var rDepart = resume.start_point;
-        var rArrivee = resume.end_point;
+        var rDistance = resume.distance;
+        var rDuree = resume.duration;
+        var rDepart = waypoints[0].name;
+        var rArrivee = waypoints[waypoints.length-1].name;
         if (rDepart == '') {
             rDepart = 'Route inconnue';
         }
@@ -156,163 +156,183 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
         $('#depart input').val(rDepart); //todo: dans recherche
         $('#arrive input').val(rArrivee); //todo: dans recherche
-        
+
         $('#resume table tbody').append('<tr><th align="left">Distance: </th><td>' + rDistance + '</td><td></td><th align="left">Durée: </th><td>' + rDuree + '</td><td></td></tr>');
-    
+
         if (this._.marqueurs.depart) {
              this._.marqueurs.depart.definirPropriete('titre', rDepart);
         };
-        
+
         if (this._.marqueurs.arrivee) {
              this._.marqueurs.arrivee.definirPropriete('titre', rArrivee);
         };
     };
 
     Itineraire.Instructions.prototype.formaterDirection = function(direction) {
-        if (direction == 'W') {
-            return 'ouest';
-        } else if (direction == 'E') {
-            return 'est';
-        } else if (direction == 'S') {
-            return 'sud';
-        } else if (direction == 'N') {
+        if (direction >= 337 || direction < 23) {
             return 'nord';
-        } else if (direction == 'NE') {
+        } else if (direction < 67) {
             return 'nord-est';
-        } else if (direction == 'NW') {
-            return 'nord-west';
-        } else if (direction == 'SE') {
+        } else if (direction < 113) {
+            return 'est';
+        } else if (direction < 157) {
             return 'sud-est';
-        } else if (direction == 'SW') {
+        } else if (direction < 203) {
+            return 'sud';
+        } else if (direction < 247) {
             return 'sud-ouest';
+        } else if (direction < 293) {
+            return 'ouest';
+        } else if (direction < 337) {
+            return 'nord-ouest';
         } else {
-            return 'None';
-        };
+            return 'None' ;
+        }
     };
 
-    Itineraire.Instructions.prototype.formaterInstruction = function(instruction, route, direction) {
-        if (direction == 'W') {
-            return 'ouest';
-        } else if (direction == 'E') {
-            return 'est';
-        } else if (direction == 'S') {
-            return 'sud';
-        } else if (direction == 'N') {
-            return 'nord';
-        } else if (direction == 'NE') {
-            return 'nord-est';
-        } else if (direction == 'NW') {
-            return 'nord-west';
-        } else if (direction == 'SE') {
-            return 'sud-est';
-        } else if (direction == 'SW') {
-            return 'sud-ouest';
+    Itineraire.Instructions.prototype.formaterModifier = function(modifier) {
+        if (modifier === "uturn") {
+            return 'demi-tour';
+        } else if (modifier === "sharp right") {
+            return 'fortement à droite';
+        } else if (modifier === "right") {
+            return 'à droite';
+        } else if (modifier === "slight right") {
+            return 'légèrement à droite';
+        } else if (modifier === "sharp left") {
+            return 'fortement à gauche';
+        } else if (modifier === "left") {
+            return 'à gauche';
+        } else if (modifier === "slight left") {
+            return 'légèrement à gauche';
+        } else if (modifier === "straight") {
+            return 'tout droit';
         } else {
-            return 'None';
-        };
+            return modifier ;
+        }
     };
 
-    Itineraire.Instructions.prototype.formaterInstruction = function(noInstruction, route, direction) {
+
+    Itineraire.Instructions.prototype.formaterInstruction = function(type, modifier, route, direction, position, last, opt) {
         var directive = 'None';
         var image;
-        if (noInstruction == 0) {
-            directive = 'None'; //Pas d'instruction
-        } else if (noInstruction == 1) {
-            directive = 'Continuez';
-            image = 'continue.png';
-        } else if (noInstruction == 2) {
-            directive = 'Tournez légèrement à droite';
-            image = 'slight-right.png';
-        } else if (noInstruction == 3) {
-            directive = 'Tournez à droite';
-            image = 'turn-right.png';
-        } else if (noInstruction == 4) {
-            directive = 'Tournez fortement à droite';
-            image = 'sharp-right.png';
-        } else if (noInstruction == 5) {
-            directive = 'Faites demi-tour';
-            image = 'u-turn.png';
-        } else if (noInstruction == 6) {
-            directive = 'Tournez légèrement à gauche';
-            image = 'slight-left.png';
-        } else if (noInstruction == 7) {
-            directive = 'Tournez à gauche';
-            image = 'turn-left.png';
-        } else if (noInstruction == 8) {
-            directive = 'Tournez fortement à gauche';
-            image = 'sharp-left.png';
-        } else if (noInstruction == 9) {
-            directive = 'Atteignez le point intermédiare';
-            image = 'target.png';
-        } else if (noInstruction == 10) {
-            directive = 'Direction ' + direction;
-            image = 'head.png';
-        } else if (noInstruction == 11) {
-            directive = 'Entrez dans le rond-point';
-            image = 'round-about.png';
-        } else if (noInstruction == "11-1") {
-            directive = 'Au rond-point, prenez la première sortie';
-            image = 'round-about.png';
-        } else if (noInstruction == "11-2") {
-            directive = 'Au rond-point, prenez la deuxième sortie';
-            image = 'round-about.png';
-        } else if (noInstruction == "11-3") {
-            directive = 'Au rond-point, prenez la troisième sortie';
-            image = 'round-about.png';
-        } else if (noInstruction == "11-4") {
-            directive = 'Au rond-point, prenez la quatrième sortie';
-            image = 'round-about.png';
-        } else if (noInstruction == "11-5") {
-            directive = 'Au rond-point, prenez la cinquième sortie';
-            image = 'round-about.png';
-        } else if (noInstruction == "11-6") {
-            directive = 'Au rond-point, prenez la sixième sortie';
-            image = 'round-about.png';
-        } else if (noInstruction == 12) {
-            directive = 'Quittez le rond-point';
-            image = 'round-about.png';
-        } else if (noInstruction == 13) {
-            directive = 'None'; //Rester dans le rond-point;
-        } else if (noInstruction == 14) {
-            directive = 'Commencez au bout de la rue';
-            image = 'head.png';
-        } else if (noInstruction == 15) {
-            directive = 'Vous êtes arrivé';
-            image = 'target.png';
-        } else if (noInstruction == 16) {
-            directive = 'Entrez dans le sens interdit';
-        } else if (noInstruction == 17) {
-            directive = 'Entrez le sens interdit';
-        } else if (noInstruction == 128) {
-            directive = 'Accès restreint';
-        } else {
-            directive = 'None';
-        };
 
-        if ((route != '') && (directive != 'None' || noInstruction != 15)) {
-            directive = directive + ' sur ' + route;
-        };
-        
+        if (modifier === "demi-tour") {
+            image = 'u-turn.png';
+        } else if (modifier === "fortement à droite") {
+            image = 'sharp-right.png';
+        } else if (modifier === "à droite") {
+            image = 'turn-right.png';
+        } else if (modifier === "légèrement à droite") {
+            image = 'slight-right.png';
+        } else if (modifier === "fortement à gauche") {
+            image = 'sharp-left.png';
+        } else if (modifier === "à gauche") {
+            image = 'turn-left.png';
+        } else if (modifier === "légèrement à gauche") {
+            image = 'slight-left.png';
+        } else if (modifier === "tout droit") {
+            image = 'continue.png';
+        }
+
+        if (type === 'turn') {
+            if (modifier === "tout droit") {
+              directive = 'Continuer sur ' + route;
+            } else if (modifier === "demi-tour") {
+              directive = 'Faire demi-tour sur ' + route;
+            } else {
+              directive = 'Tourner ' + modifier + " sur " + route;
+            }
+        } else if (type === 'new name') {
+            directive = 'Continuer sur ' + route;
+            image = 'continue.png';
+        } else if (type === 'depart') {
+            if(position == 0 ) {
+                directive = 'Aller en direction ' + direction + " sur " + route;
+            }
+            image = 'head.png';
+        } else if (type === 'arrive') {
+            if (last) {
+              directive = 'Vous êtes arrivé';
+            } else {
+              directive = 'Atteignez le point intermédiare sur ' + route;
+            }
+            image = 'target.png';
+        } else if (type === 'merge') {
+            directive = 'Continuer sur ' + route;
+            image = 'continue.png';
+        } else if (type === 'on ramp') {
+            directive = 'Prendre l\'entrée d\'autoroute ' + modifier;
+        } else if (type === 'off ramp') {
+            directive = 'Prendre la sortie d\'autoroute';
+            if (modifier.search("gauche") >= 0) {
+                directive = directive + " à gauche";
+            } else if (modifier.search("droite") >= 0) {
+                directive = directive + " à droite";
+            }
+        } else if (type === 'fork') {
+            if (modifier.search("gauche") >= 0) {
+                directive = "Garder la gauche sur " + route;
+            } else if (modifier.search("droite") >= 0) {
+                directive = "Garder la droite sur " + route;
+            } else {
+                directive = "Continuer sur " + route;
+            }
+        } else if (type === 'end of road') {
+            directive = 'À la fin de la route, tourner ' + modifier + " sur " + route;
+        } else if (type === 'use lane') {
+            directive = 'Prendre la voie de ... ';
+        } else if (type === 'continue') {
+            directive = 'Continuer sur ' + route;
+            image = 'continue.png';
+        } else if (type === 'roundabout') {
+            directive = 'Au rond-point, prendre la ' + opt.exit;
+            directive += opt.exit === 1 ? 're' : 'e';
+            directive += ' sortie vers ' + route;
+            image = 'round-about.png';
+        } else if (type === 'rotary') {
+            directive = 'Rond-point rotary....';
+            image = 'round-about.png';
+        } else if (type === 'roundabout turn') {
+            directive = 'Rond-point, prendre la ...';
+            image = 'round-about.png';
+        } else if (type === 'notification') {
+            directive = 'notification ....';
+        } else {
+            directive = '???';
+        }
+
+        // directive = directive + "<br><br>" +type+ " - " + modifier + " - " + direction + " - " + route;
+
+
         if (image){
             image = Aide.utiliserBaseUri('images/itineraire/'+image);
         }
 
         return {instruction: directive, image: image};
     };
-    
+
 
     Itineraire.Instructions.prototype.afficherInstructions = function(instructions, route) {
         var that = this;
-        $.each(instructions, function(key, value) {
-            var noInstruction = value[0];
-            var distance = that.formaterDistance(value[2]);
-            var direction = that.formaterDirection(value[6]);
-            var instructions = that.formaterInstruction(noInstruction, value[1], direction);
+        var steps = [];
+        $.each(instructions.legs, function(key, value) {
+          steps = steps.concat(value.steps);
+        });
+        var nbSteps = steps.length;
+        $.each(steps, function(key, value) {
+            var noInstruction = value.maneuver.type;
+            var typeInstruction = value.maneuver.type;
+            var modifier = that.formaterModifier(value.maneuver.modifier);
+            var distance = that.formaterDistance(value.distance);
+            var direction = that.formaterDirection(value.maneuver.bearing_after);
+            var instructions = that.formaterInstruction(typeInstruction, modifier, value.name, direction, key, key+1 == nbSteps, value.maneuver);
             var instructionText = instructions.instruction;
             var instructionImage = instructions.image;
 
-            var x = route.geometry.components[value[3]].x;
-            var y = route.geometry.components[value[3]].y;
+            var point = new Point(value.maneuver.location[0], value.maneuver.location[1], 'EPSG:4326').projeter(that._.carte.obtenirProjection());
+            var x = point.x;
+            var y = point.y;
 
             var tr = document.createElement('tr');
             var $tr = $(tr);
@@ -321,7 +341,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             if ((noInstruction == 15) || (noInstruction == 10)) {
                 $tr.data("estMarqueurs", true);
             }
-            ;
+
 
             if (instructionText != 'None') {
                 var imageDiv = '';
@@ -363,7 +383,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var that = e.data;
         that._.marqueurs.supprimerParOrigine('instructionMouseover');
     };
-    
+
     Itineraire.Instructions.prototype.instructionClick = function(e) {
         var that = e.data;
         var $instruction = $(e.target).parent();
@@ -375,9 +395,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         if (!estMarqueurs) {
             that._.marqueurs.supprimerParType(type);
             that._.marqueurs.ajouter(x, y, type); //todo: titre?
-        };
-        
-        var point = new Point(x,y);  
+        }
+
+        var point = new Point(x,y);
         that._.carte.definirCentre(point);
         that._.carte.definirZoom(14);
     };
@@ -390,18 +410,18 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
         var route_summary, route_name, route_instructions;
         if (alternatif) {
-            route_summary = json.alternative_summaries[0];
-            route_name = json.alternative_names[0];
-            route_instructions = json.alternative_instructions[0];
+            route_summary = json.routes[1];
+            route_name = json.routes[1];
+            route_instructions = json.routes[1];
         } else {
-            route_summary = json.route_summary;
-            route_name = json.route_name;
-            route_instructions = json.route_instructions;
+            route_summary = json.routes[0];
+            route_name = json.routes[0];
+            route_instructions = json.routes[0];
         };
 
-        this.afficherResume(route_summary, keepAlternativeSwitch);
+        this.afficherResume(route_summary, json.waypoints, keepAlternativeSwitch);
         this.afficherVia(route_name);
-        if (!keepAlternativeSwitch && json.found_alternative) {
+        if (!keepAlternativeSwitch && json.routes[1]) {
             this.afficherItineraireAlternatifSwitch();
         }
         this.afficherInstructions(route_instructions, route);
@@ -442,12 +462,12 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         this.$.alternatifTitre.find('div').mouseover(this, this.changerItineraireMouseOver);
         this.$.alternatifTitre.find('div').mouseout(this, this.changerItineraireMouseOut);
     };
-    
+
     Itineraire.Instructions.prototype.changerItineraireClique = function(e) {
         if (e.target.classList[1] === "button-pressed") {
             return true;
         };
-        
+
         var that = (e ? e.data : this);
         var cible = e.target.textContent;
         var pressed = that.$.resume.find('.button-pressed');
@@ -460,10 +480,10 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
         that._.marqueurs.supprimerParType('instruction');
         if (cible === "B") {
-            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.alternative_geometries[0]);
+            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.routes[1].geometry);
             that.afficherItineraireDescription(that.jsonReponseItineraire, route, true, true);
         } else {
-            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.route_geometry);
+            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.routes[0].geometry);
             that.afficherItineraireDescription(that.jsonReponseItineraire, route, true);
         }
     };
@@ -472,32 +492,32 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         if (e.target.classList[1] === "button-pressed") {
             return true;
         };
-        
+
         var that = (e ? e.data : this);
         var cible = e.target.textContent;
 
         if (cible === "B") {
-            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.alternative_geometries[0]);
+            that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.routes[1].geometry);
         } else {
-            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.route_geometry);
+            that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.routes[0].geometry);
         }
     };
-    
+
     Itineraire.Instructions.prototype.changerItineraireMouseOut = function(e) {
         if (e.target.classList[1] === "button-pressed") {
             return true;
         };
-        
+
         var that = (e ? e.data : this);
         var cible = e.target.textContent;
 
         if (cible === "A") {
-            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.alternative_geometries[0]);
+            that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.routes[1].geometry);
         } else {
-            var route = that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.route_geometry);
+            that._.trajet.afficherItineraireCarte(that.jsonReponseItineraire.routes[0].geometry);
         }
     };
-    
+
     //=====================================================================
 
     //
@@ -511,9 +531,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         this._.carte.gestionCouches.ajouterCouche(this.vecteur);
         this.initEvent();
     };
-    
+
     //
-    Itineraire.Marqueurs.prototype.initEvent = function() {   
+    Itineraire.Marqueurs.prototype.initEvent = function() {
         this.initCliqueCarte();
         this.initCliqueMarqueurs();
         this.initSurvolMarqueurs();
@@ -522,31 +542,31 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     };
 
     Itineraire.Marqueurs.prototype.initSurvolMarqueurs = function() {
-        if(this._.options.infobulleSurvol){         
+        if(this._.options.infobulleSurvol){
             this.vecteur.ajouterDeclencheur('occurenceSurvol', function(e){
                 e.occurence.ouvrirInfobulle({html:e.occurence.proprietes.titre, aFermerBouton: false});
-            }, 
+            },
             {scope: this});
             this.vecteur.ajouterDeclencheur('occurenceSurvolFin', function(e){
                 e.occurence.fermerInfobulle();
-            }, 
+            },
             {scope: this});
         }
     }
 
     Itineraire.Marqueurs.prototype.initCliqueCarte = function() {
         var that=this;
-        
+
         //this._.carte.ajouterDeclencheur('clique', this.cliqueCarte, {scope: this});
         //this.activerControles();
         this.outilItineraire = new OutilItineraire({panneauItineraire: this});
         var barreOutils = Aide.obtenirNavigateur().barreOutils;
         barreOutils.ajouterOutil(this.outilItineraire);
         this.outilItineraire.enfoncer();
-                
+
         this._._panel.on("expand", function(){
             that.outilItineraire.enfoncer();
-        }); 
+        });
         this._._panel.on("collapse", function(){
             that.outilItineraire.relever();
         });
@@ -554,7 +574,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
     Itineraire.Marqueurs.prototype.activerControles = function() {
        //Igo.nav.barreOutils._mapContainer.topToolbar.disable();
-        //this._.carte.controles.activerDeplacement(); 
+        //this._.carte.controles.activerDeplacement();
         this._.carte.ajouterDeclencheur('clique', this.cliqueCarte, {scope: this});
         this._.carte.controles.activerClique();
         //this.vecteur.controles.activerClique();
@@ -573,7 +593,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     Itineraire.Marqueurs.prototype.initCliqueMarqueurs = function() {
         this.vecteur.ajouterDeclencheur('occurenceClique', this.marqueursClique, {scope: this});
     };
-    
+
     //
     Itineraire.Marqueurs.prototype.initDeplacementMarqueurs = function() {
         //this.vecteur.controles.activerDeplacement({combinaisonClique: true});
@@ -600,14 +620,14 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var point = new Point(x, y);
         var propriete = {type: type, origine: origine};
         var style = new Style({icone: icon, iconeLargeur: 20, iconeHauteur: 34, iconeOffsetY: -34});
-                
+
         var occurence = new Occurence(point, propriete, style);
         this.vecteur.ajouterOccurence(occurence);
 
         if(titre){
             occurence.definirPropriete('titre', titre);
         };
-        
+
         if(!origine){ //mettre un origine?
             if(type == 'arrivee'){
                 this.arrivee = occurence;
@@ -617,7 +637,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 this.intermediaires.push(occurence);
             };
         };
-        
+
         return occurence;
     };
 
@@ -660,7 +680,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     Itineraire.Marqueurs.prototype.marqueursClique = function(e) {
         var occurence = e.occurence;
         var that = e.options.scope;
-        
+
         that.vecteur.controles.desactiverDeplacement();
         //todo controlethat.vecteur.controles.desactiverSelection();
         var type = occurence.obtenirPropriete('type');
@@ -675,7 +695,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     Itineraire.Marqueurs.prototype.supprimerOccurences = function(occurences) {
         var that=this;
         if(!$.isArray(occurences)){occurences = [occurences];};
-        
+
         $.each(occurences, function(key, value) {
             that.vecteur.enleverOccurence(value);
             var type = value.obtenirPropriete('type');
@@ -688,8 +708,8 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             };
         });
     };
-    
-    Itineraire.Marqueurs.prototype.snapMarkers = function() { //todo: snapTrajet 
+
+    Itineraire.Marqueurs.prototype.snapMarkers = function() { //todo: snapTrajet
         var that = this;
         var route = this._.trajet.vecteur.obtenirOccurences()[0];
 
@@ -703,7 +723,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 var pFin = route.points[route.points.length-1];
                 this.arrivee.deplacer(pFin);
             };
- 
+
             $.each(this.intermediaires, function(key, value) {
                 var dist = -1;
                 var nearestPoint;
@@ -719,7 +739,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             this.activerControles();
         }
     };
-    
+
 
     Itineraire.Marqueurs.prototype.debutDeplacementMarqueurs = function(e) {
         var that = e.options.scope;
@@ -729,7 +749,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         $('#myTable tbody').text('Votre itinéraire est en cours de calcul');
 
         var occurence = e.occurence;
-        
+
         if (occurence.obtenirPropriete('type') !== 'instruction') {
             that.supprimerParType('instruction');
             return true;
@@ -748,7 +768,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 }
             });
         };
-        
+
         occurence = that.changerTypeMarqueurs(occurence, 'intermediaire');
         var lengthIKey = Object.keys(iKey).length;
         occurence.definirPropriete('ordre', lengthIKey + 1);
@@ -761,14 +781,14 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
     Itineraire.Marqueurs.prototype.deplacementMarqueurs = function(e) {
         var that = e.options.scope;
-        
-        if (that.iPixels == 10) {         
+
+        if (that.iPixels == 10) {
             if (that.depart && that.arrivee) {
                 var points = [];
                 points.push(that.depart);
                 var points = points.concat(that.intermediaires);
                 points.push(that.arrivee);
- 
+
                 that._.trajet.trouverItineraire(points, true);
             } else {
                 var input = $('#depart input');
@@ -800,12 +820,12 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             }
             that._.formulaire.geocodageInverse(e.occurence, e.occurence, input);
         }
-        
+
 
             //todo? fait planter le prochain select...
         //that._.carte._carteOL.setLayerZIndex(that.vecteur._layer, that._.carte._carteOL.Z_INDEX_BASE["Feature"] + 10);
     };
-    
+
     //
     Itineraire.Marqueurs.prototype.supprimerTout = function() {
         this.vecteur.enleverTout();
@@ -862,7 +882,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             };
         });
     };
-    
+
     //=====================================================================
 
     Itineraire.Trajet = function(_) {
@@ -878,8 +898,8 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 'limiteCouleur': '#000000',
                 'limiteOpacite': '0.8'
             })
-        };        
-        this.vecteur = new Vecteur({titre:'trajetItineraire', styles: styles, active: true, visible:false, selectionnable: false}); 
+        };
+        this.vecteur = new Vecteur({titre:'trajetItineraire', styles: styles, active: true, visible:false, selectionnable: false});
         this._.carte.gestionCouches.ajouterCouche(this.vecteur);
         this.ecouterEvenements();
     };
@@ -888,9 +908,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     Itineraire.Trajet.prototype.supprimer = function() {
         this.vecteur.enleverTout();
     };
-    
+
     Itineraire.Trajet.prototype.ecouterEvenements = function(){
-        this._.carte.ajouterDeclencheur('zoomEnd', this.zoomEndEvent, {scope: this});
+        // this._.carte.ajouterDeclencheur('zoomEnd', this.zoomEndEvent, {scope: this});
     };
 
     Itineraire.Trajet.prototype.zoomEndEvent = function(){
@@ -911,13 +931,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
     Itineraire.Trajet.prototype.afficherItineraireCarte = function(geometryEncoded) { //todo ajouter
         var route = this.formaterRouteGeometrie(geometryEncoded);
-        
-        while(isNaN(route.geometry.components[route.geometry.components.length-1].x)){
-            route.geometry.components.pop();
-        };
-
-        var routeIGO = new Ligne(route.geometry.components); //todo new Ligne
-        this.vecteur.creerOccurence(routeIGO);
+        this.vecteur.ajouterOccurence(route);
         this.supprimerAncienTrajet();
         return route;
     };
@@ -928,39 +942,37 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var loc = "";
         $.each(points, function(key, value) {
             var p = value.projeter(that._.projCarte, that._.proj4326);
-            if (p.x) {
-                //loc = loc + '&loc[]=' + p.y + ',' + p.x;
-                loc = loc + '&loc=' + p.y + ',' + p.x;
-            } else {
-                //loc = loc + '&loc[]=' + p.lat + ',' + p.lon;
-                loc = loc + '&loc=' + p.lat + ',' + p.lon;
+            if (loc) {
+                loc = loc + ';';
             }
-            ;
+            if (p.x) {
+                loc = loc + p.x + ',' + p.y;
+            } else {
+                loc = loc + p.lon + ',' + p.lat;
+            }
         });
 
         var url = this._.options.service;
         var graph = $('#rechercheType select').val(); //todo $variable
 		if (graph !== 'voiture') {
-			url += '/' + graph;	
+			url += '/' + graph;
         }
 
         if (sansInstructions) {
-            url += "/viaroute?output=json&compression=true&z=" + this._.carte.obtenirZoom() + loc;
+            url += "/route/v1/driving/" + loc + "?overview=full&alternatives=true&steps=false&geometries=geojson";
         } else {
-            url += "/viaroute?output=json&compression=true&instructions=true&z=" + this._.carte.obtenirZoom() + loc;
+            url += "/route/v1/driving/" + loc + "?overview=full&annotations=true&alternatives=true&steps=true&geometries=geojson";
         };
 
         if (!sansInstructions || this.ajaxItineraireComplete != false) {
             this.ajaxItineraireComplete = false;
             $.ajax({
-                dataType: 'jsonp',
-                //url: Aide.utiliserProxy(url),
+                dataType: 'json',
                 url: url,
-                jsonp: "jsonp",
                 cache : true,
-                //crossDomain: true, //utilisation du proxy
                 context: this,
                 success: function(response) {
+                    // console.log(response);
                     that.trouverItineraireSuccess(response, sansInstructions, sansModifierInstructions);
                 },
                 complete: function() {
@@ -978,15 +990,16 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             return false;
         }
         var route;
-        if(sansModifierInstructions && response.found_alternative){
-            this.afficherItineraireCarte(response.alternative_geometries);
+        if(sansModifierInstructions && response.routes.length > 1){
+            // alternative route
+            this.afficherItineraireCarte(response.routes[1].geometry);
             return true;
         } else {
-            route = this.afficherItineraireCarte(response.route_geometry);
+            route = this.afficherItineraireCarte(response.routes[0].geometry);
         }
 
         if (sansInstructions) {
-            this._.instructions.afficherResume(response.route_summary);
+            this._.instructions.afficherResume(response.routes[0], response.waypoints);
         } else {
             this._.instructions.afficherItineraireDescription(response, route);
             this._.marqueurs.snapMarkers();
@@ -1006,9 +1019,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
 
     Itineraire.Trajet.prototype.formaterRouteGeometrie = function(routeEncoded) {
         routeEncoded = $.isArray(routeEncoded) ? routeEncoded[0] : routeEncoded;
-        this.formatEncoded = this.formatEncoded || new OpenLayers.Format.EncodedPolyline();
-        var route = this.formatEncoded.read(routeEncoded);
-        route.geometry.transform(new OpenLayers.Projection(this._.proj4326), new OpenLayers.Projection(this._.projCarte));
+        this.formatEncoded = this.formatEncoded || new AnalyseurGeoJSON();
+        var route = this.formatEncoded.lire(routeEncoded)[0];
+        route = route.projeter('EPSG:4326', this._.carte.obtenirProjection());
         return route;
     };
 
@@ -1035,12 +1048,12 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         };
         this.initEvent();
     };
-    
+
     //
     Itineraire.Formulaire.prototype.initEvent = function(){
         var that=this;
         this.initAutoComplete();
-        
+
         //mettre les keyup dans resultatLocalisation?
         this.$.departInput.keyup( function(event){
             if (event.keyCode == 13) {
@@ -1076,7 +1089,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 depart = that._.marqueurs.depart;
                 depart.definirPropriete('titre', $('#arrive input').val());
                 that._.marqueurs.changerTypeMarqueurs(depart, 'arrivee');
-        } 
+        }
         if (that._.marqueurs.arrivee) {
                 arrivee = that._.marqueurs.arrivee;
                 arrivee.definirPropriete('titre', $('#depart input').val());
@@ -1085,14 +1098,14 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         $.each(that._.marqueurs.intermediaires, function(key, value) {
             value.definirPropriete('ordre', iInt);
             iInt++;
-        });        
-        
-        that._.marqueurs.depart = arrivee; 
+        });
+
+        that._.marqueurs.depart = arrivee;
         that._.marqueurs.arrivee = depart;
-        
+
         that.trouverItineraireClick();
     };
-    
+
     //
     Itineraire.Formulaire.prototype.rechercherDepart = function(premierResultat) {
         this._.trajet.supprimer();
@@ -1121,29 +1134,29 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         if (this.blur) {
             this.blur();
         };
-        
+
         var departTitre, arriveeTitre;
         if(that._.marqueurs.depart){
             departTitre = that._.marqueurs.depart.obtenirPropriete('titre');
         };
-        
+
         if(that._.marqueurs.arrivee){
             arriveeTitre = that._.marqueurs.arrivee.obtenirPropriete('titre');
         };
-        
+
         if ((!departTitre && that.$.departInput.val() != "") || (departTitre != that.$.departInput.val())) {
             that.rechercherDepart(true);
             return true;
         };
-        
+
         if ((!arriveeTitre && that.$.arriveeInput.val() != "") || (arriveeTitre != that.$.arriveeInput.val())) {
             that.rechercherArrivee(true);
             return true;
         };
-        
+
         that.lancerRechercheTrajet();
     };
-    
+
     Itineraire.Formulaire.prototype.reinitialiserItineraireClick = function(e) {
         var that = (e ? e.data : this);
         this.blur();
@@ -1156,8 +1169,8 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         that._.instructions.cacherResultatItineraire();
         that._.resultatLocalisation.cacher();
     };
-    
-     
+
+
     //
     Itineraire.Formulaire.prototype.lancerRechercheTrajet = function(){
         var depart = this._.marqueurs.depart;
@@ -1174,7 +1187,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             this._.instructions.cacherResultatItineraire();
         };
     };
-     
+
 
    Itineraire.Formulaire.prototype.rechercherLieu = function(texte, type, premierResultat) {
         var limiteResultats = premierResultat? 1 : 15;
@@ -1182,35 +1195,30 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             Aide.afficherMessageChargement({titre: "Itineraire"});
             //var bbox = this._.carte.obtenirLimites().projeter(this._.projCarte, this._.proj4326);
             //var bboxFormated = bbox.gauche + ',' + bbox.bas + ',' + bbox.droite + ',' + bbox.haut;
-          // var url = "http://nominatim.openstreetmap.org/search?format=json&accept-language=fr&limit="+limiteResultats+"&q=" + texte + "&viewbox=" + bboxFormated;    
-           var url = this._.options.serviceGLO;
-           var tjrsProxy = this._.options.cle ? true : false;
-           $.ajax({
-                url: Aide.utiliserProxy(url, tjrsProxy),
-                data: {
-                    texte: texte,
-                    type: "adresse",
-                    epsg_sortie: this._.carte.obtenirProjection().split(":")[1],
-                    indDebut: 0,
-                    indFin: limiteResultats,
-                    format: "JSON",
-                    groupe: 1,
-                    urlappelant: this._.options.cle ? undefined : this._.options.urlAppelant,
-                    _cle: this._.options.cle
-                },
-                context: this,
-                success: function(response) {
-                    this.$.departInput.autocomplete().hide();
-                    this.$.arriveeInput.autocomplete().hide();
-                    this.rechercherLieuSuccess(response, type, premierResultat);
-                },
-                error: function(e){
-                    //afficher message error dans panneau
-                    console.log(e.responseText);
-                    Aide.cacherMessageChargement();
-                }
-            });
-        }
+          // var url = "http://nominatim.openstreetmap.org/search?format=json&accept-language=fr&limit="+limiteResultats+"&q=" + texte + "&viewbox=" + bboxFormated;
+
+          $.ajax({
+               url: this._.options.iCherche,
+               dataType: 'jsonp',
+               data: {
+                   q: texte,
+                   type: 'region_administrative,mrc,municipalite,route,adresse',
+                   nb: 10,
+                   callback: "JSONP_CALLBACK"
+               },
+               context: this,
+               success: function(response) {
+                   this.$.departInput.autocomplete().hide();
+                   this.$.arriveeInput.autocomplete().hide();
+                   this.rechercherLieuSuccess(response, type, premierResultat);
+               },
+               error: function(e){
+                   //afficher message error dans panneau
+                   console.log(e.responseText);
+                   Aide.cacherMessageChargement();
+               }
+           });
+       }
     };
 
     //
@@ -1218,17 +1226,16 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var that = this;
         if (premierResultat){
             var pos;
-            var adresse = response.geocoderReponseListe[0];
+            var adresse = response.hits.hits[0];
             if(!adresse){
                 console.warn("Pas de résultat");
                 Aide.cacherMessageChargement();
                 return false;
             }
-            var loc = adresse.localisation;
-            if(loc.point.x && loc.point.y){
-                pos = new Point(loc.point.x, loc.point.y);
-            } else if (loc.enveloppe.Xmax){
-                var limites = new Limites(loc.enveloppe.Xmin, loc.enveloppe.Ymin, loc.enveloppe.Xmax, loc.enveloppe.Ymax);
+            var loc = adresse._source.extent.coordinates;
+            if (loc){
+                var limites = new Limites(loc[0][0], loc[0][1], loc[1][0], loc[1][1], 'EPSG:4326');
+                limites = limites.projeter(that._.carte.obtenirProjection());
                 pos = limites.obtenirCentroide();
                 pos.limites = limites;
             } else {
@@ -1236,29 +1243,28 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 Aide.cacherMessageChargement();
                 return false;
             }
-            this._.marqueurs.ajouter(pos.x, pos.y, type, null, adresse.adresseLibre);
+            this._.marqueurs.ajouter(pos.x, pos.y, type, null, adresse._source.recherche);
             if (type == 'depart') {
-                this.$.departInput.val(adresse.adresseLibre);
+                this.$.departInput.val(adresse._source.recherche);
             } else if (type == 'arrivee') {
-                this.$.arriveeInput.val(adresse.adresseLibre);
+                this.$.arriveeInput.val(adresse._source.recherche);
             }
             this.trouverItineraireClick();
             Aide.cacherMessageChargement();
             return true;
         }
 
-        if(response.geocoderReponseListe.length === 0){
+        if(response.hits.hits.length === 0){
             var tr = document.createElement('tr');
             var $tr = $(tr);
             $tr.append('<td><h3 style="font-size:120%;">' + "Aucun résultat" + '</h3></td>');
             this._.resultatLocalisation.$.resultatBody.append(tr);
         } else {
-            $.each(response.geocoderReponseListe, function(key, adresse) {
-                var loc = adresse.localisation;
-                if(loc.point.x && loc.point.y){
-                    pos = new Point(loc.point.x, loc.point.y);
-                } else if (loc.enveloppe.Xmax){
-                    var limites = new Limites(loc.enveloppe.Xmin, loc.enveloppe.Ymin, loc.enveloppe.Xmax, loc.enveloppe.Ymax);
+            $.each(response.hits.hits, function(key, adresse) {
+                var loc = adresse._source.extent.coordinates;
+                if (loc){
+                    var limites = new Limites(loc[0][0], loc[0][1], loc[1][0], loc[1][1], 'EPSG:4326');
+                    limites = limites.projeter(that._.carte.obtenirProjection());
                     pos = limites.obtenirCentroide();
                     pos.limites = limites;
                 } else {
@@ -1274,7 +1280,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 $tr.data("x", x);
                 $tr.data("y", y);
                 $tr.data("type", type);
-                $tr.append('<td class="directive">' + adresse.adresseLibre + '</td>');
+                $tr.append('<td class="directive">' + adresse._source.recherche + '</td>');
                 that._.resultatLocalisation.$.resultatBody.append(tr);
             });
         }
@@ -1289,50 +1295,50 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var that=this;
         //var bbox = this._.carte.obtenirLimites().projeter(this._.projCarte, this._.proj4326);
         //var bboxFormated = bbox.gauche + ',' + bbox.bas + ',' + bbox.droite + ',' + bbox.haut;
-        
+
         //todo: mettre le service dans les params de Itineraire...
         //todo: à remplacer par le glo v6 lorsque le format json sera supporté
         //var url = Aide.utiliserProxy("http://nominatim.openstreetmap.org/search?format=json&accept-language=fr&limit=5&viewbox=" + bboxFormated);
-        var tjrsProxy = this._.options.cle ? true : false;
-        var url = Aide.utiliserProxy(this._.options.serviceGLO, tjrsProxy);
         this.$.departInput.autocomplete({
-            serviceUrl: url,
-            paramName: 'texte',
-            dataType: 'json',
+            serviceUrl: that._.options.iCherche,
+            paramName: 'q',
+            dataType: 'jsonp',
             showNoSuggestionNotice: true,
+            preserveInput: true,
             transformResult: function(response) {
                 return {
-                    suggestions: $.map(response.geocoderReponseListe, function(dataItem) {
-                        return { value: dataItem.adresseLibre, loc: dataItem.localisation};
+                    suggestions: $.map(response.hits.hits, function(dataItem) {
+                        var label = dataItem._source.recherche;
+                        if (dataItem.highlight.suggest) {
+                          label = dataItem.highlight.suggest[0];
+                        } else if (dataItem.highlight.recherche) {
+                          label = dataItem.highlight.recherche[0];
+                        }
+                        return { value: label, recherche: dataItem._source.recherche, loc: dataItem._source.extent.coordinates};
                     })
                 };
             },
             onSearchStart: function (query) {
                 that.$.departLoading.show();
                 $.extend(query, {
-                    type: "adresse",
-                    epsg_sortie: that._.carte.obtenirProjection().split(":")[1],
-                    indDebut: 0,
-                    indFin: 5,
-                    format: "JSON",
-                    groupe: 1,
-                    urlappelant: that._.options.cle ? undefined : that._.options.urlAppelant,
-                    _cle: that._.options.cle
+                  type: 'region_administrative,mrc,municipalite,route,adresse',
+                  nb: 10,
+                  callback: "JSONP_CALLBACK"
                 });
-            },      
+            },
             onSearchComplete: function (query) {
                 that.$.departLoading.hide();
             },
             beforeRender: function(container){
                 if(!$(this).is(":focus")){
                     container[0].innerHTML= "";
-                    setTimeout(function(){ 
+                    setTimeout(function(){
                         $(container[0]).hide();
                     }, 1);
                 }
             },
             onSelect: function (suggestion) {
-                
+                that.$.departInput.val(suggestion.recherche);
                 if (that._.marqueurs.depart) {
                     if(that._.marqueurs.depart.obtenirPropriete('titre') === that.$.departInput.val()){
                         return;
@@ -1342,17 +1348,16 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 if(that.$.departInput.val()){
                     var pos;
                     var loc = suggestion.loc;
-                    if(loc.point.x && loc.point.y){
-                        pos = new Point(loc.point.x, loc.point.y);
-                    } else if (loc.enveloppe.Xmax){
-                        var limites = new Limites(loc.enveloppe.Xmin, loc.enveloppe.Ymin, loc.enveloppe.Xmax, loc.enveloppe.Ymax);
+                    if (loc){
+                        var limites = new Limites(loc[0][0], loc[0][1], loc[1][0], loc[1][1], 'EPSG:4326');
+                        limites = limites.projeter(that._.carte.obtenirProjection());
                         pos = limites.obtenirCentroide();
                         pos.limites = limites;
                     } else {
                         console.warn("Pas de géométrie");
                         return true;
                     }
-                    
+
                     var type = 'depart';
                     that._.marqueurs.supprimerParType(type);
                     that._.marqueurs.ajouter(pos.x, pos.y, type, null, that.$.departInput.val());
@@ -1362,47 +1367,50 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 };
             },
             minChars: 3
-        });    
-        
+        });
+
         this.$.departInput.focus(function() { $(this).select(); } );
-        
+
         this.$.arriveeInput.autocomplete({
-            serviceUrl: url,
-            paramName: 'texte',
-            dataType: 'json',
-            showNoSuggestionNotice: true,
-            transformResult: function(response) {
-                return {
-                    suggestions: $.map(response.geocoderReponseListe, function(dataItem) {
-                        return { value: dataItem.adresseLibre, loc: dataItem.localisation};
-                    })
-                };
-            },
-            onSearchStart: function (query) {
-                that.$.arriveeLoading.show();
-                $.extend(query, {
-                    type: "adresse",
-                    epsg_sortie: that._.carte.obtenirProjection().split(":")[1],
-                    indDebut: 0,
-                    indFin: 5,
-                    format: "JSON",
-                    groupe: 1,
-                    urlappelant: that._.options.cle ? undefined : that._.options.urlAppelant,
-                    _cle: that._.options.cle
-                });
-            },
-            onSearchComplete: function (query) {
-                that.$.arriveeLoading.hide();
-            },
-            beforeRender: function(container){
-                if(!$(this).is(":focus")){
-                    container[0].innerHTML= "";
-                    setTimeout(function(){ 
-                        $(container[0]).hide();
-                    }, 1);
-                }
-            },
-            onSelect: function (suggestion) {
+          serviceUrl: that._.options.iCherche,
+          paramName: 'q',
+          dataType: 'jsonp',
+          showNoSuggestionNotice: true,
+          preserveInput: true,
+          transformResult: function(response) {
+              return {
+                  suggestions: $.map(response.hits.hits, function(dataItem) {
+                      var label = dataItem._source.recherche;
+                      if (dataItem.highlight.suggest) {
+                        label = dataItem.highlight.suggest[0];
+                      } else if (dataItem.highlight.recherche) {
+                        label = dataItem.highlight.recherche[0];
+                      }
+                      return { value: label, recherche: dataItem._source.recherche, loc: dataItem._source.extent.coordinates};
+                  })
+              };
+          },
+          onSearchStart: function (query) {
+              that.$.departLoading.show();
+              $.extend(query, {
+                type: 'region_administrative,mrc,municipalite,route,adresse',
+                nb: 10,
+                callback: "JSONP_CALLBACK"
+              });
+          },
+          onSearchComplete: function (query) {
+              that.$.departLoading.hide();
+          },
+          beforeRender: function(container){
+              if(!$(this).is(":focus")){
+                  container[0].innerHTML= "";
+                  setTimeout(function(){
+                      $(container[0]).hide();
+                  }, 1);
+              }
+          },
+          onSelect: function (suggestion) {
+              that.$.arriveeInput.val(suggestion.recherche);
                 if (that._.marqueurs.arrivee) {
                     if(that._.marqueurs.arrivee.obtenirPropriete('titre') === that.$.arriveeInput.val()){
                         return;
@@ -1412,10 +1420,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 if(that.$.arriveeInput.val()){
                     var pos;
                     var loc = suggestion.loc;
-                    if(loc.point.x && loc.point.y){
-                        pos = new Point(loc.point.x, loc.point.y);
-                    } else if (loc.enveloppe.Xmax){
-                        var limites = new Limites(loc.enveloppe.Xmin, loc.enveloppe.Ymin, loc.enveloppe.Xmax, loc.enveloppe.Ymax);
+                    if (loc){
+                        var limites = new Limites(loc[0][0], loc[0][1], loc[1][0], loc[1][1], 'EPSG:4326');
+                        limites = limites.projeter(that._.carte.obtenirProjection());
                         pos = limites.obtenirCentroide();
                         pos.limites = limites;
                     } else {
@@ -1430,44 +1437,39 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 };
             },
             minChars: 3
-        });   
-        
+        });
+
         this.$.arriveeInput.focus(function() { $(this).select(); } );
-    };
-    
+    }
 
     Itineraire.Formulaire.prototype.geocodageInverse = function(point, feature, $input) {
         var pos = point.projeter(this._.projCarte, this._.proj4326);
-        //todo: à remplacer par le glo v6 lorsque le reverse sera intégré 
-        //var url = "http://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat="+pos.lat+"&lon="+pos.lon;          
+        //todo: à remplacer par le glo v6 lorsque le reverse sera intégré
+        //var url = "http://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat="+pos.lat+"&lon="+pos.lon;
         //var url = "http://spssogl97d.sso.msp.gouv.qc.ca/Services/itineraire.php?graph=locate&loc=" + pos.lat + "," + pos.lon;
-        var url = this._.options.service + "/nearest?loc=" + pos.y + "," + pos.x;
-        
+        var url = this._.options.service + "/nearest/v1/driving/" + pos.x + ',' + pos.y + "?number=1" ;
+
         $.ajax({
-            dataType: 'jsonp',
-            //url: Aide.utiliserProxy(url),
+            dataType: 'json',
             url: url,
-            jsonp: "jsonp",
             cache : true,
-            //crossDomain: true, //utilisation du proxy
             success: function(response) {
-                var json_obj = eval(response);
-                if ($input) {
-                    $input.val(json_obj.name);
+                if ($input && response.waypoints.length) {
+                    $input.val(response.waypoints[0].name);
                     feature.definirPropriete('titre', $input.val());
                 };
             }
         });
     };
-    
+
     Itineraire.Formulaire.prototype.definirInput = function(type, value) {
         if (type === 'depart') {
             this.$.departInput.val(value);
         } else if (type === 'arrivee') {
             this.$.arriveeInput.val(value);
         };
-    };   
-    
+    };
+
 //------------------------------------------
 
     //
@@ -1492,13 +1494,13 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var $instruction = $(e.target).parent();
         var x = $instruction.data('x');
         var y = $instruction.data('y');
-        var type = $instruction.data('type');       
+        var type = $instruction.data('type');
 
-        that._.formulaire.definirInput(type, e.target.textContent);   
+        that._.formulaire.definirInput(type, e.target.textContent);
         that._.marqueurs.supprimerParType(type);
         that._.marqueurs.ajouter(x, y, type, null, e.target.textContent);
-        
-        var point = new Point(x,y);    
+
+        var point = new Point(x,y);
         that._.carte.definirCentre(point);
         that._.carte.definirZoom(14);
     };
@@ -1521,7 +1523,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         that._.marqueurs.supprimerParOrigine('rechercheMouseover');
         that._.marqueurs.afficherTout();
     };
-    
+
     //
     Itineraire.ResultatLocalisation.prototype.supprimer = function() {
         this.$.resultatBody.empty();

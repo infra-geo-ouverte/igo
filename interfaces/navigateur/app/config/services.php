@@ -46,7 +46,7 @@ $di->set('view', function () use ($config) {
     }
 
     $view->viewsDir=$config->application->navigateur->viewsDir;
-    
+
     $view->setViewsDir($config->application->navigateur->viewsDir);
 
     $view->registerEngines(array(
@@ -59,14 +59,14 @@ $di->set('view', function () use ($config) {
                 'compiledSeparator' => '_',
                 'compileAlways' => (isset($config->application->debug) && $config->application->debug ? true : false)
             ));
-            
+
             return $volt;
         },
         '.phtml' => 'Phalcon\Mvc\View\Engine\Php'
     ));
     return $view;
 }, true);
-   
+
 
 $di->set('dispatcher', function() use($di){
 
@@ -77,7 +77,7 @@ $di->set('dispatcher', function() use($di){
     $eventsManager->attach("dispatch", function($event, $dispatcher, $exception) {
 
         //The controller exists but the action not
-        
+
         if ($event->getType() == 'beforeNotFoundAction') {
             $dispatcher->forward(array(
                 'controller' => 'error',
@@ -85,9 +85,9 @@ $di->set('dispatcher', function() use($di){
             ));
             return false;
         }
-        
+
         //Alternative way, controller or action doesn't exist
-        
+
         if ($event->getType() == 'beforeException') {
             switch ($exception->getCode()) {
                 case Phalcon\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
@@ -95,13 +95,13 @@ $di->set('dispatcher', function() use($di){
                     $dispatcher->forward(array(
                         'controller' => 'error',
                         'action' => 'error404'
-                    ));      
-                    
+                    ));
+
                     return false;
             }
         }
     });
-    
+
     $securityPlugin = new SecurityPlugin($di);
     $eventsManager->attach("dispatch", $securityPlugin);
 
@@ -136,13 +136,13 @@ $di->set('crypt', function () use ($config) {
     if (isset($config->application->authentification['secretXmlFile'])) {
        $xmlPath = $config->application->authentification->secretXmlFile;
     }
-    
+
     if (empty($xmlPath)) {
         header('Content-Type: text/html; charset=utf-8');
         http_response_code(401);
         die("Le paramètre secretXmlFile n'a pas été trouvé dans le config.php");
     }
-    
+
     if (file_exists($xmlPath) && !empty($xmlPath) ) {
         $key = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
     }
@@ -168,17 +168,17 @@ $di->set('db', function () use ($config) {
     if ( ! class_exists($adapter)){
         throw new \Phalcon\Exception('Invalid database Adapter!');
     }
-    
+
     $connection= new $adapter(array(
         'host' => $config->database->host,
         'username' => $config->database->username,
         'password' => $config->database->password,
         'dbname' => $config->database->dbname
     ));
-	
+
 /*
  *  //Décommenter pour activer le profilage de PGSQL
-	//TODO Activer le profilage PGSQL quand on est en mode debug. On ne devrait pas avoir à décommenter des lignes 
+	//TODO Activer le profilage PGSQL quand on est en mode debug. On ne devrait pas avoir à décommenter des lignes
     $eventsManager = new \Phalcon\Events\Manager();
 
     $eventsManager->attach('db', function($event, $connection) {
@@ -200,22 +200,22 @@ $debug->listen();
 
 if($config->offsetExists("database")) {
     if($config->database->modelsMetadata == 'Apc'){
-        $di->set('modelsMetadata', function() {   
+        $di->set('modelsMetadata', function() {
             // Create a meta-data manager with APC
             $metaData = new \Phalcon\Mvc\Model\MetaData\Apc(array(
                 "lifetime" => 86400,
                 "prefix"   => "igo"
             ));
-            return $metaData;   
+            return $metaData;
         });
     }else if($config->database->modelsMetadata == 'Xcache'){
-        $di->set('modelsMetadata', function() {       
+        $di->set('modelsMetadata', function() {
             $metaData = new Phalcon\Mvc\Model\Metadata\Xcache(array(
             'prefix' => 'igo',
             'lifetime' => 86400 //24h
             ));
-        return $metaData;   
-        });    
+        return $metaData;
+        });
     }
 }
 
@@ -231,8 +231,8 @@ $di->setShared('session', function () {
         if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $sessid)) {
             unset($_COOKIE[$cookieName]);
             setcookie($cookieName, '', time() - 3600, '/');
-        }     
-    } 
+        }
+    }
     session_name($cookieName);
     $session->start();
 
@@ -294,9 +294,9 @@ $di->set('router', function(){
             "action" => 1
         )
     );
-       
+
     $router->setDefaults(array('controller' => 'index', 'action' => 'index'));
-    
+
     return $router;
 });
 
@@ -305,72 +305,85 @@ $di->set('router', function(){
             if (isset ($config->application->authentification->module)) {
 
                 $moduleAuthMultiple = false;
-                $authentificationModules = array ();   
+                $authentificationModules = array ();
                 $configKey =  $di->get('dispatcher')->getParam("configuration");
-            
+
                 //On as mis la configuration XML dans la session alors on la prend
                 if(isset ($di->get('session')->configuration)){
-                 $configKey =  $di->get('session')->configuration ;
+                  $configKey =  $di->get('session')->configuration ;
                 }
-                
+
                 //On a changer de XML une fois authentifier alors on doit refaire le login
                  if($di->get('dispatcher')->getParam("configuration") !== null && ($di->get('session')->configuration)!== null){
-                  if(($di->get('session')->configuration) !== $di->get('dispatcher')->getParam("configuration")){    
+                  if(($di->get('session')->configuration) !== $di->get('dispatcher')->getParam("configuration")){
                    //TODO: Faire que la deconnexion se fasse içi
                    $response = new \Phalcon\Http\Response();
-                   return $response->redirect('connexion/deconnexion', true);            
+                   return $response->redirect('connexion/deconnexion', true);
                      }
                 }
-              
+
                 //On lit la configuration XML pour obtenir l'attribut module
                 //<navigateur authentification="true" authentificationModule="AuthentificationLdap" titre="">
                 if (isset ($configKey)) {
-                 
-                if (isset ($config->configurations[$configKey])) {
-                    $xmlPath = $config->configurations[$configKey];
-                } else {
-                    $xmlPath = $config->configurationsDir . $configKey . '.xml';
-                }
 
-                if (file_exists ($xmlPath)) {
-                    $element = simplexml_load_file ($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
-                } else {
-                    $element = simplexml_load_string (curl_file_get_contents ($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);
-                }
+                  if (isset ($config->configurations[$configKey])) {
+                      $xmlPath = $config->configurations[$configKey];
+                  } else {
+                      $xmlPath = $config->configurationsDir . $configKey . '.xml';
+                  }
 
-                if (isset ($element->attributes ()->authentificationModule)) {
-                    $module = $element->attributes ()->authentificationModule;
-                } else {
-                    $module = "AuthentificationTest";
-                }
+                  if (file_exists ($xmlPath)) {
+                      $element = simplexml_load_file ($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
+                  } else {
+                      $element = simplexml_load_string (curl_file_get_contents ($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);
+                  }
 
-                //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
-                foreach ($config->application->authentification->module as $key => $value) {
-                    if (!is_object ($value) && $moduleAuthMultiple === false) {
-                        $authentificationModule = new $value;
-                        if ($authentificationModule instanceof AuthentificationController) {
-                            array_push ($authentificationModules, $authentificationModule);
-                        } else {
-                            error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
-                        }
-                    }
-                }
+                  if (isset ($element->attributes ()->authentificationModule)) {
+                      $module = $element->attributes ()->authentificationModule;
+                  } else {
+                      $module = "AuthentificationTest";
+                  }
 
-                if (isset ($module)) {
-                    foreach ($authentificationModules as $k => $v) {
-                        $moduleXml = (array) $module;
-                        $authentificationModuleXml = new $moduleXml[0];
-                        if ($v == $authentificationModuleXml) {
-                            $authentificationModule = $authentificationModuleXml;   
-                                return $authentificationModule;
-                        }
-                    }
-                }
+                  //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
+                  foreach ($config->application->authentification->module as $key => $value) {
+                      if (!is_object ($value) && $moduleAuthMultiple === false) {
+                          $authentificationModule = new $value;
+                          if ($authentificationModule instanceof AuthentificationController) {
+                              array_push ($authentificationModules, $authentificationModule);
+                          } else {
+                              error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
+                          }
+                      }
+                  }
+
+                  if (isset ($module)) {
+                      foreach ($authentificationModules as $k => $v) {
+                          $moduleXml = (array) $module;
+                          $authentificationModuleXml = new $moduleXml[0];
+                          if ($v == $authentificationModuleXml) {
+                              $authentificationModule = $authentificationModuleXml;
+                                  return $authentificationModule;
+                          }
+                      }
+                  }
              }
-            } else {  
+             else{
+               //Par défaut, le premier module d'authentification est configuré
+               $authentificationModule = key($config->application->authentification->module);
+               $authentificationModule = new $authentificationModule;
+               if($authentificationModule instanceof AuthentificationController){
+                   return $authentificationModule;
+               }
+               else{
+                 error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
+               }
+
+             }
+            }
+           else {
                 return 'AuthentificationTest';
             }
-           
+
         });
 
 
@@ -387,28 +400,28 @@ class igoView extends Phalcon\Mvc\View {
                 print('<script src="'. $this->config->uri->librairies . $chemin . "?version=" . $this->config->application->version . '" type="text/javascript"></script>'. "\n");
             } else {
                 print('<script src="'. $chemin .'" type="text/javascript"></script>'. "\n");
-            }   
+            }
         }else{
             print('<script src="'. $this->config->application->baseUri . $chemin . "?version=" . $this->config->application->version . '" type="text/javascript"></script>'. "\n");
         }
     }
 
-    public function ajouterCss($chemin, $estExterne, $dansUriLibrairies=null){       
+    public function ajouterCss($chemin, $estExterne, $dansUriLibrairies=null){
         if($estExterne === true){
             if($dansUriLibrairies === true){
                 print('<link rel="stylesheet" href="'. $this->config->uri->librairies . $chemin . "?version=" . $this->config->application->version .  '" type="text/css"/>'. "\n");
             } else {
                 print('<link rel="stylesheet" href="'. $chemin . '" type="text/css"/>'. "\n");
-            }   
+            }
         }else{
             print('<link rel="stylesheet" href="'. $this->config->application->baseUri . $chemin . "?version=" . $this->config->application->version .  '" type="text/css"/>'. "\n");
         }
     }
-    
-    public function ajouterImage($source, $alt){        
+
+    public function ajouterImage($source, $alt){
         print('<img src="' . $this->config->application->baseUri . $source . '" alt="'. $alt . '">'. "\n");
     }
-    
+
     public function ajouterBaseUri(){
         print($this->config->application->baseUri);
     }

@@ -140,7 +140,7 @@ class AuthentificationBd extends AuthentificationController {
     }
 
     public function deconnexion () {
-        
+
     }
 
     /**
@@ -155,23 +155,23 @@ class AuthentificationBd extends AuthentificationController {
 
         $configuration = $this->getDI ()->get ("config");
         $crypt = $this->getDI ()->get ("crypt");
-        
+
         $bdconnexion = $this->getDI ()->get ("db");
-        
+
         $sql = "SELECT client_id::text,  user_id::text,  private_key::text FROM  public.vg_utilisateur WHERE user_id = '{$identifiant}' ";
-        
+
         if($configuration->application->debug == true){
             error_log($sql);
         }
-        
-                    
+
+
         $result = $bdconnexion->query($sql);
         $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
         if(!$result){
             throw new Exception('Database error');
         }
-    
-                 
+
+
         while ($r = $result->fetch ()) {
             if ($r['user_id'] == $identifiant) {
                 if (empty ($r['private_key'])) {
@@ -185,8 +185,8 @@ class AuthentificationBd extends AuthentificationController {
                 }
             }
         }
-        
-       
+
+
 
         if (strlen ($mdp) == 0) {
              $this->motDePasseValide = false;
@@ -199,8 +199,8 @@ class AuthentificationBd extends AuthentificationController {
         return true;
     }
 
-    
-    
+
+
      private function getConnection(){
         if(!$this->connection){
             $this->connection = $this->getDi()->get("db");
@@ -215,25 +215,26 @@ class AuthentificationBd extends AuthentificationController {
 
     private function authentifierBD ($identifiant, $motDePasse) {
 
-        $configuration = $this->getDI ()->get ("config");
+      $configuration = $this->getDI()->get("config")->application->authentification->
+                          module->{get_class($this->getDI()->get("authentificationModule"))};
 
         $bdHosts = [];
 
-        if (isset ($configuration->application->authentification->module->bd->interne)) {
-            $bdHosts[] = $configuration->application->authentification->bd->interne;
+        if (isset ($configuration->config->interne)) {
+            $bdHosts[] = $configuration->config->interne;
         }
 
-        if (isset ($configuration->application->authentification->module->bd->externe)) {
-            $bdHosts[] = $bdExterne = $configuration->application->authentification->bd->externe;
+        if (isset ($configuration->config->externe)) {
+            $bdHosts[] = $bdExterne = $configuration->config->externe;
         }
 
-        if (isset ($configuration->application->authentification->module->bd->host)) {
-            $bdHosts[] = $configuration->application->authentification->bd->host;
+        if (isset ($configuration->config->host)) {
+            $bdHosts[] = $configuration->config->host;
         }
 
-        $bdPort = $configuration->application->authentification->module->bd->port;
+        $bdPort = $configuration->config->port;
 
-        $organisation = $configuration->application->authentification->module->bd->organisation;
+        $organisation = $configuration->config->organisation;
 
         $authentificationAReussie = false;
 
