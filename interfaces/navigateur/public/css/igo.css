@@ -268,9 +268,10 @@ div#OpenLayers.Control.PanZoom_5_zoomout{
     width:24px !important;
 }
 body .olControlAttribution {
-    bottom: 0em !important; 
-	font-size:smaller;
-	color:#0000FF;
+    bottom: 1.5em !important; 
+    font-size:small !important;
+    font-family: "Times New Roman" !important;
+    color:#0000FF;
 }
 
 body .olControlAttribution  a:visited{

@@ -15,7 +15,7 @@ if (empty($layer)) {
 //$dbconn = pg_connect("host=geo-db-dev.cptaq.local dbname=adresse_quebec user=demeter password=D3m3t3r")
 //$dbconn = pg_connect("host=10.17.2.41 dbname=geobase user=lecture password=lecture")
 
-if ($layer <> 'v_adresse_igo') {
+if ($layer <> 'v_adresse_igo' AND $layer <> 'v_lots') {
     $dbconn = pg_connect("host=svrvcartoprod1 dbname=geobase user=lecture password=lecture") 
     or die('Connexion impossible : ' . pg_last_error());
 } else {

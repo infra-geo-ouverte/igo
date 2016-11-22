@@ -8,13 +8,17 @@ header("Pragma: no-cache");
 //un résultat en JSON.
 header("content-type: text/html; charset=utf-8");
 
-require_once('../config.php');
-require_once('../fonctions.php');
+//require_once('../../../../services/fonctions.php');
+require_once('../../../../fonctions.php');
 //load config IGO
-$configIgo = include __DIR__ . "/../../interfaces/navigateur/app/config/config.php";
-include __DIR__ . "/../../interfaces/navigateur/app/config/loader.php";
-include __DIR__ . "/../../interfaces/navigateur/app/config/services.php";
+$configIgo = include __DIR__ . "/../../../../../interfaces/navigateur/app/config/config.php";
+include __DIR__ . "/../../../../../interfaces/navigateur/app/config/loader.php";
+include __DIR__ . "/../../../../../interfaces/navigateur/app/config/services.php";
 
+// Config pour le service d'impression
+if(!isset($configIgo['modules']) || !isset($configIgo['modules']['impression'])){
+    die("impression doit être dans la config.");
+}
 
 // La fonction dl a été supprimée avec php 5.3
 if (!extension_loaded("MapScript")){
@@ -33,11 +37,11 @@ set_error_handler("warning_handler", E_ALL);
 /**
  * IMAGEPATH and IMAGE URL must be set manually according to current
  * configuration
- L'alias /ms_tmp a été modifié dans config Apache
+ * L'alias /ms_tmp a été modifié dans config Apache
  */
-$_IMAGEPATH = $GLOBALS['apps_config']['impression']['imagepath'];
+$_IMAGEPATH = $configIgo['modules']['impression']['imagepath'];
 
-$_IMAGEURL = $GLOBALS['apps_config']['impression']['imageurl'];
+$_IMAGEURL = $configIgo['modules']['impression']['imageurl'];
 
 /**
  * Global property : $_MODE
@@ -142,7 +146,7 @@ try {
     $kml = filter_input(INPUT_POST, 'vecteurs');
     $auteurNom = filter_input(INPUT_GET,'printNomAuteur', FILTER_SANITIZE_STRING);
     $aszTitles = explode($_SEPARATOR, filter_input(INPUT_GET, 'TITLE',FILTER_SANITIZE_STRING));
-     
+
     $hasbaselayer = filter_input(INPUT_GET, 'HASBASELAYER',FILTER_VALIDATE_BOOLEAN);
     if($hasbaselayer === null){
         $hasbaselayer = false;
@@ -164,6 +168,7 @@ try {
     }
 
     $aszPositionLegende = explode($_SEPARATOR, filter_input(INPUT_GET, 'printLegendeLocation',FILTER_SANITIZE_STRING));
+    $aszPositionLegende = implode("|",$aszPositionLegende);
     if($aszPositionLegende === null){
         $aszPositionLegende = 'UR';
     }
@@ -214,7 +219,7 @@ try {
      * on the paper size choosed and its orientation.
      */
     $oMap = ms_newMapObj('') or die("Unable to open mapfile\n");
-    $oMap->setconfigoption("PROJ_LIB", $GLOBALS['apps_config']['impression']['proj_lib']);
+    $oMap->setconfigoption("PROJ_LIB", $configIgo['modules']['impression']['proj_lib']);
     $oMap->applyconfigoptions();
 
     $baseResolution = 72;
@@ -227,7 +232,7 @@ try {
     $oMap->setExtent($minx, $miny, $maxx, $maxy);
     $oMap->set("units", MS_METERS);
 
-    $oMap->setFontSet(dirname(__FILE__) . "/../font/fonts.txt");
+    $oMap->setFontSet(dirname(__FILE__) . "/../../font/fonts.txt");
 
     /**
      * Scalebar
@@ -307,6 +312,7 @@ try {
     $legendsUrls = array();
     $legendsPaths = array();
     $legendIndex = 0;
+    $host = 'http://' . filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING);
 
     for($i=0, $len=count($aszLayers); $i<$len; $i++){
         $szLayer = $aszLayers[$i];
@@ -329,13 +335,19 @@ try {
         $szLegendTitle = $aszTitles[$i];
 
         $igoController = new IgoController();
-             
-        $szUrl = $igoController->verifierPermis($szURL);  
-        if($szUrl===false){   
-            $erreurs[] = array('message'=>"L'Url $szURL n'est pas permis.", 'niveau'=>'eleve');
-            continue;
+
+        if(substr($szURL, 0, strlen($host)) === $host){
+            $szUrl = $szURL;
+        } else {
+            $szUrl = $igoController->obtenirPermisUrl($szURL);
+            if($szUrl===false){
+                $erreurs[] = array('message'=>"L'Url $szURL n'est pas permis.", 'niveau'=>'eleve');
+                continue;
+            } else {
+                $szUrl = $szUrl['url'];
+            }
         }
-        
+
         if($showLegend){
 
             if($hasbaselayer === false || $i != 0){
@@ -344,7 +356,7 @@ try {
 
                 // Requete a GetLegendGraphic
                 $resource = curl_file_get_contents($getLegendGraphic);
-                 
+
                 if((strpos($resource, '<?xml')!==false)||($resource === 'Forbidden')||(strpos($resource, 'Erreur') !== false)){
                     $erreurs[] = array('message'=>"$getLegendGraphic a échoué.<br> Message d'erreur:<br>" . $resource, 'niveau'=>'eleve');
                     continue; 
@@ -396,7 +408,7 @@ try {
                 }
             }
         }
-        
+
         $oLayer = ms_newLayerObj($oMap);
         $oLayer->set("name", $szLayer);
         $oLayer->set("type", MS_LAYER_RASTER);
@@ -522,10 +534,10 @@ try {
 
             // Create a random file name for temporary kml and map file.
             $randomFileName = uniqid();
-            $vecteurFilePath = $GLOBALS['apps_config']['impression']['imagepath'] . $randomFileName. ".kml";
-            $vecteurMapFilePath = $GLOBALS['apps_config']['impression']['imagepath'] . $randomFileName. ".map";
+            $vecteurFilePath = $configIgo['modules']['impression']['imagepath'] . $randomFileName. ".kml";
+            $vecteurMapFilePath = $configIgo['modules']['impression']['imagepath'] . $randomFileName. ".map";
 
-            $vecteurTemplateMapFilePath = $GLOBALS['apps_config']['impression']['map_template'];
+            $vecteurTemplateMapFilePath = $configIgo['modules']['impression']['map_template'];
             $mapTemplateFileHandler = fopen($vecteurTemplateMapFilePath, 'r') or die("can't open file");
             $mapTemplateFileContent = fread($mapTemplateFileHandler, filesize($vecteurTemplateMapFilePath));
 
@@ -533,7 +545,7 @@ try {
             if(preg_match_all('/<Icon><href>([^<]+\.svg)<\/href><\/Icon>/', $kml, $matches)){              
                 foreach($matches[1] as $key => $value){                
 
-                    $dir = $GLOBALS['apps_config']['impression']['imagepath'];
+                    $dir = $configIgo['modules']['impression']['imagepath'];
 
                     //Trouver le nom et l'extension
                     $name = substr($value, strrpos($value, '/')+1);
@@ -642,7 +654,7 @@ try {
         $fontSizeLegendeTitle = 15;
         $texteLegende = 'Légende';
         $ecartEntreCouce = 5;
-        $font = '../font/Ubuntu-R.ttf';
+        $font = '../../font/Ubuntu-R.ttf';
 
         // Find the largest legend and the total height.
         for($i=0;$i<count($legendsPaths);$i++){
@@ -949,7 +961,7 @@ function validateParams(&$erreurs){
                        'printTitle','printComments'/*,'printPaper'*/,
                        /*'printOrientation',*/'printUnits',
                        'printOutputFormat', 'force', 'height', 'width', 'showLegendGraphics');
-                  
+
     foreach($aszParams as $szParam){
         if($szParam != 'force'){
             if (!isset($_GET[$szParam])){

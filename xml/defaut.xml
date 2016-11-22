@@ -14,10 +14,7 @@
                         <element titre="Adresse" classe="RechercheAdresse"/>
                         <element classe="RechercheLieu"/>
                     </element-accordeon>
-					<!--<panneau classe="PanneauTable" id="panTable2" position="ouest" titre="Résultats"
-					dimension="100" minDimension="100" maxDimension="300" ouvert="true"/>-->
                 </panneau>
-				<!--<panneau classe="PanneauMenu"  id="MainMenu2"  ouvert="true" />-->
             </panneaux>
          <outils>
             <groupe-outils>
@@ -60,45 +57,56 @@
 		<!--<couche protocole="WMS" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq" mode="getCapabilities" />-->
 			
 		<groupe-couches groupe="CPTAQ">
-			<couche id="decision" titre="Décision" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="decision,decision_p,decision_numero" echelleMin="100000" fond="false" protocole="WMS" active="true" visible="true" ordreArborescence="5" selectionmultiplepg="v_decision" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=decision"/>
-			<couche id="zone_agricole2" titre="Zone agricole transposée au Cadastre du Québec" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="za_ajustee_s,incl_excl,za_ajustee_s_nd,za_ajustee_l_2_shp" echelleMin="150000" fond="false" protocole="WMS" active="false" visible="true" ordreArborescence="1" selectionmultiplepg="v_za_transposee" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=za_ajustee_l"/>
-			<couche id="zone_agricole" titre="Zone agricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="zone_min,zone_max" echelleMax="50000" fond="false" protocole="WMS" active="true" visible="true" ordreArborescence="2" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=zonage"/>
-			<couche id="incl_excl" titre="Inclusion et Exclusion" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="incl_excl,incl_excl_numero" echelleMin="200000" echelleMax="50000" fond="false" protocole="WMS" active="true" visible="true" ordreArborescence="3" selectionmultiplepg="v_incl_excl" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=incl_excl"/>
-			<couche id="article59" titre="Article 59 EN VIGUEUR" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="article59" echelleMin="300000" fond="false" protocole="WMS" ordreArborescence="4" selectionmultiplepg="v_article59" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=article59"/>
+			<couche id="decision" titre="Décision" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="decision,decision_p,decision_numero" echelleMin="100000" fond="false" protocole="WMS" active="true" visible="true" ordreArborescence="5" selectionmultiplepg="v_decision"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=decision"/>
+			<couche id="zone_agricole2" titre="Zone agricole transposée au Cadastre du Québec" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="za_ajustee_s,incl_excl,za_ajustee_s_nd,za_ajustee_l_2_shp" echelleMin="150000" fond="false" protocole="WMS" active="false" visible="true" ordreArborescence="1" selectionmultiplepg="v_za_transposee"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=za_ajustee_l"/>
+			<couche id="zone_agricole" titre="Zone agricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="zone_min,zone_max" echelleMax="50000" fond="false" protocole="WMS" active="true" visible="true" ordreArborescence="2"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=zonage"/>
+			<couche id="incl_excl" titre="Inclusion et Exclusion" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="incl_excl,incl_excl_numero" echelleMin="200000" echelleMax="50000" fond="false" protocole="WMS" active="true" visible="true" ordreArborescence="3" selectionmultiplepg="v_incl_excl"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=incl_excl"/>
+			<couche id="article59" titre="Article 59 EN VIGUEUR" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="article59" echelleMin="300000" fond="false" protocole="WMS" ordreArborescence="4" selectionmultiplepg="v_article59"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=article59"/>
 		</groupe-couches>
 		
 			<groupe-couches groupe="Limite cadastrale">
-				<couche id="renovation" titre="Lot rénové" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="lot_renove, nolot" fond="false"  active="true" echelleMin="15000" echelleMax="1" ordreArborescence="2" protocole="WMS" selectionmultiplepg="v_lots" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=cadastre"/>
-				<couche id="compilation" titre="Compilation cadastrale" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="lot_l,rang_l,cad_l,compilation" echelleMin="60000" fond="false" protocole="WMS" ordreArborescence="1" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=compilation"/>
+				<couche id="renovation" titre="Lot rénové" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="lot_renove, nolot" fond="false"  active="true" echelleMin="15000" echelleMax="1" ordreArborescence="2" protocole="WMS" selectionmultiplepg="v_lots" metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=cadastre"/>
+				<couche id="compilation" titre="Compilation cadastrale" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="lot_l,rang_l,cad_l,compilation" echelleMin="60000" fond="false" protocole="WMS" ordreArborescence="1"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=compilation"/>
 			</groupe-couches>
 
-			<groupe-couches groupe="Limite administrative">
-				<couche id="mun_revision" titre="Municipalité en date de la révision de la zone agricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="mun_revision" echelleMin="1000001" fond="false" protocole="WMS" active="false" visible="true" selectionmultiplepg="v_mun_revision" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=mun_revision"/>
-				<couche id="munic_s" titre="Municipalité" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="munic_s,munic_s_text" fond="false" protocole="WMS" active="false" visible="true" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=incl_excl"/>
-				<couche id="mrc_s" titre="MRC" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="mrc_s,mrc_text" fond="false" protocole="WMS" active="false" visible="true" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=incl_excl"/>
+			<groupe-couches groupe="Limite administrative et adresse">
+				<couche id="adresse" titre="Adresse localisée" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="adresse" echelleMin="20000" fond="false" protocole="WMS" selectionmultiplepg="v_adresse_igo"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=adresse"/>
+				<couche id="mun_revision" titre="Municipalité en date de la révision de la zone agricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="mun_revision" echelleMin="1000001" fond="false" protocole="WMS" active="false" visible="true" selectionmultiplepg="v_mun_revision"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=mun_revision"/>
+				<couche id="munic_s" titre="Municipalité" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="munic_s,munic_s_text" fond="false" protocole="WMS" active="false" visible="true"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=incl_excl"/>
+				<couche id="mrc_s" titre="MRC" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="mrc_s,mrc_text" fond="false" protocole="WMS" active="false" visible="true"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=incl_excl"/>
 			</groupe-couches>
 						
 		<groupe-couches groupe="Carte thématique">
-			<couche id="arda" titre="Potentiel des sols" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="arda" echelleMin="80000" fond="false" protocole="WMS" selectionmultiplepg="v_arda" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=arda"/>
-			<couche id="erable" titre="Potentiel acéricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="erable" echelleMin="80000" fond="false" protocole="WMS" selectionmultiplepg="v_erable" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=erable"/>
-			<couche id="bdca" titre="Cultures assurées" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="bdca" echelleMin="50000" fond="false" protocole="WMS" selectionmultiplepg="v_bdca" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=bdca"/>
-			<!--<couche id="adresse" titre="Adresse localisée" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="adresse" fond="false" protocole="WMS" selectionmultiplepg="v_adresse" />-->
-			<couche id="adresse" titre="Adresse localisée" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="adresse" echelleMin="20000" fond="false" protocole="WMS" selectionmultiplepg="v_adresse_igo" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=adresse"/>
-			<couche id="warning" titre="warning" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="warning" fond="false" protocole="WMS" active="true" visible="false"/>
-			<couche id="warning_zone" titre="warning_zone" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="warning_zone" echelleMin="50000" fond="false" protocole="WMS" active="true" visible="false"/>
+			<couche id="arda" titre="Potentiel des sols" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="arda" echelleMin="80000" fond="false" protocole="WMS" selectionmultiplepg="v_arda"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=arda"/>
+			<couche id="erable" titre="Potentiel acéricole" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="erable" echelleMin="80000" fond="false" protocole="WMS" selectionmultiplepg="v_erable"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=erable"/>
+			<couche id="bdca" titre="Cultures assurées" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="bdca" echelleMin="50000" fond="false" protocole="WMS" selectionmultiplepg="v_bdca"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=bdca"/>
+			<couche id="copyright" titre="copyright" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="copyright" fond="false" protocole="WMS" active="true" visible="false" droitTitre="© Gouvernement du Québec" droitLien="http://www.droitauteur.gouv.qc.ca/copyright.php" droitLogoLargeur="64" droitLogoHauteur="14" droitLogo="http://geoegl.msp.gouv.qc.ca/gouvouvert/public/images/quebec/gouv_qc_logo.png"/>
+			<couche id="warning" titre="warning" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="warning" fond="false" protocole="WMS" active="true" visible="false" droitTitre="Aucune valeur légale"/>
+			<!--<couche id="warning_zone" titre="warning_zone" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="warning_zone" echelleMin="50000" fond="false" protocole="WMS" active="true" visible="false" droitTitre="LA ZONE AGRICOLE N'EST PLUS VISIBLE À CETTE ÉCHELLE"/>-->
 		</groupe-couches>
 
-
 		<groupe-couches groupe="Fond de carte">
-			<!--<couche id="orthos" protocole="WMS" titre="Orthophotographie" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="Photographie" fond="true" echelleMin="15000" echelleMax="1" visible="true" active="faux" opacite="100" ordreArborescence="5" metadonneeExterne="http://localhost:8080/igo/services/cptaq/InfoCPTAQ.php?layername=Photographie"/>-->
-			<!--<couche id="BDTQ" titre="BDTQ" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdtq.fcgi"nom="BDTQ" fond="true" groupe="Fond de carte" protocole="WMS" />-->
-			<couche id="idGouvQuebec" protocole="TMS" titre="Gouvernement du Québec" nom="carte_gouv_qc_ro@EPSG_3857" fond="true"  zoomMax="17" active="vrai" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/mapcache.fcgi/tms/" droitTitre="© Gouvernement du Québec" droitLien="http://www.droitauteur.gouv.qc.ca/copyright.php" droitLogoLargeur="64" droitLogoHauteur="14" droitLogo="http://geoegl.msp.gouv.qc.ca/gouvouvert/public/images/quebec/gouv_qc_logo.png" ordreArborescence="6"/>
-			<couche id="idCoucheGooglesatellite" protocole="Google" titre="Google (satellite)" nom="satellite" fond="true" echelleMin="6000000" echelleMax="1"  visible="true" active="faux" opacite="100" ordreArborescence="7"/>
-			<couche id="idCoucheGoogleterrain" protocole="Google" titre="Google (terrain)" nom="terrain" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="faux" opacite="100" ordreArborescence="8"/>    
-			<couche id="idCoucheGoogleterrainhybride " protocole="Google" titre="Google (hybride)" nom="hybride" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="faux" opacite="100" ordreArborescence="9"/>    
-			<couche id="idCoucheGoogleterrainroute" protocole="Google" titre="Google (route)" nom="route" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="faux" opacite="100" ordreArborescence="10"/>
-			<couche id="OpenStreetMap" titre="OpenStreetMap" protocole="OSM" active="faux" visible="true" ordreArborescence="11" />
+			<!--<couche id="orthos" protocole="WMS" titre="Orthophotographie" url="http://www.cptaq.gouv.qc.ca/mapserver/cgi-bin/cptaq_igo" nom="Photographie" fond="true" echelleMin="15000" echelleMax="1" visible="true" active="faux" opacite="100" ordreArborescence="5"  metadonnee="true"  metadonneeLien="http://www.cptaq.gouv.qc.ca/cartographie/igo/InfoCPTAQ.php?layername=Photographie"/>-->
+			<couche id="idGouvQuebec" protocole="TMS" titre="Gouvernement du Québec" nom="carte_gouv_qc_ro@EPSG_3857" fond="true"  zoomMax="17" active="true" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/mapcache.fcgi/tms/" ordreArborescence="6"/>
+			<couche id="idCoucheGooglesatellite" protocole="Google" titre="Google (satellite)" nom="satellite" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="false" opacite="100" ordreArborescence="7"/>
+			<couche id="idCoucheGoogleterrain" protocole="Google" titre="Google (terrain)" nom="terrain" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="false" opacite="100" ordreArborescence="8"/>    
+			<couche id="idCoucheGoogleterrainhybride " protocole="Google" titre="Google (hybride)" nom="hybride" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="false" opacite="100" ordreArborescence="9"/>    
+			<couche id="idCoucheGoogleterrainroute" protocole="Google" titre="Google (route)" nom="route" fond="true" echelleMin="6000000" echelleMax="1" visible="true" active="false" opacite="100" ordreArborescence="10"/>
+			<couche id="OpenStreetMap" titre="OpenStreetMap" protocole="OSM" active="false" visible="true" ordreArborescence="11" />
 		    <couche id="Fond blanc" titre="Fond blanc" protocole="Blanc" ordreArborescence="12"/>
+			<!--<couche titre="Orthophotographies (Gouvernement du Québec)" 
+
+            url="http://www.geomsp.qc/carto/wmts"
+            protocole="WMTS" 
+            fond="true" 
+            nom="orthos"
+            format="jpeg" 
+            matrixSet="EPSG_3857" 
+            visible="true" 
+            active="false"
+            zoomMax="19"
+			ordreArborescence="5"/>-->
+			
 		</groupe-couches>
 	</couches>
 </navigateur>
