@@ -29,6 +29,11 @@ return array(
         //Répertoire où se situe les modules
         'modules' => $baseDir . '/modules'
     ),
+    'authentification' => array(
+        'authentificationExterne' => false,
+        'module' => 'AuthentificationPES',
+        'moduleSession' => 'SessionControllerPES.exemple' //À définir si un partage de session doit être fait
+    ),
     //url des différentes parties du projet
     'uri' => array(
         'navigateur'    => "/igo_navigateur/",

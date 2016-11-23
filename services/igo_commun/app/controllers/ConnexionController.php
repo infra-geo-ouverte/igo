@@ -21,8 +21,15 @@ class ConnexionController extends Controller{
                 }
             } else {
 
+                if(isset($configuration->application->authentification->moduleSession) && $configuration->application->authentification->moduleSession) {
+                    $sessionModule = $configuration->application->authentification->moduleSession;
+                }
+                else {
+                        $sessionModule = "SessionController";
+                }
+                
                 if (!$this->session->has("info_utilisateur")) {
-                    $utilisateur = new SessionController();
+                    $utilisateur = new $sessionModule();
                     $this->session->set("info_utilisateur", $utilisateur);
                 }
 
@@ -76,6 +83,13 @@ class ConnexionController extends Controller{
         $this->view->setVar("titre", "Choix du profil");
         $request = new \Phalcon\Http\Request();
 
+        if(isset($configuration->application->authentification->moduleSession) && $configuration->application->authentification->moduleSession) {
+            $sessionModule = $configuration->application->authentification->moduleSession;
+        }
+        else {
+            $sessionModule = "SessionController";
+        }
+
         if ($request->isPost()) {
 
             $username = $request->getPost('username', null);
@@ -90,7 +104,7 @@ class ConnexionController extends Controller{
             }
 
             if (!$this->session->has("info_utilisateur")) {
-                $utilisateur = new SessionController();
+                $utilisateur = new $sessionModule();
                 $this->session->set("info_utilisateur", $utilisateur);
             }
             $this->session->get("info_utilisateur")->estAuthentifie = true;
@@ -226,9 +240,17 @@ class ConnexionController extends Controller{
 
         $configuration = $this->getDI()->get("config");
 
+        if(isset($configuration->application->authentification->moduleSession) && $configuration->application->authentification->moduleSession) {
+        	$sessionModule = $configuration->application->authentification->moduleSession;
+        }
+        else {
+        	$sessionModule = "SessionController";
+        }
+
+
         if($configuration->application->authentification->permettreAccesAnonyme){
             if(!$this->session->has("info_utilisateur")) {
-                $this->session->set("info_utilisateur", new SessionController());
+                $this->session->set("info_utilisateur", new $sessionModule());
             }
             if($estAuthentifier !== TRUE){
                 $this->session->get("info_utilisateur")->estAuthentifie = false;

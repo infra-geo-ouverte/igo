@@ -21,8 +21,14 @@ class SecurityPlugin extends Plugin
         $action = $dispatcher->getActionName();
         $config = $this->getDI()->get("config");
 
+        if(isset($config->application->authentification->moduleSession) && $config->application->authentification->moduleSession) {
+            $sessionModule = $config->application->authentification->moduleSession;
+        }
+        else {
+            $sessionModule = "SessionController";
+        }
+
         if($controller === "connexion" || $controller === "error"){
-            $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $user = $this->session->get("info_utilisateur");
@@ -46,7 +52,7 @@ class SecurityPlugin extends Plugin
             } else if (!$authRequise && !$this->estAuthentifie()){
                 $authentificationModule = $this->getDI()->get("authentificationModule");
                 if(!$this->session->has("info_utilisateur")) {
-                    $this->session->set("info_utilisateur", new SessionController());
+                    $this->session->set("info_utilisateur", new $sessionModule());
                 }
                 $configurationSysteme = $this->getDI()->get("config");
                 if($configurationSysteme->offsetExists("database")) {
