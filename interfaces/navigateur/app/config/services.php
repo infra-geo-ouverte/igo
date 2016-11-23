@@ -304,7 +304,6 @@ $di->set('router', function(){
 
             if (isset ($config->application->authentification->module)) {
 
-                $moduleAuthMultiple = false;
                 $authentificationModules = array ();
                 $configKey =  $di->get('dispatcher')->getParam("configuration");
 
@@ -346,14 +345,12 @@ $di->set('router', function(){
 
                   //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
                   foreach ($config->application->authentification->module as $key => $value) {
-                      if (!is_object ($value) && $moduleAuthMultiple === false) {
-                          $authentificationModule = new $value;
+                          $authentificationModule = new $key;
                           if ($authentificationModule instanceof AuthentificationController) {
                               array_push ($authentificationModules, $authentificationModule);
                           } else {
                               error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
-                          }
-                      }
+                          } 
                   }
 
                   if (isset ($module)) {
