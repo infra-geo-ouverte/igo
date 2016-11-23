@@ -508,7 +508,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
     Vecteur.prototype.cacherTout = function(tousLesStyles) {
 
-        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
         var selection = this.obtenirOccurences();
         this.processThis('cacher', selection, tousLesStyles);
 
@@ -528,7 +528,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
     Vecteur.prototype.afficherTout = function(tousLesStyles) {
 
-        var tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
+        tousLesStyles = typeof tousLesStyles === "undefined"?undefined:tousLesStyles;
         var selection = this.obtenirOccurences();
         this.processThis('afficher', selection, tousLesStyles);
 
