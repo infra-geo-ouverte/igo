@@ -312,15 +312,6 @@ $di->set('router', function(){
                   $configKey =  $di->get('session')->configuration ;
                 }
 
-                //On a changer de XML une fois authentifier alors on doit refaire le login
-                 if($di->get('dispatcher')->getParam("configuration") !== null && ($di->get('session')->configuration)!== null){
-                  if(($di->get('session')->configuration) !== $di->get('dispatcher')->getParam("configuration")){
-                   //TODO: Faire que la deconnexion se fasse içi
-                   $response = new \Phalcon\Http\Response();
-                   return $response->redirect('connexion/deconnexion', true);
-                     }
-                }
-
                 //On lit la configuration XML pour obtenir l'attribut module
                 //<navigateur authentification="true" authentificationModule="AuthentificationLdap" titre="">
                 if (isset ($configKey)) {
