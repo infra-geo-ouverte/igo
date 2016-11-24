@@ -17,8 +17,8 @@ try {
 
     }
 
-
     //retro-compatibilité de l'authentification multiple
+    if(isset($config->application->authentification->module)){
     if(!is_array(isset($config->application->authentification->module))){
       switch($config->application->authentification->module){
         case 'AuthentificationLdapBasic':
@@ -36,7 +36,7 @@ try {
           break;
       }
     }
-
+}
  	$application->registerModules($di->get('chargeurModules')->obtenirDefinitionModules());
     echo $application->handle()->getContent();
 

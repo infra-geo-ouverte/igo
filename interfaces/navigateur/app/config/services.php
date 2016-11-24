@@ -332,6 +332,7 @@ $di->set('router', function(){
                       $module = $element->attributes ()->authentificationModule;
                   } else {
                       $module = "AuthentificationTest";
+                      array_push ($authentificationModules, new $module);
                   }
 
                   //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
@@ -369,7 +370,9 @@ $di->set('router', function(){
              }
             }
            else {
-                return 'AuthentificationTest';
+                $module = "AuthentificationTest";
+                $authentificationModule = new $module ;
+                return $authentificationModule;
             }
 
         });
