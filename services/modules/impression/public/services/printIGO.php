@@ -8,12 +8,11 @@ header("Pragma: no-cache");
 //un résultat en JSON.
 header("content-type: text/html; charset=utf-8");
 
-//require_once('../../../../services/fonctions.php');
-require_once('../../../../fonctions.php');
+require_once('../../../../services/fonctions.php');
 //load config IGO
-$configIgo = include __DIR__ . "/../../../../../interfaces/navigateur/app/config/config.php";
-include __DIR__ . "/../../../../../interfaces/navigateur/app/config/loader.php";
-include __DIR__ . "/../../../../../interfaces/navigateur/app/config/services.php";
+$configIgo = include __DIR__ . "/../../../../interfaces/navigateur/app/config/config.php";
+include __DIR__ . "/../../../../interfaces/navigateur/app/config/loader.php";
+include __DIR__ . "/../../../../interfaces/navigateur/app/config/services.php";
 
 // Config pour le service d'impression
 if(!isset($configIgo['modules']) || !isset($configIgo['modules']['impression'])){

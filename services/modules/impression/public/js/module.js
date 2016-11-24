@@ -1,5 +1,5 @@
 require.config({
 	paths: {
-		'impression': Configuration.uri.modules + '/impression/public/js/impression'
+		'impression': Configuration.uri.modules + 'impression/public/js/impression'
 	}
 });
