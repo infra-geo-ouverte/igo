@@ -41,6 +41,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         this.defautOptions = $.extend({}, this.defautOptions, {
             icone: Aide.obtenirCheminRacine()+'images/toolbar/gps_down.png',
             infobulle: "Importer un fichier géométrique",
+            titreFenetre: "Importation de fichier",
             format :[
                         ['csv', 'CSV', 'csv'],
                         //['DGN', 'dgn'],
@@ -134,7 +135,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                 defaults: {
                     msgTarget: 'side'               
                 },
-                labelWidth: 175,
+                labelWidth: 170,
                 items:[
                 {
                     anchor: '95%',
@@ -142,9 +143,10 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                     xtype: 'fileuploadfield',                   
                     id: 'uploadOutilImportFichier',
                     emptyText: 'Sélectionner un fichier...',
-                    fieldLabel: 'Fichier',
+                    fieldLabel: 'Fichier&nbsp;',
                     buttonText: 'Parcourir',
                     blankText: "Vous devez sélectionner un fichier géométrique avant de pouvoir importer.",
+                    width: 195,
                     listeners: {
                         fileselected: function(inputNode,fileInput){
                             inputNode.setValue(fileInput.replace("C:\\fakepath\\", ""));
@@ -353,7 +355,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
 
         var myWin = new Ext.Window({
             id     : 'myWin',
-            title : 'Importation de fichier',
+            title : this.options.titreFenetre,
             autoHeight : true,
             autoWidth  : true,
             items  : [myuploadform],
@@ -362,6 +364,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
 
         myWin.show();   
                    
+        Ext.getCmp("uploadOutilImportFichier").setWidth(193);
     };  
     
     /**
@@ -384,10 +387,17 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                 if(feat.geometry.type === "Line" || feat.geometry.type === "LineString"){
                     var coordPrec = "";
                     var coordIndexToPop = new Array();
+                    
+                    if(typeof feat.geometry.coordinates.line !== "undefined") {
+                        feat.geometry.coordinates = feat.geometry.coordinates.line; //2e format GPX a un niveau de plus à retirer
+                    }
+                    
                     $.each(feat.geometry.coordinates, function(ind, coord){                   
                     //Si égale à la coordonnée précédente
                         if(coordPrec !== "" && coordPrec[0] === coord[0] && coordPrec[1] === coord[1]){
+                            if(typeof ind !== "string") {
                             coordIndexToPop.push(ind);
+                            }
                     }else{
                         //Sinon si coordonnée à 3dimensions, on retire la dimension "z"
                         if(coord.length === 3) {
