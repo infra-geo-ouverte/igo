@@ -6,7 +6,7 @@
  * @requires panneau
  */
 
-define(['panneau', 'aide'], function(Panneau, Aide) {
+define(['panneau', 'aide', 'browserDetect'], function(Panneau, Aide, BrowserDetect) {
     /** 
      * Création de l'object Panneau.Impression.
      * Objet à ajouter à un panneauMenu.
@@ -21,6 +21,10 @@ define(['panneau', 'aide'], function(Panneau, Aide) {
     */
     function Impression(options){
         this.options = options || {};       
+        this.aszPrintableLayerTypes = [
+            "WMS",
+            "WMTS"
+        ];
     };
     
     Impression.prototype = new Panneau();
@@ -202,6 +206,12 @@ define(['panneau', 'aide'], function(Panneau, Aide) {
             maxLength: 256,
             submitValue: false
         }, 
+        {
+            xtype: 'checkbox',
+            id : 'showLegendGraphics',
+            fieldLabel : ' Afficher la légende',
+            submitValue: false
+        },
         oPaperComboBox, 
         widthNumberField,
         heightNumberField, 
@@ -223,6 +233,69 @@ define(['panneau', 'aide'], function(Panneau, Aide) {
     });
 };
 
+
+
+/**
+    * Obtenir les options d'impression pour une série de couche
+    * @method
+    * @name Impression#getPrintableLayers
+    * @param {boolean} flagVecteur signifie si des couches vecteurs sont présentes
+    * @returns {couche[]} aoLayers série de couche à imprimer
+    */
+Impression.prototype.getPrintableLayers = function(flagVecteur) {
+
+    var flagVecteur = (typeof flagVecteur === "undefined") ? true : flagVecteur;
+    var aolBase = [], aolOverlays = [], aoLayers;
+
+    var oMap = Igo.nav.carte._carteOL;
+    var layers = Igo.nav.carte.gestionCouches.obtenirCouches(true);
+    for (var i = 0, len = layers.length; i < len; i++) {
+        var coucheIGO = layers[i];
+        if (!coucheIGO._layer.printOptions) {
+            if (coucheIGO.estActive() && (coucheIGO.obtenirTypeClasse()==="Google")){
+                Aide.afficherMessage("Impression",
+                                    "Les couches Google ne sont pas disponible à l'impression pour des raisons de  droits d'utilisation.",
+                                    "OK",
+                                    "ERREUR");
+                return;
+            }
+
+            if(OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, coucheIGO.obtenirTypeClasse()) === -1){
+                continue;
+            }
+        }
+
+        if( (OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, coucheIGO.obtenirTypeClasse()) === -1) &&
+          ((!coucheIGO._layer.printOptions['url'] ||
+             !coucheIGO._layer.printOptions['layers'] ||
+             !coucheIGO._layer.printOptions['mapformat'] ||
+             !coucheIGO._layer.printOptions['format']) ||
+            coucheIGO._layer.printOptions['fromLayer'] === true)){
+            continue;
+        }
+
+        if (coucheIGO.estFond()) {
+
+            if (coucheIGO.estActive()) {
+                aolBase.push(coucheIGO);
+            }
+        } else if (coucheIGO.estDansPortee() && coucheIGO.estActive()) {
+            aolOverlays.push(coucheIGO);
+        }
+    }
+
+    aoLayers = aolBase.concat(aolOverlays);
+
+    if (aoLayers.length === 0 && flagVecteur) {
+
+        Aide.afficherMessage('Impression', "Aucune couche imprimable n'est sélectionnée",
+                                "OK", "ERREUR");
+        return;
+    }
+
+    return aoLayers;
+};
+
 /**
  * Imprimer la carte
  * @method
@@ -230,6 +303,9 @@ define(['panneau', 'aide'], function(Panneau, Aide) {
  */
 Impression.prototype.imprimerCarte = function(){  
     var navigateur = Aide.obtenirNavigateur();
+    Aide.afficherMessageChargement({titre: "Préparation de l'impression", message: "Veillez patienter..."});
+
+    $('body').addClass("media-print-igo");
     navigateur.carte.exporterImage(this.genererImpression.bind(this));       
 };
     
@@ -241,13 +317,19 @@ Impression.prototype.imprimerCarte = function(){
  */    
 Impression.prototype.genererImpression = function(canvas)
 { 
+    $('body').removeClass("media-print-igo");
+    var that = this;
+    var carte = Igo.nav.carte;
+    var echelle = carte.obtenirEchelle(true);
+    var proj = carte.obtenirProjection();
+
+    var opt = this.printForm.getForm().getFieldValues();
+    var orientation = opt.printOrientation;
+    var formatPapier = opt.printPaper;
+
     var height = canvas.height;
     var width = canvas.width;
     var heightImg,widthImg, paperMax, paperSize, widthMM, heightMM;
-    var titre = Ext.getCmp("printTitle").getValue();
-    var commentaire = Ext.getCmp("printComments").getValue();
-    var orientation = Ext.getCmp("printOrientation").getValue();
-    var formatPapier = Ext.getCmp("printPaper").getValue();
     
     if(formatPapier == "LETTER")
     {
@@ -295,7 +377,7 @@ Impression.prototype.genererImpression = function(canvas)
        var FIXHEIGHT = paperMax; 
        var FIXWIDTH = 700;
     }
-    
+
     if(height>width)
     {
         heightImg=FIXHEIGHT;
@@ -321,21 +403,96 @@ Impression.prototype.genererImpression = function(canvas)
     
     canvas.style.height = heightImg;
     canvas.style.width = widthImg;
-    var win=window.open();
-    win.document.write("<html><head></head><body>");
-    win.document.write('<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
-                       '@media print {body { width: ' + widthMM + '; height: ' + heightMM + '; }</style>');
-    win.document.write("<h1><center>" +titre+ "</center></h1>");
-    win.document.write("<br><center><img height=" + heightImg + " width= " + widthImg + " src='"+canvas.toDataURL("image/png")+"'/></center>");
-    win.document.write("<br><p>" + commentaire + "</p>");
-    win.document.write("</body></html>");
-    win.document.body.style.width = FIXWIDTH; //permet de centrer le titre avec la largeur connue de la page
-    win.document.body.style.height = heightImg;
-    win.document.close();
-    win.print();
-    win.location.reload();
-    win.close();
+
+
+    var printLayer = $("#printLayer");
+  
+    if (!printLayer.length) {
+        var printLayerText = '<div id="printLayer" style="display:none;"> </div>'
+        $("body").append(printLayerText);
+        printLayer = $("#printLayer");
+    } else {
+        printLayer.empty();
+    }
+
+    /*if (opt.printTitle) {
+        var title = "<div class='printTitle'>" + opt.printTitle + "</div>";
+        printLayer.append(title);
+    }*/
+
+    /*var desc = "<div class='printDescription'>" + opt.printComments + "<br/>";
+    desc += "<i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></div>";
+    printLayer.append(desc);*/
+
+    if (opt.showLegendGraphics) {
+        var existLegend = false;
+        var legend = "<div class='printLegend'>";
+        legend += "<b><u>Légende</u></b><br/>";
+        var aoLayers = this.getPrintableLayers(true);
+        $.each(aoLayers, function(key, layer) {
+          if (!layer.estFond()) {
+            existLegend = true;
+            legend += "<span>" + layer.options.titre + "</span><br/>";
+            legend += "<img class='printImageLegend' src='" + layer.options.url + "?scale=" + carte.obtenirEchelle() + "&TRANSPARENT=TRUE&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetLegendGraphic&FORMAT=image/png&LAYER=" + layer.options.nom + "'></img>";
+            legend += "<br/>";
+          }
+        });
+        legend += "</div>";
+        if (existLegend) {
+          printLayer.append(legend);
+        }
+    }
+
+    var html  = '<html><head><title>Impression</title>';
+    html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
+    html += '</head>';
+    html += '<body class="media-print-igo" style="width: ' + FIXWIDTH + '; height: ' + heightImg + '; padding: 0; margin: 0; overflow: hidden">';
+    html += '<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
+               '@media print {body { width: ' + widthMM + '; height: ' + heightMM + '; }</style>';
+    html += '<h2><center>' +opt.printTitle+ '</center></h2>';
+    html += '<div id="printLayer">' + printLayer.html() + '</div>';
+    html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
+    html += '<br><p>' + opt.printComments + '</p>';
+    html += "<p><i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></p>";
+    html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
+    html += '</body></html>';
+
+    var printWindow = window.open('', 'À imprimer', 'height='+(FIXHEIGHT+150)+',width='+FIXWIDTH);
+    printWindow.document.write(html);
+    printWindow.document.close();
+
+    setTimeout(function(){
+      var imagesLegende = $(printWindow.document).find(".printImageLegend");
+      if (!imagesLegende.length) {
+        printWindow.print()
+        printWindow.close();
+        Aide.cacherMessageChargement()
+        return true;
+      }
+
+      var count = 0;
+      var waitImages = function() {
+        var printOk = true;
+        if (count < 20) {
+          $.each(imagesLegende, function(key, image) {
+            if (!image.complete) {
+              printOk = false;
+              count++;
+              setTimeout(waitImages, 500);
+              return false;
+            }
+          });
+        }
+        if (printOk) {
+            printWindow.print()
+            printWindow.close();
+            Aide.cacherMessageChargement();
+        }
+      }
+      waitImages();
+    }, 1);            
 };
+
 
 return Impression;
     
