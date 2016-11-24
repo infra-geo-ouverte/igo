@@ -474,6 +474,21 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                 }));
 
                 outils.push(new Outil({
+                    icone: Aide.obtenirCheminRacine()+'images/toolbar/move.png',
+                    infobulle: "Déplacer l'occurence",
+                    action: function(){                    
+                        if(!this._bouton.pressed){                         
+                            this._bouton.toggle(true);
+                            that.donnees.controles.activerDeplacement()
+                        }
+                        else {
+                            that.donnees.controles.desactiverDeplacement();
+                            this._bouton.toggle(false);
+                        }
+                    }
+                }));
+
+                outils.push(new Outil({
                   //  titre:'Sauvegarder',
                     icone: Aide.obtenirCheminRacine()+'images/toolbar/disk.png',
                     infobulle: "Sauvegarder les changements",
