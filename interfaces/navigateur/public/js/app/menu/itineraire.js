@@ -1440,7 +1440,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
         var pos = point.projeter(this._.projCarte, this._.proj4326);
         //todo: à remplacer par le glo v6 lorsque le reverse sera intégré 
         //var url = "http://nominatim.openstreetmap.org/reverse?format=json&accept-language=fr&lat="+pos.lat+"&lon="+pos.lon;          
-        //var url = "http://spssogl97d.sso.msp.gouv.qc.ca/Services/itineraire.php?graph=locate&loc=" + pos.lat + "," + pos.lon;
+        //var url = "http://spssogl97d.sso.msp.gouv.qc.ca/services/itineraire.php?graph=locate&loc=" + pos.lat + "," + pos.lon;
         var url = this._.options.service + "/nearest?loc=" + pos.y + "," + pos.x;
         
         $.ajax({
