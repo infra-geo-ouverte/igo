@@ -588,6 +588,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
         this.resultatPanneau.items.items[0].body.update(resultatTexte);
         if (typeof callback === "function"){
             callback.call(target);
+            this.activerCouchesAssociees();
         }
     };
 
@@ -635,6 +636,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      */
     Recherche.prototype.reinitialiserRecherche = function(){
         this.reinitialiserVecteur();
+        this.desactiverCouchesAssociees();
         this.textUser = undefined;
         $.each(this._panel.items.items, function(index, item){
            if(item.xtype == "textfield" || item.xtype == "numberfield" || item.xtype == "combo"){
@@ -650,6 +652,63 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     Recherche.prototype.obtenirLienAide = function (){
         return (typeof this.options.lienAide == undefined)?this.defautOptions.lienAide:this.options.lienAide;
     }
+
+    /**
+     * Activer couches associées
+     * @method
+     * @name Recherche#activerCouchesAssociees
+     */
+    Recherche.prototype.activerCouchesAssociees = function() {
+        var that = this;
+        
+        if(this.options.couchesAssociees === undefined)
+            return true;
+        
+        var listeCouches = this.options.couchesAssociees.split(",");
+        
+        if(listeCouches === "")
+            return true;
+        
+        $.each(listeCouches, function(index, coucheASelectionner){
+
+            var couches = that.carte.gestionCouches.obtenirCouchesParNom(coucheASelectionner);
+            $.each(couches, function(ind, couche){
+                
+                if(couche)  {
+                couche.activer();
+                }
+            });
+        });          
+    };
+    
+    /**
+     * Désacctiver couches associées
+     * @method
+     * @name Recherche#DesactiverCouchesAssociees
+     */
+    Recherche.prototype.desactiverCouchesAssociees = function() {
+        var that = this;
+        
+        if(this.options.couchesAssociees === undefined)
+            return true;
+        
+        var listeCouches = this.options.couchesAssociees.split(",");
+        
+        if(listeCouches === "")
+            return true;
+        
+        $.each(listeCouches, function(index, coucheASelectionner){
+
+            var couches = that.carte.gestionCouches.obtenirCouchesParNom(coucheASelectionner);
+            $.each(couches, function(ind, couche){
+                
+                if(couche)  {
+                    couche.desactiver();
+                }           
+            });   
+        });
+                   
+    };
 
     return Recherche;
 
