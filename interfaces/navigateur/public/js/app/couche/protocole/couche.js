@@ -106,7 +106,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         var layerActif = Aide.obtenirParametreURL("layeractif");
         if(layerActif){
             layerActif = layerActif.split(',');
-            if(layerActif.indexOf(opt.nom) !== -1){
+            if(layerActif.indexOf(opt.nom) !== -1 || layerActif.indexOf(opt.groupe) !== -1){
                 opt.active = true;
             }
         }
