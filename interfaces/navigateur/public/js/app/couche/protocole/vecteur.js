@@ -807,7 +807,9 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
     Vecteur.Controles.prototype._selection = function(e) {
         var that = e.options.scope;
         
-        $.each(e.occurence, function(ind, occu) {
+        //Fonction pour traiter la sélection d'une occurence
+        var fctTraiterOccurence = function(occu)
+        {
              if (that._.obtenirId() !== occu.vecteur.obtenirId()){return false};  
             if(occu.obtenirInteraction('selectionnable') === false){
             return false;
@@ -820,7 +822,18 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         } else {
                 occu.vecteur.selectionnerOccurence(occu);
         }
+        };
+        
+        //Si c'est un tableau d'occurence
+        if(typeof e.occurence.type === "undefined") {
+            $.each(e.occurence, function(ind, occu) {
+                fctTraiterOccurence(occu)
         });      
+        }
+        else //Si c'est une occurence seule
+        {
+           fctTraiterOccurence(e.occurence);
+        }
     };
 
     return Vecteur;
