@@ -303,7 +303,7 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
  */
 Impression.prototype.imprimerCarte = function(){  
     var navigateur = Aide.obtenirNavigateur();
-    Aide.afficherMessageChargement({titre: "Préparation de l'impression", message: "Veillez patienter..."});
+    Aide.afficherMessageChargement({titre: "Préparation de l'impression", message: "Veuillez patienter..."});
 
     $('body').addClass("media-print-igo");
     navigateur.carte.exporterImage(this.genererImpression.bind(this));       
