@@ -130,9 +130,8 @@ $di->set('logger', function () use ($config) {
 $di->set('crypt', function () use ($config) {
 
     $crypt = new Phalcon\Crypt();
-    $crypt->setCipher('blowfish');
-    $crypt->setMode('cbc');
-
+    $crypt->setCipher('bf-cbc');
+   
     if (isset($config->application->authentification['secretXmlFile'])) {
        $xmlPath = $config->application->authentification->secretXmlFile;
     }
@@ -153,7 +152,7 @@ $di->set('crypt', function () use ($config) {
         die("La clé n'a pas été trouvée dans ce chemin" . $xmlPath . "ou elle n'existe pas!");
     }
 
-    $crypt->setKey($key['authentification']);
+    $crypt->setKey((string)$key['authentification'][0]);
 
     return $crypt;
 }, true);
@@ -175,7 +174,7 @@ $di->set('db', function () use ($config) {
         'password' => $config->database->password,
         'dbname' => $config->database->dbname
     ));
-	
+    
 /*
  *  //Décommenter pour activer le profilage de PGSQL
 	//TODO Activer le profilage PGSQL quand on est en mode debug. On ne devrait pas avoir à décommenter des lignes 
