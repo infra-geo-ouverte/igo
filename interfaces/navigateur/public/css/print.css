@@ -39,12 +39,8 @@
     }
 
     #printLayer {
-      width: 100%;
-      height: 100%;
       position: absolute;
-      top: 0;
-      left: 0;
-      background-color: none !important;
+      right: 0;
     }
 
     #printLayer .centerH {
@@ -62,11 +58,7 @@
     }
 
     #printLayer .printLegend {
-      position: absolute;
-      right: 0;
-      top: 0;
       background-color: white;
-      max-width: 30%;
     }
 
     #printLayer .printDescription {
@@ -96,28 +88,24 @@
     }
 }
 
-#media-print-igo .boutonConsole,
-#media-print-igo .x-slider,
-#media-print-igo .olControlNoSelect
+body.media-print-igo .boutonConsole,
+body.media-print-igo .x-slider,
+body.media-print-igo .olButton
 {
  display: none !important;
 }
 
 
-#media-print-igo #printLayer {
-  width: 100%;
-  height: 100%;
+body.media-print-igo #printLayer {
   position: absolute;
-  top: 0;
-  left: 0;
-  background-color: none !important;
+  right: 0;
 }
 
-#media-print-igo #printLayer .centerH {
+body.media-print-igo #printLayer .centerH {
   text-align: center;
 }
 
-#media-print-igo #printLayer .printTitle {
+body.media-print-igo #printLayer .printTitle {
   width: 100%;
   margin: auto;
   text-align: center;
@@ -127,15 +115,11 @@
   font-weight: bold;
 }
 
-#media-print-igo #printLayer .printLegend {
-  position: absolute;
-  right: 0;
-  top: 0;
+body.media-print-igo #printLayer .printLegend {
   background-color: white;
-  max-width: 30%;
 }
 
-#media-print-igo #printLayer .printDescription {
+body.media-print-igo #printLayer .printDescription {
   position: absolute;
   bottom: 0;
   font-size: 12px;
@@ -143,14 +127,14 @@
   max-width: 30%;
 }
 
-#media-print-igo #printLayer .printInfo {
+body.media-print-igo #printLayer .printInfo {
   position: absolute;
   bottom: 0;
   text-align: center;
   width: 100%;
 }
 
-#media-print-igo #printLayer .printInfo div {
+body.media-print-igo #printLayer .printInfo div {
   font-size: 12px;
   background-color: white;
   text-align: center;

@@ -26,6 +26,15 @@ class SecurityPlugin extends Plugin
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $user = $this->session->get("info_utilisateur");
+            
+            //On a changer de XML une fois authentifier alors on doit refaire le login
+            if($dispatcher->getParam("configuration") !== null && ($this->session->configuration)!== null){
+                  if(($this->session->configuration) !== $dispatcher->getParam("configuration")){
+                      $this->session->destroy();
+                    $authentificationModule->deconnexion();
+                     }
+                }
+       
             $authObligatoire = isset($_GET['force-auth']) ? $_GET['force-auth'] : false;
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
 
