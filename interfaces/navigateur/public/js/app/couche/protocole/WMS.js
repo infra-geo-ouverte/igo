@@ -134,7 +134,6 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     WMS.prototype._getCapabilities = function(target, callback, optCallback){
         var tjrsProxy = this.options.encodage ? true : false;
         var that=this;
-        window.arboLoading = true;
         $.ajax({
             url: Aide.utiliserProxy(that.options.url, tjrsProxy),//this.options.url.split('?')[0],
             data: {
@@ -299,7 +298,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             }
         });
 
-        window.arboLoading = false;
+        window.arboLoadingNb--;
         if(iCL===0){
             Aide.afficherMessageConsole("Couche(s) introuvable(s): " + this.options.nom);
             return false;
@@ -311,7 +310,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
     }
 
     WMS.prototype._getCapabilitiesError = function(response, target, callback, optCallback){
-        window.arboLoading = false;
+        window.arboLoadingNb--;
         response = response || {};
         if(response.status != 200){
             var message = 'Erreur WMS: GetCapabilities: <br>Le GetCapabilities pour \''+this.options.url+'\' a échoué. <br>'+response.responseText;
