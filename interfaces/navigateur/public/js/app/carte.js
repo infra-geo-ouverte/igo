@@ -305,7 +305,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         var $carteDiv = $(carteDiv);
         this._canvasAddSvgFirefox($carteDiv);
 
+        $('body').addClass("media-print-igo");
         html2canvas(carteDiv, options).then(function(canvas) {
+            $('body').removeClass("media-print-igo");
             that._canvasRemoveSvgFirefox($carteDiv);
             that._canvasAddSvgImage($carteDiv, canvas, deferred);
         })

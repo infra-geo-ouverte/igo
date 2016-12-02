@@ -96,47 +96,37 @@ body.media-print-igo .olButton
 }
 
 
-body.media-print-igo #printLayer {
+#printLayer {
   position: absolute;
   right: 0;
 }
 
-body.media-print-igo #printLayer .centerH {
-  text-align: center;
+
+#printLayer .printLegend {
+  background-color: white;
 }
 
-body.media-print-igo #printLayer .printTitle {
+
+#media-print-igo .printTitle {
   width: 100%;
   margin: auto;
   text-align: center;
-  padding: 5px;
+  padding: 2px;
   font-size: 18px;
   text-shadow: #fff 0px 0px 2px;
   font-weight: bold;
 }
 
-body.media-print-igo #printLayer .printLegend {
-  background-color: white;
+#media-print-igo {
+  z-index:-1;
+  background-color: white; 
+  position: absolute; 
+  left:0; 
+  top:0;
 }
 
-body.media-print-igo #printLayer .printDescription {
-  position: absolute;
-  bottom: 0;
-  font-size: 12px;
-  background-color: white;
-  max-width: 30%;
-}
-
-body.media-print-igo #printLayer .printInfo {
-  position: absolute;
-  bottom: 0;
-  text-align: center;
-  width: 100%;
-}
-
-body.media-print-igo #printLayer .printInfo div {
-  font-size: 12px;
-  background-color: white;
-  text-align: center;
-  display: inline;
+/* Remove button padding in FF */
+button::-moz-focus-inner {
+    border:0;
+    padding:0;
 }

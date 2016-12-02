@@ -305,7 +305,6 @@ Impression.prototype.imprimerCarte = function(){
     var navigateur = Aide.obtenirNavigateur();
     Aide.afficherMessageChargement({titre: "Préparation de l'impression", message: "Veuillez patienter..."});
 
-    $('body').addClass("media-print-igo");
     navigateur.carte.exporterImage(this.genererImpression.bind(this));       
 };
     
@@ -317,9 +316,9 @@ Impression.prototype.imprimerCarte = function(){
  */    
 Impression.prototype.genererImpression = function(canvas)
 { 
-    $('body').removeClass("media-print-igo");
+    
     var that = this;
-    var carte = Igo.nav.carte;
+    var carte = Aide.obtenirNavigateur().carte;
     var echelle = carte.obtenirEchelle(true);
     var proj = carte.obtenirProjection();
 
@@ -327,10 +326,16 @@ Impression.prototype.genererImpression = function(canvas)
     var orientation = opt.printOrientation;
     var formatPapier = opt.printPaper;
 
-    var height = canvas.height;
-    var width = canvas.width;
     var heightImg,widthImg, paperMax, paperSize, widthMM, heightMM;
-    
+    var correctionAjouts = 42;
+    if (opt.printTitle) {
+        correctionAjouts += 23;
+    }
+
+    if (opt.printComments) {
+        correctionAjouts += 18; // valide seulement pour une ligne
+    }
+
     if(formatPapier == "LETTER")
     {
         paperMax = 1200;
@@ -369,14 +374,17 @@ Impression.prototype.genererImpression = function(canvas)
 
     if(orientation == "landscape")
     {
-        var FIXHEIGHT = 700;
+        var FIXHEIGHT = 700 - correctionAjouts;
         var FIXWIDTH = paperMax;
     }
     else
     {
-       var FIXHEIGHT = paperMax; 
+       var FIXHEIGHT = paperMax - correctionAjouts; 
        var FIXWIDTH = 700;
     }
+
+    var height = canvas.height;
+    var width = canvas.width;
 
     if(height>width)
     {
@@ -400,11 +408,11 @@ Impression.prototype.genererImpression = function(canvas)
             widthImg =  Math.round((heightImg/height)*width);
         }
     }
-    
+
     canvas.style.height = heightImg;
     canvas.style.width = widthImg;
 
-
+    
     var printLayer = $("#printLayer");
   
     if (!printLayer.length) {
@@ -414,15 +422,6 @@ Impression.prototype.genererImpression = function(canvas)
     } else {
         printLayer.empty();
     }
-
-    /*if (opt.printTitle) {
-        var title = "<div class='printTitle'>" + opt.printTitle + "</div>";
-        printLayer.append(title);
-    }*/
-
-    /*var desc = "<div class='printDescription'>" + opt.printComments + "<br/>";
-    desc += "<i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></div>";
-    printLayer.append(desc);*/
 
     if (opt.showLegendGraphics) {
         var existLegend = false;
@@ -443,30 +442,88 @@ Impression.prototype.genererImpression = function(canvas)
         }
     }
 
-    var html  = '<html><head><title>Impression</title>';
-    html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
-    html += '</head>';
-    html += '<body class="media-print-igo" style="width: ' + FIXWIDTH + '; height: ' + FIXHEIGHT + '; padding: 0; margin: 0;">';
-    html += '<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
-               '@media print {body { width: ' + widthMM + '; height: ' + heightMM + '; }</style>';
-    html += '<h2><center>' +opt.printTitle+ '</center></h2>';
+
+    html = '<div id="media-print-igo" style="max-width:'+widthImg+'px;>';
+    html += '<h1 class="printTitle"><center>' +opt.printTitle+ '</center></h1>';
     html += '<div id="printLayer">' + printLayer.html() + '</div>';
     html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
     html += '<br><p>' + opt.printComments + '</p>';
-    html += "<p><i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></p>";
-    html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
-    html += '</body></html>';
+    html += "<p><i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></p>";    
+    html += "</div>";
 
-    var printWindow = window.open('', 'À imprimer', 'height='+(FIXHEIGHT+150)+',width='+FIXWIDTH);
-    printWindow.document.write(html);
-    printWindow.document.close();
+    $('body').append(html);
+
+
+    var createCanvasPrint = function(){
+        html2canvas($('#media-print-igo')[0]).then(function(canvas2) {
+            $("#media-print-igo").remove();
+
+            if(orientation == "landscape")
+            {
+                var FIXHEIGHT = 700;
+            }
+            else
+            {
+               var FIXHEIGHT = paperMax; 
+            }
+
+            var height = canvas2.height;
+            var width = canvas2.width;
+
+            if(height>width)
+            {
+                heightImg=FIXHEIGHT;
+                widthImg = Math.round((heightImg/height)*width);
+                
+                if(widthImg>FIXWIDTH)
+                {
+                    widthImg=FIXWIDTH;
+                    heightImg =  Math.round((widthImg/width)*height);
+                }
+            }
+            else
+            {
+                widthImg=FIXWIDTH;
+                heightImg =  Math.round((widthImg/width)*height);
+                
+                if(heightImg>FIXHEIGHT)
+                {
+                    heightImg=FIXHEIGHT;
+                    widthImg =  Math.round((heightImg/height)*width);
+                }
+            }
+
+            canvas2.style.height = heightImg;
+            canvas2.style.width = widthImg;
+
+            var html  = '<html><head><title>Impression</title>';
+            html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
+            html += '<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
+                       '@media print {body { width: ' + widthMM + '; height: ' + heightMM + '; }</style>';
+            html += '<script> function savePrintImage(e) {var a = document.createElement("a"); a.href="' + canvas2.toDataURL("image/png") + '"; a.download="igoImpression.png"; document.body.appendChild(a); a.click(); document.body.removeChild(a);}</script>';                       
+            html += '</head>';
+            html += '<body class="media-print-igo" style="width: ' + widthImg + '; height: ' + heightImg + '; padding: 0; margin: 0;">';
+            html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas2.toDataURL("image/png") + '" /></center>';
+            html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
+            html += '<button class="noPrint saveButtonPrint" type="button" onclick="savePrintImage()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 80px; cursor: pointer;">Enregistrer</button>';
+            html += '</body></html>';
+
+
+            var printWindow = window.open('', 'À imprimer', 'height='+heightImg+',width='+widthImg);
+            printWindow.document.write(html);
+            printWindow.document.close();
+
+            Aide.cacherMessageChargement();
+
+        }); 
+    };
+
+
 
     setTimeout(function(){
-      var imagesLegende = $(printWindow.document).find(".printImageLegend");
+      var imagesLegende = $("#media-print-igo .printImageLegend");
       if (!imagesLegende.length) {
-        printWindow.print();
-        printWindow.close();
-        Aide.cacherMessageChargement();
+        createCanvasPrint();
         return true;
       }
 
@@ -484,13 +541,13 @@ Impression.prototype.genererImpression = function(canvas)
           });
         }
         if (printOk) {
-            printWindow.print();
-            printWindow.close();
-            Aide.cacherMessageChargement();
+            createCanvasPrint();
+            return true
         }
       };
       waitImages();
-    }, 1);            
+    }, 1);
+        
 };
 
 
