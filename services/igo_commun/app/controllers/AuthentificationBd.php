@@ -164,7 +164,6 @@ class AuthentificationBd extends AuthentificationController {
             error_log($sql);
         }
 
-
         $result = $bdconnexion->query($sql);
         $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
         if(!$result){
@@ -182,10 +181,15 @@ class AuthentificationBd extends AuthentificationController {
                 if ($mdp == ltrim (trim ($chaine))) {
                     $this->motDePasseValide = true;
                     $this->identifiant = $identifiant;
+                }  else {
+                     $this->motDePasseValide = false;
+                     $this->messagesErreur[] = "L'authentification à échouée mot de passe invalide."; 
+                     //TODO sortir moin violent s.v.p
+                     throw new Exception("L'authentification à échouée mot de passe invalide");
+                     return $this->messageErreur;
                 }
             }
         }
-
 
 
         if (strlen ($mdp) == 0) {
