@@ -496,6 +496,11 @@ Impression.prototype.genererImpression = function(canvas)
             canvas2.style.height = heightImg;
             canvas2.style.width = widthImg;
 
+
+            var posRight = 75;
+            if (BrowserDetect.browser === 'Firefox') {
+                posRight = 110;
+            }
             var html  = '<html><head><title>Impression</title>';
             html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
             html += '<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
@@ -505,7 +510,9 @@ Impression.prototype.genererImpression = function(canvas)
             html += '<body class="media-print-igo" style="width: ' + widthImg + '; height: ' + heightImg + '; padding: 0; margin: 0;">';
             html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas2.toDataURL("image/png") + '" /></center>';
             html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
-            html += '<button class="noPrint saveButtonPrint" type="button" onclick="savePrintImage()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 80px; cursor: pointer;">Enregistrer</button>';
+            if (BrowserDetect.browser !== 'Explorer') {
+               html += '<button class="noPrint saveButtonPrint" type="button" onclick="savePrintImage()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: '+posRight+'px; cursor: pointer;">Enregistrer</button>';
+            }
             html += '</body></html>';
 
 
