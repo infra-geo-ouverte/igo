@@ -213,7 +213,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
     };
 
 
-    Itineraire.Instructions.prototype.formaterInstruction = function(type, modifier, route, direction, position, last) {
+    Itineraire.Instructions.prototype.formaterInstruction = function(type, modifier, route, direction, position, last, opt) {
         var directive = 'None';
         var image;
 
@@ -286,7 +286,9 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             directive = 'Continuer sur ' + route;
             image = 'continue.png';
         } else if (type === 'roundabout') {
-            directive = 'Rond-point....';
+            directive = 'Au rond-point, prendre la ' + opt.exit;
+            directive += opt.exit === 1 ? 're' : 'e';
+            directive += ' sortie vers ' + route;
             image = 'round-about.png';
         } else if (type === 'rotary') {
             directive = 'Rond-point rotary....';
@@ -324,7 +326,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
             var modifier = that.formaterModifier(value.maneuver.modifier);
             var distance = that.formaterDistance(value.distance);
             var direction = that.formaterDirection(value.maneuver.bearing_after);
-            var instructions = that.formaterInstruction(typeInstruction, modifier, value.name, direction, key, key+1 == nbSteps);
+            var instructions = that.formaterInstruction(typeInstruction, modifier, value.name, direction, key, key+1 == nbSteps, value.maneuver);
             var instructionText = instructions.instruction;
             var instructionImage = instructions.image;
 
@@ -970,7 +972,7 @@ define(['aide', 'panneau', 'vecteur', 'point', 'ligne', 'limites', 'occurence', 
                 cache : true,
                 context: this,
                 success: function(response) {
-                    console.log(response);
+                    // console.log(response);
                     that.trouverItineraireSuccess(response, sansInstructions, sansModifierInstructions);
                 },
                 complete: function() {

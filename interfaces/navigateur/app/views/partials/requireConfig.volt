@@ -40,6 +40,9 @@ options.requireConfigFct = function(version, debug){
             jquery: debug ? "{{this.config.uri.librairies}}/jquery/jquery" : "{{this.config.uri.librairies}}/jquery/jquery.min",
             html2canvas: "{{this.config.uri.librairies}}/html2canvas/dist/html2canvas",
             html2canvassvg: "{{this.config.uri.librairies}}/html2canvas/dist/html2canvas.svg",
+            rgbcolor: "{{this.config.uri.librairies}}/rgbcolor/index",
+            stackblur: "{{this.config.uri.librairies}}/StackBlur/index",
+            canvg: "{{this.config.uri.librairies}}/canvg/index",
             es6promise: "{{this.config.uri.librairies}}/es6-promise/es6-promise.min",
             proj4js: 'libs/proj/Proj4js',
             epsgDef: 'libs/proj/epsgDef',
@@ -51,6 +54,9 @@ options.requireConfigFct = function(version, debug){
             },
             epsgDef: {
                 deps: ['proj4js']
+            },
+            canvg: {
+                deps: ['rgbcolor', 'stackblur']
             },
             Handlebars: {
                 exports: 'Handlebars'

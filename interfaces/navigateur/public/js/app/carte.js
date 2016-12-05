@@ -8,7 +8,7 @@
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
-define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'html2canvas', 'html2canvassvg', 'es6promise', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte, html2canvas, html2canvassvg) {
+define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'browserDetect', 'contexteMenuCarte', 'html2canvas', 'html2canvassvg', 'canvg', 'es6promise', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, BrowserDetect, ContexteMenuCarte, html2canvas, html2canvassvg) {
     /**
      * Création de l'object Carte.
      * @constructor
@@ -290,19 +290,26 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
      * @return {Canvas} Une version canvas de la carte
      */
     Carte.prototype.exporterCanvas = function() {
+        var that = this;
         var deferred = jQuery.Deferred();
         var options = {
-            useCORS: true,
-            allowTaint: false,
-            proxy: Aide.obtenirConfig('uri.api') + '/proxy/html2canvas'
+             useCORS: true,
+             allowTaint: true
         };
 
         // Correctif pour support Internet Explorer et RequireJS
         html2canvas.svg = html2canvassvg;
         window.html2canvas = html2canvas;
 
-        html2canvas(this._carteOL.div, options).then(function(canvas) {
-            deferred.resolve(canvas);
+        var carteDiv = this._carteOL.div;
+        var $carteDiv = $(carteDiv);
+        this._canvasAddSvgFirefox($carteDiv);
+
+        $('body').addClass("media-print-igo");
+        html2canvas(carteDiv, options).then(function(canvas) {
+            $('body').removeClass("media-print-igo");
+            that._canvasRemoveSvgFirefox($carteDiv);
+            that._canvasAddSvgImage($carteDiv, canvas, deferred);
         })
 
         return deferred.promise();
@@ -345,6 +352,71 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         return deferred.promise();
     };
+
+
+    Carte.prototype._canvasAddSvgImage = function($div, canvas, deferred) {
+        var svgElements = $div.find("svg image");
+        var length = svgElements.length;
+        svgElements.each(function (k, svg) {
+            var source = new Image();
+            source.src = svg.getAttribute("xlink:href");
+            source.width = svg.getAttribute("width");
+            source.height = svg.getAttribute("height");
+            var ctx = canvas.getContext('2d'); 
+            source.onload = function(){
+                ctx.drawImage(source, Number(svg.getAttribute("x")), Number(svg.getAttribute("y")));
+                if (k >= length-1) {
+                    deferred.resolve(canvas);
+                }
+            }
+        });
+        if (length === 0) {
+            deferred.resolve(canvas);
+        }
+    };
+
+
+    Carte.prototype._canvasAddSvgFirefox = function($div) {
+        if (BrowserDetect.browser !== 'Firefox') {
+            return true;
+        }
+        var svgElements = $div.find("svg");
+
+        svgElements.each(function () {
+            var canvas, xml;
+
+            canvas = document.createElement("canvas");
+            canvas.className = "screenShotTempCanvas";
+            //convert SVG into a XML string
+            xml = (new XMLSerializer()).serializeToString(this);
+
+            // Removing the name space as IE throws an error
+            xml = xml.replace(/xmlns=\"http:\/\/www\.w3\.org\/2000\/svg\"/, '');
+
+            //draw the SVG onto a canvas
+            canvg(canvas, xml);
+            $(canvas).insertAfter(this);
+            //hide the SVG element
+            this.tempHide = true;
+            $(this).hide();
+        });
+    };
+
+    Carte.prototype._canvasRemoveSvgFirefox = function($div) {
+        if (BrowserDetect.browser !== 'Firefox') {
+            return true;
+        }
+        $div.find('.screenShotTempCanvas').remove();
+        $div.find('svg');
+        var svgElements = $div.find("svg");
+
+        svgElements.each(function () {
+            if (this.tempHide === true){
+                this.tempHide = false;
+                $(this).show();
+            }
+        });
+    }
 
     /**
      * Obtenir la projection de la carte. (Format EPSG)

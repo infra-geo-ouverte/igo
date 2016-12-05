@@ -513,6 +513,8 @@ RechercheCadastreReno, RechercheGPS, RechercheHQ, RechercheLieu*.
 |maxEnreg|Nombre maximal de résultats de localisation à afficher|Non|Nombre entier supérieur à 0|*40*|
 |epingle|Indique si la case à cocher permettant la localisation d’un résultat de recherche avec une épingle dans la carte doit être affichée ou non.|Non|Booléen|*true*|
 |idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les résultats de la recherche.|Non|Chaîne alphanumérique||
+|couchesAssociees | Liste des couches à activer après que la recherche soit lancée | Non | Tableau | | 
+
 
 RechercheAdresse
 ----------------

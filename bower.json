@@ -21,6 +21,9 @@
     "handlebars": "~3.0.0",
     "r.js": "git@github.com:jrburke/r.js.git#2.1.18",
     "html2canvas": "0.5.0-beta4",
+    "canvg": "http://canvg.github.io/canvg/canvg.js",
+    "rgbcolor": "http://canvg.github.io/canvg/rgbcolor.js",
+    "StackBlur": "http://canvg.github.io/canvg/StackBlur.js",
     "es6-promise": "~3.1.2"
   }
 }

@@ -13,7 +13,8 @@
    .x-window,
    .x-shadow,
    .olControlNoSelect,
-   .ext-el-mask
+   .ext-el-mask,
+   .noPrint
     {
      display: none !important;
     }
@@ -27,7 +28,8 @@
     }
 
     #carte-panneau1,
-    #mapComponent {
+    #mapComponent,
+    body {
       left: 0 !important;
       background-color: white !important;
       /*top: -100px !important;*/
@@ -37,12 +39,8 @@
     }
 
     #printLayer {
-      width: 100%;
-      height: 100%;
       position: absolute;
-      top: 0;
-      left: 0;
-      background-color: none !important;
+      right: 0;
     }
 
     #printLayer .centerH {
@@ -60,11 +58,7 @@
     }
 
     #printLayer .printLegend {
-      position: absolute;
-      right: 0;
-      top: 0;
       background-color: white;
-      max-width: 30%;
     }
 
     #printLayer .printDescription {
@@ -92,4 +86,48 @@
       background-color: white !important;
       border: none !important;
     }
+}
+
+body.media-print-igo .boutonConsole,
+body.media-print-igo .x-slider,
+body.media-print-igo .olButton
+{
+ display: none !important;
+}
+
+
+#printLayer {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+
+#printLayer .printLegend {
+  background-color: white;
+}
+
+
+#media-print-igo .printTitle {
+  width: 100%;
+  margin: auto;
+  text-align: center;
+  padding: 2px;
+  font-size: 18px;
+  text-shadow: #fff 0px 0px 2px;
+  font-weight: bold;
+}
+
+#media-print-igo {
+  z-index:-1;
+  background-color: white; 
+  position: absolute; 
+  left:0; 
+  top:0;
+}
+
+/* Remove button padding in FF */
+button::-moz-focus-inner {
+    border:0;
+    padding:0;
 }

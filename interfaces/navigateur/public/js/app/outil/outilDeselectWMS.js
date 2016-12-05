@@ -6,7 +6,7 @@
  * @author Michael Lane, FADQ
  * @version 1.0
  */
-define(['outil'], function(Outil) {
+define(['outil', 'aide'], function(Outil, Aide) {
     /** 
      * Création de l'object Outil.OutilDeselectWMS.
      * @constructor
@@ -21,8 +21,8 @@ define(['outil'], function(Outil) {
         this.options = options || {};
         
         this.defautOptions = $.extend({}, this.defautOptions, {
+            icone: Aide.obtenirCheminRacine()+"images/toolbar/decocher_couche.png",
             id: 'deselect_couches',
-            titre: 'Décocher couches',
             infobulle: "Décocher les couches WMS de l'arborescence"
             //TODO trouver une icone!
         });

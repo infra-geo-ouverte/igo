@@ -47,7 +47,7 @@ class ConnexionController extends Controller{
 
         //L'utilisateur est déjà authentifié
         if($authentificationModule->estAuthentifie()){
-
+            
             //Passer à la page de choix du profil
             return $this->dispatcher->forward(array(
                 "action" => "role"
@@ -62,7 +62,12 @@ class ConnexionController extends Controller{
         }else{
             $this->deleteErrors();
         }
-
+       
+        //Obtenir le nom du configuration XML ouvert et mettre dans la session
+        if(!isset ($this->getDI()->get('session')->configuration)){
+            $this->getDI()->get('session')->configuration =  $this->getDI()->get('dispatcher')->getParam("configuration");
+        }
+        
         $this->view->setVar("permettreAccesAnonyme", $configuration->application->authentification->permettreAccesAnonyme);
         $this->view->setVar("roleUri", $configuration->application->baseUri. "connexion/role");
         $this->view->setVar("anonymeUri", $configuration->application->baseUri. "connexion/anonyme");
@@ -70,7 +75,7 @@ class ConnexionController extends Controller{
     }
 
     public function roleAction() {
-
+        
         $authentificationModule = $this->getDI()->get("authentificationModule");
         $configuration = $this->getDI()->get("config");
         $this->view->setVar("titre", "Choix du profil");
