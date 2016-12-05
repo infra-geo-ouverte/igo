@@ -305,105 +305,78 @@ Impression.prototype.imprimerCarte = function(){
     var navigateur = Aide.obtenirNavigateur();
     Aide.afficherMessageChargement({titre: "Préparation de l'impression", message: "Veuillez patienter..."});
 
-    navigateur.carte.exporterImage(this.genererImpression.bind(this));       
+    navigateur.carte.exporterImage(this.preparerImpressionLayer.bind(this));       
 };
     
-/**
- * Générer une impression optimisé pour l'image de la carte
- * @method 
- * @name Impression#genererImpression
- * @param {object} canvas Image de la carte
- */    
-Impression.prototype.genererImpression = function(canvas)
-{ 
-    
-    var that = this;
-    var carte = Aide.obtenirNavigateur().carte;
-    var echelle = carte.obtenirEchelle(true);
-    var proj = carte.obtenirProjection();
 
-    var opt = this.printForm.getForm().getFieldValues();
-    var orientation = opt.printOrientation;
-    var formatPapier = opt.printPaper;
+Impression.prototype.getPaperSize = function(formatPapier, orientation) {
+    var paperSize, paperMax, widthMM, heightMM;
 
-    var heightImg,widthImg, paperMax, paperSize, widthMM, heightMM;
-    var correctionAjouts = 42;
-    if (opt.printTitle) {
-        correctionAjouts += 23;
-    }
-
-    if (opt.printComments) {
-        correctionAjouts += 18; // valide seulement pour une ligne
-    }
-
-    if(formatPapier == "LETTER")
-    {
+    if(formatPapier == "LETTER") {
         paperMax = 1200;
         paperSize = "letter";
-        
-        if(orientation == "portrait")
-        {
+        if(orientation == "portrait") {
            paperSize = "8.5in 11in";
            widthMM = "216mm";
            heightMM = "279mm";
-        }
-        else
-        {
+        } else {
             paperSize = "11in 8.5in";
             widthMM = "279mm";
             heightMM = "216mm";
         }
-    }
-    else if(formatPapier == "LEGAL")
-    {
+
+    } else if(formatPapier == "LEGAL") {
         paperMax = 1400;
        
-        if(orientation == "portrait")
-        {
+        if(orientation == "portrait") {
            paperSize = "8.5in 14in";
            widthMM = "216mm";
            heightMM = "356mm";           
-        }
-        else
-        {
+        } else {
             paperSize = "14in 8.5in";
             widthMM = "356mm";
             heightMM = "216mm";
         }
     }
 
-    if(orientation == "landscape")
-    {
-        var FIXHEIGHT = 700 - correctionAjouts;
-        var FIXWIDTH = paperMax;
+    return {
+        paperMax: paperMax,
+        paperSize: paperSize,
+        widthMM: widthMM,
+        heightMM: heightMM
     }
-    else
-    {
-       var FIXHEIGHT = paperMax - correctionAjouts; 
-       var FIXWIDTH = 700;
+}
+
+
+Impression.prototype.ajusterImgSize = function(paperSize, canvas, orientation, correctionAjouts) {
+    var FIXHEIGHT, FIXWIDTH;
+    correctionAjouts = correctionAjouts ? correctionAjouts : 0;
+
+    if(orientation == "landscape") {
+        FIXHEIGHT = 700 - correctionAjouts;
+        FIXWIDTH = paperSize.paperMax;
+    } else {
+        FIXHEIGHT = paperSize.paperMax - correctionAjouts; 
+        FIXWIDTH = 700;
     }
 
     var height = canvas.height;
     var width = canvas.width;
 
-    if(height>width)
-    {
+    var heightImg, widthImg;
+    if(height>width) {
         heightImg=FIXHEIGHT;
         widthImg = Math.round((heightImg/height)*width);
         
-        if(widthImg>FIXWIDTH)
-        {
+        if(widthImg>FIXWIDTH) {
             widthImg=FIXWIDTH;
             heightImg =  Math.round((widthImg/width)*height);
         }
-    }
-    else
-    {
+    } else {
         widthImg=FIXWIDTH;
         heightImg =  Math.round((widthImg/width)*height);
         
-        if(heightImg>FIXHEIGHT)
-        {
+        if(heightImg>FIXHEIGHT) {
             heightImg=FIXHEIGHT;
             widthImg =  Math.round((heightImg/height)*width);
         }
@@ -412,7 +385,15 @@ Impression.prototype.genererImpression = function(canvas)
     canvas.style.height = heightImg;
     canvas.style.width = widthImg;
 
-    
+    return {
+        width: widthImg,
+        height: heightImg
+    }
+}
+
+
+Impression.prototype.getLegendLayer = function(opt) {
+    var carte = Aide.obtenirNavigateur().carte;
     var printLayer = $("#printLayer");
   
     if (!printLayer.length) {
@@ -441,96 +422,52 @@ Impression.prototype.genererImpression = function(canvas)
           printLayer.append(legend);
         }
     }
+    return printLayer;
+}
+
+ 
+Impression.prototype.preparerImpressionLayer = function(canvas) { 
+    
+    var that = this;
+    var carte = Aide.obtenirNavigateur().carte;
+    var echelle = carte.obtenirEchelle(true);
+    var proj = carte.obtenirProjection();
+
+    var opt = this.printForm.getForm().getFieldValues();
+    
+    var paperSize = this.getPaperSize(opt.printPaper, opt.printOrientation);
+
+    var correctionAjouts = 40;
+    var marginTopLegendLayer = 0;
+    if (opt.printTitle) {
+        correctionAjouts += 18;
+        marginTopLegendLayer = 18;
+    }
+
+    if (opt.printComments) {
+        correctionAjouts += 18; // valide seulement pour une ligne
+    }
+
+    var imgSize = this.ajusterImgSize(paperSize, canvas, opt.printOrientation, correctionAjouts);
+
+    var legendLayer = this.getLegendLayer(opt);
+ 
+    var htmlAllLayerPrint = '<div id="media-print-igo" style="max-width:'+imgSize.width+'px;>';
+    htmlAllLayerPrint += '<h1 class="printTitle"><center>' +opt.printTitle+ '</center></h1>';
+    htmlAllLayerPrint += '<center><img height=' + imgSize.height + ' width= ' + imgSize.width + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
+    htmlAllLayerPrint += '<br><p>' + opt.printComments + '</p>';
+    htmlAllLayerPrint += "<p><i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></p>";    
+    htmlAllLayerPrint += '<div id="printLayer" style="margin-top: '+ marginTopLegendLayer+'px;">' + legendLayer.html() + '</div>';
+    htmlAllLayerPrint += "</div>";
+
+    $('body').append(htmlAllLayerPrint);
 
 
-    html = '<div id="media-print-igo" style="max-width:'+widthImg+'px;>';
-    html += '<h1 class="printTitle"><center>' +opt.printTitle+ '</center></h1>';
-    html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
-    html += '<br><p>' + opt.printComments + '</p>';
-    html += "<p><i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></p>";    
-    html += '<div id="printLayer">' + printLayer.html() + '</div>';
-    html += "</div>";
-
-    $('body').append(html);
-
-
-    var createCanvasPrint = function(){
-        html2canvas($('#media-print-igo')[0]).then(function(canvas2) {
-            $("#media-print-igo").remove();
-
-            if(orientation == "landscape")
-            {
-                var FIXHEIGHT = 700;
-            }
-            else
-            {
-               var FIXHEIGHT = paperMax; 
-            }
-
-            var height = canvas2.height;
-            var width = canvas2.width;
-
-            if(height>width)
-            {
-                heightImg=FIXHEIGHT;
-                widthImg = Math.round((heightImg/height)*width);
-                
-                if(widthImg>FIXWIDTH)
-                {
-                    widthImg=FIXWIDTH;
-                    heightImg =  Math.round((widthImg/width)*height);
-                }
-            }
-            else
-            {
-                widthImg=FIXWIDTH;
-                heightImg =  Math.round((widthImg/width)*height);
-                
-                if(heightImg>FIXHEIGHT)
-                {
-                    heightImg=FIXHEIGHT;
-                    widthImg =  Math.round((heightImg/height)*width);
-                }
-            }
-
-            canvas2.style.height = heightImg;
-            canvas2.style.width = widthImg;
-
-
-            var posRight = 75;
-            if (BrowserDetect.browser === 'Firefox') {
-                posRight = 110;
-            }
-            var html  = '<html><head><title>Impression</title>';
-            html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
-            html += '<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
-                       '@media print {body { width: ' + widthMM + '; height: ' + heightMM + '; }</style>';
-            html += '<script> function savePrintImage(e) {var a = document.createElement("a"); a.href="' + canvas2.toDataURL("image/png") + '"; a.download="igoImpression.png"; document.body.appendChild(a); a.click(); document.body.removeChild(a);}</script>';                       
-            html += '</head>';
-            html += '<body class="media-print-igo" style="width: ' + widthImg + '; height: ' + heightImg + '; padding: 0; margin: 0;">';
-            html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas2.toDataURL("image/png") + '" /></center>';
-            html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
-            if (BrowserDetect.browser !== 'Explorer') {
-               html += '<button class="noPrint saveButtonPrint" type="button" onclick="savePrintImage()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: '+posRight+'px; cursor: pointer;">Enregistrer</button>';
-            }
-            html += '</body></html>';
-
-
-            var printWindow = window.open('', 'À imprimer', 'height='+heightImg+',width='+widthImg);
-            printWindow.document.write(html);
-            printWindow.document.close();
-
-            Aide.cacherMessageChargement();
-
-        }); 
-    };
-
-
-
+    // Attendre que toutes les images de la légende soient chargées
     setTimeout(function(){
       var imagesLegende = $("#media-print-igo .printImageLegend");
       if (!imagesLegende.length) {
-        createCanvasPrint();
+        that.genererImpression(paperSize, opt);
         return true;
       }
 
@@ -548,13 +485,55 @@ Impression.prototype.genererImpression = function(canvas)
           });
         }
         if (printOk) {
-            createCanvasPrint();
+            that.genererImpression(paperSize, opt);
             return true
         }
       };
       waitImages();
     }, 1);
         
+};
+
+
+/**
+ * Générer une impression optimisé pour l'image de la carte
+ * @method 
+ * @name Impression#genererImpression
+ * @param {object} canvas Image de la carte
+ */  
+Impression.prototype.genererImpression = function(paperSize, opt){
+    var that = this;
+    html2canvas($('#media-print-igo')[0]).then(function(canvas) {
+        $("#media-print-igo").remove();
+
+        var imgSize = that.ajusterImgSize(paperSize, canvas, opt.printOrientation, 0);
+
+        var posRightButton = 75;
+        if (BrowserDetect.browser === 'Firefox') {
+            posRightButton = 110;
+        }
+        var html  = '<html><head><title>Impression</title>';
+        html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
+        html += '<style type="text/css" media="print">@page { size: ' + paperSize.paperSize + '; }' +
+                   '@media print {body { width: ' + paperSize.widthMM + '; height: ' + paperSize.heightMM + '; }</style>';
+        html += '<script> function savePrintImage(e) {var a = document.createElement("a"); a.href="' + canvas.toDataURL("image/png") + '"; a.download="igoImpression.png"; document.body.appendChild(a); a.click(); document.body.removeChild(a);}</script>';                       
+        html += '</head>';
+        html += '<body class="media-print-igo" style="width: ' + imgSize.width + '; height: ' + imgSize.height + '; padding: 0; margin: 0;">';
+        html += '<center><img height=' + imgSize.height + ' width= ' + imgSize.width + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
+        html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
+        if (BrowserDetect.browser !== 'Explorer') {
+           html += '<button class="noPrint saveButtonPrint" type="button" onclick="savePrintImage()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: '+posRightButton+'px; cursor: pointer;">Enregistrer</button>';
+        }
+        html += '</body></html>';
+
+
+        var printWindow = window.open('', 'À imprimer', 'height='+imgSize.height+',width='+imgSize.width);
+        printWindow.document.write(html);
+        printWindow.document.close();
+
+        Aide.cacherMessageChargement();
+
+    }); 
 };
 
 
