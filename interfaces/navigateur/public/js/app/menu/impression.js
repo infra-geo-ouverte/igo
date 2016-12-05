@@ -445,10 +445,10 @@ Impression.prototype.genererImpression = function(canvas)
 
     html = '<div id="media-print-igo" style="max-width:'+widthImg+'px;>';
     html += '<h1 class="printTitle"><center>' +opt.printTitle+ '</center></h1>';
-    html += '<div id="printLayer">' + printLayer.html() + '</div>';
     html += '<center><img height=' + heightImg + ' width= ' + widthImg + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
     html += '<br><p>' + opt.printComments + '</p>';
     html += "<p><i>Projection: " + proj + "&nbsp;&nbsp;&nbsp;Échelle ~ 1 : " + echelle + "</i></p>";    
+    html += '<div id="printLayer">' + printLayer.html() + '</div>';
     html += "</div>";
 
     $('body').append(html);
