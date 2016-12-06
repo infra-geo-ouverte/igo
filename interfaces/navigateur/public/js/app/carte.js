@@ -294,7 +294,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         var deferred = jQuery.Deferred();
         var options = {
              useCORS: true,
-             allowTaint: true
+             allowTaint: false
         };
 
         // Correctif pour support Internet Explorer et RequireJS
