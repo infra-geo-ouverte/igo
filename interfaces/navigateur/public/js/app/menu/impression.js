@@ -257,7 +257,7 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
                                     "Les couches Google ne sont pas disponible à l'impression pour des raisons de  droits d'utilisation.",
                                     "OK",
                                     "ERREUR");
-                return;
+                return false;
             }
 
             if(OpenLayers.Util.indexOf(this.aszPrintableLayerTypes, coucheIGO.obtenirTypeClasse()) === -1){
@@ -290,7 +290,7 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
 
         Aide.afficherMessage('Impression', "Aucune couche imprimable n'est sélectionnée",
                                 "OK", "ERREUR");
-        return;
+        return false;
     }
 
     return aoLayers;
@@ -392,7 +392,7 @@ Impression.prototype.ajusterImgSize = function(paperSize, canvas, orientation, c
 }
 
 
-Impression.prototype.getLegendLayer = function(opt) {
+Impression.prototype.getLegendLayer = function(aoLayers, opt) {
     var carte = Aide.obtenirNavigateur().carte;
     var printLayer = $("#printLayer");
   
@@ -408,7 +408,6 @@ Impression.prototype.getLegendLayer = function(opt) {
         var existLegend = false;
         var legend = "<div class='printLegend'>";
         legend += "<b><u>Légende</u></b><br/>";
-        var aoLayers = this.getPrintableLayers(true);
         $.each(aoLayers, function(key, layer) {
           if (!layer.estFond()) {
             existLegend = true;
@@ -450,7 +449,11 @@ Impression.prototype.preparerImpressionLayer = function(canvas) {
 
     var imgSize = this.ajusterImgSize(paperSize, canvas, opt.printOrientation, correctionAjouts);
 
-    var legendLayer = this.getLegendLayer(opt);
+    var aoLayers = this.getPrintableLayers(false);
+    if (!aoLayers) {
+        return false;
+    }
+    var legendLayer = this.getLegendLayer(aoLayers, opt);
  
     var htmlAllLayerPrint = '<div id="media-print-igo" style="max-width:'+imgSize.width+'px;>';
     htmlAllLayerPrint += '<h1 class="printTitle"><center>' +opt.printTitle+ '</center></h1>';
