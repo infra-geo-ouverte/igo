@@ -212,25 +212,25 @@ class AuthentificationLdap extends AuthentificationController {
     private function authentifierLDAP($identifiant, $motDePasse){
 
         $configuration = $this->getDI()->get("config")->application->authentification->
-                          module->{get_class($this->getDI()->get("authentificationModule"))};
+                          module->{get_class($this->getDI()->get("authentificationModule"))}->config;
 
         $ldapHosts = [];
 
 
-        if(isset($configuration->config->interne)){
-          $ldapHosts[] = $configuration->config->interne;
+        if(isset($configuration->interne)){
+          $ldapHosts[] = $configuration->interne;
         }
 
-        if(isset($configuration->config->externe)){
-          $ldapHosts[] = $ldapExterne = $configuration->config->externe;
+        if(isset($configuration->externe)){
+          $ldapHosts[] = $ldapExterne = $configuration->externe;
         }
 
-        if(isset($configuration->config->host)){
-          $ldapHosts[] = $configuration->config->host;
+        if(isset($configuration->host)){
+          $ldapHosts[] = $configuration->host;
         }
 
-       $ldapPort = $configuration->config->port;
-       $organisation = $configuration->config->organisation;
+       $ldapPort = $configuration->port;
+       $organisation = $configuration->organisation;
 
        $authentificationAReussie = false;
 

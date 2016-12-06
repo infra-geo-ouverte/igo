@@ -247,8 +247,8 @@ Impression.prototype.getPrintableLayers = function(flagVecteur) {
     var flagVecteur = (typeof flagVecteur === "undefined") ? true : flagVecteur;
     var aolBase = [], aolOverlays = [], aoLayers;
 
-    var oMap = Igo.nav.carte._carteOL;
-    var layers = Igo.nav.carte.gestionCouches.obtenirCouches(true);
+    var oMap = Aide.obtenirNavigateur().carte._carteOL;
+    var layers = Aide.obtenirNavigateur().carte.gestionCouches.obtenirCouches(true);
     for (var i = 0, len = layers.length; i < len; i++) {
         var coucheIGO = layers[i];
         if (!coucheIGO._layer.printOptions) {
@@ -408,7 +408,7 @@ Impression.prototype.genererImpression = function(canvas)
     var printLayer = $("#printLayer");
   
     if (!printLayer.length) {
-        var printLayerText = '<div id="printLayer" style="display:none;"> </div>'
+        var printLayerText = '<div id="printLayer" style="display:none;"> </div>';
         $("body").append(printLayerText);
         printLayer = $("#printLayer");
     } else {
@@ -446,7 +446,7 @@ Impression.prototype.genererImpression = function(canvas)
     var html  = '<html><head><title>Impression</title>';
     html += '<link rel="stylesheet" href="' + Aide.obtenirCheminRacine() + 'css/print.css?version=1.1.0.8" type="text/css">';
     html += '</head>';
-    html += '<body class="media-print-igo" style="width: ' + FIXWIDTH + '; height: ' + heightImg + '; padding: 0; margin: 0; overflow: hidden">';
+    html += '<body class="media-print-igo" style="width: ' + FIXWIDTH + '; height: ' + FIXHEIGHT + '; padding: 0; margin: 0;">';
     html += '<style type="text/css" media="print">@page { size: ' + paperSize + '; }' +
                '@media print {body { width: ' + widthMM + '; height: ' + heightMM + '; }</style>';
     html += '<h2><center>' +opt.printTitle+ '</center></h2>';
@@ -464,9 +464,9 @@ Impression.prototype.genererImpression = function(canvas)
     setTimeout(function(){
       var imagesLegende = $(printWindow.document).find(".printImageLegend");
       if (!imagesLegende.length) {
-        printWindow.print()
+        printWindow.print();
         printWindow.close();
-        Aide.cacherMessageChargement()
+        Aide.cacherMessageChargement();
         return true;
       }
 
@@ -484,11 +484,11 @@ Impression.prototype.genererImpression = function(canvas)
           });
         }
         if (printOk) {
-            printWindow.print()
+            printWindow.print();
             printWindow.close();
             Aide.cacherMessageChargement();
         }
-      }
+      };
       waitImages();
     }, 1);            
 };

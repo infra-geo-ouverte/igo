@@ -376,7 +376,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
     */
     AnalyseurConfig.prototype._analyserContexte = function() {
         if (this.fin.panneaux && this.fin.couches && this.fin.actions) {
-            if(!window.arboLoading) {
+            if(window.arboLoadingNb === 0) {
                 var contexte = new Contexte();
                 contexte.charger();
                 this._fin();
@@ -495,6 +495,7 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
         modulesReq = this._analyserRequire(json, modulesReq);
         var igoGeoReq = igoGeometrieReq.concat(modulesReq);
         that.listCouchesApresContexte = [];
+        window.arboLoadingNb = 0;
 
         require(igoGeoReq, function() {
             var gReqSize = igoGeometrieReq.length;
@@ -525,6 +526,9 @@ define(['aide', 'navigateur', 'carte', 'contexte', 'evenement', 'serveur'], func
                     options = $.extend({}, couchesOptions, options);
                     var classe = options.protocole;
                     options.typeContexte = 'contexte';
+                    if (options.mode === 'getCapabilities') {
+                        window.arboLoadingNb++;
+                    }
                     var coucheOccurence = new Igo.Couches[classe](options);
                     if(!Aide.toBoolean(options.chargementApresContexte)){
                         listCouches.push(coucheOccurence);

@@ -216,25 +216,25 @@ class AuthentificationBd extends AuthentificationController {
     private function authentifierBD ($identifiant, $motDePasse) {
 
       $configuration = $this->getDI()->get("config")->application->authentification->
-                          module->{get_class($this->getDI()->get("authentificationModule"))};
+                          module->{get_class($this->getDI()->get("authentificationModule"))}->config;
 
         $bdHosts = [];
 
-        if (isset ($configuration->config->interne)) {
-            $bdHosts[] = $configuration->config->interne;
+        if (isset ($configuration->interne)) {
+            $bdHosts[] = $configuration->interne;
         }
 
-        if (isset ($configuration->config->externe)) {
-            $bdHosts[] = $bdExterne = $configuration->config->externe;
+        if (isset ($configuration->externe)) {
+            $bdHosts[] = $bdExterne = $configuration->externe;
         }
 
-        if (isset ($configuration->config->host)) {
-            $bdHosts[] = $configuration->config->host;
+        if (isset ($configuration->host)) {
+            $bdHosts[] = $configuration->host;
         }
 
-        $bdPort = $configuration->config->port;
+        $bdPort = $configuration->port;
 
-        $organisation = $configuration->config->organisation;
+        $organisation = $configuration->organisation;
 
         $authentificationAReussie = false;
 
