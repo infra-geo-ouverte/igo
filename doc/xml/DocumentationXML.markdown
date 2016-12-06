@@ -67,6 +67,7 @@ Fichier XML de configuration
 		* [5.2.6 Vecteur](#vecteur)
 		* [5.2.7 WMS](#wms)
 		* [5.2.8 ArcGIS93Rest](#arcgis93rest)
+		* [5.2.9 WFS](#wfs)
 	* [6 Actions](#actions)
 		* [6.1 Action](#action)
 	* [7 Déclencheurs](#déclencheurs)
@@ -406,7 +407,7 @@ couches disponibles à l’affichage sur la carte.
 |idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les occurences.|Non|Chaîne alphanumérique| |
 |retirerCheckboxPremNiveau| Permet de retirer les checkbox de premier niveau dans l'arborescence | non | true | false |
 |identifierSousSelection| Permet de griser les répertoires parents lorsqu'une couche est sélectionnée | non | true| false
-|identifierGetInfo| Permet d'ajout l'icône du getInfo à gauche de la couche lorsque celle-ci est cochée et qu'elle contient un getInfo | Non | true | false | 
+|identifierGetInfo| Permet d'ajout l'icône du getInfo à gauche de la couche lorsque celle-ci est cochée et qu'elle contient un getInfo | Non | true | false |
 
 *Exemple*
 
@@ -513,7 +514,7 @@ RechercheCadastreReno, RechercheGPS, RechercheHQ, RechercheLieu*.
 |maxEnreg|Nombre maximal de résultats de localisation à afficher|Non|Nombre entier supérieur à 0|*40*|
 |epingle|Indique si la case à cocher permettant la localisation d’un résultat de recherche avec une épingle dans la carte doit être affichée ou non.|Non|Booléen|*true*|
 |idResultatTable|Identifiant du PanneauTable ou du PanneauOnglet. Ce panneau sera utilisé pour afficher les résultats de la recherche.|Non|Chaîne alphanumérique||
-|couchesAssociees | Liste des couches à activer après que la recherche soit lancée | Non | Tableau | | 
+|couchesAssociees | Liste des couches à activer après que la recherche soit lancée | Non | Tableau | |
 
 
 RechercheAdresse
@@ -1348,7 +1349,7 @@ actif="true"/>
 ```
 *Personnalisé:
 ```xml
- <outil classe="OutilZoomPreselection" type="cs" id="recherche_par_cs" titre="Par centre de services" icone="zoom-mrc" etiquette="desc_fran" 
+ <outil classe="OutilZoomPreselection" type="cs" id="recherche_par_cs" titre="Par centre de services" icone="zoom-mrc" etiquette="desc_fran"
                            texteForm="un centre de services" fieldLabel="Centre de services" requestParametre="obtenirCS" service="/lien_du_service/proxy.php"/>         
 ```
 
@@ -1723,6 +1724,26 @@ Permet la définition d'une couche provenant d’un service rest de ArcGIS.
 *Exemples*
 ```xml
 <couche titre="ArcGis93Rest" protocole="ArcGIS93Rest" url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_StateCityHighway_USA/MapServer/export" nom="0,1,2" />  
+```
+
+WFS
+---
+
+Permet la définition d'une couche provenant d’un service WFS.
+
+*Attributs ou valeurs spécifiques*
+
+| Nom   | Description                                 	| Obligatoire 	| Valeurs possibles    	| Valeur défaut	|
+|-------|-----------------------------------------------|---------------|-----------------------|---------------|
+|url	|URL du service      	                	|Oui	    	|URL 		    	|  		|
+|nom	|Nom de la couche                             	|Oui	    	|Chaîne alphanumérique  |		|
+|garderHistorique	|           Permet un historique des événements sur la couche			|Non		|Chaîne alphanumérique	|		|
+|projection	|           Projection de la couche			|Non		|Chaîne alphanumérique	|Projection de la carte		|
+
+
+*Exemples*
+```xml
+<couche titre="exemple WFS" protocole="WFS" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/dpop.fcgi?" nom="dpop_criminalite_generale_v_s" />  
 ```
 
 Actions
