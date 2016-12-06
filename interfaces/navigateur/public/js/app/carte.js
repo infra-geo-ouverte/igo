@@ -360,11 +360,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         svgElements.each(function (k, svg) {
             var source = new Image();
             source.src = svg.getAttribute("xlink:href");
-            source.width = svg.getAttribute("width");
-            source.height = svg.getAttribute("height");
             var ctx = canvas.getContext('2d'); 
             source.onload = function(){
-                ctx.drawImage(source, Number(svg.getAttribute("x")), Number(svg.getAttribute("y")));
+                ctx.drawImage(source, Number(svg.getAttribute("x")), Number(svg.getAttribute("y")), Number(svg.getAttribute("width")), Number(svg.getAttribute("height")));
                 if (k >= length-1) {
                     deferred.resolve(canvas);
                 }
