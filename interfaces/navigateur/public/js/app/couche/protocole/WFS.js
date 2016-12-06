@@ -14,7 +14,7 @@ define(['vecteur', 'occurence', 'aide', 'style'], function(Vecteur, Occurence, A
         this._historiqueOccurencesAjoutees=[];
         this._historiqueOccurencesEnlevees=[];
         this.defautOptions.selectionnable = true;
-        this.defautOptions.projection = Igo.nav.carte.obtenirProjection();
+        this.defautOptions.projection = Aide.obtenirNavigateur().carte.obtenirProjection();
         this.listeOccurences = [];
         this.styles={};
         this.templates={};
