@@ -332,6 +332,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             try {
                 if(callbackPreprocesseurCanvas) {
                     canvas = callbackPreprocesseurCanvas(canvas);
+                    if(!canvas) {
+                        return false;
+                    }
                 }
 
                 image.src = canvas.toDataURL("image/png");
@@ -382,11 +385,15 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         svgElements.each(function () {
             var canvas, xml;
-
             canvas = document.createElement("canvas");
             canvas.className = "screenShotTempCanvas";
+
+            // Retrait des images pour imprimer les labels
+            var $svg = $(this).clone();
+            $svg.find("image").parent().remove();
+
             //convert SVG into a XML string
-            xml = (new XMLSerializer()).serializeToString(this);
+            xml = (new XMLSerializer()).serializeToString($svg[0]);
 
             // Removing the name space as IE throws an error
             xml = xml.replace(/xmlns=\"http:\/\/www\.w3\.org\/2000\/svg\"/, '');
