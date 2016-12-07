@@ -364,8 +364,22 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             var source = new Image();
             source.src = svg.getAttribute("xlink:href");
             var ctx = canvas.getContext('2d'); 
+
+            var dx = 0;
+            var dy = 0;
+            var transform = svg.parentElement.parentElement.transform.baseVal;
+            if (transform.length) {
+                dx = transform[0].matrix['e'];
+                dy = transform[0].matrix['f'];
+            }
+
+            var x = Number(svg.getAttribute("x")) + dx;
+            var y = Number(svg.getAttribute("y")) + dy;
+            var height = Number(svg.getAttribute("height"));
+            var width = Number(svg.getAttribute("width"));
+
             source.onload = function(){
-                ctx.drawImage(source, Number(svg.getAttribute("x")), Number(svg.getAttribute("y")), Number(svg.getAttribute("width")), Number(svg.getAttribute("height")));
+                ctx.drawImage(source, x, y, width, height);
                 if (k >= length-1) {
                     deferred.resolve(canvas);
                 }
