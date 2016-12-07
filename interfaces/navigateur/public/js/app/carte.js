@@ -404,7 +404,14 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
             // Retrait des images pour imprimer les labels
             var $svg = $(this).clone();
-            $svg.find("image").parent().remove();
+            $svg.find('image').each(function (k, item) {
+                $item = $(item);
+                $parent = $item.parent();
+                $item.remove();
+                if (!$parent.children().length) {
+                    $parent.remove();
+                }
+            });
 
             //convert SVG into a XML string
             xml = (new XMLSerializer()).serializeToString($svg[0]);
