@@ -309,7 +309,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         $('body').addClass("media-print-igo");
 
         // Cross-origin pour les images
-        $carteDiv.find("img").each(function(k,v){
+        $carteDiv.find("img:visible").each(function(k,v){
             if(v.src.substring(0, 5)=== "data:" || v.getAttribute("crossorigin") === "anonymous") {return true;} 
             v.srcBeforePrint = v.src;
             v.src=Aide.utiliserProxy(v.src);
@@ -317,7 +317,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         html2canvas(carteDiv, options).then(function(canvas) {
             $('body').removeClass("media-print-igo");
-            $carteDiv.find("img").each(function(k,v){
+            $carteDiv.find("img:visible").each(function(k,v){
                 if(v.srcBeforePrint) {
                     v.src = v.srcBeforePrint;
                 } 
