@@ -8,7 +8,7 @@
  * @author Marc-André Barbeau, MSP
  * @version 1.0
  */
-define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'contexteMenuCarte', 'html2canvas', 'html2canvassvg', 'es6promise', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, ContexteMenuCarte, html2canvas, html2canvassvg) {
+define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 'browserDetect', 'contexteMenuCarte', 'html2canvas', 'html2canvassvg', 'canvg', 'es6promise', 'libs/extension/OpenLayers/fixOpenLayers'], function(Point, Occurence, Limites, GestionCouches, Evenement, Aide, BrowserDetect, ContexteMenuCarte, html2canvas, html2canvassvg) {
     /**
      * Création de l'object Carte.
      * @constructor
@@ -290,19 +290,26 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
      * @return {Canvas} Une version canvas de la carte
      */
     Carte.prototype.exporterCanvas = function() {
+        var that = this;
         var deferred = jQuery.Deferred();
         var options = {
-            useCORS: true,
-            allowTaint: false,
-            proxy: Aide.obtenirConfig('uri.api') + '/proxy/html2canvas'
+             useCORS: true,
+             allowTaint: false
         };
 
         // Correctif pour support Internet Explorer et RequireJS
         html2canvas.svg = html2canvassvg;
         window.html2canvas = html2canvas;
 
-        html2canvas(this._carteOL.div, options).then(function(canvas) {
-            deferred.resolve(canvas);
+        var carteDiv = this._carteOL.div;
+        var $carteDiv = $(carteDiv);
+        this._canvasAddSvgFirefox($carteDiv);
+
+        $('body').addClass("media-print-igo");
+        html2canvas(carteDiv, options).then(function(canvas) {
+            $('body').removeClass("media-print-igo");
+            that._canvasRemoveSvgFirefox($carteDiv);
+            that._canvasAddSvgImage($carteDiv, canvas, deferred);
         })
 
         return deferred.promise();
@@ -325,6 +332,9 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             try {
                 if(callbackPreprocesseurCanvas) {
                     canvas = callbackPreprocesseurCanvas(canvas);
+                    if(!canvas) {
+                        return false;
+                    }
                 }
 
                 image.src = canvas.toDataURL("image/png");
@@ -345,6 +355,94 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         return deferred.promise();
     };
+
+
+    Carte.prototype._canvasAddSvgImage = function($div, canvas, deferred) {
+        var svgElements = $div.find("svg image");
+        var length = svgElements.length;
+        svgElements.each(function (k, svg) {
+            var source = new Image();
+            source.src = svg.getAttribute("xlink:href");
+            var ctx = canvas.getContext('2d'); 
+
+            var dx = 0;
+            var dy = 0;
+            var transform = svg.parentElement.parentElement.transform.baseVal;
+            if (transform.length) {
+                dx = transform[0].matrix['e'];
+                dy = transform[0].matrix['f'];
+            }
+
+            var x = Number(svg.getAttribute("x")) + dx;
+            var y = Number(svg.getAttribute("y")) + dy;
+            var height = Number(svg.getAttribute("height"));
+            var width = Number(svg.getAttribute("width"));
+
+            source.onload = function(){
+                ctx.drawImage(source, x, y, width, height);
+                if (k >= length-1) {
+                    deferred.resolve(canvas);
+                }
+            }
+        });
+        if (length === 0) {
+            deferred.resolve(canvas);
+        }
+    };
+
+
+    Carte.prototype._canvasAddSvgFirefox = function($div) {
+        if (BrowserDetect.browser !== 'Firefox') {
+            return true;
+        }
+        var svgElements = $div.find("svg");
+
+        svgElements.each(function () {
+            var canvas, xml;
+            canvas = document.createElement("canvas");
+            canvas.className = "screenShotTempCanvas";
+
+            // Retrait des images pour imprimer les labels
+            var $svg = $(this).clone();
+            $svg.find('image').each(function (k, item) {
+                $item = $(item);
+                $parent = $item.parent();
+                $item.remove();
+                if (!$parent.children().length) {
+                    $parent.remove();
+                }
+            });
+
+            //convert SVG into a XML string
+            xml = (new XMLSerializer()).serializeToString($svg[0]);
+
+            // Removing the name space as IE throws an error
+            xml = xml.replace(/xmlns=\"http:\/\/www\.w3\.org\/2000\/svg\"/, '');
+
+            //draw the SVG onto a canvas
+            canvg(canvas, xml);
+            $(canvas).insertAfter(this);
+            //hide the SVG element
+            this.tempHide = true;
+            $(this).hide();
+        });
+    };
+
+    Carte.prototype._canvasRemoveSvgFirefox = function($div) {
+        if (BrowserDetect.browser !== 'Firefox') {
+            return true;
+        }
+        $div.find('.screenShotTempCanvas').remove();
+        $div.find('svg');
+        var svgElements = $div.find("svg");
+
+        svgElements.each(function () {
+            if (this.tempHide === true){
+                this.tempHide = false;
+                $(this).show();
+            }
+        });
+    }
 
     /**
      * Obtenir la projection de la carte. (Format EPSG)
