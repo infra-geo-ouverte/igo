@@ -531,11 +531,14 @@ Impression.prototype.genererImpression = function(paperSize, opt){
 
 
         var printWindow = window.open('', 'À imprimer', 'height='+imgSize.height+',width='+imgSize.width);
-        printWindow.document.write(html);
-        printWindow.document.close();
 
-        Aide.cacherMessageChargement();
-
+        if (printWindow) {
+            printWindow.document.write(html);
+            printWindow.document.close();
+            Aide.cacherMessageChargement();
+        } else {
+            Aide.afficherMessage("Impression - Fenêtre pop-up bloquée", "Pour imprimer, veillez accepter les fenêtres pop-up.", "ok", "warning");
+        }
     }); 
 };
 
