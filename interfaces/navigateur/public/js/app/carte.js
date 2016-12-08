@@ -295,6 +295,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         var options = {
              useCORS: true,
              allowTaint: false
+             // proxy: Aide.obtenirConfig('uri.services') + '/proxy/html2canvasproxy.php', // useCORS doit être à false
         };
 
         // Correctif pour support Internet Explorer et RequireJS
@@ -306,8 +307,21 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         this._canvasAddSvgFirefox($carteDiv);
 
         $('body').addClass("media-print-igo");
+
+        // Cross-origin pour les images
+        $carteDiv.find("img").each(function(k,v){
+            if(v.src.substring(0, 5)=== "data:" || v.getAttribute("crossorigin") === "anonymous") {return true;} 
+            v.srcBeforePrint = v.src;
+            v.src=Aide.utiliserProxy(v.src);
+        })
+
         html2canvas(carteDiv, options).then(function(canvas) {
             $('body').removeClass("media-print-igo");
+            $carteDiv.find("img").each(function(k,v){
+                if(v.srcBeforePrint) {
+                    v.src = v.srcBeforePrint;
+                } 
+            })
             that._canvasRemoveSvgFirefox($carteDiv);
             that._canvasAddSvgImage($carteDiv, canvas, deferred);
         })
