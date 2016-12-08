@@ -224,7 +224,7 @@ define(['panneau', 'aide', 'browserDetect'], function(Panneau, Aide, BrowserDete
                 that.imprimerCarte();               
             }
         },{
-            text: 'Restaurer',
+            text: 'Réinitialiser',
             tooltip: 'Réinitialiser les valeurs des champs',
             handler: function(){
                 that.printForm.getForm().reset();
