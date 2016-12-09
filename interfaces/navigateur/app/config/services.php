@@ -132,7 +132,7 @@ $di->set('crypt', function () use ($config) {
       $crypt = new Phalcon\Crypt();
      
        if (!class_exists('\\Phalcon\\Version')) {
-              die("La version de Phalcon doit être connu pour appliquer la bonne méthode de chiffrement.");
+              die("La version de Phalcon doit être connue pour appliquer la bonne méthode de chiffrement.");
            } elseif (\Phalcon\Version::getId () < 3000000 ) {
                 $crypt->setCipher('blowfish');
                 $crypt->setMode('cbc');
