@@ -129,10 +129,19 @@ $di->set('logger', function () use ($config) {
 
 $di->set('crypt', function () use ($config) {
 
-    $crypt = new Phalcon\Crypt();
-    $crypt->setCipher('blowfish');
-    $crypt->setMode('cbc');
+      $crypt = new Phalcon\Crypt();
+     
+       if (!class_exists('\\Phalcon\\Version')) {
+              die("La version de Phalcon doit être connue pour appliquer la bonne méthode de chiffrement.");
+           } elseif (\Phalcon\Version::getId () < 3000000 ) {
+                $crypt->setCipher('blowfish');
+                $crypt->setMode('cbc');
+            } elseif (\Phalcon\Version::getId () >= 3000000) { {
+                $crypt->setCipher('bf-cbc');
+            }
+         }
 
+           
     if (isset($config->application->authentification['secretXmlFile'])) {
        $xmlPath = $config->application->authentification->secretXmlFile;
     }
@@ -153,7 +162,7 @@ $di->set('crypt', function () use ($config) {
         die("La clé n'a pas été trouvée dans ce chemin" . $xmlPath . "ou elle n'existe pas!");
     }
 
-    $crypt->setKey($key['authentification']);
+        $crypt->setKey((string)$key['authentification'][0]);
 
     return $crypt;
 }, true);
