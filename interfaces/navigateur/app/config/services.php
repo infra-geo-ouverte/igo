@@ -137,7 +137,7 @@ $di->set('crypt', function () use ($config) {
                 $crypt->setCipher('blowfish');
                 $crypt->setMode('cbc');
             } elseif (\Phalcon\Version::getId () >= 3000000) { {
-                $crypt->setCipher('bf-cbc');
+                $crypt->setCipher('AES-256-CFB');
             }
          }
 
