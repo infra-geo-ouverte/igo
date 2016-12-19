@@ -104,7 +104,8 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 Popup: 40000,
                 Control: 50000
             },
-            eventListeners: this._initEvents()
+            eventListeners: this._initEvents(),
+            fallThrough: true
         };
         //todo: pouvoir donner un div, un centre et un niveau de zoom a la carte
         this._carteOL = new OpenLayers.Map('igoInstance', mapOptions);
