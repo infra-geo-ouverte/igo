@@ -44,7 +44,7 @@ define(['aide', 'evenement', 'fonctions'], function(Aide, Evenement, Fonctions) 
             activable: true,
             groupe: undefined,
             _allowDepress: true,
-            executer: function(){if(!this.options.groupe || this._bouton.pressed || this._bouton.pressed === undefined){this.executer()}},
+            executer: function(){if(!this.options.groupe || this._bouton.pressed || this._bouton.pressed === undefined){this.executer()}}
         };
     };
     
