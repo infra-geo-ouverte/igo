@@ -254,7 +254,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
                             if(value.dimensions.time){
                                 xmlOptions.wms_timeextent = value.dimensions.time.values[0];
-                                xmlOptions.wms_timedefault = value.dimensions.time.default;
+                                xmlOptions.wms_timedefault = value.dimensions.time['default'];
                             }
                             target.ajouterCouche(new WMS(xmlOptions));
                         }
