@@ -171,17 +171,17 @@ define([], function() {
         if(adresse[0] === '[' && adresse[adresse.length-1] === ']'){
             adresse = adresse.substr(1, adresse.length-2);
             urlC = params ? '?' + params : "";
-            return this.obtenirProxy() + adresse + encodeURI(urlC);
+            return this.obtenirProxy() + adresse + urlC;
         }
         if(toujoursUtiliser){
             if(!r.test(adresse)) {
-                return this.obtenirProxy(true) + encodeURI(this.obtenirHote(true) + urlC);
+                return this.obtenirProxy(true) + this.obtenirHote(true) + urlC;
             }
         }
         if (!toujoursUtiliser && (adresse.search(this.obtenirHote()) === 0 || (!r.test(adresse)))){
             return params ? adresse + '?' + params : adresse;
         }
-        return this.obtenirProxy(true) + encodeURI(urlC);
+        return this.obtenirProxy(true) + urlC;
     };
     
     
