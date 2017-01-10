@@ -14,7 +14,7 @@ class ConnexionController extends Controller{
 
             if (!$succes) {
 
-                $this->setErrors();
+                $this->setErrors($authentificationModule->obtenirMessagesErreur());
 
                 if(isset($configuration->application->authentification->authentificationUri)){
                     return $this->response->redirect($configuration->application->authentification->authentificationUri, TRUE);
@@ -58,7 +58,7 @@ class ConnexionController extends Controller{
         $this->view->setVar("titre", "Authentification");
 
         if($this->session->has("erreurs")){
-            $this->setErrors();
+            $this->setErrors($authentificationModule->obtenirMessagesErreur());
         }else{
             $this->deleteErrors();
         }
@@ -88,7 +88,7 @@ class ConnexionController extends Controller{
             $succes = $authentificationModule->authentification($username, $password);
 
             if (!$succes) {
-                $this->setErrors();
+                $this->setErrors($authentificationModule->obtenirMessagesErreur());
                 return $this->redirigeVersPage();
             }
             else{
@@ -351,8 +351,7 @@ class ConnexionController extends Controller{
             }
         }
 
-        $authErrors = $this->getDI()->get("authentificationModule")->obtenirMessagesErreur();
-        $errorsMerge = array_unique(array_merge($sessionErrors, $authErrors, $erreurs),SORT_LOCALE_STRING);
+        $errorsMerge = array_unique(array_merge($sessionErrors,$erreurs),SORT_LOCALE_STRING);
 
         $this->session->set("erreurs", $errorsMerge);
         $this->view->setVar("erreurs", $errorsMerge);
