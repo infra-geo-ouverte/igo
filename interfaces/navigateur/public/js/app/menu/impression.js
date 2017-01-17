@@ -576,7 +576,7 @@ define(['panneau', 'aide', 'browserDetect'], function(Panneau, Aide, BrowserDete
             html += '<body class="media-print-igo" style="width: ' + imgSize.width + '; height: ' + imgSize.height + '; padding: 0; margin: 0;">';
             html += '<center><img height=' + imgSize.height + ' width= ' + imgSize.width + ' src="' + canvas.toDataURL("image/png") + '" /></center>';
             html += '<button class="noPrint" type="button" onclick="window.print()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: 0; cursor: pointer;">Imprimer</button>';
-            if (BrowserDetect.browser !== 'Explorer') {
+            if (BrowserDetect.browser !== 'Explorer' && paperSize.paperMax < 2000) {
                 html += '<button class="noPrint saveButtonPrint" type="button" onclick="savePrintImage()" style="margin: 5px; z-index: 999; position: absolute; bottom:0; right: ' + posRightButton + 'px; cursor: pointer;">Enregistrer</button>';
             }
             html += '</body></html>';
