@@ -57,7 +57,7 @@ return array(
         //Les urls externes utilisés dans l'application doivent correspondre à un regex pour être permis
         'regex'         =>  array(
             "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/inspq_icu.fcgi")."#",
-            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/igo_gouvouvert.fcgi")."#"
+            "#".preg_quote("http://geoegl.msp.gouv.qc.ca/cgi-wms/igo_gouvouvert.fcgi")."#",
             "#".preg_quote("http://geogratis.gc.ca/services/elevation/cdsm/altitude")."#"
         )
     ),
