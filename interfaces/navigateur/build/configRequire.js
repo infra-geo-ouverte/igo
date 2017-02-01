@@ -102,6 +102,9 @@ require.config({
                 fixOpenLayersRequire: 'empty:',
                 html2canvas: 'empty:',
                 html2canvassvg: 'empty:',
+	        rgbcolor: "empty:",
+                stackblur: "empty:",
+	        canvg: "empty:",
                 es6promise: 'empty:'
         }
 });

@@ -22,11 +22,18 @@
  */
 require.ajouterConfig({
     paths: {
-            togpx: '[librairies]/togpx/togpx'
+            togpx: '[librairies]/togpx/togpx',
+            multiSelect: 'libs/Ext.ux/multiSelect/MultiSelect',
+            multiSelectCss: 'libs/Ext.ux/multiSelect/css/MultiSelect'
+        },
+        shim: {
+            multiSelect: {
+                deps: ['css!multiSelectCss']
+            }
     }
 });
 
-define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, AnalyseurGeoJSON, togpx) {
+define(['outil', 'occurence', 'aide', 'analyseurGeoJSON', 'togpx', 'multiSelect'], function(Outil, Occurence, Aide, AnalyseurGeoJSON, togpx) {
     function OutilExportFichier(options){
         this.options = options || {};
         this.defautOptions = $.extend({}, this.defautOptions, {
@@ -195,25 +202,62 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
      * @returns {Boolean}
      */
     OutilExportFichier.prototype.lancerExport = function(){    
+         
         var that = this;     
         var geojson;
         this.tabOccu = new Array();       
         var analyseur = new AnalyseurGeoJSON({
             projectionCarte: this.carte.obtenirProjection()
         });
+        
+        var couchesOccurencesSelect = new Object();
+
+        var fctCallback = function(){
         var nbFichier=0;
-        var couchesOccurencesSelect = this.carte.gestionCouches.obtenirOccurencesSelectionnees();
+            var couchesOccurencesSelectManuel = [];
+            var listeCoucheSelect = Ext.getCmp(this.listeCoucheVecteurDispo.id).getValue();
+
+            if(listeCoucheSelect==="") {
+                Aide.afficherMessage("Aucune sélection", "Vous devez choisir un type d’élément à exporter.");
+                return false;
+            }
+
+            $.each(listeCoucheSelect.split(","), function(index, coucheSelect){
+
+                if(coucheSelect === "_selection") {      
+                    couchesOccurencesSelectManuel = that.carte.gestionCouches.obtenirOccurencesSelectionnees();
+                }
+                else {
+                    couchesOccurencesSelect[coucheSelect] = that.carte.gestionCouches.obtenirCoucheParId(coucheSelect).obtenirOccurences();
+                }
+            });                    
+
+            
+            //Joindre la sélection manuelle en excluant les sélections de couche du multiselect
+            $.each(couchesOccurencesSelectManuel, function(index, coucheSelectManuel) {
+                if(couchesOccurencesSelect[index] === undefined)
+                {
+                     couchesOccurencesSelect[index] = coucheSelectManuel;
+                }
+            });
+            
         this.tabMethod = new Array();
         var combo = this.myWin.getComponent('idFormExport').getComponent('exportOutputFormat');
         var extension = combo.findRecord(combo.valueField||combo.displayField, combo.getValue()).data.extension;
         
         //Pour GPX seulement (groupe en un seul fichier toutes les couches) et ne fonctionne pas bien sinon avec le module de conversion
         if(this.obtenirValeursSaisie()['exportOutputFormat'] == "gpx"){
-            var occurencesSelect = this.carte.gestionCouches.obtenirOccurencesSelectionnees();
-        
-            $.each(occurencesSelect, function(index, occurrences) {    
-                $.each(occurrences, function(ind, occu) {                     
+                this.tabOccu = new Array(); 
+                $.each(couchesOccurencesSelect, function(index, couche) {             
+                    //Pour chaque occurence de la couche
+                    $.each(couche, function(ind, occu) {
+                            //convertir les occurence en 4326
+                        if(occu.type === "Polygone") {
+                            that.tabOccu.push(new Occurence(occu.obtenirExterieur().projeter("EPSG:4326"), occu.proprietes));   
+                        }
+                        else {
                     that.tabOccu.push(occu.projeter("EPSG:4326"));
+                        }
                 });            
             });
 
@@ -222,7 +266,18 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
                 return false;
             }
 
-            geojson = JSON.parse(analyseur.ecrire(that.tabOccu));        
+                geojson = JSON.parse(analyseur.ecrire(this.tabOccu));        
+                
+                var ua = window.navigator.userAgent;
+                var msie = ua.indexOf("MSIE ");
+
+                //SI IE appeler le service Ogre 
+                if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./) || true) {
+                   that.appelerService(that.options.urlService, JSON.stringify(geojson), "fichier", 1); 
+                }
+                else
+                {                
+                    //Autre que IE
             result = togpx(geojson); 
 
             var lien = document.createElement('a');
@@ -232,6 +287,7 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
             lien.setAttribute('download', "fichier.gpx");
             lien.click();
         }
+            }
         else{       
         //Pour chaque couches dans la carte 
         $.each(couchesOccurencesSelect, function(index, couche) {             
@@ -247,9 +303,18 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
              * de conversion en shapeFile
              */
             if(that.tabOccu.length !== 0){
+                        var nomFichier;
                 geojson = JSON.parse(analyseur.ecrire(that.tabOccu));
-                //that.download("http://ogre.adc4gis.com/convertJson", "post", JSON.stringify(geojson), index);
-                that.appelerService(that.options.urlService, JSON.stringify(geojson), index+"."+extension, nbFichier);
+                        //Ogre ne gère pas l'extension zip automatiquement contrairement aux autres formats
+                        if(extension === "zip") {
+                            nomFichier = index+"."+extension;
+                        }
+                        else {
+                            nomFichier = index;
+                        }
+                        
+                        
+                        that.appelerService(that.options.urlService, JSON.stringify(geojson), nomFichier, nbFichier);
                 nbFichier++;
             }
         });
@@ -260,6 +325,14 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
             return false;
         }             
         }
+                      
+            Aide.cacherMessageChargement();
+            
+        };
+
+        Aide.afficherMessageChargement();  
+        //Ajouter un délai car le message de chargement n'a pas le temps de s'afficher si la sélection des occurences est trop volumineuse
+        setTimeout(fctCallback.bind(this), 100); 
     };  
       
       /**
@@ -426,10 +499,46 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'togpx'], function(Outil, Aide, Ana
             lazyRender: true,
             lazyInit: false,
             listWidth: 75,
-            hidden : true
+            hidden : false
         });
         
-         return [oOutputFormatComboBox, oEPSGComboBox, separateurComboBox];
+        
+        var listeObjCouche = this.carte.gestionCouches.obtenirCouchesParType("Vecteur");       
+        
+        var dataCouche = [["_selection", "Éléments sélectionnés"]];
+        $.each(listeObjCouche, function(index, objCouche){
+            dataCouche.push([objCouche.id, objCouche.options.titre]);
+        });
+        
+        var asListeCouche = new Ext.data.ArrayStore({
+            data: dataCouche,
+            fields: ['value','display'],
+            sortInfo: {
+                field: 'value',
+                direction: 'ASC'
+            }
+        });
+        
+        var listeCoucheVecteurDispo = {
+           // anchor: '100%',
+            width: 186,
+            height: 100,
+            xtype: 'multiselect',
+            msgTarget: 'side',
+            fieldLabel: 'Éléments à exporter',
+            name: 'multiselect',
+            id: 'outilExportFichierMultiSelect',
+            store: asListeCouche,
+            valueField: 'value',
+            displayField: 'display',
+            listConfig: {
+                itemTpl: '<div class="inner-boundlist-item {color}">{numberName}</div>',
+            }
+        };
+        
+        this.listeCoucheVecteurDispo = listeCoucheVecteurDispo;
+        
+         return [listeCoucheVecteurDispo, oOutputFormatComboBox, oEPSGComboBox, separateurComboBox];
     };
     
     /** 

@@ -173,7 +173,7 @@ try {
         }
     };
 
-    $app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
+    /*$app->map('/proxy/html2canvas',"redirigerRequetesHtml2Canvas")->via(array('GET','OPTIONS'));
 
     function redirigerRequetesHtml2Canvas() {
         global $app;
@@ -192,7 +192,7 @@ try {
             $contenu = ob_get_contents();
             die($contenu);
         }
-    };
+    };*/
 
     /**
      *

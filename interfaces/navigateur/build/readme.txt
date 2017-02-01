@@ -1,15 +1,20 @@
 2 méthodes pour faire le build de IGO:
 
-Avec nodejs et uglify:
+1) Avec nodejs et uglify:
 nodejs ../../../librairie/r.js/dist/r.js -o build.js
 
-Avec java et closure compiler:
+
+2) Avec java et closure compiler:
 Si on utilise cette méthode, il faut décommenter la ligne - optimize: "closure", -
+
+Pour Linux:
 java -classpath ../../../librairie/r.js/lib/rhino/js.jar:../../../librairie/r.js/lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main ../../../librairie/r.js/dist/r.js -o build.js
 
+Pour Windows:
+java -classpath ../../../librairie/r.js/lib/rhino/js.jar;../../../librairie/r.js/lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main ../../../librairie/r.js/dist/r.js -o build.js
 
 
-
+======================================================================
 
 Pour faire le build de GeoExt et extensions:
 python build_geoext.py

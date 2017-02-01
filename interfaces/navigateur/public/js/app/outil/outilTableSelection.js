@@ -43,7 +43,7 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                 id: 'zoom_auto',
                 xtype:'menucheckitem',
                 titre: 'Zoom auto sur la sélection',
-                infobulle: 'Zoom auto sur la sélection',
+                infobulle: 'Zoom auto sur la sélection'
 
            });
         }  else if (this.options.type === 'contenupage' && this.options.panneauTable.options.paginer === true){
@@ -51,7 +51,7 @@ define(['outil', 'aide', 'style'], function(Outil, Aide, Style) {
                 id: 'contenupage',
                 xtype:'menucheckitem',
                 titre: 'Afficher le contenu de la page seulement',
-                infobulle: 'Affiche seulement le contenu de la page active.',
+                infobulle: 'Affiche seulement le contenu de la page active.'
 
            });
         }  else if (this.options.type === 'selectionSeulement'){
