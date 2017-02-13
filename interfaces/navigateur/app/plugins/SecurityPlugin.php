@@ -22,7 +22,6 @@ class SecurityPlugin extends Plugin
         $config = $this->getDI()->get("config");
 
         if($controller === "connexion" || $controller === "error"){
-            $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
             $user = $this->session->get("info_utilisateur");
@@ -34,7 +33,7 @@ class SecurityPlugin extends Plugin
                     $authentificationModule->deconnexion();
                      }
                 }
-       
+            
             $authObligatoire = isset($_GET['force-auth']) ? $_GET['force-auth'] : false;
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
 
@@ -57,16 +56,16 @@ class SecurityPlugin extends Plugin
                 if(!$this->session->has("info_utilisateur")) {
                     $this->session->set("info_utilisateur", new SessionController());
                 }
-                $configurationSysteme = $this->getDI()->get("config");
-                if($configurationSysteme->offsetExists("database")) {
+                
+                if($config->offsetExists("database")) {
                     if($this->estRoleSelectionneRequis()){
-                        $profilAnonyme = IgoProfil::findFirst("nom = '{$configurationSysteme->application->authentification->profilAnonyme->nom}'");
+                        $profilAnonyme = IgoProfil::findFirst("nom = '{$config->application->authentification->profilAnonyme->nom}'");
                         if($profilAnonyme){
                             $this->session->get("info_utilisateur")->profils = array($profilAnonyme->toArray());
                             $this->session->get("info_utilisateur")->profilActif = $this->session->get("info_utilisateur")->profils[0]['id'];
                         }
-                    } else if(isset($configurationSysteme->application->authentification->profilAnonyme->nom)){
-                        $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$configurationSysteme->application->authentification->profilAnonyme->nom}'")->toArray();
+                    } else if(isset($config->application->authentification->profilAnonyme->nom)){
+                        $this->session->get("info_utilisateur")->profils = IgoProfil::find("nom = '{$config->application->authentification->profilAnonyme->nom}'")->toArray();
                     }
                 }
                 $this->session->get("info_utilisateur")->estAnonyme = true;

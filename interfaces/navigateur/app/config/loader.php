@@ -32,3 +32,5 @@ $loader->registerNamespaces(
 );
 
 $loader->registerDirs($dirs)->register();
+
+$loader->registerClasses(['NavigateurApi' => '../api/NavigateurApi.php']);
