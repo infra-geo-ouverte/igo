@@ -20,7 +20,7 @@ class SecurityPlugin extends Plugin
         $controller = $dispatcher->getControllerName();
         $action = $dispatcher->getActionName();
         $config = $this->getDI()->get("config");
-
+        var_dump($igo);
         if($controller === "connexion" || $controller === "error"){
             $config = $this->getDI()->get("config");
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
@@ -34,7 +34,7 @@ class SecurityPlugin extends Plugin
                     $authentificationModule->deconnexion();
                      }
                 }
-       
+            
             $authObligatoire = isset($_GET['force-auth']) ? $_GET['force-auth'] : false;
             $configuration = $this->obtenirConfiguration($action, $dispatcher);
 

@@ -246,18 +246,23 @@ if($config->offsetExists("database")) {
 /**
  * Start the session the first time some component request the session service
  */
-$di->setShared('session', function () {
-    $cookieName = 'sessionIGO';
-    $session = new SessionAdapter();
+$di->setShared('session', function () use ($config){
 
-    if (isset($_COOKIE[$cookieName])) {
-        $sessid = $_COOKIE[$cookieName];
+    $session_name = ($config->offsetExists('session') && $config->session->offsetExists('session_name')) ? $config->session->session_name : 'sessionIGO';
+    $max_lifetime = $config->offsetExists('session') && $config->session->offsetExists('max_lifetime') ? $config->session->max_lifetime : 28800;
+
+    ini_set('session.gc_maxlifetime', $max_lifetime);
+
+    if (isset($_COOKIE[$session_name])) {
+        $sessid = $_COOKIE[$session_name];
         if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $sessid)) {
-            unset($_COOKIE[$cookieName]);
-            setcookie($cookieName, '', time() - 3600, '/');
+            unset($_COOKIE[$session_name]);
+            setcookie($session_name, '', time() - 3600, '/');
         }
     }
-    session_name($cookieName);
+
+    $session = new SessionAdapter();
+    $session->setName($session_name);
     $session->start();
 
     return $session;
