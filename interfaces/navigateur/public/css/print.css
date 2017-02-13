@@ -1,5 +1,6 @@
-@media print {
 
+
+@media print {
     #menu-panneau3,
     #resultatRechercheTable,
    .x-panel,
@@ -88,6 +89,10 @@
     }
 }
 
+body.media-print-igo {
+    overflow: hidden;
+}
+
 body.media-print-igo .boutonConsole,
 body.media-print-igo .x-slider,
 body.media-print-igo .olButton
@@ -120,9 +125,9 @@ body.media-print-igo .olButton
 
 #media-print-igo {
   z-index:-1;
-  background-color: white; 
-  position: absolute; 
-  left:0; 
+  background-color: white;
+  position: absolute;
+  left:0;
   top:0;
 }
 
