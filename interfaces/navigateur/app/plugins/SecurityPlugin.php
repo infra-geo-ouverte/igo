@@ -20,7 +20,7 @@ class SecurityPlugin extends Plugin
         $controller = $dispatcher->getControllerName();
         $action = $dispatcher->getActionName();
         $config = $this->getDI()->get("config");
-        var_dump($igo);
+
         if($controller === "connexion" || $controller === "error"){
             $this->getDI()->get("view")->setViewsDir($config->application->services->viewsDir);
         }else if($controller === "igo" && ($action === "configuration" || $action === "index")){
