@@ -959,6 +959,8 @@ try {
      * @return
      */
     function proxyRequestNavigateur($url, $data, $method, $options) {
+        global $app;
+        
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -1006,9 +1008,9 @@ try {
                 'SOAPAction:' . $_SERVER['HTTP_SOAPACTION']));
         }
 
-
-        if(isset($_COOKIE['sessionIGO']) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
-            $strCookie = "sessionIGO=" . $_COOKIE['sessionIGO'];
+        $session_name = $app->getDI()->getSession()->getName();
+        if(isset($_COOKIE['$session_name']) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
+            $strCookie = "{$session_name}=" . $_COOKIE[$session_name];
             session_write_close();
             curl_setopt( $ch, CURLOPT_COOKIE, $strCookie );
         }
