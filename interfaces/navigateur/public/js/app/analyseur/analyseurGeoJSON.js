@@ -118,23 +118,27 @@ define(['occurence'], function(Occurence) {
     AnalyseurGeoJSON.prototype.lireUrl = function(opt){
         opt = opt || {};
         var url = opt.url;
+        var datatype = opt.datatype;//json,jsonp
         var callback = opt.callback;
-        if(!callback || !url){
+        if(!callback || !url){
             return false;
         }
         var that = this;
         $.ajax({
-            url: url, 
+            url: url,
+            dataType: datatype ? datatype : 'json',
+            cache: false,
+            crossDomain:true,
             success: function(result, status, xhr){
                 var rep = that.lire(result);
                 if(callback){
                     callback.call(that, rep, status, xhr);
-                }       
-            }, 
+                }
+            },
             error: function(xhr, status, error){
                 if(callback){
                     callback.call(that, error, status, xhr);
-                }       
+                }
             }
         });
     };
