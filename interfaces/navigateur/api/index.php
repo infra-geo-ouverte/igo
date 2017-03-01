@@ -1009,7 +1009,7 @@ try {
         }
 
         $session_name = $app->getDI()->getSession()->getName();
-        if(isset($_COOKIE['$session_name']) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
+        if(isset($_COOKIE[$session_name]) && $_SERVER['HTTP_HOST'] === parse_url($url)['host']) {
             $strCookie = "{$session_name}=" . $_COOKIE[$session_name];
             session_write_close();
             curl_setopt( $ch, CURLOPT_COOKIE, $strCookie );
