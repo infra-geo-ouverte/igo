@@ -159,9 +159,9 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().id = this.id;
         if (typeof callback === "function") callback.call(target, this, optCallback);
         
-        this._getLayer().events.register('loadstart', this, function(e){this.gererStyleParentEnfantSelect();this.gererIndentifierAGetInfo();this.afficherChargement();});
+        this._getLayer().events.register('loadstart', this, function(e){this.gererStyleParentEnfantSelect();this.gererIndentifierAGetInfo();this.gererIdentifierAFitre();this.afficherChargement();});
         this._getLayer().events.register('loadend', this, function(e){this.masquerChargement();});
-        this._getLayer().events.register('visibilitychanged', this, function(e){this.gererStyleParentEnfantSelect();this.gererIndentifierAGetInfo();this._visibiliteChangee();});
+        this._getLayer().events.register('visibilitychanged', this, function(e){this.gererStyleParentEnfantSelect();this.gererIndentifierAGetInfo();this.gererIdentifierAFitre();this._visibiliteChangee();});
     };
     
     /** 
@@ -298,6 +298,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().setVisibility(true);
         this.gererStyleParentEnfantSelect();
         this.gererIndentifierAGetInfo();
+        this.gererIdentifierAFitre();
     };
     
     /** 
@@ -316,6 +317,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         this._getLayer().setVisibility(false);
         this.gererStyleParentEnfantSelect();
         this.gererIndentifierAGetInfo();
+        this.gererIdentifierAFitre();
     };
     
     
@@ -518,6 +520,34 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
           }         
       }
     };
+    
+    /**
+     * Aficher/Masquer l'icône de filtre à la sélection si la couche a un filtre disponible
+     * @method
+     * @name #Couche#gererIdentifierAFitre
+     */
+    Couche.prototype.gererIdentifierAFitre = function()
+    {
+         var panneauArborescence = Aide.obtenirNavigateur().obtenirPanneauxParType("Arborescence",3)[0];
+        
+        if(panneauArborescence === undefined || panneauArborescence.options.identifierFiltre !== "true")
+            return false;            
+        
+        if(this.options.filter && (this.options.filter === true  || this.options.filter == "true") && (typeof this.options.extraParams !== undefined && this.options.extraParams === true)) {
+            var div = this.obtenirElementDivArbo();
+        
+            var $layerArboGetFiltre = $(div).find(".layerArboGetFiltre");
+            if($layerArboGetFiltre.length){
+                if($(div).find("input:checked").length == 1)
+                    $layerArboGetFiltre.show();
+                else
+                    $layerArboGetFiltre.hide();
+          
+          } else if(div){
+              $(div).find(".x-tree-node-indent").before('<img class="layerArboGetFiltre" style="position: absolute;height: 15px;padding-top: 2px;padding-left: 31px" src="'+ Aide.utiliserBaseUri("images/app/filter_blue.png")+'" alt="Cette couche à un filtre">');
+          }         
+      }
+    }
     
     return Couche;
 });
