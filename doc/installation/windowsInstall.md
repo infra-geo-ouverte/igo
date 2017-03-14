@@ -5,7 +5,7 @@ Cette documentation a été testée avec Windows 8.1.
 Sur Windows, il suffit de télécharger et installer:
 
 * [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-* [Vagrant](https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.msi)
+* [Vagrant](https://releases.hashicorp.com/vagrant/1.7.2/)
 * [Git for Windows](https://msysgit.github.io/)
 
 le plugin vagrant-r10k: 
