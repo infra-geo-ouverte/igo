@@ -5,7 +5,7 @@
  * @version 1.0
  * @requires aide, outil
  * @dependance modification couche.js pour afficher l'icône de filtre
- *                          interfaces\navigateur\public\images\app\filter.png
+ *                          interfaces\navigateur\public\images\app\filter_blue.png et filter_red.png
  *                          igo\modules\wmsfilters
  *                          igo\xml
  *                          Tag  filter="true" sur la couche
@@ -427,10 +427,15 @@ define(['aide', 'outil'], function (Aide, Outil) {
         }
         
         $.each(lstCouchesConfigWMSFilters, function(index, defCoucheFiltreXML) {
+            var nomCouche = null;
+            if(typeof defCoucheFiltreXML["@attributes"] !== "undefined")
+                nomCouche = defCoucheFiltreXML["@attributes"].nom;
+            else if (typeof defCoucheFiltreXML.nom !== "undefined")
+                nomCouche = defCoucheFiltreXML.nom;
            
-            if(defCoucheFiltreXML["@attributes"].nom) {
+            if(nomCouche !== null) {
                 var couche;
-                var lstCouche = Aide.obtenirNavigateur().carte.gestionCouches.obtenirCouchesParNom(defCoucheFiltreXML["@attributes"].nom);
+                var lstCouche = Aide.obtenirNavigateur().carte.gestionCouches.obtenirCouchesParNom(nomCouche);
                 
                 if(lstCouche.length > 0) {
                     couche = lstCouche[0];
