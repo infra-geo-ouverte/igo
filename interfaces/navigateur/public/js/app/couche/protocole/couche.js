@@ -529,7 +529,7 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
     Couche.prototype.gererIdentifierAFitre = function()
     {
          var panneauArborescence = Aide.obtenirNavigateur().obtenirPanneauxParType("Arborescence",3)[0];
-        
+        var padding = 15; //Padding par défaut en lien avec l'icône possible du getInfo
         if(panneauArborescence === undefined || panneauArborescence.options.identifierFiltre !== "true")
             return false;            
         
@@ -544,7 +544,13 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
                     $layerArboGetFiltre.hide();
           
           } else if(div){
-              $(div).find(".x-tree-node-indent").before('<img class="layerArboGetFiltre" style="position: absolute;height: 15px;padding-top: 2px;padding-left: 31px" src="'+ Aide.utiliserBaseUri("images/app/filter_blue.png")+'" alt="Cette couche à un filtre">');
+              
+                //Mettre le padding plus grand si l'option pour afficher l'icône du getInfo est déjà présente
+                if(typeof panneauArborescence.options.identifierGetInfo!== "undefined" && panneauArborescence.options.identifierGetInfo === "true") {
+                   padding = 31; 
+                }
+              
+                $(div).find(".x-tree-node-indent").before('<img class="layerArboGetFiltre" style="position: absolute;height: 15px;padding-top: 2px;padding-left: '+padding+'px" src="'+ Aide.utiliserBaseUri("images/app/filter_blue.png")+'" alt="Cette couche à un filtre">');
           }         
       }
     }
