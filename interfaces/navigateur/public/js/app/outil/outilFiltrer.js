@@ -76,7 +76,12 @@ define(['aide', 'outil'], function (Aide, Outil) {
         var lstConfigWMSFilters = Aide.obtenirConfigXML('wmsfilters');
         
         if(typeof lstConfigWMSFilters !== "undefined" &&  typeof lstConfigWMSFilters.layer !== "undefined") {
+            
+            //Si c'est un objet contenant un tableau de layer
+            if(typeof lstConfigWMSFilters.layer.length !== "undefined")           
             lstCouchesConfigWMSFilters = lstConfigWMSFilters.layer;
+            else //Sinon un layer, on doit le mettre dans un tableau
+                lstCouchesConfigWMSFilters = [lstConfigWMSFilters.layer];
         }
         else {
             return false;
