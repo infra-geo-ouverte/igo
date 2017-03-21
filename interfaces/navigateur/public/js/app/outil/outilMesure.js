@@ -288,11 +288,23 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                         baseCls: '',
                         items: [{
                             baseCls: '',
-                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\n\ <option value='auto'>auto (km)</option> \n\                                        <option value='m'>m</option> \n\                                        <option value='km'>km</option>  \n\                                        <option value='mile'>miles</option>\n\                                    <option value='pied'>pied</option>\n\ </select>"
+                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\n\ 
+										<option value='auto'>auto (km)</option> \n\                                        
+										<option value='m'>m</option> \n\
+                                        <option value='km'>km</option>  \n\
+                                        <option value='mile'>miles</option>\n\
+                                    	<option value='pied'>pied</option>\n\ </select>"
                         },
                         {
                             baseCls: '',
-                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\n\                                        <option value='auto'>auto (km²)</option> \n\                                        <option value='m'>m²</option> \n\                                        <option value='km²'>km²</option>  \n\                                        <option value='mile²'>mile²</option> \n\                                        <option value='acre'>acre</option> \n\                                        <option value='hectare'>hectare</option>\n\                                    <option value='pied²'>pied²</option>\n\ </select>"
+                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\n\
+                                        <option value='auto'>auto (km²)</option> \n\
+                                        <option value='m'>m²</option> \n\
+                                        <option value='km²'>km²</option>  \n\
+                                        <option value='mile²'>mile²</option> \n\
+                                        <option value='acre'>acre</option> \n\
+                                        <option value='hectare'>hectare</option>\n\
+                                    <option value='pied²'>pied²</option>\n\ </select>"
                         }]
                     }                      
                 ]
