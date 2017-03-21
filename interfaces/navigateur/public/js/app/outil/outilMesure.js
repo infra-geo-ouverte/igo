@@ -293,7 +293,8 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
 										<option value='m'>m</option> \n\
                                         <option value='km'>km</option>  \n\
                                         <option value='mile'>miles</option>\n\
-                                    	<option value='pied'>pied</option>\n\ </select>"
+                                    	<option value='pied'>pied</option>\n\ 
+									</select>"
                         },
                         {
                             baseCls: '',
@@ -304,7 +305,8 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                                         <option value='mile²'>mile²</option> \n\
                                         <option value='acre'>acre</option> \n\
                                         <option value='hectare'>hectare</option>\n\
-                                    <option value='pied²'>pied²</option>\n\ </select>"
+                                    <option value='pied²'>pied²</option>\n\ 
+								  </select>"
                         }]
                     }                      
                 ]
