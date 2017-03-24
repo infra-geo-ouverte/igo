@@ -249,7 +249,7 @@ if($config->offsetExists("database")) {
 $di->setShared('session', function () use ($config){
 
     $session_name = ($config->offsetExists('session') && $config->session->offsetExists('session_name')) ? $config->session->session_name : 'sessionIGO';
-    $max_lifetime = $config->offsetExists('session') && $config->session->offsetExists('max_lifetime') ? $config->session->max_lifetime : 28800;
+    $max_lifetime = $config->offsetExists('session') && $config->session->offsetExists('max_lifetime') ? $config->session->max_lifetime : 86400;
 
     ini_set('session.gc_maxlifetime', $max_lifetime);
 

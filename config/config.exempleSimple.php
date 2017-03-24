@@ -68,6 +68,6 @@ return array(
     ),
     'session' => array(
         'session_name' => 'sessionIGO',
-        'max_lifetime' => 28800
+        'max_lifetime' => 86400
     )
 );
