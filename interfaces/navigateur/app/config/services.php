@@ -387,14 +387,16 @@ $di->set('router', function(){
              }
              else{
                //Par défaut, le premier module d'authentification est configuré
+               $authentificationModuleClassName = is_string($config->application->authentification->module) 
+                ? $config->application->authentification->module 
+                : key($config->application->authentification->module) ;
 
-               $authentificationModuleClassName = is_array($config->application->authentification->module) ? key($config->application->authentification->module) : $config->application->authentification->module;
                $authentificationModule = new $authentificationModuleClassName;
                if($authentificationModule instanceof AuthentificationController){
                    return $authentificationModule;
                }
                else{
-                 error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
+                 error_log ("Le module d'authentification n'est pas une instance d'AuthentificationController");
                }
 
              }
