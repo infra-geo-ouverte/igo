@@ -387,8 +387,9 @@ $di->set('router', function(){
              }
              else{
                //Par défaut, le premier module d'authentification est configuré
-               $authentificationModule = key($config->application->authentification->module);
-               $authentificationModule = new $authentificationModule;
+
+               $authentificationModuleClassName = is_array($config->application->authentification->module) ? key($config->application->authentification->module) : $config->application->authentification->module;
+               $authentificationModule = new $authentificationModuleClassName;
                if($authentificationModule instanceof AuthentificationController){
                    return $authentificationModule;
                }
