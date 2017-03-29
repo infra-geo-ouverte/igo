@@ -89,11 +89,17 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
         $this->obtenirInfoContexte($contexte);
     }
 
+    function getMapServerPath(){
+        $config = $this->getDI()->get("config");
+        return $config['mapserver']['host'] . $config['mapserver']['mapserver_path'] . $config['mapserver']['executable'];
+    }
+
     /**
     *
     * @param int $contexteId
     */
-    function wmsProxy(){
+    function wmsProxy($contexteId){
+       
         $httprequest = new Phalcon\Http\Request();
         $httprequest->setDI($this->getDI());
 
@@ -102,7 +108,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
 
         if($httprequest->isGet() || $httprequest->isPost()){
             $datain = $httprequest->get();
-            $data = array();
+            $data = array("SERVICE", "REQUEST");
             foreach($datain as $key => $value){
                 $data[strtoupper($key)] = $value;
             }
@@ -117,19 +123,18 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
         if($service === "WMS"){
 
             $config = $this->getDI()->get("config");
-            $mapserverPath = $config['mapserver']['host'] . $config['mapserver']['mapserver_path'] . $config['mapserver']['executable'];
+            
             $igoContexte = IgoContexte::findFirstById($contexteId);
 
             //TODO S'assurer que le mapfile du contexte existe
             $igoContexte->creerMapfileSiExistePas();
 
-            $method = $httprequest->getMethod();
             $data = $httprequest->get();
             $data["MAP"] = $igoContexte->getMapfilePath();
             $response = null;
             switch($request){
                 case "GETCAPABILITIES":
-                    $response = proxy_request($mapserverPath, $data , $method);
+                    $response = $this->proxy_request($this->getMapServerPath(), $data , $httprequest->getMethod());
                     // Devrait-on enlever les couches non permises en lecture de la réponse.? C'est probablement trop complexe...
                     break;
                 case "GETMAP":
@@ -138,7 +143,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
                 case "GETLEGENDGRAPHIC":
                     $authentificationModule = $this->obtenirAuthentificationModule();
                     if($authentificationModule === null){
-                        $response = proxy_request($mapserverPath, $data , $method);
+                        $response = $this->proxy_request($this->getMapServerPath(), $data , $httprequest->getMethod());
                     }else{
                         if(isset($data["LAYERS"])){
                             $couches = explode(",", $data["LAYERS"]);
@@ -169,7 +174,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
                                 die("Forbidden");
                             }
                         }
-                        $response = proxy_request($mapserverPath, $data , $method);
+                        $response = $this->proxy_request($this->getMapServerPath(), $data , $httprequest->getMethod());
                     }
                     break;
                 default:
@@ -340,6 +345,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
     function obtenirContexte($contexteId) 
     {
         $igoContexte = IgoContexte::findFirst("id={$contexteId}");
+
         if (!$igoContexte) {
             return $this->envoyerResponse(404, "Not Found", "Le contexte '{$contexteId}' n'existe pas!");
         }
@@ -463,8 +469,8 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
     */
     function obtenirUtilisateurProfilsInQuery() 
     {
-        $profiLActif = utilisateurActuelProfilActif ();
-        $profils = utilisateurActuelProfils();
+        $profiLActif = $this->utilisateurActuelProfilActif();
+        $profils = $this->utilisateurActuelProfils();
 
         if (!is_null($profiLActif)) {
 
@@ -524,7 +530,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
             return null;
         }
 
-        $conditions = "profil_id in (" . obtenirUtilisateurProfilsInQuery() . ") AND (couche_id = ?1)";
+        $conditions = "profil_id in (" . $this->obtenirUtilisateurProfilsInQuery() . ") AND (couche_id = ?1)";
         $parameters = array(1 => $couche_id);
         $permission = IgoVuePermissionsPourCouches::findFirst(array(
             $conditions,
@@ -602,7 +608,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
                 unset($couche->couche_id);
                 $array[] = $couche;
             } else {
-                $permission = obtenirPermission($couche->couche_id);
+                $permission = $this->obtenirPermission($couche->couche_id);
 
                 if ($permission != false && $permission->est_lecture) {
                     unset($couche->couche_id);
@@ -658,7 +664,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
 
         // Based on https://github.com/eslachance/php-transparent-proxy Copyright (c) 2011, Eric-Sebastien Lachance <eslachance@gmail.com>
         // Based on post_request from http://www.jonasjohn.de/snippets/php/post-request.htm
-        $ip = self::ObtenirAdresseIP();
+        $ip = self::ObtenirAdresseIP($_SERVER);
 
         // Convert the data array into URL Parameters like a=b&foo=bar etc.
         $data = http_build_query($data);
@@ -690,7 +696,9 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
         fputs($fp, "X-Forwarded-For: $ip\r\n");
         fputs($fp, "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n");
 
-        $requestHeaders = apache_request_headers();
+
+        $httprequest = new Phalcon\Http\Request();
+        $requestHeaders = $httprequest->getHeaders();
         while ((list($header, $value) = each($requestHeaders))) {
             if ($header == "Content-Length") {
                 fputs($fp, "Content-Length: $datalength\r\n");
