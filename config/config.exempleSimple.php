@@ -65,5 +65,9 @@ return array(
     'configurations' => array(
         'defaut'        => $baseXmlDir . 'defaut.xml',
         'exemple'          => $baseXmlDir . "exemple.xml"
+    ),
+    'session' => array(
+        'session_name' => 'sessionIGO',
+        'max_lifetime' => 86400
     )
 );
