@@ -38,7 +38,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
                     $couche->protocole = 'WMS';
 
                     //Ne pas exposer la connexion
-                    unset($couche->connexion);
+                    $couche->connexion = null;
 
                 }else{
 
@@ -940,7 +940,7 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
                             $protocole = 'WMS';
 
                             //Ne pas exposer la connexion
-                            unset($igoVueCouche->connexion);
+                            $igoVueCouche->connexion = null;
                         }else{
                             $mf_map_meta_onlineresource = $igoVueCouche->connexion;
                             $protocole = $igoVueCouche->connexion_type;
