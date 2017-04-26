@@ -1623,17 +1623,17 @@ Permet la définition d'une couche provenant d’un service de carte tuilé
 *Exemples*
 ```xml
 <couche
-url="http://spssogl97d.sso.msp.gouv.qc.ca/cgi-wms/mapcache.fcgi/tms/"
+url="http://spssogl97d.sso.msp.gouv.qc.ca/ws/interne_mapcache.fcgi/tms/"
 nom="carte\_gouv\_qc\_ro@EPSG\_3857" titre="Gouvernement du Québec"
 protocole="TMS"
 couche id="idCoucheTMS"
-url="http://spssogl97d.sso.msp.gouv.qc.ca/cgi-wms/mapcache.fcgi/tms/"
+url="http://spssogl97d.sso.msp.gouv.qc.ca/ws/interne_mapcache.fcgi/tms/"
 nom="carte\_gouv\_qc\_ro@EPSG\_3857" titre="Gouvernement du Québec"
 protocole="TMS" fond="true" echelleMin="6000000" echelleMax="1"
 groupe="Test" visible="true" active="faux" opacite="100"
 ordreAffichage="1"
 format="jpg"
-impressionUrl="http://spssogl97d.sso.msp.gouv.qc.ca/cgi-wms/carte\_gouv\_qc.fcgi?"
+impressionUrl="http://spssogl97d.sso.msp.gouv.qc.ca/ws/interne_carte\_gouv\_qc.fcgi?"
 impressionNom="CARTE\_GOUV\_QC"/>
 ```
 
@@ -1687,7 +1687,7 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 *Exemples*
 ```xml
    <couche protocole="WMS" mode="getCapabilities"
-   url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdga.fcgi?" infoFormat="gml" />
+   url="http://geoegl.msp.gouv.qc.ca/ws/interne_bdga.fcgi?" infoFormat="gml" />
 ```
 
 ```xml
@@ -1698,7 +1698,7 @@ Permet la définition d'une couche provenant d’un service de carte (WMS).
 
 ```xml
     <couche titre="Stations hydrométriques - Seuil de conséquence (public)" protocole="WMS"
-    url="http://geoegl.msp.gouv.qc.ca/cgi-wms/adnInternetV2.fcgi?" nom="adn_station_max_public_v"
+    url="http://geoegl.msp.gouv.qc.ca/ws/interne_adnInternetV2.fcgi?" nom="adn_station_max_public_v"
     echelleMin="4000000" />
 ```
 
@@ -1743,7 +1743,7 @@ Permet la définition d'une couche provenant d’un service WFS.
 
 *Exemples*
 ```xml
-<couche titre="exemple WFS" protocole="WFS" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/dpop.fcgi?" nom="dpop_criminalite_generale_v_s" />  
+<couche titre="exemple WFS" protocole="WFS" url="http://geoegl.msp.gouv.qc.ca/ws/interne_dpop.fcgi?" nom="dpop_criminalite_generale_v_s" />  
 ```
 
 Actions
@@ -1942,11 +1942,11 @@ Configuration Donnees ouvertes
         <groupe-couches groupe="Fond de carte">
             <couche id="geobase"
                     titre="Gouvernement du Québec"
-                    url="/cgi-wms/mapcache.fcgi/tms/"
+                    url="/ws/interne_mapcache.fcgi/tms/"
                     nom="carte_gouv_qc_ro@EPSG_3857"
                     fond="true" protocole="TMS"
                     active="vrai"
-                    impressionUrl="/cgi-wms/carte_gouv_qc.fcgi?"
+                    impressionUrl="/ws/interne_carte_gouv_qc.fcgi?"
                     impressionNom="CARTE_GOUV_QC"
             />
             <couche titre="OpenStreetMap" protocole="OSM"/>
@@ -2044,7 +2044,7 @@ Contient des ajouts de composantes personnalisées.
                     nom="SCW" fond="true" groupe="Fond de carte" protocole="WMS" active="true"/>
             <couche id="cbct" titre="Carte de base du Canada - Transport" url="http://geogratis.gc.ca/cartes/CBCT?"
                     nom="cbct" fond="true" groupe="Fond de carte" protocole="WMS" />
-            <couche id="BDTQ" titre="BDTQ" url="http://geoegl.msp.gouv.qc.ca/cgi-wms/bdtq.fcgi"
+            <couche id="BDTQ" titre="BDTQ" url="http://geoegl.msp.gouv.qc.ca/ws/interne_bdtq.fcgi"
                     nom="BDTQ" fond="true" groupe="Fond de carte" protocole="WMS" />
         </couches>
         <couches>
