@@ -11,6 +11,7 @@ define(['aide'], function(Aide) {
     Metadonnee.getLayerCapabilitiesExterne = function(couche){   
         this.couche=couche;
         var nomClasse = couche.options.metadonnee;
+        var titre = couche.options.titre;
         if(Aide.toBoolean(nomClasse) === true){
             nomClasse = couche.options.nom;
         }
@@ -21,14 +22,16 @@ define(['aide'], function(Aide) {
                 lienExt = couche.options.metadonneeExterne;
             }
             if(lienExt && Aide.toBoolean(lienExt) !== true){
-                lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
+                lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse).replace("{titre}", titre);
+                lienExt = encodeURI(lienExt).replace(/[!'()*]/g, escape);
                 window.open(lienExt, 'Métadonnees','resizable=yes,scrollbars=yes,toolbar=yes,status=yes');
                 return true;
             }
         }
         
         if(lienExt && Aide.toBoolean(lienExt) !== true){
-            lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse);
+            lienExt = decodeURIComponent(lienExt).replace("{id}", nomClasse).replace("{titre}", titre);
+            lienExt = encodeURI(lienExt).replace(/[!'()*]/g, escape);
             //lienExt = Aide.utiliserProxy(lienExt);
             this.parse({responseText: "<iframe style='width:800px; height:800px;' src='"+lienExt+"'></iframe>"});
             return true; 
