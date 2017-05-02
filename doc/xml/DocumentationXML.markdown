@@ -1514,6 +1514,7 @@ Marqueurs, OSM, TMS, Vecteur, WMS*.
 |metadonnee| Lien vers les métadonnées			| Non		| URL			|		|
 |ordreArborescence| Ordre d'affichage de la couche dans le groupe de l'arborescence (1 étant le haut du groupe)| Non| Nombre entier|
 |estInterrogeable|Indique si le getInfo doit être fait sur cette couche | Non | Booléen | true |
+|excluExport|Indique si on doit exclure la couche pour l'outil d'export | Non | Booléen | false |
 
 blanc
 -----
