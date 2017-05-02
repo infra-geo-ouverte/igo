@@ -508,7 +508,7 @@ define(['outil', 'occurence', 'aide', 'analyseurGeoJSON', 'togpx', 'multiSelect'
         var dataCouche = [["_selection", "Éléments sélectionnés"]];
         $.each(listeObjCouche, function(index, objCouche){
             
-            if(typeof objCouche.options.excluExport === undefined || (objCouche.options.excluExport !== "true" && objCouche.options.excluExport !== true))  {          
+            if((typeof objCouche.options.excluExport === "undefined" || (objCouche.options.excluExport !== "true" && objCouche.options.excluExport !== true)) && typeof objCouche.options.visible === "undefined" || (objCouche.options.excluExport === "true" || objCouche.options.excluExport === true))  {          
             dataCouche.push([objCouche.id, objCouche.options.titre]);
             }
         });
