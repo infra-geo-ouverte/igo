@@ -559,7 +559,11 @@ define(['outil', 'aide', 'browserDetect', 'fonctions', 'point'], function (Outil
     OutilInfo.prototype.afficherResultats = function () {
         var occurencesSurvolees = this.carte.gestionCouches.obtenirListeOccurencesSurvols().slice();
         if(occurencesSurvolees.length){
-            this.afficherProprietes.push(occurencesSurvolees);
+            occurencesSurvolees.forEach(function(occurence,idx,array){
+                if(occurence.vecteur.options.estInterrogeable){
+                    this.afficherProprietes.push(occurence);
+                }
+            }, this)            
         }
         
         if (this.afficherProprietes.length === 0 && this.executerAction.length === 0) {

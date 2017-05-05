@@ -41,7 +41,8 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         
         this.defautOptions = { 
             visible: true,
-            active: false
+            active: false,
+            estInterrogeable: true
         };
     };
 
@@ -61,6 +62,8 @@ define(['evenement', 'aide'], function(Evenement, Aide) {
         if (Aide.toBoolean(this.options.fond)){
             this.defautOptions.groupe = 'Fond de carte';
         };
+
+        this.options.estInterrogeable = this.options.estInterrogeable?Aide.toBoolean(this.options.estInterrogeable):this.defautOptions.estInterrogeable;
         
         this.options = $.extend({}, this.defautOptions, Aide.obtenirConfig("Couche"), Aide.obtenirConfig(this.obtenirTypeClasse()), this.options);
                 
