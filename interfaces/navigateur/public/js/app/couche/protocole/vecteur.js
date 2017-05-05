@@ -36,6 +36,7 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         this.styles={};
         this.templates={};
         this.defautOptions.rafraichissementPermis = true;
+        this.defautOptions.estInterrogeable = true;
         if(this.obtenirTypeClasse() === "Vecteur"){
             this._init();
         };
