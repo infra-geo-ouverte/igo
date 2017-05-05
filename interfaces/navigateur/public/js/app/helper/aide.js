@@ -693,5 +693,107 @@ define([], function() {
         this.debug = debug;
     };
     
+    /**
+     * Fonction qui permet de lire un cookie
+     * @method
+     * @param {string} nom Nom du cookie à lire
+     * @returns {string} Valeur du cookie ou null si non trouvé
+     */
+    Aide.lireCookie = function(nom) {
+        var nameEQ = nom + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    };
+    
+    /**
+     * Fonnction qui permet de vérifier si le cookie a été changé
+     * @method
+     * @param {string} cookieName Nom du cookie à surveiller
+     * @param {function} callback Fonction à déclancher lorsque la valeur du cookie a changé
+     * @returns {integer} id de l'interval en cours
+     * @exemple Ajouter dans le php: header('Set-Cookie: fichierTelecharger=true; path=/');
+     *          Dans le javascript: 
+                var id = Aide.verifierCookieModifie('fichierTelecharger', function() {
+                clearInterval(id); //Supprimer l'interval  qui vérifie si le cookie est changé             
+                Aide.cacherMessageChargement(); //Fonction de callback à appeler lorsque le cookie a changé
+            });  
+     */
+    Aide.verifierCookieModifie = function(cookieName, callback) {            
+        var cookieRegistry = [];
+        var AideContexte = this;
+        return setInterval(function() {
+            if (cookieRegistry[cookieName]) {
+                if (AideContexte.lireCookie(cookieName) != cookieRegistry[cookieName]) { 
+                    // update registry so we dont get triggered again
+                    cookieRegistry[cookieName] = AideContexte.lireCookie(cookieName); 
+                    return callback();
+                } 
+            } else {
+                cookieRegistry[cookieName] = AideContexte.lireCookie(cookieName);
+            }
+        }, 100);
+    };  
+    
+    /**
+     * Lancer une fonction une fois le chargement d'igo complété
+     * @method
+     * @name Aide#lancerFonctionApresIgoCharge
+     * @param {function} fn Fonction à lancer en callback une fois le chargement d'igo complété
+     */
+    Aide.lancerFonctionApresIgoCharge = function(fn) {
+        var that = this;
+        this.fctCallbackExecute = false;    
+        var win = window;    
+        //Lorsque tous les ajax sont complétés
+        $(document).ajaxStop(function () {
+            //Si la fonction de callback est exécutée, on termine **nécessaire si la fn de callback contient un ajax elle aussi, sinon boucle infinie
+            if(that.fctCallbackExecute === true) {
+                return false;
+            }
+            else { //Définir la fn de call back comme exécutée
+                that.fctCallbackExecute = true;
+            }
+
+            //Vérifier que le dom est complètement chargé
+            //Source : https://github.com/dperini/ContentLoaded
+            var done = false, top = true,
+
+            doc = win.document,
+            root = doc.documentElement,
+            modern = doc.addEventListener,
+
+            add = modern ? 'addEventListener' : 'attachEvent',
+            rem = modern ? 'removeEventListener' : 'detachEvent',
+            pre = modern ? '' : 'on',
+
+            init = function(e) {
+                    if (e.type === 'readystatechange' && doc.readyState !== 'complete') return;
+                    (e.type === 'load' ? win : doc)[rem](pre + e.type, init, false);
+                    if (!done && (done = true)) fn.call(win, e.type || e);
+            },
+
+            poll = function() {
+                    try { root.doScroll('left'); } catch(e) { setTimeout(poll, 50); return; }
+                    init('poll');
+            };
+
+            if (doc.readyState === 'complete') fn.call(win, 'lazy');
+            else {
+                    if (!modern && root.doScroll) {
+                            try { top = !win.frameElement; } catch(e) { }
+                            if (top) poll();
+                    }
+                    doc[add](pre + 'DOMContentLoaded', init, false);
+                    doc[add](pre + 'readystatechange', init, false);
+                    win[add](pre + 'load', init, false);
+            }
+        });
+    };    
+    
     return Aide;
 });

@@ -74,7 +74,9 @@ define(['outil', 'aide'], function(Outil, Aide) {
                     ligne.push(occu.proprietes[attribut]);
                 }
                 else {
+                    if(occu.proprietes[attribut] !== null) {
                     ligne.push(occu.proprietes[attribut].replace(".",","));
+                    }
                 }
             });
             tabDonnees.push(ligne);   

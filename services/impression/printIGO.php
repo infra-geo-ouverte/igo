@@ -582,7 +582,7 @@ try {
             $oLayer->set("status", MS_ON);
 
             $host = filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING);
-            $oLayer->set("connection", 'http://'. $host .'/cgi-wms/mapserv.fcgi?map=' . $vecteurMapFilePath);
+            $oLayer->set("connection", 'https://'. $host .'/ws/interne_mapserv.fcgi?map=' . $vecteurMapFilePath);
 
             if($_MSVERSION < 50400){
                     $oLayer->set("connectiontype", MS_WMS);

@@ -288,23 +288,25 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                         baseCls: '',
                         items: [{
                             baseCls: '',
-                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\n\
-                                        <option value='auto'>auto (km)</option> \n\
-                                        <option value='m'>m</option> \n\
-                                        <option value='km'>km</option>  \n\
-                                        <option value='mile'>miles</option>\n\
-                                    </select>"
+                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\
+										<option value='auto'>auto (km)</option> \
+										<option value='m'>m</option> \
+                                        <option value='km'>km</option>  \
+                                        <option value='mile'>miles</option>\
+                                    	<option value='pied'>pied</option>\
+									</select>"
                         },
                         {
                             baseCls: '',
-                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\n\
-                                        <option value='auto'>auto (km²)</option> \n\
-                                        <option value='m'>m²</option> \n\
-                                        <option value='km²'>km²</option>  \n\
-                                        <option value='mile²'>mile²</option> \n\
-                                        <option value='acre'>acre</option> \n\
-                                        <option value='hectare'>hectare</option>\n\
-                                    </select>"
+                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\
+                                        <option value='auto'>auto (km²)</option> \
+                                        <option value='m'>m²</option> \
+                                        <option value='km²'>km²</option>  \
+                                        <option value='mile²'>mile²</option> \
+                                        <option value='acre'>acre</option> \
+                                        <option value='hectare'>hectare</option> \
+                                    <option value='pied²'>pied²</option> \
+								  </select>"
                         }]
                     }                      
                 ]
@@ -431,7 +433,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
      */
     OutilMesure.prototype.obtenirFenetre = function() {
         return this.oWindowMeasr;
-    }
+    };
 
 
     return OutilMesure;

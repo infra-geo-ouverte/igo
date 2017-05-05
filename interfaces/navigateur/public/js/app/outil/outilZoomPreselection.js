@@ -310,7 +310,7 @@ define(['outil', 'limites','aide', 'style', 'occurence', 'vecteur'], function(Ou
             else{
                 var that = this;
                 var couche = new Vecteur({active: true, suppressionPermise: true, titre:'Géométrie - Outil Zoom',
-                                                        styles:{defaut:regle, select: regleSelectionnee}});
+                                                        styles:{defaut:regle, select: regleSelectionnee}, nom: "coucheZoomRegion"});   
 
                 this.carte.gestionCouches.ajouterCouche(couche);
                 that.ajouterOccurence(couche, occurence);

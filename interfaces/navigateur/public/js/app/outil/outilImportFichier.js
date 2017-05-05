@@ -458,7 +458,8 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
                                                 visible:true, 
                                                 suppressionPermise:true,
                                                 editable: true,
-                                                geometrieNullePermise: true});
+                                                geometrieNullePermise: true,
+                                                nom: "coucheImportFichier"});
             gestionCouche.ajouterCouche(coucheImportFichier);
         }
         
