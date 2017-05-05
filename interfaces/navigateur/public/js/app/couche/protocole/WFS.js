@@ -26,7 +26,7 @@ define(['vecteur', 'occurence', 'aide', 'style'], function(Vecteur, Occurence, A
 
     WFS.prototype._init = function(){
         this._optionsOL = {
-            strategies: [new OpenLayers.Strategy.BBOX()],
+            strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.WFS({
                 url: this.options.url,//"http://demo.boundlessgeo.com/geoserver/wfs"
                 srsName: typeof this.options.projection == 'undefined' ?
