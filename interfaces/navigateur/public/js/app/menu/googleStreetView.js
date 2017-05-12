@@ -31,7 +31,7 @@ define(['panneau','vecteur','aide','point','style','occurence'], function(Pannea
     
     GoogleStreetView.prototype.ol_streetview = function(){
         //on va récupérer les derniers points de l'usager user...
-        var streetview = 'http://maps.google.com/maps?q=&layer=c&cbll='+this.marqueurs.depart.obtenirCentroide().projeter("EPSG:4326").y +
+        var streetview = 'https://maps.googleapis.com/maps?q=&layer=c&cbll='+this.marqueurs.depart.obtenirCentroide().projeter("EPSG:4326").y +
                             ','+this.marqueurs.depart.obtenirCentroide().projeter("EPSG:4326").x+'&cbp=11,0,0,0,0';
 
          Ext.Msg.alert("Fonction Google Street View.",
