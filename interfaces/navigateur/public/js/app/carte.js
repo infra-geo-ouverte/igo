@@ -311,7 +311,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         // Cross-origin pour les images
         $carteDiv.find("img:visible").each(function(k,v){
-            if(v.src.substring(0, 5)=== "data:" || v.getAttribute("crossorigin") === "anonymous") {return true;} 
+            if(v.src.substring(0, 5)=== "data:" || v.getAttribute("crossorigin") === "anonymous") {return true;}
             v.srcBeforePrint = v.src;
             v.src=Aide.utiliserProxy(v.src);
         })
@@ -321,7 +321,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
             $carteDiv.find("img:visible").each(function(k,v){
                 if(v.srcBeforePrint) {
                     v.src = v.srcBeforePrint;
-                } 
+                }
             })
             that._canvasRemoveSvgFirefox($carteDiv);
             that._canvasAddSvgImage($carteDiv, canvas, deferred);
@@ -378,7 +378,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         svgElements.each(function (k, svg) {
             var source = new Image();
             source.src = svg.getAttribute("xlink:href");
-            var ctx = canvas.getContext('2d'); 
+            var ctx = canvas.getContext('2d');
 
             var dx = 0;
             var dy = 0;
@@ -695,6 +695,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
     Carte.Controles = function(_) {
         this._ = _;
+        this.setPolygonEx();
         this.activerOccurenceEvenement();
         if (Aide.toBoolean(this._.options.aContexteMenu) !== false) {
             var nav = Aide.obtenirNavigateur();
@@ -717,6 +718,17 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                 });
             }
         }
+    };
+
+    Carte.Controles.prototype.setPolygonEx = function() {
+      OpenLayers.Handler.PolygonEx = OpenLayers.Class(OpenLayers.Handler.Polygon, {
+          finalizeInteriorRing: function() {
+              OpenLayers.Handler.Polygon.prototype.finalizeInteriorRing.apply(this, arguments);
+              this.polygon.estInterieur = true;
+              this.interiorRingAdded(this.polygon);
+          },
+          CLASS_NAME: "OpenLayers.Handler.PolygonEx"
+      });
     };
 
     Carte.Controles.prototype.initDeplacement = function() {
@@ -1177,7 +1189,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
 
         var typeHandler = OpenLayers.Handler.Point;
         if (type === "polygone") {
-            typeHandler = OpenLayers.Handler.Polygon;
+            typeHandler = OpenLayers.Handler.PolygonEx;
         } else if (type === "ligne") {
             typeHandler = OpenLayers.Handler.Path;
         } else if (type === "regulier") {
@@ -1225,9 +1237,21 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
                     layer: couche ? couche._layer : undefined,
                     layerOptions: {
                         styleMap: couche ? couche._layer.styleMap : undefined
+                    },
+                    interiorRingAdded: function(feature) {
+                      var occurence = couche.obtenirOccurenceParId(feature.id);
+                      if (!occurence) {
+                          return true;
+                      }
+                      occurence.majGeometrie(feature.geometry);
                     }
                 },
                 featureAdded: function(feature) {
+                    // est un polygon troué
+                    if (feature.geometry.CLASS_NAME === 'OpenLayers.Geometry.Polygon' && feature.geometry.components.length > 1) {
+                      couche._layer.removeFeatures(feature);
+                      return true;
+                    }
                     var occurence = new Occurence(feature);
                     couche.declencher({
                         type: 'mesure',
