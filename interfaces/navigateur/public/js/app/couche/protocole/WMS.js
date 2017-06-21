@@ -152,7 +152,15 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
             success:function(response) {
                 that._getCapabilitiesSuccess(response, target, callback, optCallback);
             },
-            error:function(e){that._getCapabilitiesError(e, target, callback, optCallback);}
+            error:function(e){
+                that._getCapabilitiesError(e, target, callback, optCallback);
+            },
+            statusCode:{
+                403: function(e) {
+                    that._getCapabilitiesError(e, target, callback, optCallback);
+                }
+            }
+
         });
     };
 
