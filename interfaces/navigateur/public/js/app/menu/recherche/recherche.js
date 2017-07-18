@@ -405,7 +405,17 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             visible = true;
         };
 
-        var vecteur = new Vecteur({legende: false, active: active, visible: visible , selectionnable: false, suppressionPermise: true, titre: "Resultats Recheche " + this.options.titre + " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], styles: styles});
+        var vecteur = new Vecteur(
+            {   legende: false, 
+                active: active, 
+                visible: visible , 
+                selectionnable: false, 
+                suppressionPermise: true, 
+                titre: "Resultats Recherche " + this.options.titre + 
+                        " - " + this.obtenirValeursRecherche()['RechercheTitle' + this.options.id], 
+                styles: styles
+        });
+
         if(callback){
             vecteur.ajouterDeclencheur("coucheAjoutee", callback, {scope: this, params: paramsCallback});
         }
