@@ -59,6 +59,7 @@ define([], function() {
 				rechercheAdresse: 'js/app/menu/recherche/rechercheAdresse',
 				rechercheLieu: 'js/app/menu/recherche/rechercheLieu',
 				rechercheBorne: 'js/app/menu/recherche/rechercheBorne',
+				rechercheICherche: 'js/app/menu/recherche/rechercheICherche',
 				contexteMenuCarte: 'js/app/contexteMenu/contexteMenuCarte',
 				contexteMenu: 'js/app/contexteMenu/contexteMenu',
 				contexteMenuArborescence: 'js/app/contexteMenu/contexteMenuArborescence',

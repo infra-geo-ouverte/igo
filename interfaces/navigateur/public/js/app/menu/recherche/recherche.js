@@ -157,9 +157,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
      * @returns {String} Lien pdf
      */
     Recherche.prototype.obtenirLienPDF = function() {
-        return  "<a href=\'#here\' onclick=\'window.open(\"" +
-                this.obtenirLienAide() +
-                "\");\'>" +
+        return  "<a rel=\"help\" href=\"" +
+                    this.obtenirLienAide() +
+                "\" target=\"lienAidePDF\">" +
                 "Cliquer ici pour avoir plus de détails...</a><br><br>";
     };
 
