@@ -151,11 +151,8 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
         });
 
         var styles = {defaut: regle, select: styleSelectionne, survol: styleSelectionne};
-       // if(this.options.idResultatTable){
-        //    styles.defaut = style;
-       // }
         
-        Igo.nav.carte.gestionCouches.trouverCouches('Resultats Recherche ICherche*').forEach(value => {
+        Igo.nav.carte.gestionCouches.trouverCouches(/Resultats Recherche ICherche.*/).forEach(value => {
             this.carte.gestionCouches.enleverCouche(value);
         });
 
@@ -386,25 +383,7 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
             }
         }];
     };
-
-    /**
-     * Obtenir le titre du panneau
-     * @method
-     * @name Panneau#obtenirTitre
-     * @returns {String} Titre du Panneau
-    */
-    RechercheICherche.prototype.obtenirTitre = function(){
-        if(this._panel && this._panel.title){
-            return this._panel.title;
-        }
-        if(this.options.titre){
-            return this.options.titre;
-        }
-
-        return this.defautOptions.titre;
-
-    };
-    
+  
     return RechercheICherche;
     
 });
