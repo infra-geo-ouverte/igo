@@ -44,6 +44,7 @@ require([
         'rechercheHQ',
         'rechercheLieu',
         'rechercheInverseAdresse',
+        'rechercheICherche',
         'outil',
         'outilAide',
         'outilAjoutWMS',

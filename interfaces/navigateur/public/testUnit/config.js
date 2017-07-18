@@ -50,6 +50,7 @@ require.config({
         rechercheGPS: 'js/app/menu/recherche/rechercheGPS',
         rechercheHQ: 'js/app/menu/recherche/rechercheHQ',
         rechercheLieu: 'js/app/menu/recherche/rechercheLieu',
+        rechercheICherche: 'js/app/menu/recherche/rechercheICherche',
         outil: 'js/app/outil/outil',
         outilAide: 'js/app/outil/outilAide',
         outilAjoutWMS: 'js/app/outil/outilAjoutWMS',
