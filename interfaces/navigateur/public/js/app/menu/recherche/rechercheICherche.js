@@ -151,9 +151,6 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
         });
 
         var styles = {defaut: regle, select: styleSelectionne, survol: styleSelectionne};
-       // if(this.options.idResultatTable){
-        //    styles.defaut = style;
-       // }
         
         Igo.nav.carte.gestionCouches.trouverCouches(/Resultats Recherche ICherche.*/).forEach(value => {
             this.carte.gestionCouches.enleverCouche(value);
@@ -386,7 +383,7 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
             }
         }];
     };
-    
+  
     return RechercheICherche;
     
 });
