@@ -42,7 +42,7 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
             init: false,
             infobulleSurvol: false,
             zoom: 15,
-            lienAide: Aide.utiliserBaseUri("guides/IGO_Navigateur_guide.pdf")
+            lienAide: "guides/IGO_Navigateur_guide.pdf"
         };
     };
 
@@ -660,7 +660,9 @@ define(['panneau', 'vecteur', 'aide', 'panneauTable', 'css!css/recherche'], func
     };
 
     Recherche.prototype.obtenirLienAide = function (){
-        return (typeof this.options.lienAide == undefined)?this.defautOptions.lienAide:this.options.lienAide;
+        return (typeof this.options.lienAide === undefined)?
+                    Aide.utiliserBaseUri(this.defautOptions.lienAide):
+                    Aide.utiliserBaseUri(this.options.lienAide);
     }
 
     /**
