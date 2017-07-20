@@ -40,14 +40,9 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
     */
     RechercheICherche.prototype.obtenirAideHTML = function() {
         return  "<span style='color:red; font-size: 1.3em'>**ATTENTION**</span> <br>\n\
-                Utilise le service 'icherche/geocode'. <br> \n\
-                Recherche de :  <br> \n\
-                - région administrativce  <br> \n\
-                - MRC  <br> \n\
-                - municipalité  <br> \n\
-                - route  <br> \n\
-                - adresse et ancienne adresse <br> \n\
-                Remplacera prochainement le service GLO. ";
+                Utilise le service 'icherche'. <br> \n\
+                Remplacera prochainement le service GLO. \n\
+                Commentaire : <a href=\"mailto:geomsp@msp.gouv.qc.ca?subject=Commentaire sur "+this.obtenirTitre()+" (IGO)\">geomsp@msp.gouv.qc.ca</a> ";
     };
 
 
