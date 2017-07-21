@@ -147,10 +147,15 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
 
         var styles = {defaut: regle, select: styleSelectionne, survol: styleSelectionne};
         
-        Igo.nav.carte.gestionCouches.trouverCouches(/Resultats Recherche ICherche.*/).forEach(value => {
-            this.carte.gestionCouches.enleverCouche(value);
-        });
-
+        //Igo.nav.carte.gestionCouches.trouverCouches(/Resultats Recherche ICherche.*/).forEach(value => {
+        //    this.carte.gestionCouches.enleverCouche(value);
+        //});
+        var couchesICherche = Igo.nav.carte.gestionCouches.trouverCouches(/Resultats Recherche ICherche.*/);
+         for(i=0;i<couchesICherche.length;i++){
+                this.carte.gestionCouches.enleverCouche(couchesICherche[0]);
+         }
+            
+            
         var vecteur = this.creerVecteurRecherche(styles, this.ajouterOccurences, {data: data.features});
 
     };
