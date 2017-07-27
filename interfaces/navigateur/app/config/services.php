@@ -329,9 +329,12 @@ $di->set('router', function(){
     return $router;
 });
 
-  $di->set ('authentificationModule', function () use ($config, $di)  {
+  $di->set ('authentificationModule', function () use ($config, $di)  {         
 
-            if (isset ($config->application->authentification->module)) {
+            if (isset($config->application->authentification->module) &&
+                ( is_array($config->application->authentification->module) ||
+                 is_object($config->application->authentification->module) ) 
+                ) {
 
                 $authentificationModules = array ();
                 $configKey =  $di->get('dispatcher')->getParam("configuration");
@@ -363,7 +366,6 @@ $di->set('router', function(){
                       $module = "AuthentificationTest";
                       array_push ($authentificationModules, new $module);
                   }
-
                   //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
                   foreach ($config->application->authentification->module as $key => $value) {
                           $authentificationModule = new $key;
