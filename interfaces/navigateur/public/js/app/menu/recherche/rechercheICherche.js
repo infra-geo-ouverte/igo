@@ -254,7 +254,7 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
             occurence.definirPropriete('adresse', occurence.proprietes.properties.recherche);
 
             if(occurence.proprietes.doc_type === 'ancienne_adresse'){
-                title = occurence.proprietes.properties.recherche + " ( anciennement " + occurence.proprietes.properties.recherche + ')';
+                title = occurence.proprietes.properties.adresse_reference + " ( anciennement " + title + ')';
                 occurence.definirPropriete('adresse', occurence.proprietes.properties.adresse_reference);
                 occurence.definirPropriete('ancienne_adresse', occurence.proprietes.properties.recherche);   
             }
