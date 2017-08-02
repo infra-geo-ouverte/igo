@@ -252,14 +252,16 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
             //un CSS de extjs brise le <strong> 
             var title = occurence.proprietes.highlight.replace(/<(\/)?strong>/g, '<$1b>')||'';
             occurence.definirPropriete('adresse', occurence.proprietes.properties.recherche);
+            occurence.definirPropriete('label', occurence.proprietes.highlight.replace(/<(\/)?strong>/g, ''));
 
             if(occurence.proprietes.doc_type === 'ancienne_adresse'){
                 title = occurence.proprietes.properties.adresse_reference + " ( anciennement " + title + ')';
                 occurence.definirPropriete('adresse', occurence.proprietes.properties.adresse_reference);
                 occurence.definirPropriete('ancienne_adresse', occurence.proprietes.properties.recherche);   
+                occurence.definirPropriete('label', occurence.proprietes.properties.adresse_reference);
             }
 
-            occurence.definirPropriete('label', occurence.proprietes.highlight.replace(/<(\/)?strong>/g, ''));
+            
 
             var couleur = 'blue';        
             resultat += "<li data-id='" + occurence.id + 
@@ -280,6 +282,9 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
                 for (var i = resultats.length - 1; i >= 0; i--) {
                     if(resultats[i].dataset.id === e.occurence.id){
                         resultats[i].style.backgroundColor = '#8DB2E3';
+                        if(resultats[i].scrollIntoView){
+                            resultats[i].scrollIntoView();
+                        }
                     }
                 }
                 
