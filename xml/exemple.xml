@@ -1,4 +1,4 @@
-<navigateur titre="IGO">
+<navigateur authentification="false" titre="IGO">
     <presentation>
            <panneaux>
                 <panneau classe="PanneauCarte"  />
@@ -32,6 +32,6 @@
     </presentation>
     <contexte centre="-7994004,6034079" zoom="7"> </contexte>
     <couches>
-        <couche titre="OpenStreetMap" protocole="OSM" groupe="Fond de carte"/> 
+        <couche titre="OpenStreetMap" protocole="OSM" groupe="Fond de carte"/>
     </couches>
 </navigateur>

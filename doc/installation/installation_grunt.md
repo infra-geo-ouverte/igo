@@ -1,5 +1,5 @@
 # Installation des prérequis
-## Requis 
+## Requis
 
 #### Modules Apache
 - rewrite <br />  
@@ -8,9 +8,9 @@
 https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 
 #### Modules de PHP
-- php5-intl 
-- php5-curl 
-
+- php5-intl
+- php5-curl
+- php-xml
 
 #### Python 2.7
 https://www.python.org/downloads/
@@ -24,15 +24,15 @@ https://nodejs.org
 
 #### Bower et Grunt
 ```
-npm install -g bower 
+npm install -g bower
 npm install -g grunt-cli
 ```
 
 # Installation de IGO
 ```
-cd /var/www/html/ 
+cd /var/www/html/
 git clone https://github.com/infra-geo-ouverte/igo.git  
-cd igo 
+cd igo
 ```
 
 # Installer les modules nodeJS
@@ -46,7 +46,7 @@ grunt init
 ```
 
 ## Configurer IGO  
-cp config/config.exempleSimple.php config/config.php  <br /> 
+cp config/config.exempleSimple.php config/config.php  <br />
 Modifier le fichier config/config.php
 
 ## Modification de la configuration d'Apache
@@ -82,10 +82,10 @@ Alias /api/ "/var/www/html/igo/interfaces/navigateur/api/"
 ```
 
 #Problèmes connus
-Si le ssh est bloqué: <br /> 
-git config --global url.https://.insteadOf git:// <br /> 
-<br /> 
-Si le port est bloqué, ajouter dans ~/.ssh/config: <br /> 
-Host github.com <br /> 
-    Hostname ssh.github.com <br /> 
+Si le ssh est bloqué: <br />
+git config --global url.https://.insteadOf git:// <br />
+<br />
+Si le port est bloqué, ajouter dans ~/.ssh/config: <br />
+Host github.com <br />
+    Hostname ssh.github.com <br />
     Port 443

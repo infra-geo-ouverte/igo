@@ -1,5 +1,5 @@
 # Installation des prérequis
-## Requis 
+## Requis
 
 #### Modules Apache
 - rewrite <br />  
@@ -8,9 +8,9 @@
 https://github.com/phalcon/cphalcon/tree/phalcon-v1.3.2
 
 #### Modules de PHP
-- php5-intl 
-- php5-curl 
-
+- php5-intl
+- php5-curl
+- php-xml
 
 # Installation de IGO
 cd /var/www/html/  <br />  
@@ -23,12 +23,12 @@ chgrp www-data /var/www/html/igo/interfaces/navigateur/app/cache  <br />
 chmod 775 /var/www/html/igo/interfaces/navigateur/app/cache  <br />
 
 ## Cloner les librairies
-cd igo <br /> 
+cd igo <br />
 git clone https://github.com/infra-geo-ouverte/igo-lib.git librairie
 
 
 ## Configurer IGO  
-cp config/config.exempleSimple.php config/config.php  <br /> 
+cp config/config.exempleSimple.php config/config.php  <br />
 Modifier le fichier config/config.php
 
 ## Compiler les js pour la prod
