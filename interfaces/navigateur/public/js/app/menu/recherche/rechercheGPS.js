@@ -302,7 +302,7 @@ define(['recherche', 'aide', 'point', 'polygone', 'occurence', 'style', 'limites
             }
             xMTM = pMTM.x.toFixed();
             yMTM = pMTM.y.toFixed(); 
-            zoneMTM = zMTM + latC;
+            zoneMTM = zMTM;
         }
         
         var html = "";
@@ -364,7 +364,7 @@ define(['recherche', 'aide', 'point', 'polygone', 'occurence', 'style', 'limites
         html +=     "<td style='padding-bottom:5px'> </td>";        
         html +=   "</tr>";        
         html +=   "<tr>";
-        html +=     "<td colspan='2'><h4>MTM (Zone "+zoneMTM+")</h4></td>";
+        html +=     "<td colspan='2'><h4>MTM (Fuseau "+zoneMTM+")</h4></td>";
         html +=   "</tr>";
         html +=   "<tr>";
         html +=     "<td><u>X</u></td>";
