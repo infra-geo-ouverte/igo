@@ -1,4 +1,6 @@
-define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 'outilExportCSV',  'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu, OutilExportCSV) {
+define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelection', 'outil', 'outilMenu', 'outilDessin', 'outilEdition', 'outilControleMenu', 
+    'outilExportCSV', 'outilGuideDessin', 'outilSupprimerTrou', 'outilCouperPolygone', 'libs/Ext.ux/PagingStore/PagingStore','libs/extension/Extjs/JsonReader'], 
+function(Panneau, Aide, ContexteMenuTable, BarreOutils, OutilTableSelection, Outil, OutilMenu, OutilDessin, OutilEdition, OutilControleMenu, OutilExportCSV, OutilGuideDessin, OutilSupprimerTrou, OutilCouperPolygone) {
 
     function PanneauTable(options) {
         this.options = options || {};
@@ -472,6 +474,13 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                         that.donnees.enleverOccurences(oSelected);
                     }
                 }));
+                if(this.donnees.options.typeGeometriePermise === 'Polygone'){
+                    outils.push(new OutilSupprimerTrou({ icone: Aide.obtenirCheminRacine()+'images/toolbar/supprimer_trou.png',
+                                                         couche: this.donnees}));
+                                                     
+                    outils.push(new OutilCouperPolygone({ icone: Aide.obtenirCheminRacine()+'images/toolbar/ciseau.png',
+                                                         couche: this.donnees}));                                 
+                }
 
                 outils.push(new Outil({
                     icone: Aide.obtenirCheminRacine()+'images/toolbar/move.png',
@@ -479,7 +488,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     action: function(){                    
                         if(!this._bouton.pressed){                         
                             this._bouton.toggle(true);
-                            that.donnees.controles.activerDeplacement()
+                            that.donnees.controles.activerDeplacement();
                         }
                         else {
                             that.donnees.controles.desactiverDeplacement();
@@ -488,6 +497,8 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     }
                 }));
 
+                if(typeof this.options.sansSauvegarde === "undefined" || this.options.sansSauvegarde !== true)
+                {
                 outils.push(new Outil({
                   //  titre:'Sauvegarder',
                     icone: Aide.obtenirCheminRacine()+'images/toolbar/disk.png',
@@ -502,22 +513,77 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                         that.rafraichir();
                     }
                 }));
-                outils.push(new Outil({
-                    //titre:'Annuler',
-                    icone: Aide.obtenirCheminRacine()+'images/toolbar/annuler.png',
-                    infobulle: "Annuler tous les changements",
-                    action: function(){
-                        that.donnees.annulerModifications();
-                        that.rafraichir();
-                    }
-                }));
+                }
+                
+                outils.push(new OutilExportCSV({donnees: this.donnees.listeOccurences, colonnes: this.template.colonnes, titreFichier: this.options.titre})); 
+                
+                outils.push(new OutilGuideDessin({ icone: Aide.obtenirCheminRacine()+'images/toolbar/guide_dessin.png',
+                                                   couche: this.donnees}));
+                                               
+                if(typeof this.options.optionCalcul !== "undefined" && this.options.optionCalcul === true)
+                {
+                    //Ajouter l'outil de calcul de la sélection
+                    outils.push(new Outil({
+                        //titre: 'Calcul',
+                        icone: Aide.obtenirCheminRacine()+'images/toolbar/calcul.png',
+                        infobulle: "Calculer les sommes de la sélection",
+                        action: function(){
 
-                outils.push(new OutilExportCSV({donnees: this.donnees.listeOccurences, colonnes: this.template.colonnes, titreFichier: this.options.titre}));
+                            var occus = that.donnees.obtenirOccurencesSelectionnees();
+                            var tabCalcul = [];
+                            $.each(occus, function(index, occu) {
+                                $.each(occu.proprietes, function(ind, propriete) {
+
+                                    //Vérifier si la valeur est "parsable en float" (pas un NaN)
+                                    if(parseFloat(propriete) == parseFloat(propriete)) {
+                                        //Si la valeur n'existe pas, on la définie au tableau
+                                        if(typeof tabCalcul[ind] === "undefined") {
+                                            tabCalcul[ind] = parseFloat(propriete);
+                                        }
+                                        else { //On fait le calcul avec la donnée existante
+                                            tabCalcul[ind] += parseFloat(propriete);
+                                        }
+                                    }
+                                });
+                            });
+                            var colonnes = that.template.colonnes;
+                            var texteCalcul = "";
+                            $.each(colonnes, function(index, colonne) {
+                                if(typeof colonne.propriete !== "undefined" && typeof tabCalcul[colonne.propriete] !== "undefined" && typeof colonne.titre !== "undefined") {
+                                    texteCalcul+= colonne.titre + ": " + tabCalcul[colonne.propriete].toFixed(2) + "<br />";
+                                }
+                            });
+                           Aide.afficherMessage("Sommes de la sélection", texteCalcul);                      
+                        }
+                    }));
+                }
             }
 
             var menuSelection = new OutilMenu({titre: 'Sélection'});
 
             outils.push(menuSelection);
+            
+            if(this.donnees.options.editable){
+                outils.push(new Outil({
+                    //titre:'Annuler',
+                    icone: Aide.obtenirCheminRacine()+'images/toolbar/annuler.png',
+                    infobulle: "Annuler tous les changements",
+                    action: function(){
+                            Aide.afficherMessage({titre: "Annuler", 
+                                message: "Désirez-vous annuler les changements?",
+                                boutons: "OUINON",
+                                icone:"QUESTION",
+                                action: function(action){
+                                     if(action === "yes"){    
+                        that.donnees.annulerModifications();
+                        that.rafraichir();
+                    }
+                                }
+                            });     
+                        }
+                }));
+            }
+
             this.barreOutils.ajouterOutils(outils);
 
             var outilsSelection = [];
