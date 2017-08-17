@@ -4,7 +4,7 @@ namespace Wmsfilters\Controllers;
 
 class ApiController extends \Phalcon\Mvc\Controller {
 
-    public function filter($name = NULL, $store = NULL, $filter = NULL)  {
+    public function filter($name = NULL, $store = NULL, $nomCouche = NULL, $filter = NULL)  {
 
 
           if($name){
@@ -21,7 +21,7 @@ class ApiController extends \Phalcon\Mvc\Controller {
 
                  // Set the content of the response
                 //$response->redirect($configIgo->uri->modules . $config->filterServices .  $name . '?store=' . $store  . '&filter=' . $filter );
-                header("Location: ". $configIgo->uri->modules . $config->filterServices .  $name . '?store=' . $store  . '&filter=' . $filter);
+                header("Location: ". $configIgo->uri->modules . $config->filterServices .  $name . '?store=' . $store. '&nomCouche=' . $nomCouche  . '&filter=' . $filter);
 							         exit();
 
                  // Return the response

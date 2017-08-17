@@ -231,12 +231,12 @@ define(['aide', 'outil'], function (Aide, Outil) {
                 xtype: 'combo',
                 id: layerNom + fil.attribut,
                 fieldLabel: label,
-                labelStyle: ' white-space: nowrap;width: 200px;height:25px;',
+                labelStyle: ' white-space: nowrap;width: 330px;height:25px;',
                 field_id: fil.attribut,
-                store: that.creerSimpleStore(lstComboUrl, fil.attribut, fil.child),
+                store: that.creerSimpleStore(lstComboUrl, fil.attribut, fil.child, layerNom),
                 valueField: 'value',
                 value: fil.defautTexte?fil.defautTexte:fil.defaut,
-                emptyText: 'Selection... ' ,
+                emptyText: 'Sélection... ' ,
                 width: 175,
                 displayField: 'text',
                 editable: false,
@@ -265,12 +265,12 @@ define(['aide', 'outil'], function (Aide, Outil) {
                     xtype: 'combo',
                     id: layerNom + fil.child,
                     fieldLabel:childlabel,
-                    labelStyle: ' white-space: nowrap;width: 200px;height:25px;',
+                    labelStyle: ' white-space: nowrap;width: 330px;height:25px;',
                     field_id: fil.child,
                     hiddenName: 'geoId',
                     hidden: false,
-                    store: that.creerSimpleStore(lstComboUrl, fil.attribut, fil.child),
-                    emptyText: 'Selection... ' ,
+                    store: that.creerSimpleStore(lstComboUrl, fil.attribut, fil.child, layerNom),
+                    emptyText: 'Sélection... ' ,
                     displayField: 'text',
                     disabled: true,
                     valueField: 'value',
@@ -318,12 +318,12 @@ define(['aide', 'outil'], function (Aide, Outil) {
     };
 
 
-    OutilFiltrer.prototype.creerSimpleStore = function (url, attribut, child) {
+    OutilFiltrer.prototype.creerSimpleStore = function (url, attribut, child, layerNom) {
 
         return new Ext.data.SimpleStore({
             fields: ['value', 'text'],
             proxy: new Ext.data.HttpProxy({
-                url: url + '/' + attribut + '/' + child,
+                url: url + '/' + attribut + '/' + layerNom + '/' + child,
                 method: 'GET'
             })
         });
@@ -350,7 +350,7 @@ define(['aide', 'outil'], function (Aide, Outil) {
                         id     : 'fenetreFiltreCouche' + contexte.id,
                         title  : "Filtrer la couche "+ contexte.options.titre,
                         autoHeight : true,
-                        width: 450,
+                        width: 550,
                         items  : [that.obtenirListeFiltres(contexte.options.nom)],
                         listeners: 
                                 {

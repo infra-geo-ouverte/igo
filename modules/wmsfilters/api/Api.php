@@ -12,6 +12,7 @@ class Api extends MicroCollection {
         $this->get('/filter', 'filter');
         $this->get('/filter/{name}', 'filter');
         $this->get('/filter/{name}/{store}', 'filter');
-        $this->get('/filter/{name}/{store}/{filter}', 'filter');
+        $this->get('/filter/{name}/{store}/{nomCouche}', 'filter');
+        $this->get('/filter/{name}/{store}/{nomCouche}/{filter}', 'filter');
     }
 }
