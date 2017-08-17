@@ -269,6 +269,11 @@ define(['recherche', 'aide', 'point', 'polygone', 'occurence', 'style', 'limites
         if(zUTM < 1 || zUTM > 60){
             zoneUTM = "invalide";
         } else {
+            
+            if(zUTM<10) {
+                zUTM="0"+zUTM;
+            }
+            
             var epsgUTM = "EPSG:269"+zUTM;
             var pUTM;
             try{
@@ -280,6 +285,24 @@ define(['recherche', 'aide', 'point', 'polygone', 'occurence', 'style', 'limites
             xUTM = pUTM.x.toFixed();
             yUTM = pUTM.y.toFixed(); 
             zoneUTM = zUTM + latC;
+        }
+        
+        
+        var zMTM = Math.trunc((Math.abs(51+p4326.x)/3)+1);
+        var xMTM, yMTM, zoneMTM;
+        if(zMTM < 2 || zMTM > 10){
+        zoneMTM = "Hors Québec";
+        } else {
+        var epsgMTM = "EPSG:"+(32180+zMTM);
+        try{
+                pMTM = occurence.projeter(epsgMTM);
+            } catch(e){
+                Aide.afficherMessage({titre: "Coordonnées invalides", message: "Les coordonnées semblent invalides"});
+                return false;
+            }
+            xMTM = pMTM.x.toFixed();
+            yMTM = pMTM.y.toFixed(); 
+            zoneMTM = zMTM + latC;
         }
         
         var html = "";
@@ -337,6 +360,20 @@ define(['recherche', 'aide', 'point', 'polygone', 'occurence', 'style', 'limites
         html +=     "<td>"+xUTM+"</td>";
         html +=     "<td>"+yUTM+"</td>";
         html +=   "</tr>";
+        html +=   "<tr>";
+        html +=     "<td style='padding-bottom:5px'> </td>";        
+        html +=   "</tr>";        
+        html +=   "<tr>";
+        html +=     "<td colspan='2'><h4>MTM (Zone "+zoneMTM+")</h4></td>";
+        html +=   "</tr>";
+        html +=   "<tr>";
+        html +=     "<td><u>X</u></td>";
+        html +=     "<td><u>Y</u></td>";
+        html +=   "</tr>";
+        html +=   "<tr>";
+        html +=     "<td>"+xMTM+"</td>";
+        html +=     "<td>"+yMTM+"</td>";
+        html +=   "</tr>";       
         html += "</table>";
         var $convertirRechercheGPS = $("#convertirRechercheGPS");
         $convertirRechercheGPS.parent().parent().prepend(html);
