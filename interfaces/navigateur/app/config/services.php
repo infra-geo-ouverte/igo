@@ -329,87 +329,88 @@ $di->set('router', function(){
     return $router;
 });
 
-  $di->set ('authentificationModule', function () use ($config, $di)  {         
+$di->set ('authentificationModule', function () use ($config, $di)  {
+      
+    if (isset($config->application->authentification->module) &&
+        (is_array($config->application->authentification->module) ||
+         is_object($config->application->authentification->module) )
+        ) {
 
-            if (isset($config->application->authentification->module) &&
-                ( is_array($config->application->authentification->module) ||
-                 is_object($config->application->authentification->module) ) 
-                ) {
+        $authentificationModules = array ();
+        $configKey =  $di->get('dispatcher')->getParam("configuration");
 
-                $authentificationModules = array ();
-                $configKey =  $di->get('dispatcher')->getParam("configuration");
+        //On as mis la configuration XML dans la session alors on la prend
+        if(isset ($di->get('session')->configuration)){
+            $configKey =  $di->get('session')->configuration ;
+        }
 
-                //On as mis la configuration XML dans la session alors on la prend
-                if(isset ($di->get('session')->configuration)){
-                  $configKey =  $di->get('session')->configuration ;
-                }
+        //On lit la configuration XML pour obtenir l'attribut module
+        //<navigateur authentification="true" authentificationModule="AuthentificationLdap" titre="">
+        if (isset ($configKey)) {
 
-                //On lit la configuration XML pour obtenir l'attribut module
-                //<navigateur authentification="true" authentificationModule="AuthentificationLdap" titre="">
-                if (isset ($configKey)) {
-
-                  if (isset ($config->configurations[$configKey])) {
-                      $xmlPath = $config->configurations[$configKey];
-                  } else {
-                      $xmlPath = $config->configurationsDir . $configKey . '.xml';
-                  }
-
-                  if (file_exists ($xmlPath)) {
-                      $element = simplexml_load_file ($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
-                  } else {
-                      $element = simplexml_load_string (curl_file_get_contents ($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);
-                  }
-
-                  if (isset ($element->attributes ()->authentificationModule)) {
-                      $module = $element->attributes ()->authentificationModule;
-                  } else {
-                      $module = "AuthentificationTest";
-                      array_push ($authentificationModules, new $module);
-                  }
-                  //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
-                  foreach ($config->application->authentification->module as $key => $value) {
-                          $authentificationModule = new $key;
-                          if ($authentificationModule instanceof AuthentificationController) {
-                              array_push ($authentificationModules, $authentificationModule);
-                          } else {
-                              error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
-                          }
-                  }
-
-                  if (isset ($module)) {
-                      foreach ($authentificationModules as $k => $v) {
-                          $moduleXml = (array) $module;
-                          $authentificationModuleXml = new $moduleXml[0];
-                          if ($v == $authentificationModuleXml) {
-                              $authentificationModule = $authentificationModuleXml;
-                                  return $authentificationModule;
-                          }
-                      }
-                  }
-             }
-             else{
-               //Par défaut, le premier module d'authentification est configuré
-               $authentificationModuleClassName = is_string($config->application->authentification->module) 
-                ? $config->application->authentification->module 
-                : key($config->application->authentification->module) ;
-
-               $authentificationModule = new $authentificationModuleClassName;
-               if($authentificationModule instanceof AuthentificationController){
-                   return $authentificationModule;
-               }
-               else{
-                 error_log ("Le module d'authentification n'est pas une instance d'AuthentificationController");
-               }
-
-             }
+            if (isset ($config->configurations[$configKey])) {
+                $xmlPath = $config->configurations[$configKey];
+            } else {
+                $xmlPath = $config->configurationsDir . $configKey . '.xml';
             }
-           else {
+
+
+            if (file_exists ($xmlPath)) {
+                $element = simplexml_load_file ($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
+            } else {
+
+                $xmlContent = curl_file_get_contents ($xmlPath); 
+                $element = simplexml_load_string ($xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
+            }
+
+            if (isset ($element->attributes ()->authentificationModule)) {
+                $module = $element->attributes ()->authentificationModule;
+            } else {
                 $module = "AuthentificationTest";
-                $authentificationModule = new $module ;
+                array_push ($authentificationModules, new $module);
+            }
+            //Dans le config.php tout les modules d'authentificaiton sont validées et comparrer avec celui du XML
+            foreach ($config->application->authentification->module as $key => $value) {
+                $authentificationModule = new $key;
+                if ($authentificationModule instanceof AuthentificationController) {
+                    array_push ($authentificationModules, $authentificationModule);
+                } else {
+                    error_log ("Le module d'authentificaiton n'est pas une instance d'AuthentificationController");
+                }
+            }
+
+            if (isset ($module)) {
+                foreach ($authentificationModules as $k => $v) {
+                    $moduleXml = (array) $module;
+                    $authentificationModuleXml = new $moduleXml[0];
+                    if ($v == $authentificationModuleXml) {
+                        $authentificationModule = $authentificationModuleXml;
+                        return $authentificationModule;
+                    }
+                }
+            }
+        }else{
+            //Par défaut, le premier module d'authentification est configuré
+            $authentificationModuleClassName = is_string($config->application->authentification->module)
+            ? $config->application->authentification->module
+            : key($config->application->authentification->module) ;
+
+            $authentificationModule = new $authentificationModuleClassName;
+            if($authentificationModule instanceof AuthentificationController){
                 return $authentificationModule;
             }
+            else{
+                error_log ("Le module d'authentification n'est pas une instance d'AuthentificationController");
+            }
 
-        });
+        }
+    } else {
+        $module = "AuthentificationTest";
+        $authentificationModule = new $module ;
+        return $authentificationModule;
+    }
+
+});
 
 
 
