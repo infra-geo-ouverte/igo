@@ -359,7 +359,14 @@ $di->set ('authentificationModule', function () use ($config, $di)  {
                 $element = simplexml_load_file ($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
             } else {
 
-                $xmlContent = curl_file_get_contents ($xmlPath); 
+                try{
+                    $xmlContent = curl_file_get_contents ($xmlPath);    
+                }
+                catch(Exception $e){
+                    error_log($e->getMessage() . $xmlPath);
+                    die("Erreur.");
+                }
+                
                 $element = simplexml_load_string ($xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
             }
 

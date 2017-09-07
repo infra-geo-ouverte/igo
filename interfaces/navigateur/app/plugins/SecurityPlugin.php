@@ -150,7 +150,16 @@ class SecurityPlugin extends Plugin
                $this->session->set('nomProfilAnonyme', $this->getDi()->getConfig()->application->authentification->profilAnonyme->nom);
             }
         } else { //url externe
-            $element = simplexml_load_string(curl_file_get_contents($xmlPath));
+
+            try{
+                $xmlContent = curl_file_get_contents ($xmlPath);    
+            }
+            catch(Exception $e){
+                error_log($e->getMessage() . $xmlPath);
+                die("Erreur.");
+            }
+
+            $element = simplexml_load_string($xmlContent);
         }
 
         if(isset($element->attributes()->authentification)){

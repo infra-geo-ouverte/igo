@@ -120,7 +120,15 @@ class IgoController extends ControllerBase {
             $element = simplexml_load_file($xmlPath);
         } else { //url externe
             $externe = true;
-            $element = simplexml_load_string(curl_file_get_contents($xmlPath));
+
+            try{
+                $xmlContent = curl_file_get_contents ($xmlPath);    
+            }
+            catch(Exception $e){
+                error_log($e->getMessage() . $xmlPath);
+                die("Erreur.");
+            }
+            $element = simplexml_load_string($xmlContent);
         }
         $elAttributes = $element->attributes();
         if(isset($_GET['mode'])){

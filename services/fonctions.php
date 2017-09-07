@@ -24,7 +24,7 @@ if(!function_exists('curl_file_get_contents')){
 
 		if($contenu === false)
 		{
-                    return 'Erreur Curl : ' . curl_error($curl);
+			throw new Exception('Erreur Curl : ' . curl_error($curl));
 		}
 
 		curl_close($curl);

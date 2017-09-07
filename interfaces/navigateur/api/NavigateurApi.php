@@ -892,7 +892,15 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
             if(file_exists($xmlPath)){
                 $element = simplexml_load_file($xmlPath, 'SimpleXMLElement', LIBXML_NOCDATA);
             } else {
-                $element = simplexml_load_string(curl_file_get_contents($xmlPath), 'SimpleXMLElement', LIBXML_NOCDATA);
+
+                try{
+                    $xmlContent = curl_file_get_contents ($xmlPath);    
+                }
+                catch(Exception $e){
+                    error_log($e->getMessage() . $xmlPath);
+                    die("Erreur.");
+                }
+                $element = simplexml_load_string($xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
             }
 
             if ($element->getName() === "navigateur" ){
