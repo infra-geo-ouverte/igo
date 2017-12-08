@@ -29,7 +29,7 @@ define(['panneau', 'aide', 'contexteMenuTable', 'barreOutils', 'outilTableSelect
                     colModel:  config.columnModel,
                     stripeRows: true,
                     stateful: true,
-                    stateId: 'grid'+this.options.titre,
+                    stateId: 'grid'+this.options.id,
                     clicksToEdit: 1,
                     width:screen.width, // corrige le bug dernière colonne width (vue module d'édition)
                     viewConfig: {
