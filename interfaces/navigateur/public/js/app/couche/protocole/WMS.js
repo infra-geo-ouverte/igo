@@ -357,7 +357,7 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
         if(e.object.div.innerHTML.indexOf("olImageLoadError")>-1){
             $.ajax({
-                url: Aide.utiliserProxy(decodeURIComponent($('<textarea/>').html(/src="(.*)"/.exec(e.object.div.innerHTML)[1]).text())),
+                url: Aide.utiliserProxy(decodeURIComponent($('<textarea/>').html(/src="([^\s]*)"/.exec(e.object.div.innerHTML)[1]).text())),
                     data: {
                         SERVICE: "WMS",
                         VERSION: this.options.version,
@@ -366,7 +366,6 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
                 async:true,
                 context:this,
                 success:function(response) {
-
                     if(this.options.afficherMessageErreurUtilisateur === "true"){
                        this.gestionErreurWMS(this);
                        return false;

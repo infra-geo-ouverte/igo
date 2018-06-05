@@ -844,9 +844,9 @@ class NavigateurApi extends \Phalcon\Mvc\Micro {
 
         if(in_array($contentType, $contentsTypesAVerifier) && !isset($options['encodage'])){
             $encodingArray = array();
-            preg_match('<\?xml.* encoding="(.*)".*\?>', $result, $encodingArray);
+            preg_match('<\?xml.* encoding="(.*)".*\?>', substr($result, 0, strpos($result, "?>") + 1), $encodingArray);
             if(isset($encodingArray[1])){
-                $options['encodage'] = $encodingArray[1];
+               $options['encodage'] = $encodingArray[1];
             }
         }
 

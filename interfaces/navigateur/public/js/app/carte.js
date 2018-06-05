@@ -86,7 +86,7 @@ define(['point', 'occurence', 'limites', 'gestionCouches', 'evenement', 'aide', 
         }
 
         var mapOptions = {
-            numZoomLevels: this.options.niveauZoom || 20,
+            numZoomLevels: Number(this.options.niveauZoom) || 20,
             projection: new OpenLayers.Projection(this.projection),
             displayProjection: new OpenLayers.Projection(this.projectionAffichage),
             units: 'm',

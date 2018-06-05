@@ -15,8 +15,8 @@
     transition: none;
 }
 /* Changement OL pour ne pas afficher les tuiles roses en cas d'erreur. */
-.olImageLoadError { 
-display: none !important; 
+.olImageLoadError {
+display: none !important;
 }
 /* Changement pour OpenLayers au MSP, car demande moins de CPU au client pour afficher couche WMS dans Igo */
 img.olTileImage {
@@ -33,7 +33,7 @@ img.olTileImage {
     -moz-perspective: inherit;
     -ms-perspective: inherit;
     perspective: inherit;
-}		
+}
 /* OpenLayers controls used as buttons in Toolbar */
 .x-menu-item-icon{
 	height:20px !important;
@@ -103,7 +103,7 @@ img.olTileImage {
 	background-image:url(../images/toolbar/zoom_mrc.png) !important;
 }
 .zoom-reg-adm{
-	background-image:url(../images/toolbar/zoom_region_adm.png) !important; 
+	background-image:url(../images/toolbar/zoom_region_adm.png) !important;
 }
 .zoom-mun{
     background-image:url(../images/toolbar/zoom_mun.png) !important;
@@ -123,15 +123,15 @@ ul.list {
     padding: 0 0 0 16px;
 }
 
-#currentMousePositionElevation, 
-#currentScaleComponent, 
-#currentProjectionComponent, 
+#currentMousePositionElevation,
+#currentScaleComponent,
+#currentProjectionComponent,
 #currentTimeComponent,
 #currentMousePositionComponent{
     float: left;
 }
- 
- 
+
+
 div.southPanel{
     padding: 0px 0px 0px 0px;
 }
@@ -257,7 +257,7 @@ div#OpenLayers.Control.PanZoom_5_zoomout{
     width:24px !important;
 }
 body .olControlAttribution {
-    bottom: 0em !important; 
+    bottom: 0em !important;
 	font-size:smaller;
 	color:#0000FF;
 }
@@ -271,26 +271,26 @@ body .olControlAttribution  a:visited{
 }
 */
 #piv-bandeau {
-    display:block; 
-    position:relative; 
-    margin-left:0px; 
-    background:url(../images/app/piv_bandeau_fond.gif) repeat-x #fff; 
-    width:100%; 
-    height:100px; 
+    display:block;
+    position:relative;
+    margin-left:0px;
+    background:url(../images/app/piv_bandeau_fond.gif) repeat-x #fff;
+    width:100%;
+    height:100px;
     vertical-align:top;
 }
 
 #piv-bandeau div.mo{
-    display:block; 
-    float:left;  
-    clear:none; 
-    margin:0; 
-    padding:0; 
-    text-align:left; 
-    width:211px; 
-    height:86px; 
-    margin:0; 
-    padding:0px; 
+    display:block;
+    float:left;
+    clear:none;
+    margin:0;
+    padding:0;
+    text-align:left;
+    width:211px;
+    height:86px;
+    margin:0;
+    padding:0px;
     background:white;
 }
 
@@ -347,19 +347,19 @@ body #piv-bandeau-navig ul li a:hover { text-decoration: underline }
 
 .olLayerGoogleCopyright {
 /* Enlever car apparait seulement si la couche Google est activ�e
-	left: -9999px !important; 
+	left: -9999px !important;
     bottom: -9999px !important;*/
 }
 .olLayerGooglePoweredBy {
 /* Enlever car apparait seulement si la couche Google est activ�e
-	left: -9999px !important; 
+	left: -9999px !important;
     bottom: -9999px !important;*/
 }
 
 div.olControlMousePosition {
   bottom:15px !important;
   right:5px !important;
-} 
+}
 
 .adr_valide {
 	color : blue;
@@ -391,7 +391,7 @@ div.olControlMousePosition {
     position: absolute;
     bottom: 25px;
     right: 10px;
-    display:none; 
+    display:none;
     z-index: 50000;
 }
 

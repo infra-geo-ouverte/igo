@@ -18,7 +18,7 @@ class AuthentificationExterne extends AuthentificationController {
     }
 
     public function authentification($identifiant, $motDePasse) {
-        
+
         if(isset($_SERVER['PHP_AUTH_USER'])) {
             $this->identifiant = stristr($_SERVER['PHP_AUTH_USER'], "@", true);
             $this->estAdmin = false;
@@ -43,7 +43,7 @@ class AuthentificationExterne extends AuthentificationController {
 
     public function obtenirProfils() {
         $profils = null;
-        
+
         return $profils;
     }
 
@@ -54,14 +54,14 @@ class AuthentificationExterne extends AuthentificationController {
     public function estPilote() {
         return ($this->identifiant == "pilote");
     }
-    
+
 
     public function obtenirIdentifiantUtilisateur() {
         return $this->identifiant;
     }
 
     public function deconnexion() {
-        
+
     }
 
     public function obtenirNom(){
