@@ -48,13 +48,14 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
         this._optionsOL = {
             queryable: true,
+            ratio: this.options.ratio || 1.5,
             singleTile: !Aide.toBoolean(this.options.multiTuile)
         };
 
         if(!this.options.mode){
             this._init();
         }
-    };
+    }
 
     WMS.prototype = new Couche();
     WMS.prototype.constructor = WMS;
