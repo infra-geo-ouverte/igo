@@ -63,7 +63,11 @@ define([], function(){
                 }, 1500);
             }
 
-            throw new Error("Le module '" + err.requireModules + "' n'a pas été chargé: " + err.originalError.target.src);
+            var src;
+            if (err.originalError && err.originalError.target) {
+                src = err.originalError.target.src;
+            }
+            throw new Error("Le module '" + err.requireModules + "' n'a pas été chargé: " + src);
         };
     }
 
