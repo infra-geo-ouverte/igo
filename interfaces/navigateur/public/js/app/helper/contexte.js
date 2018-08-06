@@ -35,8 +35,8 @@ define(['aide', 'WMS'], function(Aide, WMS) {
 
         // Chargement de chaque élément individuellement 
         if(contexte.center && contexte.center.length == 2 && contexte.zoomlevel && !this.options.ignorePosition){
-            this.carte.definirCentre(contexte.center);
             this.carte.definirZoom(contexte.zoomlevel);
+			this.carte.definirCentre(contexte.center);
         }
 
         if(contexte.layers) {
