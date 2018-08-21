@@ -2,7 +2,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
     var oWindowMeasr;
     function OutilMesure(options){
         this.options = options || {};
-        if (this.options.type == 'lineaire') {
+        if (this.options.type === 'lineaire') {
             this.defautOptions = $.extend({},this.defautOptions, {
                     controle: this.outilMesureLineaire(),
                     id:'mesure_lineraire',
@@ -46,6 +46,11 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                         that.$mesureComboAireUnite.off('change');
                         that.$mesureComboAireUnite = undefined;
                     }
+                    
+                    if(that.$mesureComboDistancePointUnite) {
+                        that.$mesureComboDistancePointUnite.off('change');
+                        that.$mesureComboDistancePointUnite = undefined;
+                    }
                 },
                 measure: function(e){that.executerMeasr(e);},
                 measurepartial: function(e){that.executerMeasr(e);}
@@ -67,7 +72,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             immediate: true,
             eventListeners: {
                 activate: function(e){
-                    that.displayMeasr('', '');
+                    that.displayMeasr('', '', '');
                     that.mesureSelection(undefined, 'Polygone');        
                 },
                 deactivate: function(e){
@@ -79,6 +84,10 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                         that.$mesureComboAireUnite.off('change');
                         that.$mesureComboAireUnite = undefined;
                     }
+                    if(that.$mesureComboDistancePointUnite){
+                        that.$mesureComboDistancePointUnite.off('change');
+                        that.mesureComboDistancePointUnite = undefined;
+                    }                                        
                 },
                 measure: function(e){that.executerMeasr(e);},
                 measurepartial: function(e){that.executerMeasr(e);} 
@@ -114,11 +123,25 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                 //previous = this.value;
             });
         }
+        
+        if(!this.$mesureComboDistancePointUnite){
+            this.$mesureComboDistancePointUnite = $("#mesureComboDistancePointUnite");
+            this.$mesureComboDistancePointUnite.on('focus', function () {
+                //previous = this.value;
+            }).change(function(e) {
+                that.changeUniteEvent("distance");
+                //previous = this.value;
+            });
+        }        
+        
         var $mesureComboUnite;
         if(type === "lineaire"){
             $mesureComboUnite = this.$mesureComboPeriUnite;
-        } else {
+        } else if(type === "surface"){
             $mesureComboUnite = this.$mesureComboAireUnite;
+        }
+        else if(type === "distance") {
+            $mesureComboUnite = this.$mesureComboDistancePointUnite;
         }
         if(changeAuto !== false){
             if(!$mesureComboUnite.children()[0]){
@@ -143,15 +166,21 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         var oFormMeasr = oWindowMeasr.items.items[0].items.items[0];
         var length = oFormMeasr.get('length').getValue();
         var area = oFormMeasr.get('area').value;
+        var distance = oFormMeasr.get('distance').value;
 
         if(type === "lineaire"){
             $mesureComboUnite = this.$mesureComboPeriUnite;
             oldUnite = this.lengthUnitOL;
             mesure = this.lengthOL;
-        } else {
+        } else if(type === "surface") {
             $mesureComboUnite = this.$mesureComboAireUnite;
             oldUnite = this.areaUnitOL;
             mesure = this.areaOL;
+        }
+        else if(type === "distance") {
+            $mesureComboUnite = this.$mesureComboDistancePointUnite;
+            oldUnite = 'm';
+            mesure = this.distanceDerniersPoints;
         }
 
         if(mesure){
@@ -160,12 +189,15 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
 
         if(type === "lineaire"){
             length = mesure;
-        } else if(area !== undefined){
+        } else if(type === "surface" && area !== undefined){
             area = mesure;
-        } else {
+        } else if(type === "distance") {
+            distance = mesure;
+        }
+        else {
             return false;
         }
-        this.displayMeasr(length, area);
+        this.displayMeasr(length, area,distance);
     };
     
     OutilMesure.prototype.executerMeasr = function(event) {
@@ -174,7 +206,18 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.lengthUnitOL = event.units;
             this.areaOL = undefined;
             var length = this.traiterMeasr(event.measure, event.units, "lineaire");
-            this.displayMeasr(length);
+            var resultDistance = 0;
+            if(event.geometry.components.length>2) {
+                resultDistance = event.geometry.components[event.geometry.components.length-2].distanceTo(event.geometry.components[event.geometry.components.length-1]);
+            }
+            else if(event.geometry.components.length === 2) { //Contrer le bug des valeur différentes lorsque 2 points seulement
+                resultDistance = event.measure; //Utiliser périmètre
+            }
+            
+            var distance = this.traiterMeasr(resultDistance, 'm', "distance");
+            this.distanceDerniersPoints = distance;
+            
+            this.displayMeasr(length, undefined, distance);
         }
         else // POLYGON
         {        
@@ -185,7 +228,17 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.lengthUnitOL = lengthObj[1];
             this.areaOL = event.measure;
             this.areaUnitOL = event.units + "²";
-            this.displayMeasr(length, area);
+            
+            var nbPoints = event.geometry.components[0].components.length;
+            var resultDistance = 0;
+            if(nbPoints>2) {
+                resultDistance = event.geometry.components[0].components[nbPoints-2].distanceTo(event.geometry.components[0].components[nbPoints-3]);
+            }
+           
+            var distance = this.traiterMeasr(resultDistance, 'm', "distance");
+            this.distanceDerniersPoints = distance;
+            
+            this.displayMeasr(length, area, distance);
         }
     };
     
@@ -201,12 +254,32 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
         if (!occurence || (type && occurence.type !== type && occurence.type !== 'Multi'+type)){
             var area;
             var length = '';
+            var distance = '';
             if(type === 'Polygone'){
                 area = "";
             }
-            this.displayMeasr(length, area);
+            this.displayMeasr(length, area, distance);
             return false;
         };
+        
+        //Définir la distance entre les 2 derniers points
+        if(typeof occurence.lignes !== "undefined" && occurence.lignes.points !== "undefined") {
+            var nbPoints = occurence.lignes[0].points.length;
+        }
+        else {
+            var nbPoints = 0;
+        }
+        if(nbPoints > 2 ) {
+            var geometry = occurence._obtenirGeomOL();            
+            var lengthObj = this.controle.getBestLength(geometry);
+            var resultDistance = occurence.lignes[0].points[nbPoints-2].distanceDe(occurence.lignes[0].points[nbPoints-3]);  //Dernier point est le même que le premier
+            this.distanceDerniersPoints = this.traiterMeasr(resultDistance, 'm', "lineaire");
+        }
+        else {
+            this.distanceDerniersPoints = 0;
+        }
+        distance = this.distanceDerniersPoints;
+        
         if(occurence.type === 'Ligne' || occurence.type === 'MultiLigne'){
             var geometry = occurence._obtenirGeomOL();
             var lengthObj = this.controle.getBestLength(geometry);
@@ -214,7 +287,25 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.lengthOL = lengthObj[0];
             this.lengthUnitOL = lengthObj[1];
             this.areaOL = undefined;
-            this.displayMeasr(length);
+            
+            //Définir la distance entre les 2 derniers points
+            if(typeof occurence.points !== "undefined") {
+                var nbPoints = occurence.points.length;
+            }
+            else {
+                var nbPoints = 0;
+            }
+            if(nbPoints > 1 ) {
+                var resultDistance = occurence.points[nbPoints-1].distanceDe(occurence.points[nbPoints-2]); 
+                this.distanceDerniersPoints = this.traiterMeasr(resultDistance, 'm', "distance");
+            }
+            else {
+                this.distanceDerniersPoints = 0;
+            }
+            distance = this.distanceDerniersPoints;   
+            
+            this.displayMeasr(length, undefined, distance);            
+            
         } else if(occurence.type === 'Polygone' || occurence.type === 'MultiPolygone'){
             var geometry = occurence._obtenirGeomOL();
             var lengthObj = this.controle.getBestLength(geometry);
@@ -227,11 +318,28 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.lengthUnitOL = lengthObj[1];
             this.areaOL = areaObj[0];
             this.areaUnitOL = areaObj[1] + "²";
-            this.displayMeasr(length, area);
+            
+            //Définir la distance entre les 2 derniers points
+            if(typeof occurence.lignes !== "undefined" && occurence.lignes.points !== "undefined") {
+                var nbPoints = occurence.lignes[0].points.length;
+            }
+            else {
+                var nbPoints = 0;
+            }
+            if(nbPoints > 2 ) {
+                var resultDistance = occurence.lignes[0].points[nbPoints-2].distanceDe(occurence.lignes[0].points[nbPoints-3]);  //Dernier point est le même que le premier pour fermer le polygone
+                this.distanceDerniersPoints = this.traiterMeasr(resultDistance, 'm', "distance"); 
+            }
+            else {
+                this.distanceDerniersPoints = 0;
+            }
+            distance = this.distanceDerniersPoints;                  
+            
+            this.displayMeasr(length, area, distance);
         };
     };
     
-    OutilMesure.prototype.displayMeasr = function(length, area) {
+    OutilMesure.prototype.displayMeasr = function(length, area, distance) {
         // CREATE THE WINDOW ON THE FIRST CLICK AND REUSE ON SUBSEQUENT CLICKS
         if(!oWindowMeasr){
                 
@@ -239,9 +347,26 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             this.oFormMeasr = new Ext.form.FormPanel({
                 columnWidth: 1,
                 baseCls: 'x-plain',
-                labelWidth: 75,
+                labelWidth: 100,
                 defaultType: 'textfield',
-                items: [{
+                items: [
+                {
+                    id: 'distance',
+                    fieldLabel: 'Distance entre les 2 derniers points',
+                    anchor: '100%',
+                    readOnly: 'readonly',
+                    xtype: 'htmleditor',
+                    enableFont : false,
+                    enableAlignments : false,
+                    enableColors : false,
+                    enableFontSize : false,
+                    enableFormat : false,
+                    enableLinks : false,
+                    enableLists : false,
+                    enableSourceEdit : false,
+                    height:32
+                },
+                {
                     id: 'length',
                     fieldLabel: 'Longueur',
                     anchor: '100%',
@@ -250,7 +375,6 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                     enableFont : false,
                     enableAlignments : false,
                     enableColors : false,
-                    enableFont : false,
                     enableFontSize : false,
                     enableFormat : false,
                     enableLinks : false,
@@ -267,7 +391,6 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                     enableFont : false,
                     enableAlignments : false,
                     enableColors : false,
-                    enableFont : false,
                     enableFontSize : false,
                     enableFormat : false,
                     enableLinks : false,
@@ -288,26 +411,17 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
                         baseCls: '',
                         items: [{
                             baseCls: '',
-                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\
-										<option value='auto'>auto (km)</option> \
-										<option value='m'>m</option> \
-                                        <option value='km'>km</option>  \
-                                        <option value='mile'>miles</option>\
-                                    	<option value='pied'>pied</option>\
-									</select>"
+                            html:  "<select id='mesureComboDistancePointUnite' class='mesureComboUnite'>\n\ <option value='auto'>auto (m)</option> \n\                                        <option value='m'>m</option> \n\                                        <option value='km'>km</option>  \n\                                        <option value='mile'>miles</option>\n\                                    <option value='pied'>pied</option>\n\ </select>"
                         },
                         {
                             baseCls: '',
-                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\
-                                        <option value='auto'>auto (km²)</option> \
-                                        <option value='m'>m²</option> \
-                                        <option value='km²'>km²</option>  \
-                                        <option value='mile²'>mile²</option> \
-                                        <option value='acre'>acre</option> \
-                                        <option value='hectare'>hectare</option> \
-                                    <option value='pied²'>pied²</option> \
-								  </select>"
-                        }]
+                            html:  "<select id='mesureComboPeriUnite' class='mesureComboUnite'>\n\ <option value='auto'>auto (km)</option> \n\                                        <option value='m'>m</option> \n\                                        <option value='km'>km</option>  \n\                                        <option value='mile'>miles</option>\n\                                    <option value='pied'>pied</option>\n\ </select>"
+                        },
+                        {
+                            baseCls: '',
+                            html:  "<select id='mesureComboAireUnite' class='mesureComboUnite'>\n\                                        <option value='auto'>auto (km²)</option> \n\                                        <option value='m'>m²</option> \n\                                        <option value='km²'>km²</option>  \n\                                        <option value='mile²'>mile²</option> \n\                                        <option value='acre'>acre</option> \n\                                        <option value='hectare'>hectare</option>\n\                                    <option value='pied²'>pied²</option>\n\ </select>"
+                        }
+                       ]
                     }                      
                 ]
             });
@@ -323,8 +437,8 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
 
             oWindowMeasr = new Ext.Window({
                 title: 'Mesure',
-                width: 280,
-                height: 120,
+                width: 360,
+                height: 160,
                 closeAction: 'hide',
                 minimizable: true,
                 resizable: true,
@@ -355,6 +469,7 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             oWindowMeasr.on('hide', function(win) {
                 Aide.obtenirNavigateur().evenements.enleverDeclencheur("occurenceSelectionnee", "outilMesureOccurenceSelectionnee");
                 Aide.obtenirNavigateur().evenements.enleverDeclencheur("occurenceModifiee", "outilMesureOccurenceModifiee");
+                Aide.obtenirNavigateur().carte.MAJTexteCurseur("");
             });
 
             oWindowMeasr.on('minimize', function(){
@@ -381,6 +496,11 @@ define(['outil', 'aide', 'fonctions'], function(Outil, Aide, Fonctions) {
             }
             
         }
+        
+        var a=oFormMeasr.get('distance');
+        a.setValue(distance);
+        Aide.obtenirNavigateur().carte.MAJTexteCurseur(distance);
+        
         this.oWindowMeasr = oWindowMeasr;
         this.afficherFenetre();
     };
