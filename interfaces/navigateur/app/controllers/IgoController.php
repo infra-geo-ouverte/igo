@@ -122,7 +122,7 @@ class IgoController extends ControllerBase {
             $externe = true;
 
             try{
-                $xmlContent = curl_file_get_contents ($xmlPath);    
+                $xmlContent = curl_file_get_contents ($xmlPath);
             }
             catch(Exception $e){
                 error_log($e->getMessage() . $xmlPath);
@@ -235,7 +235,7 @@ class IgoController extends ControllerBase {
             }
         }
         $application->getDI()->getSession()->set('configXml', $configServeurXml);
-      
+
         $this->ajouterModules();
     }
 
@@ -251,7 +251,8 @@ class IgoController extends ControllerBase {
         $libelleProfil = '';
         $user = '';
         $count = 0;
-        $application->getDI()->getSession()->set('page', '../' . $application->getDi()['router']->getRewriteUri());
+        // mantis 4465. problème de redirection vers IGO2 une fois authentifié
+        //$application->getDI()->getSession()->set('page', '../' . $application->getDi()['router']->getRewriteUri());
 
         if ($application->getDI()->getSession()->has("info_utilisateur")) {
             if ($application->getDI()->getSession()->get("info_utilisateur")->identifiant) {
