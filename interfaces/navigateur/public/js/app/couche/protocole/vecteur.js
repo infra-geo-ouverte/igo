@@ -704,10 +704,17 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
         }
     };
 
+    /*Rafraichir l'affichage de la légende pour la couche
+     * @method
+     * @name Couche.Vecteur#rafraichirLegende
+     */
     Vecteur.prototype.rafraichirLegende = function() {
         if(this._layer.arborescence){
             this._layer.arborescence.setRules();
             this._layer.arborescence.update();
+            
+            //Redimensionner les images de la légende avec une taille standard, écrase iconeHauteur/iconeLargeur, défini pour l'affichage dans la carte 
+            $('#'+this._layer.arborescence.id).find("image").css({"height":"15","width":"15","x":"0","y":"0"});
         }
     };
 
@@ -800,17 +807,33 @@ define(['couche', 'occurence', 'limites', 'style', 'aide'], function(Couche, Occ
 
     Vecteur.Controles.prototype._selection = function(e) {
         var that = e.options.scope;
-        if (that._.obtenirId() !== e.occurence.vecteur.obtenirId()){return false};
-        if(e.occurence.obtenirInteraction('selectionnable') === false){
+        
+        //Fonction pour traiter la sélection d'une occurence
+        var fctTraiterOccurence = function(occu)
+        {
+             if (that._.obtenirId() !== occu.vecteur.obtenirId()){return false};  
+            if(occu.obtenirInteraction('selectionnable') === false){
             return false;
         }
         if (!Aide.obtenirNavigateur().obtenirCtrl()) {
             that._.carte.gestionCouches.deselectionnerToutesOccurences();
         }
-        if(e.occurence.estSelectionnee()){
-            e.occurence.vecteur.deselectionnerOccurence(e.occurence);
+            if(occu.estSelectionnee()){
+                occu.vecteur.deselectionnerOccurence(occu);
         } else {
-            e.occurence.vecteur.selectionnerOccurence(e.occurence);
+                occu.vecteur.selectionnerOccurence(occu);
+        }
+        };
+        
+        //Si c'est un tableau d'occurence
+        if(typeof e.occurence.type === "undefined") {
+            $.each(e.occurence, function(ind, occu) {
+                fctTraiterOccurence(occu)
+        });      
+        }
+        else //Si c'est une occurence seule
+        {
+           fctTraiterOccurence(e.occurence);
         }
     };
 
