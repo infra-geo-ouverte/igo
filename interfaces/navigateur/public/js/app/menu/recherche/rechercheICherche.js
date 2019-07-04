@@ -42,7 +42,7 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
         return  "<span style='color:red; font-size: 1.3em'>**ATTENTION**</span> <br>\n\
                 Utilise le service 'icherche'. <br> \n\
                 Remplacera prochainement le service GLO. \n\
-                Commentaire : <a href=\"mailto:geomsp@msp.gouv.qc.ca?subject=Commentaire sur "+this.obtenirTitre()+" (IGO)\">geomsp@msp.gouv.qc.ca</a> ";
+                Commentaire : <a href=\"mailto:msp911@msp.gouv.qc.ca?subject=Commentaire sur "+this.obtenirTitre()+" (IGO)\">msp911@msp.gouv.qc.ca</a> ";
     };
 
 
