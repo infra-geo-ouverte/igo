@@ -167,11 +167,11 @@ define(['couche', 'aide', 'browserDetect'], function(Couche, Aide, BrowserDetect
 
     WMS.prototype._getCapabilitiesSuccess = function(response, target, callback, optCallback){
         var that=this;
-        if(!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length)){
+        if (!response || (response.getElementsByTagName && response.getElementsByTagName("BODY").length || response.getElementsByTagName("ServiceException").length)){
             var errorMessage;
             if(response){
                 errorMessage = {
-                    responseText: response.getElementsByTagName("BODY")[0].textContent
+                    responseText: response.getElementsByTagName("BODY")[0] ? response.getElementsByTagName("BODY")[0].textContent : response.getElementsByTagName("ServiceException")[0].textContent
                 }
             }
             this._getCapabilitiesError(errorMessage);
