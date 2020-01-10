@@ -237,9 +237,9 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
         resultat += "<h4><u>Résultats (" + debut + " - " + fin + ")</u></h4>";
         $.each(vecteur.listeOccurences, function(row, occurence) {
             //un CSS de extjs brise le <strong> 
-            var title = occurence.proprietes.highlight.title ? occurence.proprietes.highlight.title.replace(/<(\/)?strong>/g, '<$1b>') || '' : occurence.proprietes.properties.nom + ', ' + occurence.proprietes.properties.source;
+            var title = occurence.proprietes.highlight.title2 ? occurence.proprietes.properties.nom + ' (' + occurence.proprietes.highlight.title2 + ')' : occurence.proprietes.properties.nom;
             occurence.definirPropriete('adresse', occurence.proprietes.properties.nom);
-            occurence.definirPropriete('label', occurence.proprietes.highlight.title ? occurence.proprietes.highlight.title.replace(/<(\/)?strong>/g, '') : occurence.proprietes.properties.nom + ', ' + occurence.proprietes.properties.source);
+            occurence.definirPropriete('label', occurence.proprietes.highlight.title2 ? occurence.proprietes.properties.nom + ' (' + occurence.proprietes.highlight.title2 + ')' : occurence.proprietes.properties.nom);
 
             if(occurence.proprietes.doc_type === 'ancienne_adresse'){
                 title = occurence.proprietes.properties.adresse_reference + " ( anciennement " + title + ')';
