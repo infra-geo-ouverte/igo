@@ -239,7 +239,7 @@ define(['recherche', 'aide', 'point', 'multiPolygone', 'multiLigne', 'style', 'l
             //un CSS de extjs brise le <strong> 
             var title = occurence.proprietes.highlight.title2 ? occurence.proprietes.properties.nom + ' (' + occurence.proprietes.highlight.title2 + ')' : occurence.proprietes.properties.nom;
             occurence.definirPropriete('adresse', occurence.proprietes.properties.nom);
-            occurence.definirPropriete('label', occurence.proprietes.highlight.title2 ? occurence.proprietes.properties.nom + ' (' + occurence.proprietes.highlight.title2 + ')' : occurence.proprietes.properties.nom);
+            occurence.definirPropriete('label', occurence.proprietes.highlight.title2 ? occurence.proprietes.properties.nom + ' (' + occurence.proprietes.highlight.title2.replace(/<[^>]*>?/gm, '') + ')' : occurence.proprietes.properties.nom);
 
             if(occurence.proprietes.doc_type === 'ancienne_adresse'){
                 title = occurence.proprietes.properties.adresse_reference + " ( anciennement " + title + ')';
