@@ -80,7 +80,8 @@ define(['outil', 'aide', 'analyseurGeoJSON', 'vecteur', 'togeojson', 'fileUpload
         
         //Valider que le service défini est fonctionnel
         this.verifierServiceDisponible(this.options.urlService, function(status){
-            if(status === 200){
+			// MODIF pandémie 2020 ne plus vérifier le status, le service a changé, la fin est proche YOLO
+            if(true || status === 200){
                that.importer();
             }
             else{
