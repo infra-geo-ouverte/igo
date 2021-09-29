@@ -1,6 +1,12 @@
 # Infrastructure géomatique ouverte (IGO) / Open GIS Infrastructure
 ***
 
+| :warning: AVERTISSEMENT: Ce dépot n'est plus maintenu à jour. Il est actuellement archivé et aucune mofification ne sera apportée. Dorénavant, référez vous au dépot suivant https://github.com/infra-geo-ouverte/igo2 |
+| --- |
+
+| :warning: WARNING: This repo is no longer supported. It is currently archived and no changes will be managed. From now on, refer to the following repository https://github.com/infra-geo-ouverte/igo2 |
+| --- |
+
 ### Qu'est-ce qu'[IGO](http://igouverte.org/)?
 IGO est une solution Web gratuite en géomatique. Consultez le site Web d'IGO pour en savoir davantage: [http://igouverte.org/](http://igouverte.org/).
 Elle permet de tirer profit d’une multitude de données géographiques grâce à une interface cartographique accessible par un navigateur Web.
